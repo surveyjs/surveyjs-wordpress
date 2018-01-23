@@ -37,15 +37,17 @@ function setup_menu() {
 
 add_action("media_buttons", "surveyjs_media_button");
 function surveyjs_media_button($context) {
-    echo '<a href="#" id="insert-survey" class="button">Add survey</a>';
+    echo '<a onclick="tb_click.call(this); return false;"  href="http://localhost:8080/wp-admin/admin-ajax.php?action=FMShortocde&task=form&TB_iframe=1" id="insert-survey" class="button">Add Survey</a>';
 }
 
-add_action( 'wp_enqueue_media', 'include_surveyjs_media_button_js_file' );
-function include_surveyjs_media_button_js_file() {
-	wp_enqueue_script( 'media_button', plugin_dir_url( __FILE__ ) . 'assets/insert-survey-dialog.js', array('jquery'), '1.0', true );
-}
+// add_action( 'wp_enqueue_media', 'include_surveyjs_media_button_js_file' );
+// function include_surveyjs_media_button_js_file() {
+// 	wp_enqueue_script( 'media_button', plugin_dir_url( __FILE__ ) . 'assets/insert-survey-dialog.js', array('jquery'), '1.0', true );
+// }
 
-function init(){
+
+
+function init() {
     generateMySurveysPage();
 }
 ?>
