@@ -15,7 +15,7 @@ class WP_InsertSurveyHandler extends AJAX_Handler {
         $client = new WP_Service_Client("dc736a6f384d48f9b71a1dd94d9d5c24");
         ?>
             <script>
-                function insert_survey_shorttext() {
+                function insert_survey_shortcode() {
                     var select = document.querySelector("select[name='survey-name']");
                     var text = '[Survey id="' + select.value + '"]';
                     window.parent.send_to_editor(text);
@@ -32,7 +32,7 @@ class WP_InsertSurveyHandler extends AJAX_Handler {
                 }
                 ?>
             </select>
-            <button onclick="insert_survey_shorttext()">Insert</button>
+            <button onclick="insert_survey_shortcode()">Insert</button>
         <?php
     }
 }
