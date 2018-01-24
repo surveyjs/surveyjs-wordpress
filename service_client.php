@@ -3,8 +3,11 @@
 class WP_Service_Client {
     private $accessKey;
 
-    function __construct($accessKey) {
-        $this->accessKey = $accessKey;
+    function __construct() {
+        $settings = (array) get_option( 'sjs-settings' );
+		if ( isset( $settings['access_key'] ) ) {
+			$this->accessKey = esc_js( $settings['access_key'] );
+		}
     }
 
     public function getSurveys() {

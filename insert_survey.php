@@ -12,7 +12,7 @@ class WP_InsertSurveyHandler extends AJAX_Handler {
         
     function callback() {
         //wp_send_json_success(array('test'=>'Works!'));
-        $client = new WP_Service_Client("dc736a6f384d48f9b71a1dd94d9d5c24");
+        $client = new WP_Service_Client();
         ?>
             <script>
                 function insert_survey_shortcode() {
