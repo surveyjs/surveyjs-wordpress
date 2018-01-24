@@ -1,5 +1,9 @@
 <?php
 
+if ( is_admin() ) {
+    include( "settings_page.php" );
+}
+
 class WP_SurveyJS {
     public $prefix;
     public $plugin_version = "0.1.0";
@@ -22,16 +26,16 @@ class WP_SurveyJS {
   
     function wps_add_menu() {
         add_menu_page( 'SurveyJS', 'SurveyJS', 'manage_options', 'sjs-main-menu', array(
-                        __CLASS__,
-                        'wps_mysurveys_page'
+                        __CLASS__, 'wps_mysurveys_page'
                         ), plugins_url('images/logo_20х20.png', __FILE__));
-        add_submenu_page( 'sjs-main-menu', 'SurveyJS' . ' My Surveys', ' My Surveys', 'manage_options', 'sjs-my-surveys', array(
-                        __CLASS__,
-                        'wps_mysurveys_page'
+        add_submenu_page( 'sjs-main-menu', __( 'My Surveys', 'sjs-main-menu' ), __( 'My Surveys', 'sjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
+                        __CLASS__, 'wps_mysurveys_page'
                         ));
+        add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'WP_SJS_SettingsPage', 'sjs_render_settings' ) );
     }
   
     function wps_mysurveys_page() {
+        
     }
 
     function wps_media_button() {
