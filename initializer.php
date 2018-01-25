@@ -51,7 +51,7 @@ class WP_SurveyJS {
     // }
 
     function wps_media_button() {
-        $url = add_query_arg(array('action' => 'WP_SJS_InsertSurvey', 'task' => 'form', 'TB_iframe' => '1'), admin_url('admin-ajax.php'));
+        $url = add_query_arg(array('action' => 'WP_SJS_InsertSurvey'), admin_url('admin-ajax.php'));
         ?>
         <a onclick="tb_click.call(this); return false;" href="<?php echo $url; ?>" class="button" title="<?php _e('Insert Survey', $this->prefix); ?>">
             <?php _e('Add Survey', $this->prefix); ?>
@@ -60,12 +60,13 @@ class WP_SurveyJS {
     }
 
     function wps_process_shortcode($attrs) {
+        $id = $attrs["id"];
         ?>
-        <div id="surveyElement"></div>
-        <div id="surveyResult"></div>
+        <div id="surveyElement-<?php echo $id ?>"></div>
+        <div id="surveyResult-<?php echo $id ?>"></div>
         <script>
             var json = {
-                surveyId: '<?php echo $attrs["id"] ?>'
+                surveyId: '<?php echo $id ?>'
             };
 
             window.survey = new Survey.Model(json);
@@ -74,11 +75,11 @@ class WP_SurveyJS {
                 .onComplete
                 .add(function (result) {
                     document
-                        .querySelector('#surveyResult')
+                        .querySelector("#surveyResult-<?php echo $id ?>")
                         .innerHTML = "result: " + JSON.stringify(result.data);
                 });
 
-            jQuery("#surveyElement").Survey({model: survey});
+            jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey});
         </script>        
         <?php
     }
