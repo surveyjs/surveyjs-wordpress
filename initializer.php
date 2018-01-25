@@ -1,7 +1,7 @@
 <?php
 
+include( "views/settings.php" );
 if ( is_admin() ) {
-    include( "views/settings.php" );
     include( "views/mysurveys.php" );
     include( "views/editor.php" );
 }
@@ -65,6 +65,8 @@ class WP_SurveyJS {
         <div id="surveyElement-<?php echo $id ?>"></div>
         <div id="surveyResult-<?php echo $id ?>"></div>
         <script>
+            Survey.StylesManager.applyTheme('<?php echo WP_SJS_SettingsPage::get_theme() ?>');
+
             var json = {
                 surveyId: '<?php echo $id ?>'
             };
