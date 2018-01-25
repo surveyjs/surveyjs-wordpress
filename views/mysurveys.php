@@ -6,7 +6,7 @@ class WP_SJS_MySurveys {
     function __construct() {
     }
 
-    function render() {
+    public static function render() {
         $client = new WP_Service_Client();
         ?>
             <div class="wrap">

@@ -25,6 +25,14 @@ class WP_SJS_SettingsPage {
 		}
 	}
 
+	public static function get_access_key() {
+		$settings = (array) get_option( 'sjs-settings' );
+		if ( isset( $settings['access_key'] ) ) {
+			return esc_js( $settings['access_key'] );
+		}
+		return '';
+	}
+
 	public function access_key() {
 		$settings = (array) get_option( 'sjs-settings' );
 		$access_key = '';
