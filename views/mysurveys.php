@@ -21,12 +21,13 @@ class WP_SJS_MySurveys {
                     <tbody>
                         <?php
                         foreach ($client->getSurveys() as $surveyDefinition) {
+                            $url = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->Id), admin_url('admin.php'));
                         ?>
                         <tr>
                             <td><?php echo $surveyDefinition->Name ?></td>
                             <td>
                                 <!-- <a href="<?php echo $surveyDefinition->Id ?>">Run</a> | -->
-                                <a href="<?php echo $surveyDefinition->Id ?>">Edit</a> |
+                                <a href="<?php echo $url ?>">Edit</a> |
                                 <a href="<?php echo $surveyDefinition->Id ?>">Results</a>
                             </td>
                         </tr>

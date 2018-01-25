@@ -3,6 +3,7 @@
 if ( is_admin() ) {
     include( "views/settings.php" );
     include( "views/mysurveys.php" );
+    include( "views/editor.php" );
 }
 
 class WP_SurveyJS {
@@ -11,19 +12,29 @@ class WP_SurveyJS {
 
     function __construct() {
         $this->prefix = "sjs";
-        add_action( 'admin_menu', array( $this, 'wps_add_menu' ) );
-        add_filter( 'media_buttons', array($this, 'wps_media_button'));
+        add_action('admin_menu', array( $this, 'wps_add_menu'));
+        add_filter('media_buttons', array($this, 'wps_media_button'));
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
-        register_activation_hook( __FILE__, array( $this, 'wps_install' ) );
-        register_deactivation_hook( __FILE__, array( $this, 'wps_uninstall' ) );
+        register_activation_hook( __FILE__, array( $this, 'wps_install'));
+        register_deactivation_hook( __FILE__, array( $this, 'wps_uninstall'));
 
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+    }
+
+    public function enqueue_admin_scripts() {
+        wp_enqueue_script('wps-adm-knockout-js', 'https://unpkg.com/knockout@3.4.2');
+        wp_enqueue_style('wps-adm-bootstrap-css', 'https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.css' );
+        wp_enqueue_style('wps-adm-survey-css', 'https://unpkg.com/survey-knockout/survey.css' );
+        wp_enqueue_script('wps-adm-survey-ko-js', 'https://unpkg.com/survey-knockout/survey.ko.js', array('wps-adm-knockout-js'));
+        wp_enqueue_style('wps-adm-surveyjseditor-css', 'https://unpkg.com/surveyjs-editor/surveyeditor.css' );
+        wp_enqueue_script('wps-adm-surveyjseditor-js', 'https://unpkg.com/surveyjs-editor/surveyeditor.js', array('wps-adm-survey-ko-js'));
     }
 
     public function enqueue_frontend_scripts() {       
         wp_enqueue_style('wps-survey-css', 'https://unpkg.com/survey-jquery/survey.css' );
         wp_enqueue_script('wps-survey-jquery-js', 'https://unpkg.com/survey-jquery/survey.jquery.js', array('jquery'));
-      }
+    }
   
     function wps_add_menu() {
         add_menu_page( 'My surveys', 'SurveyJS', 'manage_options', 'sjs-main-menu', array(
@@ -33,6 +44,7 @@ class WP_SurveyJS {
         //                 __CLASS__, 'wps_mysurveys_page'
         //                 ));
         add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'WP_SJS_SettingsPage', 'sjs_render_settings' ) );
+        add_submenu_page('', '', '', 'manage_options', 'wp_surveyjs_editor', array('WP_SJS_Editor', 'render'));
     }
   
     // function wps_mysurveys_page() {
