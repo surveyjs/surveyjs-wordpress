@@ -1,7 +1,8 @@
 <?php
 
 if ( is_admin() ) {
-    include( "settings_page.php" );
+    include( "views/settings.php" );
+    include( "views/mysurveys.php" );
 }
 
 class WP_SurveyJS {
@@ -25,18 +26,17 @@ class WP_SurveyJS {
       }
   
     function wps_add_menu() {
-        add_menu_page( 'SurveyJS', 'SurveyJS', 'manage_options', 'sjs-main-menu', array(
-                        __CLASS__, 'wps_mysurveys_page'
+        add_menu_page( 'My surveys', 'SurveyJS', 'manage_options', 'sjs-main-menu', array(
+                        "WP_SJS_MySurveys", 'render'
                         ), plugins_url('images/logo_20х20.png', __FILE__));
-        add_submenu_page( 'sjs-main-menu', __( 'My Surveys', 'sjs-main-menu' ), __( 'My Surveys', 'sjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
-                        __CLASS__, 'wps_mysurveys_page'
-                        ));
+        // add_submenu_page( 'sjs-main-menu', __( 'My Surveys', 'sjs-main-menu' ), __( 'My Surveys', 'sjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
+        //                 __CLASS__, 'wps_mysurveys_page'
+        //                 ));
         add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'WP_SJS_SettingsPage', 'sjs_render_settings' ) );
     }
   
-    function wps_mysurveys_page() {
-        
-    }
+    // function wps_mysurveys_page() {
+    // }
 
     function wps_media_button() {
         $url = add_query_arg(array('action' => 'WP_SJS_InsertSurvey', 'task' => 'form', 'TB_iframe' => '1'), admin_url('admin-ajax.php'));
