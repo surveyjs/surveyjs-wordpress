@@ -18,6 +18,11 @@ class WP_SJS_SettingsPage {
 		}
 		return '';
 	}
+	public static function set_access_key($access_key) {
+		$settings = (array) get_option( 'sjs-settings' );
+		$settings['access_key'] = $access_key;
+		update_option( 'sjs-settings', $settings );
+	}
 
 	public static function get_theme() {
 		$settings = (array) get_option( 'sjs-settings' );

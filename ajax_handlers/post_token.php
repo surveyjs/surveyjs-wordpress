@@ -53,15 +53,25 @@ class WP_PostToken extends AJAX_Handler {
         }
 
         if($access_token != "") {
-            $profile = apiRequest($access_token, $apiURLBase, array('1' => 2));
+            $profile = apiRequest($access_token, $apiURLBase, array('post' => 1));
+            if($profile->AccessKey != '') {
+                WP_SJS_SettingsPage::set_access_key($profile->AccessKey);
+            }
             echo '<h3>Logged In</h3>';
-            echo '<h4>' . $profile->PublicName . '</h4>';
+            echo '<h4>User: ' . $profile->PublicName . '</h4>';
+            echo '<h4>AccessKey: ' . $profile->AccessKey . '</h4>';
+            echo '<h4>AccessKeyInProfile: ' . WP_SJS_SettingsPage::get_access_key() . '</h4>';
             echo '<pre>';
-            print_r($user);
+            print_r($profile);
             echo '</pre>';
+            ?>
+            <script>
+                window.parent.jQuery.find("#sjs-settings\\[access_key\\]")[0].value = '<?php echo $profile->AccessKey ?>';
+                window.parent.tb_remove();
+            </script>
+            <?php
         } else {
             echo '<h3>Not logged in</h3>';
-            echo '<p><a href="?action=login">Log In</a></p>';
         }
     }
 }
