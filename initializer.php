@@ -72,6 +72,14 @@ class WP_SurveyJS {
                 surveyId: '<?php echo $id ?>'
             };
 
+            var customCss = {
+                <?php 
+                    if (WP_SJS_SettingsPage::get_allow_paddings() == 0) {
+                        echo '"root": "sv_main sv_default_css"';
+                    }
+                ?>
+            }
+
             window.survey = new Survey.Model(json);
 
             survey
@@ -82,7 +90,7 @@ class WP_SurveyJS {
                         .innerHTML = "result: " + JSON.stringify(result.data);
                 });
 
-            jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey});
+            jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey, css: customCss});
         </script>        
         <?php
     }

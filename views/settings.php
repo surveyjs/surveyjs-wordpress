@@ -27,6 +27,14 @@ class WP_SJS_SettingsPage {
 		return 'default';
 	}
 
+	public static function get_allow_paddings() {
+		$settings = (array) get_option( 'sjs-settings' );
+		if ( isset( $settings['allow_paddings'] ) ) {
+			return esc_js( $settings['allow_paddings'] );
+		}
+		return 0;
+	}
+
     public function init() {
 		register_setting( 'sjs-settings-group', 'sjs-settings' );
 		
@@ -34,7 +42,8 @@ class WP_SJS_SettingsPage {
 		add_settings_field( 'access-key', __( 'Access Key', 'sjs' ), array($this, 'access_key_render'), 'sjs-settings-page', 'sjs-connection-section' );
 		
 		add_settings_section( 'sjs-themes-section', __( 'Tnemes', 'sjs' ), array($this, 'sjs_themes_section'), 'sjs-settings-page' );
-        add_settings_field( 'theme', __( 'Current Theme', 'sjs' ), array($this, 'theme_render'), 'sjs-settings-page', 'sjs-themes-section' );
+		add_settings_field( 'theme', __( 'Current Theme', 'sjs' ), array($this, 'theme_render'), 'sjs-settings-page', 'sjs-themes-section' );
+		add_settings_field( 'allow-paddings', __( 'Allow Paddings', 'sjs' ), array($this, 'allow_paddings_render'), 'sjs-settings-page', 'sjs-themes-section' );
     }
 
 	public function sjs_connection_section() {
@@ -92,6 +101,21 @@ class WP_SJS_SettingsPage {
 				?>
 			</select>
 		<?php
+	}
+
+	public function allow_paddings_render() {
+		$settings = (array) get_option( 'sjs-settings' );
+		$allow_paddings = '0';
+		if (isset($settings['allow_paddings']))
+		{
+			$allow_paddings = esc_attr( $settings['allow_paddings'] );
+		}
+		$checked = '';
+		if ($allow_paddings == '1')
+		{
+			$checked = " checked='checked'";
+		}
+		echo "<input type='checkbox' name='sjs-settings[allow_paddings]' id='sjs-settings[allow_paddings]' value='1'$checked />";
 	}
 
 	public static function sjs_render_settings() {
