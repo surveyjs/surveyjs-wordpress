@@ -1,13 +1,12 @@
 <?php
 
-include("ajax_handler.php");
-include("service_client.php");
+include_once("ajax_handler.php");
+include( __DIR__ . "/../service_client.php");
 
 class WP_InsertSurveyHandler extends AJAX_Handler {
     
     function __construct() {
         parent::__construct("WP_SJS_InsertSurvey");
-        
     }
         
     function callback() {

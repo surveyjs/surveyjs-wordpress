@@ -30,8 +30,13 @@ License: http://editor.surveyjs.io/license.html TODO
 */
 ?>
 <?php
-    include("insert_survey.php");
+    include("ajax_handlers/insert_survey.php");
     new WP_InsertSurveyHandler();
+    include("ajax_handlers/get_access_key.php");
+    new WP_GetAccessKeyHandler();
+    include("ajax_handlers/post_token.php");
+    new WP_PostToken();
+
     include("initializer.php");
     new WP_SurveyJS();
 ?>

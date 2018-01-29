@@ -7,11 +7,10 @@ if ( is_admin() ) {
 }
 
 class WP_SurveyJS {
-    public $prefix;
+    public static $prefix = "sjs";
     public $plugin_version = "0.1.0";
 
     function __construct() {
-        $this->prefix = "sjs";
         add_action('admin_menu', array( $this, 'wps_add_menu'));
         add_filter('media_buttons', array($this, 'wps_media_button'));
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
@@ -29,6 +28,8 @@ class WP_SurveyJS {
         wp_enqueue_script('wps-adm-survey-ko-js', 'https://unpkg.com/survey-knockout/survey.ko.js', array('wps-adm-knockout-js'));
         wp_enqueue_style('wps-adm-surveyjseditor-css', 'https://unpkg.com/surveyjs-editor/surveyeditor.css' );
         wp_enqueue_script('wps-adm-surveyjseditor-js', 'https://unpkg.com/surveyjs-editor/surveyeditor.js', array('wps-adm-survey-ko-js'));
+        wp_enqueue_style('thickbox');
+        wp_enqueue_script('thickbox');
     }
 
     public function enqueue_frontend_scripts() {       

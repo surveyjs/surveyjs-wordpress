@@ -60,7 +60,13 @@ class WP_SJS_SettingsPage {
 		{
 			$access_key = esc_attr( $settings['access_key'] );
 		}
-		echo "<input type='text' name='sjs-settings[access_key]' id='sjs-settings[access_key]' value='$access_key' />";
+		$url = add_query_arg(array('action' => 'WP_SJS_GetAccessKey', 'TB_iframe' => 'true'), admin_url('admin-ajax.php'));
+        ?>
+			<input type='text' name='sjs-settings[access_key]' id='sjs-settings[access_key]' value='<?php echo $access_key; ?>' />
+			<a onclick="tb_click.call(this); return false;" href="<?php echo $url; ?>" class="button" title="<?php _e('Get Access Key', WP_SurveyJS::$prefix); ?>">
+				<?php _e('Get Access Key', WP_SurveyJS::$prefix); ?>
+			</a>
+        <?php
 	}
 
 	public function theme_render() {
