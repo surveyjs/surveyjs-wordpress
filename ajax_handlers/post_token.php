@@ -2,8 +2,8 @@
 
 include_once("ajax_handler.php");
 
-define('OAUTH2_CLIENT_ID', '1234561');
-define('OAUTH2_CLIENT_SECRET', 'abcdef');
+define('OAUTH2_CLIENT_ID', 'F034639732E1F6B23A02827A2FCB100');
+define('OAUTH2_CLIENT_SECRET', 'abKJHDdrgtkjh3465ergfdsgdLKJDHFLADKFHlsDgfhsgdlKJAHSDFO4twycdef');
 
 function apiRequest($access_token, $url, $post=FALSE, $headers=array()) {
     $ch = curl_init($url);

@@ -2,7 +2,7 @@
 
 include_once("ajax_handler.php");
 
-define('OAUTH2_CLIENT_ID', '1234561');
+define('OAUTH2_CLIENT_ID', 'F034639732E1F6B23A02827A2FCB100');
 
 class WP_GetAccessKeyHandler extends AJAX_Handler {
     
