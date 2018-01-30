@@ -63,8 +63,10 @@ class WP_SurveyJS {
     function wps_process_shortcode($attrs) {
         $id = $attrs["id"];
         ?>
-        <div id="surveyElement-<?php echo $id ?>"></div>
-        <div id="surveyResult-<?php echo $id ?>"></div>
+        <div id="surveyContainer-<?php echo $id ?>" style="margin: 10px;">
+            <div id="surveyElement-<?php echo $id ?>"></div>
+            <div id="surveyResult-<?php echo $id ?>"></div>
+        </div>
         <script>
             Survey.StylesManager.applyTheme('<?php echo WP_SJS_SettingsPage::get_theme() ?>');
 
