@@ -20,7 +20,7 @@ class WP_SJS_Editor {
                 }
             </style>
             <script>
-                var surveyName = "<?php echo $surveyId ?>";
+                var surveyName = "<?php echo $_GET['name'] ?>";
                 function setSurveyName(name) {
                     var $titleTitle = jQuery("#sjs_editor_title_show");
                     $titleTitle.find("span").text(name);

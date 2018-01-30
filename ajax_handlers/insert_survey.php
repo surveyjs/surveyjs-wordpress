@@ -16,7 +16,7 @@ class WP_InsertSurveyHandler extends AJAX_Handler {
             <script>
                 function insert_survey_shortcode() {
                     var select = document.querySelector("select[name='survey-name']");
-                    var text = '[Survey id="' + select.value + '"]';
+                    var text = '[Survey id="' + select.value + '" name="' + select.options[select.selectedIndex].text + '"]';
                     window.parent.send_to_editor(text);
                     window.parent.tb_remove();
                 }

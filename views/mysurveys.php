@@ -41,7 +41,7 @@ class WP_SJS_MySurveys {
                         <tbody>
                             <?php
                             foreach ($client->getSurveys() as $surveyDefinition) {
-                                $url = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->Id), admin_url('admin.php'));
+                                $url = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->Id, 'name' => $surveyDefinition->Name), admin_url('admin.php'));
                             ?>
                             <tr>
                                 <td><?php echo $surveyDefinition->Name ?></td>
