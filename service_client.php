@@ -8,13 +8,11 @@ class WP_Service_Client {
     }
 
     public function getSurveys() {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, "https://surveyjs.io/api/MySurveys/getActive?ownerId=null&accessKey=".$this->accessKey);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        return json_decode($result);
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'my_surveys';
+        $query = "SELECT * FROM " . $table_name;
+        
+        return $wpdb->get_results( $query );
     }
 
 }

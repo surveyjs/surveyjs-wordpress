@@ -30,12 +30,40 @@ License: http://editor.surveyjs.io/license.html TODO
 */
 ?>
 <?php
+    function wps_install() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        $table_name = $wpdb->prefix . 'my_surveys';
+
+        var_dump( $table_name );
+
+        $sql = "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name text NOT NULL,
+            json text,
+            UNIQUE KEY id (id)
+        ) $charset_collate;";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+    }
+
+    function wps_uninstall() {
+
+    }
+    register_activation_hook( __FILE__, 'wps_install');
+    register_deactivation_hook( __FILE__, 'wps_uninstall');
+
     include("ajax_handlers/insert_survey.php");
     new WP_InsertSurveyHandler();
     include("ajax_handlers/get_access_key.php");
     new WP_GetAccessKeyHandler();
     include("ajax_handlers/post_token.php");
     new WP_PostToken();
+    include("ajax_handlers/save_survey.php");
+    new WP_SaveSurvey();
+    include("ajax_handlers/add_survey.php");
+    new WP_AddSurvey();
 
     include("initializer.php");
     new WP_SurveyJS();

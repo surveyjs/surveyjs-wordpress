@@ -10,22 +10,18 @@ class WP_SJS_MySurveys {
         if (WP_SJS_SettingsPage::get_access_key() != "") {
             $client = new WP_Service_Client();
             $editNewUrl = add_query_arg(array('page' => 'wp_surveyjs_editor'), admin_url('admin.php'));
+            $addSurveyUri = add_query_arg(array('action' => 'WP_SJS_AddSurvey'), admin_url('admin-ajax.php'));
             ?>
                 <script>
                     function addNewSurvey() {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open(
-                            "GET",
-                            "https://surveyjs.io/api/MySurveys/create?accessKey=" + '<?php echo WP_SJS_SettingsPage::get_access_key() ?>' + "&name=" + 'New Survey'
-                        );
-                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        xhr.onload = function() {
-                        var result = xhr.response ? JSON.parse(xhr.response) : null;
-                            if(xhr.status === 200) {
-                                window.location = "<?php echo $editNewUrl ?>&id=" + result.Id;
+                        jQuery.ajax({
+                            url:  "<?php echo $addSurveyUri ?>",
+                            type: "POST",
+                            data: { Name: "New Survey" },
+                            success: function (data) {
+                                window.location = "<?php echo $editNewUrl ?>&id=" + data.Id;
                             }
-                        };
-                        xhr.send();
+                        });
                     }
                 </script>
                 <div class="wrap">
@@ -41,14 +37,14 @@ class WP_SJS_MySurveys {
                         <tbody>
                             <?php
                             foreach ($client->getSurveys() as $surveyDefinition) {
-                                $url = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->Id, 'name' => $surveyDefinition->Name), admin_url('admin.php'));
+                                $url = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                             ?>
                             <tr>
-                                <td><?php echo $surveyDefinition->Name ?></td>
+                                <td><?php echo $surveyDefinition->name ?></td>
                                 <td>
-                                    <!-- <a href="<?php echo $surveyDefinition->Id ?>">Run</a> | -->
+                                    <!-- <a href="<?php echo $surveyDefinition->id ?>">Run</a> | -->
                                     <a href="<?php echo $url ?>">Edit</a> |
-                                    <a href="https://surveyjs.io/Service/SurveyResults/<?php echo $surveyDefinition->Id ?>">Results</a>
+                                    <a href="https://surveyjs.io/Service/SurveyResults/<?php echo $surveyDefinition->id ?>">Results</a>
                                 </td>
                             </tr>
                             <?php

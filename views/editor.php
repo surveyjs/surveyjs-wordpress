@@ -8,6 +8,7 @@ class WP_SJS_Editor {
 
     public static function render() {
         $surveyId = $_GET['id'];
+        $saveSurveyUri = add_query_arg(array('action' => 'WP_SJS_SaveSurvey'), admin_url('admin-ajax.php'));
         ?>
             <style>
                 #sjs-editor-container .svd_container .card {
@@ -74,9 +75,9 @@ class WP_SJS_Editor {
                     var editor = new SurveyEditor.SurveyEditor("sjs-editor-container", editorOptions);
                     editor.showState = true;
                     editor.isAutoSave = true;
-                    editor.saveSurveyFunc = function(saveNo, callback) {
+                    editor.saveSurveyFunc = function(saveNo, callback) {          
                         jQuery.ajax({
-                            url: "https://surveyjs.io/api/MySurveys/changeJson?accessKey=<?php echo WP_SJS_SettingsPage::get_access_key() ?>",
+                            url:  "<?php echo $saveSurveyUri ?>",
                             type: "POST",
                             data: { Id: '<?php echo $surveyId ?>', Text: editor.text, Json : editor.text },
                             success: function (data) {

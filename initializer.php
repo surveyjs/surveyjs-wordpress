@@ -14,8 +14,7 @@ class WP_SurveyJS {
         add_action('admin_menu', array( $this, 'wps_add_menu'));
         add_filter('media_buttons', array($this, 'wps_media_button'));
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
-        register_activation_hook( __FILE__, array( $this, 'wps_install'));
-        register_deactivation_hook( __FILE__, array( $this, 'wps_uninstall'));
+
 
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
@@ -95,13 +94,6 @@ class WP_SurveyJS {
             jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey, css: customCss});
         </script>        
         <?php
-    }
-
-    function wps_install() {
-    }
-
-    function wps_uninstall() {
-
     }
   
   }
