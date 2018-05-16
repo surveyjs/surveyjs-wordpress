@@ -8,6 +8,19 @@ class WP_SJS_Editor {
 
     public static function render() {
         $surveyId = $_GET['id'];
+
+        print '
+        <script type="text/javascript">
+             var cons;        
+             cons = "'. $surveyId.'"
+             console.log("aaa: " + cons);
+        </script>';
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'my_surveys';
+        $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
+        $json = json_encode( $wpdb->get_row($query)->json);
+
         $saveSurveyUri = add_query_arg(array('action' => 'WP_SJS_SaveSurvey'), admin_url('admin-ajax.php'));
         ?>
             <style>
@@ -83,11 +96,12 @@ class WP_SJS_Editor {
                             success: function (data) {
                                 // if(data.isSuccess) {
                                 // }
-                                callback(saveNo, data.isSuccess);
+                                callback(saveNo, data.IsSuccess);
                             }
                         });
                     }
-                    editor.loadSurvey('<?php echo $surveyId ?>');
+                    var json = <?php echo $json; ?>;
+                    editor.text = json.replace(/\\/g, "");          
                 </script>
             </div>
             <script>
