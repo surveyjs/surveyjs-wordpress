@@ -8,14 +8,6 @@ class WP_SJS_Editor {
 
     public static function render() {
         $surveyId = $_GET['id'];
-
-        print '
-        <script type="text/javascript">
-             var cons;        
-             cons = "'. $surveyId.'"
-             console.log("aaa: " + cons);
-        </script>';
-
         global $wpdb;
         $table_name = $wpdb->prefix . 'my_surveys';
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
