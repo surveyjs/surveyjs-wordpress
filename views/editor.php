@@ -14,6 +14,7 @@ class WP_SJS_Editor {
         $json = json_encode( $wpdb->get_row($query)->json);
 
         $saveSurveyUri = add_query_arg(array('action' => 'WP_SJS_SaveSurvey'), admin_url('admin-ajax.php'));
+        $renameSurveyUri = add_query_arg(array('action' => 'WP_SJS_RenameSurvey'), admin_url('admin-ajax.php'));
         ?>
             <style>
                 #sjs-editor-container .svd_container .card {
@@ -51,11 +52,16 @@ class WP_SJS_Editor {
                     var $titleEditor = jQuery("#sjs_editor_title_edit");
                     surveyName = $titleEditor.find("input")[0].value;
                     setSurveyName(surveyName);
-                    jQuery.get("https://surveyjs.io/api/MySurveys/changeName?accessKey=<?php echo WP_SJS_SettingsPage::get_access_key() ?>&id=<?php echo $surveyId ?>&name=" + surveyName, data => {
-                    }).fail(error => {
-                        surveyName = oldName;
-                        setSurveyName(surveyName);
-                        alert(JSON.stringify(error));
+
+                    jQuery.ajax({
+                        url:  "<?php echo $renameSurveyUri ?>",
+                        type: "POST",
+                        data: { Id: '<?php echo $surveyId ?>', Name: surveyName },
+                        success: function (data) {
+                            // if(data.isSuccess) {
+                            // }
+                            callback(saveNo, data.IsSuccess);
+                        }
                     });
                 }
             </script>

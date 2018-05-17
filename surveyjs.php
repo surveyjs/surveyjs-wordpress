@@ -62,6 +62,8 @@ License: http://editor.surveyjs.io/license.html TODO
     new WP_PostToken();
     include("ajax_handlers/save_survey.php");
     new WP_SaveSurvey();
+    include("ajax_handlers/rename_survey.php");
+    new WP_RenameSurvey();
     include("ajax_handlers/add_survey.php");
     new WP_AddSurvey();
 
