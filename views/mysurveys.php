@@ -11,6 +11,7 @@ class WP_SJS_MySurveys {
             $client = new WP_Service_Client();
             $editNewUrl = add_query_arg(array('page' => 'wp_surveyjs_editor'), admin_url('admin.php'));
             $addSurveyUri = add_query_arg(array('action' => 'WP_SJS_AddSurvey'), admin_url('admin-ajax.php'));
+            $deleteSurveyUri = add_query_arg(array('action' => 'WP_SJS_DeleteSurvey'), admin_url('admin-ajax.php'));
             ?>
                 <script>
                     function addNewSurvey() {
@@ -20,6 +21,18 @@ class WP_SJS_MySurveys {
                             data: { Name: "New Survey" },
                             success: function (data) {
                                 window.location = "<?php echo $editNewUrl ?>&id=" + data.Id;
+                            }
+                        });
+                    }
+                    function deleteSurvey(id) {
+                        var res = confirm("Are you sure?");
+                        if (!res) return;
+                        jQuery.ajax({
+                            url:  "<?php echo $deleteSurveyUri  ?>",
+                            type: "POST",
+                            data: { Id: id },
+                            success: function (data) {
+                                window.location = "";
                             }
                         });
                     }
@@ -37,14 +50,15 @@ class WP_SJS_MySurveys {
                         <tbody>
                             <?php
                             foreach ($client->getSurveys() as $surveyDefinition) {
-                                $url = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
+                                $editUrl = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                             ?>
                             <tr>
                                 <td><?php echo $surveyDefinition->name ?></td>
                                 <td>
                                     <!-- <a href="<?php echo $surveyDefinition->id ?>">Run</a> | -->
-                                    <a href="<?php echo $url ?>">Edit</a> |
-                                    <a href="https://surveyjs.io/Service/SurveyResults/<?php echo $surveyDefinition->id ?>">Results</a>
+                                    <a href="<?php echo $editUrl ?>">Edit</a> |
+                                    <a href="https://surveyjs.io/Service/SurveyResults/<?php echo $surveyDefinition->id ?>">Results</a> |
+                                    <button onclick="deleteSurvey(<?php echo $surveyDefinition->id ?>)" style="margin-left:10px;color:red;">Delete</button>
                                 </td>
                             </tr>
                             <?php
