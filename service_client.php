@@ -9,7 +9,7 @@ class WP_Service_Client {
 
     public function getSurveys() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'my_surveys';
+        $table_name = $wpdb->prefix . 'sjs_my_surveys';
         $query = "SELECT * FROM " . $table_name;
         
         return $wpdb->get_results( $query );

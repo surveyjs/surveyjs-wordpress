@@ -4,6 +4,7 @@ include( "views/settings.php" );
 if ( is_admin() ) {
     include( "views/mysurveys.php" );
     include( "views/editor.php" );
+    include( "views/results.php" );
 }
 
 class WP_SurveyJS {
@@ -27,6 +28,8 @@ class WP_SurveyJS {
         wp_enqueue_script('wps-adm-survey-ko-js', 'https://unpkg.com/survey-knockout/survey.ko.js', array('wps-adm-knockout-js'));
         wp_enqueue_style('wps-adm-surveyjseditor-css', 'https://unpkg.com/surveyjs-editor/surveyeditor.css' );
         wp_enqueue_script('wps-adm-surveyjseditor-js', 'https://unpkg.com/surveyjs-editor/surveyeditor.js', array('wps-adm-survey-ko-js'));
+        wp_enqueue_style('wps-adm-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css' );
+        wp_enqueue_script('wps-adm-sdatatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js' );
         wp_enqueue_style('thickbox');
         wp_enqueue_script('thickbox');
     }
@@ -45,6 +48,7 @@ class WP_SurveyJS {
         //                 ));
         add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'WP_SJS_SettingsPage', 'sjs_render_settings' ) );
         add_submenu_page('', '', '', 'manage_options', 'wp_surveyjs_editor', array('WP_SJS_Editor', 'render'));
+        add_submenu_page('', '', '', 'manage_options', 'wp_surveyjs_results', array('WP_SJS_Results', 'render'));
     }
   
     // function wps_mysurveys_page() {
@@ -61,37 +65,53 @@ class WP_SurveyJS {
 
     function wps_process_shortcode($attrs) {
         $id = $attrs["id"];
+        $getSurveyJsonUri = add_query_arg(array('action' => 'WP_SJS_GetSurveyJson'), admin_url('admin-ajax.php'));
+        $saveResultUri = add_query_arg(array('action' => 'WP_SJS_SaveResult'), admin_url('admin-ajax.php'));
         ?>
         <div id="surveyContainer-<?php echo $id ?>" style="margin: 10px;">
-            <div id="surveyElement-<?php echo $id ?>"></div>
+            <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
             <div id="surveyResult-<?php echo $id ?>"></div>
         </div>
         <script>
-            Survey.StylesManager.applyTheme('<?php echo WP_SJS_SettingsPage::get_theme() ?>');
+            jQuery.ajax({
+                url:  "<?php echo $getSurveyJsonUri  ?>",
+                type: "POST",
+                data: { Id: <?php echo $id ?> },
+                success: function (data) {
+                    var json = JSON.parse(data.json.replace(/\\/g, ""));
+                    initSurvey(json);
+                }
+            });
 
-            var json = {
-                surveyId: '<?php echo $id ?>'
-            };
+            function initSurvey(json) {
+                Survey.StylesManager.applyTheme('<?php echo WP_SJS_SettingsPage::get_theme() ?>');
 
-            var customCss = {
-                <?php 
-                    if (WP_SJS_SettingsPage::get_allow_paddings() == 0) {
-                        echo '"root": "sv_main sv_default_css"';
-                    }
-                ?>
+                var customCss = {
+                    <?php 
+                        if (WP_SJS_SettingsPage::get_allow_paddings() == 0) {
+                            echo '"root": "sv_main sv_default_css"';
+                        }
+                    ?>
+                }
+
+                window.survey = new Survey.Model(json);
+
+                survey
+                    .onComplete
+                    .add(function (result) {
+                        jQuery.ajax({
+                            url:  "<?php echo $saveResultUri ?>",
+                            type: "POST",
+                            data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
+                            success: function (data) {}
+                        });
+                        document
+                            .querySelector("#surveyResult-<?php echo $id ?>")
+                            .innerHTML = "result: " + JSON.stringify(result.data);
+                    });
+
+                jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey, css: customCss});
             }
-
-            window.survey = new Survey.Model(json);
-
-            survey
-                .onComplete
-                .add(function (result) {
-                    document
-                        .querySelector("#surveyResult-<?php echo $id ?>")
-                        .innerHTML = "result: " + JSON.stringify(result.data);
-                });
-
-            jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey, css: customCss});
         </script>        
         <?php
     }

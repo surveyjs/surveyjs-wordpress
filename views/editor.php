@@ -9,9 +9,9 @@ class WP_SJS_Editor {
     public static function render() {
         $surveyId = $_GET['id'];
         global $wpdb;
-        $table_name = $wpdb->prefix . 'my_surveys';
+        $table_name = $wpdb->prefix . 'sjs_my_surveys';
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
-        $json = json_encode( $wpdb->get_row($query)->json);
+        $json = $wpdb->get_row($query)->json;
 
         $saveSurveyUri = add_query_arg(array('action' => 'WP_SJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'WP_SJS_RenameSurvey'), admin_url('admin-ajax.php'));
@@ -60,7 +60,6 @@ class WP_SJS_Editor {
                         success: function (data) {
                             // if(data.isSuccess) {
                             // }
-                            callback(saveNo, data.IsSuccess);
                         }
                     });
                 }
@@ -86,11 +85,12 @@ class WP_SJS_Editor {
                     var editor = new SurveyEditor.SurveyEditor("sjs-editor-container", editorOptions);
                     editor.showState = true;
                     editor.isAutoSave = true;
-                    editor.saveSurveyFunc = function(saveNo, callback) {          
+                    editor.saveSurveyFunc = function(saveNo, callback) {
+                        var json = JSON.stringify(editor.getSurveyJSON());   
                         jQuery.ajax({
                             url:  "<?php echo $saveSurveyUri ?>",
                             type: "POST",
-                            data: { Id: '<?php echo $surveyId ?>', Text: editor.text, Json : editor.text },
+                            data: { Id: '<?php echo $surveyId ?>', Json: json },
                             success: function (data) {
                                 // if(data.isSuccess) {
                                 // }
@@ -98,8 +98,8 @@ class WP_SJS_Editor {
                             }
                         });
                     }
-                    var json = <?php echo $json; ?>;
-                    editor.text = json.replace(/\\/g, "");          
+                    var json = "<?php echo $json; ?>";
+                    editor.text = json;      
                 </script>
             </div>
             <script>

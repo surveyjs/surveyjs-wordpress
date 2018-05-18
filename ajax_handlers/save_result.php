@@ -2,25 +2,24 @@
 
 include_once("ajax_handler.php");
 
-class WP_AddSurvey extends AJAX_Handler {
+class WP_SaveResult extends AJAX_Handler {
     
     function __construct() {
-        parent::__construct("WP_SJS_AddSurvey");  
+        parent::__construct("WP_SJS_SaveResult");  
     }
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'sjs_my_surveys';
+            $table_name = $wpdb->prefix . 'sjs_results';
 
             $wpdb->insert( 
                 $table_name, 
                 array( 
-                 'name' => $_POST['Name']
+                 'surveyId' => intval($_POST['SurveyId']),
+                 'json' => $_POST['Json']
                 ) 
             );
-
-            wp_send_json( array('Id' => $wpdb->insert_id) );
         }
     }
 }

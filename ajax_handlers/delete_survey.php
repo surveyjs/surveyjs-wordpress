@@ -11,7 +11,7 @@ class WP_DeleteSurvey extends AJAX_Handler {
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'my_surveys';
+            $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
             $result = $wpdb->delete( 
                 $table_name, 

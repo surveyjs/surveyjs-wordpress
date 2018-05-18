@@ -12,7 +12,7 @@ class WP_RenameSurvey extends AJAX_Handler {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!!$_POST['Name']) {
                 global $wpdb;
-                $table_name = $wpdb->prefix . 'my_surveys';
+                $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
                 $result = $wpdb->update( 
                     $table_name, 

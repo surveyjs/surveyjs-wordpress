@@ -31,9 +31,15 @@ License: http://editor.surveyjs.io/license.html TODO
 ?>
 <?php
     function wps_install() {
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        createMySurveysTable();
+        createResultsTable();
+    }
+
+    function createMySurveysTable() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
-        $table_name = $wpdb->prefix . 'my_surveys';
+        $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
         var_dump( $table_name );
 
@@ -44,7 +50,23 @@ License: http://editor.surveyjs.io/license.html TODO
             UNIQUE KEY id (id)
         ) $charset_collate;";
 
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+    }
+
+    function createResultsTable() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        $table_name = $wpdb->prefix . 'sjs_results';
+
+        var_dump( $table_name );
+
+        $sql = "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            surveyId mediumint(9) NOT NULL,
+            json text,
+            UNIQUE KEY id (id)
+        ) $charset_collate;";
+
         dbDelta( $sql );
     }
 
@@ -68,6 +90,10 @@ License: http://editor.surveyjs.io/license.html TODO
     new WP_AddSurvey();
     include("ajax_handlers/delete_survey.php");
     new WP_DeleteSurvey();
+    include("ajax_handlers/get_survey_json.php");
+    new WP_GetSurveyJson();
+    include("ajax_handlers/save_result.php");
+    new WP_SaveResult();
 
     include("initializer.php");
     new WP_SurveyJS();
