@@ -88,11 +88,11 @@ class WP_SurveyJS {
                 data: { Id: <?php echo $id ?> },
                 success: function (data) {
                     var json = JSON.parse(data.json.replace(/\\/g, ""));
-                    initSurvey(json);
+                    initSurvey<?php echo $id ?>(json);
                 }
             });
 
-            function initSurvey(json) {
+            function initSurvey<?php echo $id ?>(json) {
                 Survey.StylesManager.applyTheme('<?php echo WP_SJS_SettingsPage::get_theme() ?>');
 
                 var customCss = {
@@ -103,9 +103,9 @@ class WP_SurveyJS {
                     ?>
                 }
 
-                window.survey = new Survey.Model(json);
+                window.survey<?php echo $id ?> = new Survey.Model(json);
 
-                survey
+                survey<?php echo $id ?>
                     .onComplete
                     .add(function (result) {
                         jQuery.ajax({
@@ -119,7 +119,7 @@ class WP_SurveyJS {
                             .innerHTML = "result: " + JSON.stringify(result.data);
                     });
 
-                jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey, css: customCss});
+                jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>, css: customCss});
             }
         </script>        
         <?php
