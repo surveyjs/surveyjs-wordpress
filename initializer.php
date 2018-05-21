@@ -47,6 +47,7 @@ class WP_SurveyJS {
 
     public function enqueue_frontend_scripts() {       
         wp_enqueue_style('wps-survey-css', 'https://unpkg.com/survey-jquery/survey.css' );
+        wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
         wp_enqueue_script('wps-survey-jquery-js', 'https://unpkg.com/survey-jquery/survey.jquery.js', array('jquery'));
     }
   
@@ -79,7 +80,7 @@ class WP_SurveyJS {
         $getSurveyJsonUri = add_query_arg(array('action' => 'WP_SJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'WP_SJS_SaveResult'), admin_url('admin-ajax.php'));
         ?>
-        <div id="surveyContainer-<?php echo $id ?>" style="margin: 10px;">
+        <div class="wp-sjs-plugin" id="surveyContainer-<?php echo $id ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
             <div id="surveyResult-<?php echo $id ?>"></div>
         </div>
