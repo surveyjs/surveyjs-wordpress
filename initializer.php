@@ -30,6 +30,15 @@ class WP_SurveyJS {
         wp_enqueue_script('wps-adm-surveyjseditor-js', 'https://unpkg.com/surveyjs-editor/surveyeditor.js', array('wps-adm-survey-ko-js'));
         wp_enqueue_style('wps-adm-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css' );
         wp_enqueue_script('wps-adm-sdatatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js' );
+
+        wp_enqueue_script('wps-adm-sdatatables-js-1', 'https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js' );
+        wp_enqueue_style('wps-adm-datatables-css-1', 'https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css' );
+        wp_enqueue_script('wps-adm-sdatatables-js-2', 'https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js' );
+        wp_enqueue_script('wps-adm-sdatatables-js-3', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js' );
+        wp_enqueue_script('wps-adm-sdatatables-js-4', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js' );
+        wp_enqueue_script('wps-adm-sdatatables-js-5', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js' );
+        wp_enqueue_script('wps-adm-sdatatables-js-6', 'https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js' );
+        wp_enqueue_script('wps-adm-sdatatables-js-7', 'https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js' );
         wp_enqueue_style('thickbox');
         wp_enqueue_script('thickbox');
     }
