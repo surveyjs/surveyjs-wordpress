@@ -28,7 +28,7 @@ class WP_SJS_Results {
                 var surveyJson = "<?php echo $surveyJson; ?>";
                 var survey = new Survey.Model(JSON.parse(surveyJson));
 
-                var colums = survey.getAllQuestions().map(function(q) {
+                var columns = survey.getAllQuestions().map(function(q) {
                     return {
                         data: q.name,
                         sTitle: (q.title || "").trim(" ") || q.name,
@@ -44,6 +44,26 @@ class WP_SJS_Results {
                     };
                 });
 
+                columns.push({
+                    targets: -1,
+                    data: null,
+                    sortable: false,
+                    defaultContent:
+                    "<button style='min-width: 150px;'>Show in Survey</button>"
+                });
+
+
+                var windowSurvey = new Survey.SurveyWindow(surveyJson);
+                windowSurvey.survey.mode = "display";
+                windowSurvey.survey.title = "<?php echo $surveyName; ?>";
+                windowSurvey.show();
+
+                $(document).on("click", "#wpSjsResultsTable td", function(e) {
+                    var row_object = table.row(this).data();
+                    windowSurvey.survey.data = row_object;
+                    windowSurvey.isExpanded = true;
+                });
+
                 var results = <?php echo $surveyResults; ?>;
                 var data = results.map(function(result) {
                     return JSON.parse(result.json.replace(/\\/g, "") || "{}");
@@ -54,7 +74,7 @@ class WP_SJS_Results {
                     buttons: [
                         'copy', 'csv', 'excel', /*'pdf',*/ 'print'
                     ],
-                    columns: colums,
+                    columns: columns,
                     data: data
                 });
             </script>
