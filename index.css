@@ -1,0 +1,46 @@
+.wp-sjs-plugin .surveys-list table thead td {
+    font-weight: bold;
+}
+
+.wp-sjs-plugin .surveys-list table td:nth-child(2) {
+    width: 50%;
+}
+
+.wp-sjs-plugin .sv_button_link {
+    color: #1ab394;
+    width: 100px;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.wp-sjs-plugin .sv_button_link:hover,
+.wp-sjs-plugin .sv_button_link:visited:hover {
+    background-color: #1ab394;
+    border-color: #1ab394;
+    color: #fff;
+    border-radius: 2px;
+    text-decoration: none;
+}
+
+.wp-sjs-plugin .sv_button_link:visited {
+    color: #1ab394;
+}
+
+.wp-sjs-plugin .sv_button_link.sv_button_delete {
+    color: #ec2626;
+}
+
+.wp-sjs-plugin .sv_button_link.sv_button_delete:hover {
+    background-color: #ec2626;
+    color: #fff;
+}
+
+.wp-sjs-plugin #wpSjsResultsTable td {
+    cursor: pointer;
+}
+
+.wp-sjs-plugin .sv_body {
+    overflow: scroll;
+}

@@ -65,6 +65,11 @@ class WP_SJS_Editor {
                 }
             </script>
             <div class="wrap">
+                <div class="survey-page-header">
+                    <div class="sv_main survey-page-header-content">
+                        <button onclick="window.location = '/wp-admin/admin.php?page=sjs-main-menu'">&lt&nbspBack</button>
+                    </div>
+                </div>
                 <h2 style="display:inline-block;"><?php _e( 'Survey: ', 'sjs' ); ?></h2>
                 <h3 style="display:inline-block; margin: 0;">
                     <span id="sjs_editor_title_edit" style="display: none;">
@@ -81,7 +86,7 @@ class WP_SJS_Editor {
                 </h3>
                 <div id="sjs-editor-container"></div>
                 <script>
-                    var editorOptions = { showEmbededSurveyTab: true, showOptions: true, generateValidJSON : false };
+                    var editorOptions = { showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false };
                     var editor = new SurveyEditor.SurveyEditor("sjs-editor-container", editorOptions);
                     editor.showState = true;
                     editor.isAutoSave = true;

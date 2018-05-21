@@ -22,6 +22,8 @@ class WP_SurveyJS {
     }
 
     public function enqueue_admin_scripts() {
+        wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
+
         wp_enqueue_script('wps-adm-knockout-js', 'https://unpkg.com/knockout@3.4.2');
         wp_enqueue_style('wps-adm-bootstrap-css', 'https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.css' );
         wp_enqueue_style('wps-adm-survey-css', 'https://unpkg.com/survey-knockout/survey.css' );

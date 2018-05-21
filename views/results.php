@@ -21,8 +21,24 @@ class WP_SJS_Results {
         $surveyName = $_GET['name'];
 
         ?>
-            <h3><?php echo $surveyName; ?> survey results</h3>
-            <table id="wpSjsResultsTable" class="table table-striped table-bordered"></table>
+            <div class="wp-sjs-plugin">
+                <div class="survey-page-header">
+                    <div class="sv_main survey-page-header-content">
+                        <button onclick="window.location = '/wp-admin/admin.php?page=sjs-main-menu'">&lt&nbspBack</button>
+                    </div>
+                </div>
+                <div class="sv_main sv_frame sv_default_css">
+                    <div class="sv_custom_header"></div>
+                    <div class="sv_container">
+                        <div class="sv_header">
+                            <h3 class="results-header"><?php echo $surveyName; ?> survey results</h3>
+                        </div>
+                        <div class="sv_body">
+                            <table id="wpSjsResultsTable" class="table table-striped table-bordered"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <script>
                 var surveyJson = "<?php echo $surveyJson; ?>";
