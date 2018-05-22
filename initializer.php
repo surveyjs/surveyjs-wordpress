@@ -24,23 +24,25 @@ class WP_SurveyJS {
     public function enqueue_admin_scripts() {
         wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
 
-        wp_enqueue_script('wps-adm-knockout-js', 'https://unpkg.com/knockout@3.4.2');
-        wp_enqueue_style('wps-adm-bootstrap-css', 'https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.css' );
-        wp_enqueue_style('wps-adm-survey-css', 'https://unpkg.com/survey-knockout/survey.css' );
-        wp_enqueue_script('wps-adm-survey-ko-js', 'https://unpkg.com/survey-knockout/survey.ko.js', array('wps-adm-knockout-js'));
-        wp_enqueue_style('wps-adm-surveyjseditor-css', 'https://unpkg.com/surveyjs-editor/surveyeditor.css' );
-        wp_enqueue_script('wps-adm-surveyjseditor-js', 'https://unpkg.com/surveyjs-editor/surveyeditor.js', array('wps-adm-survey-ko-js'));
-        wp_enqueue_style('wps-adm-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css' );
-        wp_enqueue_script('wps-adm-sdatatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js' );
+        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/knockout.min.js', __FILE__));
+        wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
 
-        wp_enqueue_script('wps-adm-sdatatables-js-1', 'https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js' );
-        wp_enqueue_style('wps-adm-datatables-css-1', 'https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css' );
-        wp_enqueue_script('wps-adm-sdatatables-js-2', 'https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js' );
-        wp_enqueue_script('wps-adm-sdatatables-js-3', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js' );
-        wp_enqueue_script('wps-adm-sdatatables-js-4', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js' );
-        wp_enqueue_script('wps-adm-sdatatables-js-5', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js' );
-        wp_enqueue_script('wps-adm-sdatatables-js-6', 'https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js' );
-        wp_enqueue_script('wps-adm-sdatatables-js-7', 'https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js' );
+        wp_enqueue_style('wps-adm-survey-css', plugins_url('libs/survey.css', __FILE__) );
+        wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.min.js', __FILE__), array('wps-adm-knockout-js'));
+        wp_enqueue_style('wps-adm-surveyjseditor-css', plugins_url('libs/surveyeditor.css', __FILE__) );
+        wp_enqueue_script('wps-adm-surveyjseditor-js', plugins_url('libs/surveyeditor.min.js', __FILE__), array('wps-adm-survey-ko-js'));
+
+        wp_enqueue_style('wps-adm-datatables-css', plugins_url('libs/datatables/datatables.min.css', __FILE__) );
+        wp_enqueue_script('wps-adm-sdatatables-js', plugins_url('libs/datatables/datatables.min.js', __FILE__) );
+        wp_enqueue_script('wps-adm-datatables-js-1', plugins_url('libs/datatables/dataTables.buttons.min.js', __FILE__) );
+        wp_enqueue_style('wps-adm-datatables-css-1', plugins_url('libs/datatables/buttons.dataTables.min.css', __FILE__) );
+        wp_enqueue_script('wps-adm-sdatatables-js-2', plugins_url('libs/datatables/buttons.flash.min.js', __FILE__) );
+        wp_enqueue_script('wps-adm-sdatatables-js-3', plugins_url('libs/datatables/jszip.min.js', __FILE__) );
+        // wp_enqueue_script('wps-adm-sdatatables-js-4', plugins_url('libs/datatables/pdfmake.min.js', __FILE__)  );
+        wp_enqueue_script('wps-adm-sdatatables-js-5', plugins_url('libs/datatables/vfs_fonts.js', __FILE__)   );
+        wp_enqueue_script('wps-adm-sdatatables-js-6', plugins_url('libs/datatables/buttons.html5.min.js', __FILE__)   );
+        wp_enqueue_script('wps-adm-sdatatables-js-7', plugins_url('libs/datatables/buttons.print.min.js', __FILE__)   );
+
         wp_enqueue_style('thickbox');
         wp_enqueue_script('thickbox');
     }
