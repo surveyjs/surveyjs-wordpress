@@ -12,7 +12,7 @@ SurveyJS for WordPress - Survey, Quiz and Form Builder plug-in.
 
 == Description ==
 
-Easy to use, drag & drop Survey Builder with myriad options. It is based on popular in JavaScript developer community SurveyJS Library and Builder (Editor) TODO LINKS.
+Easy to use, drag & drop Survey Builder with myriad options. It is based on popular in JavaScript developer community [SurveyJS Library](https://surveyjs.io/Overview/Library/) and [Builder (Editor)](https://surveyjs.io/Overview/Builder/) TODO LINKS.
 
 *Main features:*
 * It has 15 elements (questions and panels) from simple inputs like text and dropdown to Panel containers and dynamic matrix (table), that allows to build you complex forms.
@@ -26,7 +26,7 @@ Easy to use, drag & drop Survey Builder with myriad options. It is based on popu
 
 == Installation and usage ==
 
-1. Upload SurveyJS plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload SurveyJS plugin files to the `/wp-content/plugins/surveyjs` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Navigate to the SurveyJS page of wordpress admin menu and click the “Add Survey”.
 4. Use the SurveyJS->Setting page to choose a theme.
