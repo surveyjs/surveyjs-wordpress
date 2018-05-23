@@ -1,12 +1,11 @@
 <?php
 /*
 Plugin Name: SurveyJS
-Plugin URI: https://surveyjs.io/wordpress  TODO need home page for the plugin
-Description: JavaScript Survey Engine
-Version: 1.0.3
+Plugin URI: https://wordpress.org/plugins/surveyjs
+Description: Easy to use, drag & drop Survey Builder with myriad options.
+Version: 0.5
 Author: Devsoft Baltic OÜ
 Author URI: http://devsoftbaltic.com/
-License: http://editor.surveyjs.io/license.html TODO
 */
 ?>
 <?php
