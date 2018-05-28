@@ -1,16 +1,16 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class WP_SJS_MySurveys {
+class SurveyJS_MySurveys {
 
     function __construct() {
     }
 
     public static function render() {
-        $client = new WP_Service_Client();
-        $editSurveyUri = add_query_arg(array('page' => 'wp_surveyjs_editor'), admin_url('admin.php'));
-        $addSurveyUri = add_query_arg(array('action' => 'WP_SJS_AddSurvey'), admin_url('admin-ajax.php'));
-        $deleteSurveyUri = add_query_arg(array('action' => 'WP_SJS_DeleteSurvey'), admin_url('admin-ajax.php'));
+        $client = new SurveyJS_Client();
+        $editSurveyUri = add_query_arg(array('page' => 'surveyjs_editor'), admin_url('admin.php'));
+        $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
+        $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
         ?>
             <script>
                 function addNewSurvey() {
@@ -59,8 +59,8 @@ class WP_SJS_MySurveys {
                                     <tbody>
                                         <?php
                                         foreach ($client->getSurveys() as $surveyDefinition) {
-                                            $editUrl = add_query_arg(array('page' => 'wp_surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
-                                            $resultsUrl = add_query_arg(array('page' => 'wp_surveyjs_results', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
+                                            $editUrl = add_query_arg(array('page' => 'surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
+                                            $resultsUrl = add_query_arg(array('page' => 'surveyjs_results', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                                         ?>
                                         <tr>
                                             <td><?php echo sanitize_text_field($surveyDefinition->name) ?></td>

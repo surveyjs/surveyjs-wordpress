@@ -7,7 +7,7 @@ if ( is_admin() ) {
     include( "views/results.php" );
 }
 
-class WP_SurveyJS {
+class SurveyJS_SurveyJS {
     public static $prefix = "sjs";
     public $plugin_version = "0.1.0";
 
@@ -48,28 +48,28 @@ class WP_SurveyJS {
     }
 
     public function enqueue_frontend_scripts() {       
-        wp_enqueue_style('wps-survey-css', 'libs/survey.css' );
+        wp_enqueue_style('wps-survey-css', plugins_url('libs/survey.css', __FILE__) );
         wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
         wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
     }
   
     function wps_add_menu() {
         add_menu_page( 'My surveys', 'SurveyJS', 'manage_options', 'sjs-main-menu', array(
-                        "WP_SJS_MySurveys", 'render'
+                        "SurveyJS_MySurveys", 'render'
                         ), plugins_url('images/logo_20х20.png', __FILE__));
         // add_submenu_page( 'sjs-main-menu', __( 'My Surveys', 'sjs-main-menu' ), __( 'My Surveys', 'sjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
         //                 __CLASS__, 'wps_mysurveys_page'
         //                 ));
-        add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'WP_SJS_SettingsPage', 'sjs_render_settings' ) );
-        add_submenu_page('', '', '', 'manage_options', 'wp_surveyjs_editor', array('WP_SJS_Editor', 'render'));
-        add_submenu_page('', '', '', 'manage_options', 'wp_surveyjs_results', array('WP_SJS_Results', 'render'));
+        add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'SurveyJS_SettingsPage', 'sjs_render_settings' ) );
+        add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
+        add_submenu_page('', '', '', 'manage_options', 'surveyjs_results', array('SurveyJS_Results', 'render'));
     }
   
     // function wps_mysurveys_page() {
     // }
 
     function wps_media_button() {
-        $url = add_query_arg(array('action' => 'WP_SJS_InsertSurvey'), admin_url('admin-ajax.php'));
+        $url = add_query_arg(array('action' => 'SurveyJS_InsertSurvey'), admin_url('admin-ajax.php'));
         ?>
         <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php _e('Insert Survey', $this->prefix); ?>">
             <?php _e('Add Survey', $this->prefix); ?>
@@ -79,8 +79,8 @@ class WP_SurveyJS {
 
     function wps_process_shortcode($attrs) {
         $id = sanitize_text_field($attrs["id"]);
-        $getSurveyJsonUri = add_query_arg(array('action' => 'WP_SJS_GetSurveyJson'), admin_url('admin-ajax.php'));
-        $saveResultUri = add_query_arg(array('action' => 'WP_SJS_SaveResult'), admin_url('admin-ajax.php'));
+        $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
+        $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo $id ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
@@ -98,11 +98,11 @@ class WP_SurveyJS {
             });
 
             function initSurvey<?php echo $id ?>(json) {
-                Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(WP_SJS_SettingsPage::get_theme()) ?>');
+                Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(SurveyJS_SettingsPage::get_theme()) ?>');
 
                 var customCss = {
                     <?php 
-                        if (WP_SJS_SettingsPage::get_allow_paddings() == 0) {
+                        if (SurveyJS_SettingsPage::get_allow_paddings() == 0) {
                             echo '"root": "sv_main sv_default_css"';
                         }
                     ?>

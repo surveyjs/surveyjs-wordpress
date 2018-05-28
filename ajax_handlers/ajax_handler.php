@@ -1,6 +1,6 @@
 <?php
 
-abstract class AJAX_Handler {
+abstract class SurveyJS_AJAX_Handler {
 
     function __construct($action_name) {
         $this->init_hooks($action_name);

@@ -2,10 +2,10 @@
 
 include_once("ajax_handler.php");
 
-class WP_DeleteSurvey extends AJAX_Handler {
+class SurveyJS_DeleteSurvey extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("WP_SJS_DeleteSurvey");  
+        parent::__construct("SurveyJS_DeleteSurvey");  
     }
         
     function callback() {

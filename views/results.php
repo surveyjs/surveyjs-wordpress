@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class WP_SJS_Results {
+class SurveyJS_Results {
 
     function __construct() {
     }

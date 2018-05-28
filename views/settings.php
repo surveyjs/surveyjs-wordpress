@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class WP_SJS_SettingsPage {
+class SurveyJS_SettingsPage {
 
     function __construct() {
         $this->add_hooks();
@@ -97,5 +97,5 @@ class WP_SJS_SettingsPage {
 	}
 }
 
-$sjsSettingsPage = new WP_SJS_SettingsPage();
+$sjsSettingsPage = new SurveyJS_SettingsPage();
 ?>

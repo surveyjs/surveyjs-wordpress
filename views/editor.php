@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class WP_SJS_Editor {
+class SurveyJS_Editor {
 
     function __construct() {
     }
@@ -13,8 +13,8 @@ class WP_SJS_Editor {
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
         $json = $wpdb->get_row($query)->json;
 
-        $saveSurveyUri = add_query_arg(array('action' => 'WP_SJS_SaveSurvey'), admin_url('admin-ajax.php'));
-        $renameSurveyUri = add_query_arg(array('action' => 'WP_SJS_RenameSurvey'), admin_url('admin-ajax.php'));
+        $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
+        $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
         ?>
             <style>
                 #sjs-editor-container .svd_container .card {

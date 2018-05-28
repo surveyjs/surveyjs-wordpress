@@ -3,15 +3,15 @@
 include_once("ajax_handler.php");
 include( __DIR__ . "/../service_client.php");
 
-class WP_InsertSurveyHandler extends AJAX_Handler {
+class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("WP_SJS_InsertSurvey");
+        parent::__construct("SurveyJS_InsertSurvey");
     }
         
     function callback() {
         //wp_send_json_success(array('test'=>'Works!'));
-        $client = new WP_Service_Client();
+        $client = new SurveyJS_Client();
         ?>
             <script>
                 function insert_survey_shortcode() {

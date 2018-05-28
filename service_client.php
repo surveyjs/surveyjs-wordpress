@@ -1,6 +1,6 @@
 <?php
 
-class WP_Service_Client {
+class SurveyJS_Client {
     private $accessKey;
 
     function __construct() {

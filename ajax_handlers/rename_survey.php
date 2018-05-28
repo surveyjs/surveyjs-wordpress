@@ -2,10 +2,10 @@
 
 include_once("ajax_handler.php");
 
-class WP_RenameSurvey extends AJAX_Handler {
+class SurveyJS_RenameSurvey extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("WP_SJS_RenameSurvey");  
+        parent::__construct("SurveyJS_RenameSurvey");  
     }
         
     function callback() {

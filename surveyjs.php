@@ -56,20 +56,20 @@ Author URI: http://devsoftbaltic.com/
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
     include("ajax_handlers/insert_survey.php");
-    new WP_InsertSurveyHandler();
+    new SurveyJS_InsertSurveyHandler();
     include("ajax_handlers/save_survey.php");
-    new WP_SaveSurvey();
+    new SurveyJS_SaveSurvey();
     include("ajax_handlers/rename_survey.php");
-    new WP_RenameSurvey();
+    new SurveyJS_RenameSurvey();
     include("ajax_handlers/add_survey.php");
-    new WP_AddSurvey();
+    new SurveyJS_AddSurvey();
     include("ajax_handlers/delete_survey.php");
-    new WP_DeleteSurvey();
+    new SurveyJS_DeleteSurvey();
     include("ajax_handlers/get_survey_json.php");
-    new WP_GetSurveyJson();
+    new SurveyJS_GetSurveyJson();
     include("ajax_handlers/save_result.php");
-    new WP_SaveResult();
+    new SurveyJS_SaveResult();
 
     include("initializer.php");
-    new WP_SurveyJS();
+    new SurveyJS_SurveyJS();
 ?>

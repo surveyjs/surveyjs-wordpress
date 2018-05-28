@@ -2,10 +2,10 @@
 
 include_once("ajax_handler.php");
 
-class WP_SaveResult extends AJAX_Handler {
+class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("WP_SJS_SaveResult");  
+        parent::__construct("SurveyJS_SaveResult");  
     }
         
     function callback() {
