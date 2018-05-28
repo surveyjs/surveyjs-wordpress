@@ -16,7 +16,7 @@ class WP_AddSurvey extends AJAX_Handler {
             $wpdb->insert( 
                 $table_name, 
                 array( 
-                 'name' => $_POST['Name']
+                 'name' => sanitize_text_field($_POST['Name'])
                 ) 
             );
 

@@ -16,8 +16,8 @@ class WP_SaveResult extends AJAX_Handler {
             $wpdb->insert( 
                 $table_name, 
                 array( 
-                 'surveyId' => intval($_POST['SurveyId']),
-                 'json' => $_POST['Json']
+                 'surveyId' => intval(sanitize_key($_POST['SurveyId'])),
+                 'json' => sanitize_text_field($_POST['Json'])
                 ) 
             );
         }

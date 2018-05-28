@@ -9,7 +9,7 @@ class WP_SJS_Results {
 
     public static function render() {
         global $wpdb;
-        $surveyId = $_GET['id'];
+        $surveyId = sanitize_key($_GET['id']);
         $table_name = $wpdb->prefix . 'sjs_results';
         $query = "SELECT json FROM " . $table_name . " WHERE surveyId=" . $surveyId;
         $surveyResults = json_encode( $wpdb->get_results($query) );
@@ -18,7 +18,7 @@ class WP_SJS_Results {
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
         $surveyJson = $wpdb->get_row($query)->json;
         
-        $surveyName = $_GET['name'];
+        $surveyName = sanitize_text_field($_GET['name']);
 
         ?>
             <div class="wp-sjs-plugin">

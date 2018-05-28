@@ -10,17 +10,20 @@ class WP_SaveSurvey extends AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!!$_POST['Json']) {
+            $id = sanitize_key($_POST['Id']);
+            $json = sanitize_text_field($_POST['Json']);
+
+            if(!!$json) {
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
                 $result = $wpdb->update( 
                     $table_name, 
                     array( 
-                        'json' => $_POST['Json']
+                        'json' => $json
                     ),
                     array( 
-                        'id' => intval($_POST['Id'])
+                        'id' => intval($id)
                     )
                 );
                 wp_send_json( array('IsSuccess' => $result) );

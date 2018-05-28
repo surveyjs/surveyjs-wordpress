@@ -15,11 +15,11 @@ class WP_SJS_MySurveys {
             <script>
                 function addNewSurvey() {
                     jQuery.ajax({
-                        url:  "<?php echo $addSurveyUri ?>",
+                        url:  "<?php echo esc_url($addSurveyUri) ?>",
                         type: "POST",
                         data: { Name: "New Survey" },
                         success: function (data) {
-                            window.location = "<?php echo $editSurveyUri ?>&id=" + data.Id + "&name=New Survey";
+                            window.location = "<?php echo esc_url($editSurveyUri) ?>&id=" + data.Id + "&name=New Survey";
                         }
                     });
                 }
@@ -27,7 +27,7 @@ class WP_SJS_MySurveys {
                     var res = confirm("Are you sure?");
                     if (!res) return;
                     jQuery.ajax({
-                        url:  "<?php echo $deleteSurveyUri  ?>",
+                        url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
                         type: "POST",
                         data: { Id: id },
                         success: function (data) {
@@ -63,12 +63,12 @@ class WP_SJS_MySurveys {
                                             $resultsUrl = add_query_arg(array('page' => 'wp_surveyjs_results', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                                         ?>
                                         <tr>
-                                            <td><?php echo $surveyDefinition->name ?></td>
+                                            <td><?php echo sanitize_text_field($surveyDefinition->name) ?></td>
                                             <td>
-                                                <!-- <a class="sv_button_link" href="<?php echo $surveyDefinition->id ?>">Run</a> -->
-                                                <a class="sv_button_link" href="<?php echo $editUrl ?>">Edit</a>
-                                                <a class="sv_button_link" href="<?php echo $resultsUrl ?>">Results</a>
-                                                <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo $surveyDefinition->id ?>)">Delete</span>
+                                                <!-- <a class="sv_button_link" href="<?php echo sanitize_key($surveyDefinition->id) ?>">Run</a> -->
+                                                <a class="sv_button_link" href="<?php echo esc_url($editUrl) ?>">Edit</a>
+                                                <a class="sv_button_link" href="<?php echo esc_url($resultsUrl) ?>">Results</a>
+                                                <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Delete</span>
                                             </td>
                                         </tr>
                                         <?php

@@ -10,7 +10,7 @@ class WP_GetSurveyJson extends AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $surveyId = $_POST['Id'];
+            $surveyId = sanitize_key($_POST['Id']);
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
             $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;

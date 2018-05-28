@@ -7,7 +7,7 @@ class WP_SJS_Editor {
     }
 
     public static function render() {
-        $surveyId = $_GET['id'];
+        $surveyId = sanitize_key($_GET['id']);
         global $wpdb;
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
@@ -27,7 +27,7 @@ class WP_SJS_Editor {
                 }
             </style>
             <script>
-                var surveyName = "<?php echo $_GET['name'] ?>";
+                var surveyName = "<?php echo sanitize_text_field($_GET['name']) ?>";
                 function setSurveyName(name) {
                     var $titleTitle = jQuery("#sjs_editor_title_show");
                     $titleTitle.find("span").text(name);
@@ -51,10 +51,11 @@ class WP_SJS_Editor {
                     var oldName = surveyName;
                     var $titleEditor = jQuery("#sjs_editor_title_edit");
                     surveyName = $titleEditor.find("input")[0].value;
+
                     setSurveyName(surveyName);
 
                     jQuery.ajax({
-                        url:  "<?php echo $renameSurveyUri ?>",
+                        url:  "<?php echo esc_url($renameSurveyUri) ?>",
                         type: "POST",
                         data: { Id: '<?php echo $surveyId ?>', Name: surveyName },
                         success: function (data) {
@@ -93,7 +94,7 @@ class WP_SJS_Editor {
                     editor.saveSurveyFunc = function(saveNo, callback) {
                         var json = JSON.stringify(editor.getSurveyJSON());   
                         jQuery.ajax({
-                            url:  "<?php echo $saveSurveyUri ?>",
+                            url:  "<?php echo esc_url($saveSurveyUri) ?>",
                             type: "POST",
                             data: { Id: '<?php echo $surveyId ?>', Json: json },
                             success: function (data) {

@@ -37,7 +37,7 @@ class WP_SJS_SettingsPage {
 
 	public function sjs_themes_section() {
 		_e( 'SurveyJS themes configurations', 'sjs' );
-		if ( isset( $_GET["settings-updated"] ) && $_GET["settings-updated"] ) {
+		if ( isset( $_GET["settings-updated"] ) && sanitize_text_field($_GET["settings-updated"]) ) {
 			flush_rewrite_rules( true );
 			echo "<div style='color: #179d82;'>" . __( 'Successfully updated!', 'sjs' ) . "</div>";
 		}

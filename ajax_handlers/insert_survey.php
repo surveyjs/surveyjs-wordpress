@@ -26,7 +26,7 @@ class WP_InsertSurveyHandler extends AJAX_Handler {
                 <?php
                 foreach ($client->getSurveys() as $surveyDefinition) {
                     ?>
-                    <option value="<?php echo $surveyDefinition->id ?>"><?php echo $surveyDefinition->name ?></option>
+                    <option value="<?php echo sanitize_text_field($surveyDefinition->id) ?>"><?php echo sanitize_text_field($surveyDefinition->name) ?></option>
                     <?php
                 }
                 ?>

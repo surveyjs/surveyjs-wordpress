@@ -48,9 +48,9 @@ class WP_SurveyJS {
     }
 
     public function enqueue_frontend_scripts() {       
-        wp_enqueue_style('wps-survey-css', 'https://unpkg.com/survey-jquery/survey.css' );
+        wp_enqueue_style('wps-survey-css', 'libs/survey.css' );
         wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
-        wp_enqueue_script('wps-survey-jquery-js', 'https://unpkg.com/survey-jquery/survey.jquery.js', array('jquery'));
+        wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
     }
   
     function wps_add_menu() {
@@ -71,14 +71,14 @@ class WP_SurveyJS {
     function wps_media_button() {
         $url = add_query_arg(array('action' => 'WP_SJS_InsertSurvey'), admin_url('admin-ajax.php'));
         ?>
-        <a onclick="tb_click.call(this); return false;" href="<?php echo $url; ?>" class="button" title="<?php _e('Insert Survey', $this->prefix); ?>">
+        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php _e('Insert Survey', $this->prefix); ?>">
             <?php _e('Add Survey', $this->prefix); ?>
         </a>
         <?php
     }
 
     function wps_process_shortcode($attrs) {
-        $id = $attrs["id"];
+        $id = sanitize_text_field($attrs["id"]);
         $getSurveyJsonUri = add_query_arg(array('action' => 'WP_SJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'WP_SJS_SaveResult'), admin_url('admin-ajax.php'));
         ?>
@@ -88,7 +88,7 @@ class WP_SurveyJS {
         </div>
         <script>
             jQuery.ajax({
-                url:  "<?php echo $getSurveyJsonUri  ?>",
+                url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
                 type: "POST",
                 data: { Id: <?php echo $id ?> },
                 success: function (data) {
@@ -98,7 +98,7 @@ class WP_SurveyJS {
             });
 
             function initSurvey<?php echo $id ?>(json) {
-                Survey.StylesManager.applyTheme('<?php echo WP_SJS_SettingsPage::get_theme() ?>');
+                Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(WP_SJS_SettingsPage::get_theme()) ?>');
 
                 var customCss = {
                     <?php 
@@ -114,7 +114,7 @@ class WP_SurveyJS {
                     .onComplete
                     .add(function (result) {
                         jQuery.ajax({
-                            url:  "<?php echo $saveResultUri ?>",
+                            url:  "<?php echo esc_url($saveResultUri) ?>",
                             type: "POST",
                             data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
                             success: function (data) {}
