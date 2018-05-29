@@ -12,7 +12,7 @@ SurveyJS for WordPress - Survey, Quiz and Form Builder plug-in.
 
 == Description ==
 
-Easy to use, drag & drop Survey Builder with myriad options. It is based on popular in JavaScript developer community [SurveyJS Library](https://surveyjs.io/Overview/Library/) and [Builder (Editor)](https://surveyjs.io/Overview/Builder/) TODO LINKS.
+Easy to use, drag & drop Survey Builder with myriad options. It is based on popular in JavaScript developer community [SurveyJS Library](https://surveyjs.io/Overview/Library/) and [Builder (Editor)](https://surveyjs.io/Survey/Builder/).
 
 *Main features:*
 * It has 15 elements (questions and panels) from simple inputs like text and dropdown to Panel containers and dynamic matrix (table), that allows to build you complex forms.
@@ -23,6 +23,8 @@ Easy to use, drag & drop Survey Builder with myriad options. It is based on popu
 * Validate user inputs with several built-in validators.
 * Show results in a read only survey.
 * Several good-looking themes and much more
+
+To find out more and review SurveyJS Examples please go to [https://surveyjs.io/Examples/Library/](https://surveyjs.io/Examples/Library/).
 
 == Installation and usage ==
 
@@ -47,13 +49,13 @@ Easy to use, drag & drop Survey Builder with myriad options. It is based on popu
 * first public release
 
 == Support ==
-* https://wordpress.org/support/plugin/surveyjs
-* https://github.com/surveyjs/surveyjs/issues or https://github.com/surveyjs/editor/issues
-* https://surveyjs.answerdesk.io
+* [https://wordpress.org/support/plugin/surveyjs](https://wordpress.org/support/plugin/surveyjs)
+* [https://github.com/surveyjs/surveyjs/issues](https://github.com/surveyjs/surveyjs/issues) or [https://github.com/surveyjs/editor/issues](https://github.com/surveyjs/editor/issues)
+* [https://surveyjs.answerdesk.io](https://surveyjs.answerdesk.io)
 
 == Our web sites ==
-* https://surveyjs.io/
-* http://devsoftbaltic.com/
+* [https://surveyjs.io/](https://surveyjs.io/)
+* [http://devsoftbaltic.com/](http://devsoftbaltic.com/)
 
 == Contact us ==
 info@devsoftbaltic.com
