@@ -1,13 +1,4 @@
 # SurveyJS #
-Contributors: devsoftbaltic
-Tags: survey, form quiz, survey editor, survey builder, quiz builder, quiz editor, form builder, forms builder, questionnaire, questionnaire builder, questionnaire editor
-Requires at least: 4.6
-Tested up to: 4.9.2
-Stable tag: trunk
-Requires PHP: 5.2.4
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-
 SurveyJS for WordPress - Survey, Quiz and Form Builder plug-in.
 
 ## Description ##
@@ -38,13 +29,13 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 
 ## Screenshots ##
 
-1. My surveys page
+1. My surveys page<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-1.png?raw=true)
-2. SurveyJS builder
+2. SurveyJS builder<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-2.png?raw=true)
-3. Results page
+3. Results page<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-3.png?raw=true)
-4. Settings
+4. Settings<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-4.png?raw=true)
 
 ## Changelog ##
