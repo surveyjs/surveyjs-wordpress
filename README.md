@@ -1,4 +1,4 @@
-=== SurveyJS ===
+# SurveyJS #
 Contributors: devsoftbaltic
 Tags: survey, form quiz, survey editor, survey builder, quiz builder, quiz editor, form builder, forms builder, questionnaire, questionnaire builder, questionnaire editor
 Requires at least: 4.6
@@ -10,7 +10,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 SurveyJS for WordPress - Survey, Quiz and Form Builder plug-in.
 
-== Description ==
+## Description ##
 
 Easy to use, drag & drop Survey Builder with myriad options. It is based on popular in JavaScript developer community [SurveyJS Library](https://surveyjs.io/Overview/Library/) and [Builder (Editor)](https://surveyjs.io/Survey/Builder/).
 
@@ -26,7 +26,7 @@ Easy to use, drag & drop Survey Builder with myriad options. It is based on popu
 
 To find out more and review SurveyJS Examples please go to [https://surveyjs.io/Examples/Library/](https://surveyjs.io/Examples/Library/).
 
-== Installation and usage ==
+## Installation and usage ##
 
 1. Upload SurveyJS plugin files to the `/wp-content/plugins/surveyjs` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
@@ -36,26 +36,26 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 6. Go to the preview and check your survey.
 7. Check your wordpress database for *wp_sjs_my_surveys* and *wp_sjs_results* tables.
 
-== Screenshots ==
+## Screenshots ##
 
 1. My surveys page
 2. SurveyJS builder
 3. Results page
 4. Settings
 
-== Changelog ==
+## Changelog ##
 
-= 0.5 =
+### 0.5 ###
 * first public release
 
-== Support ==
+## Support ##
 * [https://wordpress.org/support/plugin/surveyjs](https://wordpress.org/support/plugin/surveyjs)
 * [https://github.com/surveyjs/surveyjs/issues](https://github.com/surveyjs/surveyjs/issues) or [https://github.com/surveyjs/editor/issues](https://github.com/surveyjs/editor/issues)
 * [https://surveyjs.answerdesk.io](https://surveyjs.answerdesk.io)
 
-== Our web sites ==
+## Our web sites ##
 * [https://surveyjs.io/](https://surveyjs.io/)
 * [http://devsoftbaltic.com/](http://devsoftbaltic.com/)
 
-== Contact us ==
+## Contact us ##
 info@devsoftbaltic.com
