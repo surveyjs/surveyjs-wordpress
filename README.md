@@ -39,9 +39,13 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 ## Screenshots ##
 
 1. My surveys page
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-1.png?raw=true)
 2. SurveyJS builder
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-2.png?raw=true)
 3. Results page
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-3.png?raw=true)
 4. Settings
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-4.png?raw=true)
 
 ## Changelog ##
 
