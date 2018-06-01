@@ -1,4 +1,4 @@
-# SurveyJS #
+# SurveyJS for WordPress #
 SurveyJS for WordPress - Survey, Quiz and Form Builder plug-in.
 
 ## Description ##
