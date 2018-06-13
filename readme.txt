@@ -45,6 +45,9 @@ Easy to use, drag & drop Survey Builder with myriad options. It is based on popu
 
 = 0.5 =
 * first public release
+= 1.0.26 =
+* synchronized version with SurveyJS project
+* fixed the bug https://surveyjs.answerdesk.io/internal/ticket/details/T332
 
 == Support ==
 * https://wordpress.org/support/plugin/surveyjs

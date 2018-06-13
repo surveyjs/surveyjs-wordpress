@@ -92,7 +92,7 @@ class SurveyJS_SurveyJS {
                 type: "POST",
                 data: { Id: <?php echo $id ?> },
                 success: function (data) {
-                    var json = JSON.parse(data.json.replace(/\\/g, ""));
+                    var json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
                     initSurvey<?php echo $id ?>(json);
                 }
             });

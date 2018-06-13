@@ -82,7 +82,7 @@ class SurveyJS_Results {
 
                 var results = <?php echo $surveyResults; ?>;
                 var data = results.map(function(result) {
-                    return JSON.parse(result.json.replace(/\\/g, "") || "{}");
+                    return JSON.parse(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'") || "{}");
                 });
 
                 var table = $("#wpSjsResultsTable").DataTable({
