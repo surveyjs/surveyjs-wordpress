@@ -20,7 +20,7 @@ Author URI: http://devsoftbaltic.com/
         $charset_collate = $wpdb->get_charset_collate();
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
-        var_dump( $table_name );
+        //var_dump( $table_name );
 
         $sql = "CREATE TABLE $table_name (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
@@ -37,7 +37,7 @@ Author URI: http://devsoftbaltic.com/
         $charset_collate = $wpdb->get_charset_collate();
         $table_name = $wpdb->prefix . 'sjs_results';
 
-        var_dump( $table_name );
+        //var_dump( $table_name );
 
         $sql = "CREATE TABLE $table_name (
             id mediumint(9) NOT NULL AUTO_INCREMENT,

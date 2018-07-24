@@ -71,8 +71,8 @@ class SurveyJS_SurveyJS {
     function wps_media_button() {
         $url = add_query_arg(array('action' => 'SurveyJS_InsertSurvey'), admin_url('admin-ajax.php'));
         ?>
-        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php _e('Insert Survey', $this->prefix); ?>">
-            <?php _e('Add Survey', $this->prefix); ?>
+        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php _e('Insert Survey', SurveyJS_SurveyJS::$prefix); ?>">
+            <?php _e('Add Survey', SurveyJS_SurveyJS::$prefix); ?>
         </a>
         <?php
     }
