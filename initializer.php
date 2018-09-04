@@ -119,9 +119,9 @@ class SurveyJS_SurveyJS {
                             data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
                             success: function (data) {}
                         });
-                        document
-                            .querySelector("#surveyResult-<?php echo $id ?>")
-                            .innerHTML = "result: " + JSON.stringify(result.data);
+                        //document
+                        //    .querySelector("#surveyResult-<?php echo $id ?>")
+                        //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
 
                 jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>, css: customCss});

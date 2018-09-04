@@ -41,6 +41,7 @@ class SurveyJS_Results {
             </div>
 
             <script>
+                var $ = jQuery;
                 var surveyJson = "<?php echo $surveyJson; ?>";
                 var survey = new Survey.Model(JSON.parse(surveyJson));
 
