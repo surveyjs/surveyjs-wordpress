@@ -78,6 +78,8 @@ class SurveyJS_SurveyJS {
     }
 
     function wps_process_shortcode($attrs) {
+        ob_start();
+        
         $id = sanitize_text_field($attrs["id"]);
         $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
@@ -128,6 +130,8 @@ class SurveyJS_SurveyJS {
             }
         </script>        
         <?php
+                        
+        return ob_get_clean();
     }
   
   }
