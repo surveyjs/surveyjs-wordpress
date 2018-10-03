@@ -15,6 +15,7 @@ class SurveyJS_Editor {
 
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
+        $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFile'), admin_url('admin-ajax.php'));
         ?>
             <style>
                 #sjs-editor-container .svd_container .card {
@@ -100,10 +101,42 @@ class SurveyJS_Editor {
                             success: function (data) {
                                 // if(data.isSuccess) {
                                 // }
-                                callback(saveNo, data.IsSuccess);
+                                callback(saveNo, data.IsSuccess === 1);
                             }
                         });
                     }
+                    editor.onUploadFile.add(function(editor, options) {
+                        var formData = new FormData();
+                        options.files.forEach(function(file) {
+                            formData.append("file", file);
+                        });
+                        jQuery.ajax({
+                            url: "<?php echo esc_url($uploadFileUri) ?>",
+                            type: "POST",
+                            xhr: function () {
+                                var myXhr = jQuery.ajaxSettings.xhr();
+                                if (myXhr.upload) {
+                                    myXhr.upload.addEventListener('progress', function (event) {
+                                        var percent = 0;
+                                        var position = event.loaded || event.position;
+                                        var total = event.total;
+                                    }, false);
+                                }
+                                return myXhr;
+                            },
+                            success: function (data) {
+                                options.callback("success", data["url"]);
+                            },
+                            error: function (error) {
+                            },
+                            async: true,
+                            data: formData,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            timeout: 60000
+                        });
+                    });
                     var json = "<?php echo $json; ?>";
                     editor.text = json;      
                 </script>

@@ -28,7 +28,7 @@ class SurveyJS_SurveyJS {
         wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
 
         wp_enqueue_style('wps-adm-survey-css', plugins_url('libs/survey.css', __FILE__) );
-        wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.min.js', __FILE__), array('wps-adm-knockout-js'));
+        wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.ko.min.js', __FILE__), array('wps-adm-knockout-js'));
         wp_enqueue_style('wps-adm-surveyjseditor-css', plugins_url('libs/surveyeditor.css', __FILE__) );
         wp_enqueue_script('wps-adm-surveyjseditor-js', plugins_url('libs/surveyeditor.min.js', __FILE__), array('wps-adm-survey-ko-js'));
 

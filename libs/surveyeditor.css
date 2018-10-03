@@ -1,5 +1,5 @@
 /*!
- * surveyjs Builder(Editor) v1.0.39
+ * surveyjs Builder(Editor) v1.0.48
  * (c) Devsoft Baltic O� - http://surveyjs.io/
  * Github: https://github.com/surveyjs/editor
  * License: https://surveyjs.io/Licenses#BuildSurvey
@@ -180,6 +180,18 @@
     background-color: #1ab394; }
   .svd_container .form-control:focus {
     border-color: #1ab394; }
+  .svd_container a:focus,
+  .svd_container div:focus,
+  .svd_container span:focus,
+  .svd_container select:focus,
+  .svd_container tr:focus,
+  .svd_container input[type="checkbox"]:focus + span.checkmark {
+    outline-color: #1ab394;
+    outline-style: dotted;
+    outline-width: 0.5px;
+    outline-offset: -1px; }
+  .svd_container .svd_toolbar button:focus {
+    outline-color: #676a6c; }
   .svd_container .svd-main-color {
     color: #1ab394; }
   .svd_container .svd-main-background-color {
@@ -193,7 +205,7 @@
   .svd_container .svd-light-border-color {
     border-color: #e7eaec; }
   .svd_container .svd-dark-border-color {
-    color: #ddd; }
+    border-color: #ddd; }
   .svd_container .svd-light-bg-color {
     background-color: #ffffff; }
   .svd_container .svd-dark-bg-color {
@@ -381,7 +393,9 @@
 .svd_container .svd_toolbar {
   margin-bottom: 1.17em; }
   .svd_container .svd_toolbar .svd_action {
-    margin-right: 0.5em; }
+    margin-right: 0.5em;
+    margin-top: 0.5em;
+    display: inline-block; }
   .svd_container .svd_toolbar .svd_state {
     float: right;
     line-height: 2.2em; }
@@ -1256,6 +1270,43 @@ rating-item-editor {
 
 .svd_q_selected .svda-add-new-rating-item {
   display: inline-block; }
+.image_item_editable {
+  position: relative; }
+
+.sv_imgsel .svda-add-new-item {
+  vertical-align: top;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  text-align: center;
+  padding: 0; }
+
+.svd_q_selected .image_item_editable image-item-editor {
+  display: block; }
+
+.svd_q_selected .image_item_editable .svda-drag-handle {
+  visibility: visible; }
+
+.svd_q_selected .image_item_editable .svda-delete-item {
+  visibility: visible; }
+
+.svda-image-editor {
+  overflow: hidden; }
+
+image-item-editor {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  padding: 0 1em;
+  border-radius: 0.5em;
+  background-color: white;
+  opacity: 0.75; }
+  image-item-editor .svda-content {
+    position: relative;
+    pointer-events: all; }
+    image-item-editor .svda-content .edit-image-item {
+      cursor: pointer; }
 .svd-accordion-tab-header {
   background-color: #e0e0e0;
   min-height: 32px;
@@ -1277,3 +1328,5 @@ svd-splitter {
   cursor: ew-resize; }
   svd-splitter:hover, svd-splitter.svd-active-splitter {
     background-color: gray; }
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiIuL3BhY2thZ2Uvc3VydmV5ZWRpdG9yLmNzcyIsInNvdXJjZVJvb3QiOiIifQ==*/

@@ -26,7 +26,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
                         'id' => intval($id)
                     )
                 );
-                wp_send_json( array('IsSuccess' => $result) );
+                wp_send_json( array('IsSuccess' => $result === FALSE ? 0 : 1) );
             }
         }
     }
