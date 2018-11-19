@@ -22,29 +22,36 @@ class SurveyJS_SurveyJS {
     }
 
     public function enqueue_admin_scripts() {
-        wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
+        if ( isset( $_GET["page"] ) &&
+            ($_GET["page"] == "sjs-settings" ||
+            $_GET['page'] == "sjs-main-menu" ||
+            $_GET['page'] == "surveyjs_editor" ||
+            $_GET['page'] == "surveyjs_results")
+        ) {
+            wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
 
-        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/knockout.min.js', __FILE__));
-        wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/knockout.min.js', __FILE__));
+            wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
 
-        wp_enqueue_style('wps-adm-survey-css', plugins_url('libs/survey.css', __FILE__) );
-        wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.ko.min.js', __FILE__), array('wps-adm-knockout-js'));
-        wp_enqueue_style('wps-adm-surveyjseditor-css', plugins_url('libs/surveyeditor.css', __FILE__) );
-        wp_enqueue_script('wps-adm-surveyjseditor-js', plugins_url('libs/surveyeditor.min.js', __FILE__), array('wps-adm-survey-ko-js'));
+            wp_enqueue_style('wps-adm-survey-css', plugins_url('libs/survey.css', __FILE__) );
+            wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.ko.min.js', __FILE__), array('wps-adm-knockout-js'));
+            wp_enqueue_style('wps-adm-surveyjseditor-css', plugins_url('libs/surveyeditor.css', __FILE__) );
+            wp_enqueue_script('wps-adm-surveyjseditor-js', plugins_url('libs/surveyeditor.min.js', __FILE__), array('wps-adm-survey-ko-js'));
 
-        wp_enqueue_style('wps-adm-datatables-css', plugins_url('libs/datatables/dataTables.min.css', __FILE__) );
-        wp_enqueue_script('wps-adm-sdatatables-js', plugins_url('libs/datatables/dataTables.min.js', __FILE__) );
-        wp_enqueue_script('wps-adm-datatables-js-1', plugins_url('libs/datatables/dataTables.buttons.min.js', __FILE__) );
-        wp_enqueue_style('wps-adm-datatables-css-1', plugins_url('libs/datatables/buttons.dataTables.min.css', __FILE__) );
-        wp_enqueue_script('wps-adm-sdatatables-js-2', plugins_url('libs/datatables/buttons.flash.min.js', __FILE__) );
-        wp_enqueue_script('wps-adm-sdatatables-js-3', plugins_url('libs/datatables/jszip.min.js', __FILE__) );
-        // wp_enqueue_script('wps-adm-sdatatables-js-4', plugins_url('libs/datatables/pdfmake.min.js', __FILE__)  );
-        wp_enqueue_script('wps-adm-sdatatables-js-5', plugins_url('libs/datatables/vfs_fonts.js', __FILE__)   );
-        wp_enqueue_script('wps-adm-sdatatables-js-6', plugins_url('libs/datatables/buttons.html5.min.js', __FILE__)   );
-        wp_enqueue_script('wps-adm-sdatatables-js-7', plugins_url('libs/datatables/buttons.print.min.js', __FILE__)   );
+            wp_enqueue_style('wps-adm-datatables-css', plugins_url('libs/datatables/dataTables.min.css', __FILE__) );
+            wp_enqueue_script('wps-adm-sdatatables-js', plugins_url('libs/datatables/dataTables.min.js', __FILE__) );
+            wp_enqueue_script('wps-adm-datatables-js-1', plugins_url('libs/datatables/dataTables.buttons.min.js', __FILE__) );
+            wp_enqueue_style('wps-adm-datatables-css-1', plugins_url('libs/datatables/buttons.dataTables.min.css', __FILE__) );
+            wp_enqueue_script('wps-adm-sdatatables-js-2', plugins_url('libs/datatables/buttons.flash.min.js', __FILE__) );
+            wp_enqueue_script('wps-adm-sdatatables-js-3', plugins_url('libs/datatables/jszip.min.js', __FILE__) );
+            // wp_enqueue_script('wps-adm-sdatatables-js-4', plugins_url('libs/datatables/pdfmake.min.js', __FILE__)  );
+            wp_enqueue_script('wps-adm-sdatatables-js-5', plugins_url('libs/datatables/vfs_fonts.js', __FILE__)   );
+            wp_enqueue_script('wps-adm-sdatatables-js-6', plugins_url('libs/datatables/buttons.html5.min.js', __FILE__)   );
+            wp_enqueue_script('wps-adm-sdatatables-js-7', plugins_url('libs/datatables/buttons.print.min.js', __FILE__)   );
 
-        wp_enqueue_style('thickbox');
-        wp_enqueue_script('thickbox');
+            wp_enqueue_style('thickbox');
+            wp_enqueue_script('thickbox');
+        }
     }
 
     public function enqueue_frontend_scripts() {       
