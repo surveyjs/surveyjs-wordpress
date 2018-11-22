@@ -137,7 +137,7 @@ class SurveyJS_Editor {
                             timeout: 60000
                         });
                     });
-                    var json = "<?php echo $json; ?>";
+                    var json = '<?php echo htmlspecialchars_decode($json); ?>';
                     editor.text = json;      
                 </script>
             </div>
