@@ -19,6 +19,17 @@ class SurveyJS_SurveyJS {
 
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+
+        add_action( 'enqueue_block_editor_assets', array($this, 'sjs_gutenberg_block_editor_assets') );
+    }
+
+    public function sjs_gutenberg_block_editor_assets() {
+        wp_enqueue_script(
+            'sjs-gutenberg-block-js',
+            plugins_url( 'block/sjs-gutenberg-block.js', __FILE__),
+            array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
+            true // Enqueue the script in the footer.
+        );
     }
 
     public function enqueue_admin_scripts() {
