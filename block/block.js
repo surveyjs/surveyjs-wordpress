@@ -17,7 +17,7 @@ for (var i = 0; i < surveysArray.length; i++) {
 registerBlockType("sjs/gutenberg-block", {
   title: "SurveyJS",
 
-  icon: "universal-access-alt",
+  icon: "welcome-write-blog",
 
   category: "common",
 
