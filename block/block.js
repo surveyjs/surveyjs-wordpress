@@ -2,7 +2,7 @@ var el = wp.element.createElement;
 var registerBlockType = wp.blocks.registerBlockType;
 var SelectControl = wp.components.SelectControl;
 var InspectorControls = wp.editor.InspectorControls;
-var blockStyle = { backgroundColor: "#900", color: "#fff", padding: "20px" };
+var blockStyle = { border: "2px solid #1ab394", padding: "20px" };
 var surveysArray = this.surveys;
 var surveys = {};
 
@@ -24,7 +24,12 @@ registerBlockType("sjs/gutenberg-block", {
   edit: function(props) {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
-    var options = [];
+    var options = [
+      {
+        label: "choose the survey...",
+        value: "none"
+      }
+    ];
 
     surveysArray.forEach(function(survey) {
       options.push({
@@ -40,6 +45,7 @@ registerBlockType("sjs/gutenberg-block", {
       el("hr"),
       el(SelectControl, {
         label: "Choose survey to insert",
+        defaultValue: "none",
         value: attributes.surveyid,
         options: options,
         onChange: function(value) {
@@ -49,17 +55,22 @@ registerBlockType("sjs/gutenberg-block", {
     );
 
     var surveyid = attributes.surveyid;
-    var shortCodeString = surveyid
-      ? '[Survey id="' + surveyid + '" name="' + surveys[surveyid].name + '"] '
-      : "Please choose a survey";
+    var shortCodeString =
+      surveyid === "none"
+        ? "Please choose a survey in the Settings => Block menu"
+        : '[Survey id="' +
+          surveyid +
+          '" name="' +
+          surveys[surveyid].name +
+          '"] ';
 
     setAttributes({ shortcode: shortCodeString });
 
     return el(
-      "p",
+      "div",
       { style: blockStyle },
-      shortCodeString,
-      el("div", {}),
+      el("h3", {}, "SurveyJS shortcode: "),
+      el("div", {}, shortCodeString),
       inspectorControl
     );
   },

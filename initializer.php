@@ -55,7 +55,11 @@ class SurveyJS_SurveyJS {
                     'shortcode'          => array(
                         'type' => 'string',
                         'default' => '',
-                    )
+                    ),
+                    'surveyid'   => array(
+                        'type' => 'string',
+                        'default' => 'none',
+                    ),
                 ),
                 'editor_script' => $blockscriptname,
                 'render_callback' => array( self::class, 'render_callback_shortcode' ),
@@ -64,9 +68,6 @@ class SurveyJS_SurveyJS {
     }
 
     public static function render_callback_shortcode( $attributes ) {
-		if ( is_null( $attributes['shortcode'] ) || '' === $attributes['shortcode'] ) {
-			return 'Please, set here the [shortcode] to render';
-		}
 		return do_shortcode( sanitize_text_field( $attributes['shortcode'] ) );
 	}
 
