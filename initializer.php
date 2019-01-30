@@ -1,6 +1,7 @@
 <?php
 
 include( "views/settings.php" );
+
 if ( is_admin() ) {
     include( "views/mysurveys.php" );
     include( "views/editor.php" );
@@ -20,17 +21,54 @@ class SurveyJS_SurveyJS {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
-        add_action( 'enqueue_block_editor_assets', array($this, 'sjs_gutenberg_block_editor_assets') );
+        add_action('init', array($this, 'register_sjs_gutenberg_block'));
     }
 
-    public function sjs_gutenberg_block_editor_assets() {
+    public function register_sjs_gutenberg_block() {
+        if ( ! function_exists( 'register_block_type' ) ) {
+            return;
+        }
+
+        $blockname = 'sjs/gutenberg-block';
+        $blockscriptname = 'sjs-block-js';
+
+        $client = new SurveyJS_Client();
+        $surveys = $client->getSurveys();
+
         wp_enqueue_script(
-            'sjs-gutenberg-block-js',
-            plugins_url( 'block/sjs-gutenberg-block.js', __FILE__),
+            $blockscriptname,
+            plugins_url( 'block/block.js', __FILE__),
             array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
             true // Enqueue the script in the footer.
         );
+
+        wp_localize_script(
+            $blockscriptname,
+            'surveys',
+            $surveys
+        );
+
+        register_block_type(
+            $blockname,
+            array(
+                'attributes'      => array(
+                    'shortcode'          => array(
+                        'type' => 'string',
+                        'default' => '',
+                    )
+                ),
+                'editor_script' => $blockscriptname,
+                'render_callback' => array( self::class, 'render_callback_shortcode' ),
+            )
+        );
     }
+
+    public static function render_callback_shortcode( $attributes ) {
+		if ( is_null( $attributes['shortcode'] ) || '' === $attributes['shortcode'] ) {
+			return 'Please, set here the [shortcode] to render';
+		}
+		return do_shortcode( sanitize_text_field( $attributes['shortcode'] ) );
+	}
 
     public function enqueue_admin_scripts() {
         if ( isset( $_GET["page"] ) &&
