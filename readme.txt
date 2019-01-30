@@ -2,7 +2,7 @@
 Contributors: devsoftbaltic
 Tags: survey, form builder, form editor, survey builder, survey editor, form quiz, quiz builder, quiz editor, form builder, forms builder, questionnaire, questionnaire builder, questionnaire editor
 Requires at least: 4.6
-Tested up to: 4.9.2
+Tested up to: 5.0.3
 Stable tag: trunk
 Requires PHP: 5.2.4
 License: GPLv2 or later
