@@ -42,7 +42,7 @@ Author URI: http://devsoftbaltic.com/
         $sql = "CREATE TABLE $table_name (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             surveyId mediumint(9) NOT NULL,
-            json text,
+            json longtext,
             UNIQUE KEY id (id)
         ) $charset_collate;";
 
