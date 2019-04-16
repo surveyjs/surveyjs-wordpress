@@ -1,9 +1,9 @@
-# SurveyJS for WordPress #
-SurveyJS for WordPress - Survey, Quiz and Form Builder WordPress plug-in.
+# SurveyJS: Survey Library and Survey Creator for WordPress #
+SurveyJS for WordPress - Survey, Quiz, Survey Creator and Form Builder WordPress plug-in.
 
 ## Description ##
 
-Easy to use, drag & drop Survey Builder with myriad options. It is based on popular in JavaScript developer community [SurveyJS Library](https://surveyjs.io/Overview/Library/) and [Builder (Editor)](https://surveyjs.io/Survey/Builder/).
+Easy to use, drag & drop Survey Creator with myriad options. It is based on popular in JavaScript developer community [SurveyJS Library](https://surveyjs.io/Overview/Library/) and [Survey Creator](https://surveyjs.io/Survey/Survey-Creator/).
 
 *Main features:*
 * It has 15 elements (questions and panels) from simple inputs like text and dropdown to Panel containers and dynamic matrix (table), that allows to build you complex forms.
@@ -31,7 +31,7 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 
 1. My surveys page<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-1.png?raw=true)
-2. SurveyJS builder<br/>
+2. Survey Creator<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-2.png?raw=true)
 3. Results page<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/assets/screenshot-3.png?raw=true)
@@ -43,12 +43,12 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 ### 0.5 ###
 * first public release
 = 1.0.26 =
-* synchronized version with SurveyJS project
+* synchronized version with SurveyJS
 * fixed the bug https://surveyjs.answerdesk.io/internal/ticket/details/T332
 
 ## Support ##
 * [https://wordpress.org/support/plugin/surveyjs](https://wordpress.org/support/plugin/surveyjs)
-* [https://github.com/surveyjs/surveyjs/issues](https://github.com/surveyjs/surveyjs/issues) or [https://github.com/surveyjs/editor/issues](https://github.com/surveyjs/editor/issues)
+* [https://github.com/surveyjs/survey-library/issues](https://github.com/surveyjs/survey-library/issues) or [https://github.com/surveyjs/survey-creator/issues](https://github.com/surveyjs/survey-creatir/issues)
 * [https://surveyjs.answerdesk.io](https://surveyjs.answerdesk.io)
 
 ## Our web sites ##
