@@ -1,10 +1,10 @@
 /*!
- * surveyjs Builder(Editor) v1.0.55
+ * surveyjs Builder(Editor) v1.0.73
  * (c) Devsoft Baltic O� - http://surveyjs.io/
  * Github: https://github.com/surveyjs/editor
  * License: https://surveyjs.io/Licenses#BuildSurvey
  */
- .sjs-cb-wrapper {
+.sjs-cb-wrapper {
   display: inline-block;
   margin-right: 1em;
   line-height: 2em; }
@@ -697,6 +697,14 @@
     padding-left: 45px;
     margin-bottom: 10px; } }
 
+.svd_flowpanel[contenteditable="true"]:empty:before {
+  content: attr(placeholder); }
+
+.svd_flowpanel[contenteditable="true"] {
+  padding: 5px;
+  display: block;
+  /* For Firefox */ }
+
 .svd_container {
   position: relative;
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
@@ -1178,6 +1186,87 @@
         padding: 15px;
         text-align: right;
         border-top: 1px solid #e5e5e5; }
+
+.svd_container .svd_test_results {
+  padding: 1em; }
+  .svd_container .svd_test_results .svd_results_text {
+    padding: 1em;
+    white-space: pre-wrap;
+    width: 100%;
+    overflow: auto; }
+  .svd_container .svd_test_results .svd_results_table {
+    padding: 1em;
+    width: 100%;
+    overflow: auto; }
+    .svd_container .svd_test_results .svd_results_table table {
+      border-collapse: collapse;
+      width: 100%; }
+      .svd_container .svd_test_results .svd_results_table table .survey-result-marker {
+        position: absolute;
+        left: 1em;
+        top: 0.5em;
+        transition: transform 0.2s ease-in-out; }
+        .svd_container .svd_test_results .svd_results_table table .survey-result-marker.survey-result-marker--expanded {
+          transform: rotate(90deg); }
+      .svd_container .svd_test_results .svd_results_table table .survey-result-value {
+        word-break: break-all; }
+      .svd_container .svd_test_results .svd_results_table table tr {
+        vertical-align: top; }
+      .svd_container .svd_test_results .svd_results_table table th,
+      .svd_container .svd_test_results .svd_results_table table td {
+        border: 1px solid;
+        padding: 0.5em 1em;
+        max-width: 400px;
+        overflow: auto; }
+        .svd_container .svd_test_results .svd_results_table table th:nth-child(1),
+        .svd_container .svd_test_results .svd_results_table table td:nth-child(1) {
+          position: relative;
+          width: 30%;
+          font-weight: 500;
+          padding-left: 2em; }
+        .svd_container .svd_test_results .svd_results_table table th:nth-child(2),
+        .svd_container .svd_test_results .svd_results_table table td:nth-child(2) {
+          width: 20%; }
+        .svd_container .svd_test_results .svd_results_table table th:nth-child(3),
+        .svd_container .svd_test_results .svd_results_table table td:nth-child(3) {
+          width: 20%; }
+        .svd_container .svd_test_results .svd_results_table table th:nth-child(4),
+        .svd_container .svd_test_results .svd_results_table table td:nth-child(4) {
+          width: 30%;
+          font-weight: 500; }
+
+@media all and (-ms-high-contrast: none) {
+  *::-ms-backdrop,
+  .svd_container use {
+    /* IE11 - https://surveyjs.answerdesk.io/ticket/details/T1387 */
+    pointer-events: none; } }
+
+.svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel {
+  min-width: 100px; }
+  .svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel .svd_question {
+    margin: 0;
+    padding: 0 10px;
+    vertical-align: baseline;
+    position: relative; }
+    .svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel .svd_question .form-group {
+      margin: 0; }
+    .svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel .svd_question select {
+      min-width: 250px; }
+    .svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel .svd_question .svda-question-actions {
+      top: 0;
+      transition: top 0.25s; }
+    .svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel .svd_question.svd_q_selected .svda-question-actions {
+      position: absolute;
+      left: 0;
+      top: -30px;
+      transition: top 0.25s;
+      width: 100%;
+      line-height: 30px;
+      text-align: right;
+      background-color: #f0f0f0; }
+    .svd_container.sv_default_css #surveyjs .sv_row .svd_question f-panel .svd_question.svd_q_selected .select_items_editor > select + div {
+      position: absolute;
+      width: 100%; }
 .title_editable {
   pointer-events: all;
   cursor: text; }
@@ -1376,6 +1465,33 @@ image-item-editor {
     pointer-events: all; }
     image-item-editor .svda-content .edit-image-item {
       cursor: pointer; }
+flowpanel-actions {
+  display: none;
+  position: relative; }
+  flowpanel-actions .svda_question_action {
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 1em; }
+
+.svd_q_selected > .svda-question-actions flowpanel-actions {
+  display: block; }
+
+.svd_q_selected > .svda-question-actions .svda_action_separator {
+  margin-left: 15px;
+  margin-top: -5px; }
+
+/************************************************************/
+/***********move to the surveyjs library*********************/
+.sv_main .sv_container f-panel span[question="true"] > div.sv_qstn {
+  display: inline-block;
+  vertical-align: baseline; }
+
+.svd_survey_designer f-panel .svda-question-actions {
+  left: 0;
+  right: 0;
+  padding: 0 15px; }
+  .svd_survey_designer f-panel .svda-question-actions > question-actions {
+    position: relative; }
 .svd-accordion-tab-header {
   background-color: #e0e0e0;
   min-height: 32px;
@@ -1397,3 +1513,5 @@ svd-splitter {
   cursor: ew-resize; }
   svd-splitter:hover, svd-splitter.svd-active-splitter {
     background-color: gray; }
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiIuL3BhY2thZ2Uvc3VydmV5ZWRpdG9yLmNzcyIsInNvdXJjZVJvb3QiOiIifQ==*/

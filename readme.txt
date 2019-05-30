@@ -24,6 +24,8 @@ Easy to use, drag & drop Survey Creator with myriad options. It is based on popu
 * Show results in a read only survey.
 * Several good-looking themes and much more
 
+The plugin supports the Gutenberg editor and old the editor as well.
+
 To find out more and review SurveyJS Examples please go to [https://surveyjs.io/Examples/Library/](https://surveyjs.io/Examples/Library/).
 
 == Installation and usage ==
@@ -33,8 +35,9 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 3. Navigate to the SurveyJS page of wordpress admin menu and click the “Add Survey”.
 4. Use the SurveyJS->Setting page to choose a theme.
 5. Go to the Posts page and click the “Add Survey” button. Then choose a survey and click the “Insert” button to add a SurveyJS shortcut.
-6. Go to the preview and check your survey.
-7. Check your wordpress database for *wp_sjs_my_surveys* and *wp_sjs_results* tables.
+6. For the Gutenberg Editor, please add "SurveyJS" block in the "Common Blocks" section. Then choose a survey in the block's settings to add a SurveyJS shortcut.
+7. Go to the preview and check your survey.
+8. Check your wordpress database for *wp_sjs_my_surveys* and *wp_sjs_results* tables.
 
 == Screenshots ==
 
@@ -42,6 +45,9 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 2. Survey Creator
 3. Results page
 4. Settings
+5. Choose Gutenberg block
+6. Choose the survey
+7. Gutenberg block with the shortcode
 
 == Changelog ==
 
@@ -53,7 +59,7 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 
 == Support ==
 * [https://wordpress.org/support/plugin/surveyjs](https://wordpress.org/support/plugin/surveyjs)
-* [https://github.com/surveyjs/survey-library/issues](https://github.com/surveyjs/survey-library/issues) or [https://github.com/surveyjs/survey-creator/issues](https://github.com/surveyjs/survey-creator/issues)
+* [https://github.com/surveyjs/surveyjs/issues](https://github.com/surveyjs/surveyjs/issues) or [https://github.com/surveyjs/editor/issues](https://github.com/surveyjs/editor/issues)
 * [https://surveyjs.answerdesk.io](https://surveyjs.answerdesk.io)
 
 == Our web sites ==
