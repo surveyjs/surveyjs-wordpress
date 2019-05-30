@@ -5,7 +5,7 @@ include_once("ajax_handler.php");
 class SurveyJS_GetSurveyJson extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("SurveyJS_GetSurveyJson");  
+        parent::__construct("SurveyJS_GetSurveyJson", true);  
     }
         
     function callback() {

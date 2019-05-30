@@ -5,7 +5,7 @@ include_once("ajax_handler.php");
 class SurveyJS_DeleteSurvey extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("SurveyJS_DeleteSurvey");  
+        parent::__construct("SurveyJS_DeleteSurvey", false);  
     }
         
     function callback() {

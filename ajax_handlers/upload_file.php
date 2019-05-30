@@ -8,7 +8,7 @@ if ( ! function_exists( 'wp_handle_upload' ) ) {
 class SurveyJS_UploadFile extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("SurveyJS_UploadFile");  
+        parent::__construct("SurveyJS_UploadFile", false);  
     }
         
     function callback() {
