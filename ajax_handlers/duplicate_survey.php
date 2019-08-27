@@ -13,8 +13,6 @@ class SurveyJS_DuplicateSurvey extends SurveyJS_AJAX_Handler {
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
             $id = sanitize_key($_POST['Id']);
-
-
             $query = "SELECT * FROM " . $table_name . " WHERE id=" . $id;
             $json =  $wpdb->get_row($query)->json;
             $name =  $wpdb->get_row($query)->name;

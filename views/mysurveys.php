@@ -24,15 +24,12 @@ class SurveyJS_MySurveys {
                         }
                     });
                 }
+
                 function duplicateSurvey(id){
                     jQuery.ajax({
                         url: "<?php echo esc_url($duplicateSurveyUri) ?>",
                         type: "POST",
-                        data: {
-                            Id: id
-                            // Name: // Get Name of Survey that was clicked
-                            // JSON: // Get JSON of Survey that was clicked
-                        },
+                        data: { Id: id },
                         success: function(data){
                            window.location = "";
                         }
