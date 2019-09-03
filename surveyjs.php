@@ -65,6 +65,8 @@ Author URI: http://devsoftbaltic.com/
     new SurveyJS_AddSurvey();
     include("ajax_handlers/delete_survey.php");
     new SurveyJS_DeleteSurvey();
+    include("ajax_handlers/duplicate_survey.php");
+    new SurveyJS_DuplicateSurvey();
     include("ajax_handlers/get_survey_json.php");
     new SurveyJS_GetSurveyJson();
     include("ajax_handlers/save_result.php");

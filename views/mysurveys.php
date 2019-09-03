@@ -10,6 +10,7 @@ class SurveyJS_MySurveys {
         $client = new SurveyJS_Client();
         $editSurveyUri = add_query_arg(array('page' => 'surveyjs_editor'), admin_url('admin.php'));
         $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
+        $duplicateSurveyUri = add_query_arg(array('action' => 'SurveyJS_DuplicateSurvey'), admin_url('admin-ajax.php'));
         $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
         ?>
             <script>
@@ -23,6 +24,18 @@ class SurveyJS_MySurveys {
                         }
                     });
                 }
+
+                function duplicateSurvey(id){
+                    jQuery.ajax({
+                        url: "<?php echo esc_url($duplicateSurveyUri) ?>",
+                        type: "POST",
+                        data: { Id: id },
+                        success: function(data){
+                           window.location = "";
+                        }
+                    })
+                }
+
                 function deleteSurvey(id) {
                     var res = confirm("Are you sure?");
                     if (!res) return;
@@ -60,6 +73,7 @@ class SurveyJS_MySurveys {
                                         <?php
                                         foreach ($client->getSurveys() as $surveyDefinition) {
                                             $editUrl = add_query_arg(array('page' => 'surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
+                                            $duplicateUrl = add_query_arg(array('page' => 'sjs-main-menu', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                                             $resultsUrl = add_query_arg(array('page' => 'surveyjs_results', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                                         ?>
                                         <tr>
@@ -69,6 +83,7 @@ class SurveyJS_MySurveys {
                                                 <a class="sv_button_link" href="<?php echo esc_url($editUrl) ?>">Edit</a>
                                                 <a class="sv_button_link" href="<?php echo esc_url($resultsUrl) ?>">Results</a>
                                                 <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Delete</span>
+                                                <span class="sv_button_link sv_button_duplicate" onclick="duplicateSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Duplicate</span>
                                             </td>
                                         </tr>
                                         <?php
