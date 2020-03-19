@@ -45,11 +45,11 @@ class SurveyJS_SettingsPage {
 
 	public function theme_render() {
 		$settings = (array) get_option( 'sjs-settings' );
-		$themes = array('default', 'orange', 'darkblue', 'darkrose', 'stone', 'winter', 'winterstone');
+		$themes = array('modern', 'default', 'orange', 'darkblue', 'darkrose', 'stone', 'winter', 'winterstone');
 
 		if (isset($settings['theme']))
 		{
-			if ($settings['theme'] == '') { $settings['theme'] = 'default'; }
+			if ($settings['theme'] == '') { $settings['theme'] = 'modern'; }
 			$current_theme = esc_attr( $settings['theme'] );
 		}
 

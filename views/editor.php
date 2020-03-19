@@ -89,7 +89,7 @@ class SurveyJS_Editor {
                 <div id="sjs-editor-container"></div>
                 <script>
                     var editorOptions = { showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false };
-                    var editor = new SurveyEditor.SurveyEditor("sjs-editor-container", editorOptions);
+                    var editor = new SurveyCreator.SurveyCreator("sjs-editor-container", editorOptions);
                     editor.showState = true;
                     editor.isAutoSave = true;
                     editor.saveSurveyFunc = function(saveNo, callback) {
