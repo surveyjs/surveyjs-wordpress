@@ -57,20 +57,31 @@ Author URI: http://devsoftbaltic.com/
 
     include("ajax_handlers/insert_survey.php");
     new SurveyJS_InsertSurveyHandler();
+
     include("ajax_handlers/save_survey.php");
     new SurveyJS_SaveSurvey();
+
     include("ajax_handlers/rename_survey.php");
     new SurveyJS_RenameSurvey();
+
     include("ajax_handlers/add_survey.php");
     new SurveyJS_AddSurvey();
+
     include("ajax_handlers/delete_survey.php");
     new SurveyJS_DeleteSurvey();
+
+    include("ajax_handlers/clone_survey.php");
+    new SurveyJS_CloneSurvey();
+
     include("ajax_handlers/get_survey_json.php");
     new SurveyJS_GetSurveyJson();
+
     include("ajax_handlers/save_result.php");
     new SurveyJS_SaveResult();
+
     include("ajax_handlers/delete_result.php");
     new SurveyJS_DeleteResult();
+
     include("ajax_handlers/upload_file.php");
     new SurveyJS_UploadFile();
 

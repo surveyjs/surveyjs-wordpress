@@ -11,6 +11,7 @@ class SurveyJS_MySurveys {
         $editSurveyUri = add_query_arg(array('page' => 'surveyjs_editor'), admin_url('admin.php'));
         $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
         $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
+        $cloneSurveyUri = add_query_arg(array('action' => 'SurveyJS_CloneSurvey'), admin_url('admin-ajax.php'));
         ?>
             <script>
                 function addNewSurvey() {
@@ -24,12 +25,23 @@ class SurveyJS_MySurveys {
                     });
                 }
                 function deleteSurvey(id) {
-                    var res = confirm("Are you sure?");
+                    var res = confirm("This action CANNOT be undone! Are you ABSOLUTELY sure?");
                     if (!res) return;
                     jQuery.ajax({
                         url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
                         type: "POST",
                         data: { Id: id },
+                        success: function (data) {
+                            window.location = "";
+                        }
+                    });
+                }
+                function cloneSurvey(id) {
+                    debugger;
+                    jQuery.ajax({
+                        url:  "<?php echo esc_url($cloneSurveyUri)  ?>",
+                        type: "POST",
+                        data: { SurveyParentId: id },
                         success: function (data) {
                             window.location = "";
                         }
@@ -68,6 +80,7 @@ class SurveyJS_MySurveys {
                                                 <!-- <a class="sv_button_link" href="<?php echo sanitize_key($surveyDefinition->id) ?>">Run</a> -->
                                                 <a class="sv_button_link" href="<?php echo esc_url($editUrl) ?>">Edit</a>
                                                 <a class="sv_button_link" href="<?php echo esc_url($resultsUrl) ?>">Results</a>
+                                                <span class="sv_button_link" onclick="cloneSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Clone</span>
                                                 <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Delete</span>
                                             </td>
                                         </tr>
