@@ -69,18 +69,11 @@ class SurveyJS_Results {
                     sortable: false,
                     className: "center",
                     defaultContent:
-                    "<button id='showInSurvey' style='min-width: 150px;'>Show in Survey</button>"
+                    `
+                     <button id='showInSurvey' style='min-width: 150px; margin-right: 50px; color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;'>Show in Survey</button>
+                     <button id='deleteResult' style='min-width: 150px; color: white;background-color: #d9534f;border: none;padding: 6px;border-radius: 5px;'>Delete result </button>
+                    `
                 });
-
-                columns.push({
-                    targets: -1,
-                    data: null,
-                    sortable: false,
-                    className: "center",
-                    defaultContent:
-                    "<button id='deleteResult' style='min-width: 150px;'>Delete result </button>"
-                });
-
 
                 var windowSurvey = new Survey.SurveyWindow(surveyJson);
                 windowSurvey.survey.mode = "display";
