@@ -59,7 +59,7 @@ class SurveyJS_MySurveys {
                         <div class="sv_body">
                             <div id="surveys-list" class="surveys-list">
                                 <section>
-                                    <button onclick="addNewSurvey()">Add Survey</button>
+                                    <button style='min-width: 100px; color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;' onclick="addNewSurvey()">Add Survey</button>
                                 </section>
                                 <table class="table table-striped">
                                     <thead>

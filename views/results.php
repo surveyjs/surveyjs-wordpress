@@ -26,7 +26,7 @@ class SurveyJS_Results {
             <div class="wp-sjs-plugin">
                 <div class="survey-page-header">
                     <div class="sv_main survey-page-header-content">
-                        <button onclick="window.location = '/wp-admin/admin.php?page=sjs-main-menu'">&lt&nbspBack</button>
+                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=sjs-main-menu'">&lt&nbspBack</button>
                     </div>
                 </div>
                 <div class="sv_main sv_frame sv_default_css">
