@@ -11,7 +11,7 @@ class SurveyJS_Results {
         global $wpdb;
         $surveyId = sanitize_key($_GET['id']);
         $table_name = $wpdb->prefix . 'sjs_results';
-        $query = "SELECT json FROM " . $table_name . " WHERE surveyId=" . $surveyId;
+        $query = "SELECT id, json FROM " . $table_name . " WHERE surveyId=" . $surveyId;
         $surveyResults = json_encode( $wpdb->get_results($query) );
 
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
@@ -19,6 +19,8 @@ class SurveyJS_Results {
         $surveyJson = $wpdb->get_row($query)->json;
         
         $surveyName = sanitize_text_field($_GET['name']);
+
+        $deleteResultUri = add_query_arg(array('action' => 'SurveyJS_DeleteResult'), admin_url('admin-ajax.php'));
 
         ?>
             <div class="wp-sjs-plugin">
@@ -65,8 +67,18 @@ class SurveyJS_Results {
                     targets: -1,
                     data: null,
                     sortable: false,
+                    className: "center",
                     defaultContent:
-                    "<button style='min-width: 150px;'>Show in Survey</button>"
+                    "<button id='showInSurvey' style='min-width: 150px;'>Show in Survey</button>"
+                });
+
+                columns.push({
+                    targets: -1,
+                    data: null,
+                    sortable: false,
+                    className: "center",
+                    defaultContent:
+                    "<button id='deleteResult' style='min-width: 150px;'>Delete result </button>"
                 });
 
 
@@ -75,15 +87,18 @@ class SurveyJS_Results {
                 windowSurvey.survey.title = "<?php echo $surveyName; ?>";
                 windowSurvey.show();
 
-                $(document).on("click", "#wpSjsResultsTable td", function(e) {
+                $(document).on("click", "#showInSurvey", function(e) {
                     var row_object = table.row(this).data();
                     windowSurvey.survey.data = row_object;
                     windowSurvey.isExpanded = true;
                 });
 
                 var results = <?php echo $surveyResults; ?>;
+                
                 var data = results.map(function(result) {
-                    return JSON.parse(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'") || "{}");
+                    var dataItem = JSON.parse(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'") || "{}");
+                    dataItem.resultId = result.id;
+                    return dataItem;
                 });
 
                 var table = $("#wpSjsResultsTable").DataTable({
@@ -93,6 +108,24 @@ class SurveyJS_Results {
                     ],
                     columns: columns,
                     data: data
+                });
+
+                $('#wpSjsResultsTable tbody').on('click', '#deleteResult', function (e) {
+                    e.preventDefault();
+                    var confirmResult = confirm("This action CANNOT be undone! Are you ABSOLUTELY sure?");
+                    if (!confirmResult) return;
+                    var row = table.row( $(this).parents('tr') );
+                    var data = row.data();
+                    jQuery.ajax({
+                        url:  "<?php echo esc_url($deleteResultUri) ?>",
+                        type: "POST",
+                        data: { ResultId: data.resultId },
+                        success: function (data) {
+                            row.remove();
+                            table.draw();
+                        }
+                    });
+
                 });
             </script>
         <?php
