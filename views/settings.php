@@ -16,7 +16,7 @@ class SurveyJS_SettingsPage {
 		if ( isset( $settings['theme'] ) ) {
 			return esc_js( $settings['theme'] );
 		}
-		return 'default';
+		return 'modern';
 	}
 
 	public static function get_allow_paddings() {

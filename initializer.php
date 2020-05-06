@@ -35,18 +35,20 @@ class SurveyJS_SurveyJS {
         $client = new SurveyJS_Client();
         $surveys = $client->getSurveys();
 
-        wp_enqueue_script(
-            $blockscriptname,
-            plugins_url( 'block/block.js', __FILE__),
-            array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
-            true // Enqueue the script in the footer.
-        );
+        if ( is_admin() ) {
+            wp_enqueue_script(
+                $blockscriptname,
+                plugins_url( 'block/block.js', __FILE__),
+                array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
+                true // Enqueue the script in the footer.
+            );
 
-        wp_localize_script(
-            $blockscriptname,
-            'surveys',
-            $surveys
-        );
+            wp_localize_script(
+                $blockscriptname,
+                'surveys',
+                $surveys
+            );
+        }
 
         register_block_type(
             $blockname,
@@ -108,7 +110,7 @@ class SurveyJS_SurveyJS {
         wp_enqueue_style('wps-survey-css', plugins_url('libs/survey.css', __FILE__) );
         wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
         wp_enqueue_style('wps-survey-modern-css', plugins_url('libs/modern.css', __FILE__) );
-        wp_enqueue_style('wps-survey-modern-override-css', plugins_url('/modern.css', __FILE__) );
+        wp_enqueue_style('wps-survey-modern-override-css', plugins_url('libs/modern.css', __FILE__) );
         wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
     }
   
@@ -153,7 +155,10 @@ class SurveyJS_SurveyJS {
                 type: "POST",
                 data: { Id: <?php echo $id ?> },
                 success: function (data) {
-                    var json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
+                    var json = {}
+                    if (data.json) {
+                        json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
+                    }
                     initSurvey<?php echo $id ?>(json);
                 }
             });
