@@ -48,7 +48,7 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 
 ## Support ##
 * [https://wordpress.org/support/plugin/surveyjs](https://wordpress.org/support/plugin/surveyjs)
-* [https://github.com/surveyjs/survey-library/issues](https://github.com/surveyjs/survey-library/issues) or [https://github.com/surveyjs/survey-creator/issues](https://github.com/surveyjs/survey-creatir/issues)
+* [https://github.com/surveyjs/survey-library/issues](https://github.com/surveyjs/survey-library/issues) or [https://github.com/surveyjs/survey-creator/issues](https://github.com/surveyjs/survey-creator/issues)
 * [https://surveyjs.answerdesk.io](https://surveyjs.answerdesk.io)
 
 ## Our web sites ##
