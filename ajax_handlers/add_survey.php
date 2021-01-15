@@ -1,15 +1,15 @@
 <?php
 
-include_once("ajax_handler.php");
+include_once('ajax_handler.php');
 
 class SurveyJS_AddSurvey extends SurveyJS_AJAX_Handler {
     
     function __construct() {
-        parent::__construct("SurveyJS_AddSurvey", false);  
+        parent::__construct('SurveyJS_AddSurvey', false);  
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
@@ -20,7 +20,7 @@ class SurveyJS_AddSurvey extends SurveyJS_AJAX_Handler {
                 ) 
             );
 
-            wp_send_json( array('Id' => $wpdb->insert_id) );
+            wp_send_json(array('Id' => $wpdb->insert_id));
         }
     }
 }

@@ -1,8 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 class SurveyJS_Editor {
-
     function __construct() {
     }
 
@@ -10,7 +9,7 @@ class SurveyJS_Editor {
         $surveyId = sanitize_key($_GET['id']);
         global $wpdb;
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
+        $query = "SELECT * FROM " . $table_name . ' WHERE id=' . $surveyId;
         $json = $wpdb->get_row($query)->json;
 
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
@@ -30,34 +29,34 @@ class SurveyJS_Editor {
             <script>
                 var surveyName = "<?php echo sanitize_text_field($_GET['name']) ?>";
                 function setSurveyName(name) {
-                    var $titleTitle = jQuery("#sjs_editor_title_show");
-                    $titleTitle.find("span").text(name);
+                    var $titleTitle = jQuery('#sjs_editor_title_show');
+                    $titleTitle.find('span').text(name);
                 }
                 function startEdit() {
-                    var $titleEditor = jQuery("#sjs_editor_title_edit");
-                    var $titleTitle = jQuery("#sjs_editor_title_show");
+                    var $titleEditor = jQuery('#sjs_editor_title_edit');
+                    var $titleTitle = jQuery('#sjs_editor_title_show');
                     $titleTitle.hide();
                     $titleEditor.show();
-                    $titleEditor.find("input")[0].value = surveyName;
-                    $titleEditor.find("input").focus();
+                    $titleEditor.find('input')[0].value = surveyName;
+                    $titleEditor.find('input').focus();
                 }
                 function cancelEdit() {
-                    var $titleEditor = jQuery("#sjs_editor_title_edit");
-                    var $titleTitle = jQuery("#sjs_editor_title_show");
+                    var $titleEditor = jQuery('#sjs_editor_title_edit');
+                    var $titleTitle = jQuery('#sjs_editor_title_show');
                     $titleEditor.hide();
                     $titleTitle.show();
                 }
                 function postEdit() {
                     cancelEdit();
                     var oldName = surveyName;
-                    var $titleEditor = jQuery("#sjs_editor_title_edit");
-                    surveyName = $titleEditor.find("input")[0].value;
+                    var $titleEditor = jQuery('#sjs_editor_title_edit');
+                    surveyName = $titleEditor.find('input')[0].value;
 
                     setSurveyName(surveyName);
 
                     jQuery.ajax({
-                        url:  "<?php echo esc_url($renameSurveyUri) ?>",
-                        type: "POST",
+                        url:  '<?php echo esc_url($renameSurveyUri) ?>',
+                        type: 'POST',
                         data: { Id: '<?php echo $surveyId ?>', Name: surveyName },
                         success: function (data) {
                             // if(data.isSuccess) {
@@ -89,14 +88,14 @@ class SurveyJS_Editor {
                 <div id="sjs-editor-container"></div>
                 <script>
                     var editorOptions = { showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false };
-                    var editor = new SurveyCreator.SurveyCreator("sjs-editor-container", editorOptions);
+                    var editor = new SurveyCreator.SurveyCreator('sjs-editor-container', editorOptions);
                     editor.showState = true;
                     editor.isAutoSave = true;
                     editor.saveSurveyFunc = function(saveNo, callback) {
                         var json = JSON.stringify(editor.getSurveyJSON());   
                         jQuery.ajax({
-                            url:  "<?php echo esc_url($saveSurveyUri) ?>",
-                            type: "POST",
+                            url:  '<?php echo esc_url($saveSurveyUri) ?>',
+                            type: 'POST',
                             data: { Id: '<?php echo $surveyId ?>', Json: json },
                             success: function (data) {
                                 // if(data.isSuccess) {
@@ -108,11 +107,11 @@ class SurveyJS_Editor {
                     editor.onUploadFile.add(function(editor, options) {
                         var formData = new FormData();
                         options.files.forEach(function(file) {
-                            formData.append("file", file);
+                            formData.append('file', file);
                         });
                         jQuery.ajax({
-                            url: "<?php echo esc_url($uploadFileUri) ?>",
-                            type: "POST",
+                            url: '<?php echo esc_url($uploadFileUri) ?>',
+                            type: 'POST',
                             xhr: function () {
                                 var myXhr = jQuery.ajaxSettings.xhr();
                                 if (myXhr.upload) {
@@ -125,7 +124,7 @@ class SurveyJS_Editor {
                                 return myXhr;
                             },
                             success: function (data) {
-                                options.callback("success", data["url"]);
+                                options.callback('success', data['url']);
                             },
                             error: function (error) {
                             },
@@ -147,5 +146,4 @@ class SurveyJS_Editor {
         <?php
     }
 }
-
 ?>

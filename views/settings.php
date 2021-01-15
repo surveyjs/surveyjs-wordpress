@@ -1,8 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 class SurveyJS_SettingsPage {
-
     function __construct() {
         $this->add_hooks();
     }
@@ -12,34 +11,34 @@ class SurveyJS_SettingsPage {
 	}
 
 	public static function get_theme() {
-		$settings = (array) get_option( 'sjs-settings' );
-		if ( isset( $settings['theme'] ) ) {
-			return esc_js( $settings['theme'] );
+		$settings = (array)get_option('sjs-settings' );
+		if (isset($settings['theme'])) {
+			return esc_js($settings['theme']);
 		}
 		return 'modern';
 	}
 
 	public static function get_allow_paddings() {
-		$settings = (array) get_option( 'sjs-settings' );
-		if ( isset( $settings['allow_paddings'] ) ) {
-			return esc_js( $settings['allow_paddings'] );
+		$settings = (array)get_option('sjs-settings');
+		if (isset($settings['allow_paddings'])) {
+			return esc_js($settings['allow_paddings']);
 		}
 		return 0;
 	}
 
     public function init() {
-		register_setting( 'sjs-settings-group', 'sjs-settings' );
+		register_setting('sjs-settings-group', 'sjs-settings');
 			
-		add_settings_section( 'sjs-themes-section', __( 'Tnemes', 'sjs' ), array($this, 'sjs_themes_section'), 'sjs-settings-page' );
-		add_settings_field( 'theme', __( 'Current Theme', 'sjs' ), array($this, 'theme_render'), 'sjs-settings-page', 'sjs-themes-section' );
-		add_settings_field( 'allow-paddings', __( 'Allow Paddings', 'sjs' ), array($this, 'allow_paddings_render'), 'sjs-settings-page', 'sjs-themes-section' );
+		add_settings_section('sjs-themes-section', __('Tnemes', 'sjs'), array($this, 'sjs_themes_section'), 'sjs-settings-page');
+		add_settings_field('theme', __('Current Theme', 'sjs' ), array($this, 'theme_render'), 'sjs-settings-page', 'sjs-themes-section');
+		add_settings_field('allow-paddings', __('Allow Paddings', 'sjs' ), array($this, 'allow_paddings_render'), 'sjs-settings-page', 'sjs-themes-section');
     }
 
 	public function sjs_themes_section() {
-		_e( 'SurveyJS themes configurations', 'sjs' );
-		if ( isset( $_GET["settings-updated"] ) && sanitize_text_field($_GET["settings-updated"]) ) {
-			flush_rewrite_rules( true );
-			echo "<div style='color: #179d82;'>" . __( 'Successfully updated!', 'sjs' ) . "</div>";
+		_e('SurveyJS themes configurations', 'sjs');
+		if (isset($_GET["settings-updated"]) && sanitize_text_field($_GET["settings-updated"])) {
+			flush_rewrite_rules(true);
+			echo "<div style='color: #179d82;'>" . __('Successfully updated!', 'sjs') . "</div>";
 		}
 	}
 
@@ -69,7 +68,7 @@ class SurveyJS_SettingsPage {
 	}
 
 	public function allow_paddings_render() {
-		$settings = (array) get_option( 'sjs-settings' );
+		$settings = (array)get_option('sjs-settings');
 		$allow_paddings = '0';
 		if (isset($settings['allow_paddings']))
 		{

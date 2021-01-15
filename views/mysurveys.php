@@ -1,8 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 class SurveyJS_MySurveys {
-
     function __construct() {
     }
 
@@ -10,8 +9,8 @@ class SurveyJS_MySurveys {
         $client = new SurveyJS_Client();
         $editSurveyUri = add_query_arg(array('page' => 'surveyjs_editor'), admin_url('admin.php'));
         $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
-        $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
         $cloneSurveyUri = add_query_arg(array('action' => 'SurveyJS_CloneSurvey'), admin_url('admin-ajax.php'));
+        $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
         ?>
             <script>
                 function addNewSurvey() {
@@ -24,6 +23,16 @@ class SurveyJS_MySurveys {
                         }
                     });
                 }
+                function cloneSurvey(id) {
+                    jQuery.ajax({
+                        url:  "<?php echo esc_url($cloneSurveyUri)  ?>",
+                        type: "POST",
+                        data: { SurveyParentId: id },
+                        success: function (data) {
+                            window.location = "";
+                        }
+                    });
+                }
                 function deleteSurvey(id) {
                     var res = confirm("This action CANNOT be undone! Are you ABSOLUTELY sure?");
                     if (!res) return;
@@ -31,17 +40,6 @@ class SurveyJS_MySurveys {
                         url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
                         type: "POST",
                         data: { Id: id },
-                        success: function (data) {
-                            window.location = "";
-                        }
-                    });
-                }
-                function cloneSurvey(id) {
-                    debugger;
-                    jQuery.ajax({
-                        url:  "<?php echo esc_url($cloneSurveyUri)  ?>",
-                        type: "POST",
-                        data: { SurveyParentId: id },
                         success: function (data) {
                             window.location = "";
                         }
@@ -97,5 +95,4 @@ class SurveyJS_MySurveys {
         <?php
     }
 }
-
 ?>

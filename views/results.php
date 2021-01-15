@@ -1,8 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 class SurveyJS_Results {
-
     function __construct() {
     }
 
@@ -125,5 +124,4 @@ class SurveyJS_Results {
         
     }
 }
-
 ?>

@@ -1,12 +1,11 @@
 <?php
 
-include_once("ajax_handler.php");
-include( __DIR__ . "/../service_client.php");
+include_once('ajax_handler.php');
+include(__DIR__ . '/../service_client.php');
 
 class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
-    
     function __construct() {
-        parent::__construct("SurveyJS_InsertSurvey", false);
+        parent::__construct('SurveyJS_InsertSurvey', false);
     }
         
     function callback() {
@@ -35,5 +34,4 @@ class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
         <?php
     }
 }
-
 ?>

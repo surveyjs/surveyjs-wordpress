@@ -1,16 +1,16 @@
 <?php
 
-include( "views/settings.php" );
+include('views/settings.php');
 
-if ( is_admin() ) {
-    include( "views/mysurveys.php" );
-    include( "views/editor.php" );
-    include( "views/results.php" );
+if (is_admin()) {
+    include('views/mysurveys.php');
+    include('views/editor.php');
+    include('views/results.php');
 }
 
 class SurveyJS_SurveyJS {
-    public static $prefix = "sjs";
-    public $plugin_version = "0.1.0";
+    public static $prefix = 'sjs';
+    public $plugin_version = '0.1.0';
 
     function __construct() {
         add_action('admin_menu', array( $this, 'wps_add_menu'));
@@ -25,7 +25,7 @@ class SurveyJS_SurveyJS {
     }
 
     public function register_sjs_gutenberg_block() {
-        if ( ! function_exists( 'register_block_type' ) ) {
+        if (!function_exists('register_block_type')) {
             return;
         }
 
@@ -53,18 +53,18 @@ class SurveyJS_SurveyJS {
         register_block_type(
             $blockname,
             array(
-                'attributes'      => array(
-                    'shortcode'          => array(
+                'attributes' => array(
+                    'shortcode' => array(
                         'type' => 'string',
                         'default' => '',
                     ),
-                    'surveyid'   => array(
+                    'surveyid' => array(
                         'type' => 'string',
                         'default' => 'none',
                     ),
                 ),
                 'editor_script' => $blockscriptname,
-                'render_callback' => array( self::class, 'render_callback_shortcode' ),
+                'render_callback' => array(self::class, 'render_callback_shortcode'),
             )
         );
     }
@@ -74,11 +74,11 @@ class SurveyJS_SurveyJS {
 	}
 
     public function enqueue_admin_scripts() {
-        if ( isset( $_GET["page"] ) &&
-            ($_GET["page"] == "sjs-settings" ||
-            $_GET['page'] == "sjs-main-menu" ||
-            $_GET['page'] == "surveyjs_editor" ||
-            $_GET['page'] == "surveyjs_results")
+        if (isset($_GET['page']) &&
+            ($_GET['page'] == 'sjs-settings' ||
+            $_GET['page'] == 'sjs-main-menu' ||
+            $_GET['page'] == 'surveyjs_editor' ||
+            $_GET['page'] == 'surveyjs_results')
         ) {
             wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
 
@@ -151,8 +151,8 @@ class SurveyJS_SurveyJS {
         </div>
         <script>
             jQuery.ajax({
-                url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
-                type: "POST",
+                url:  '<?php echo esc_url($getSurveyJsonUri)  ?>',
+                type: 'POST',
                 data: { Id: <?php echo $id ?> },
                 success: function (data) {
                     var json = {}
@@ -180,8 +180,8 @@ class SurveyJS_SurveyJS {
                     .onComplete
                     .add(function (result) {
                         jQuery.ajax({
-                            url:  "<?php echo esc_url($saveResultUri) ?>",
-                            type: "POST",
+                            url:  '<?php echo esc_url($saveResultUri) ?>',
+                            type: 'POST',
                             data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
                             success: function (data) {}
                         });
@@ -190,7 +190,7 @@ class SurveyJS_SurveyJS {
                         //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
 
-                jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>, css: customCss});
+                jQuery('#surveyElement-<?php echo $id ?>').Survey({model: survey<?php echo $id ?>, css: customCss});
             }
         </script>        
         <?php

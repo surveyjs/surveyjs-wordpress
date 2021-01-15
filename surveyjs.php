@@ -46,7 +46,7 @@ Author URI: http://devsoftbaltic.com/
             UNIQUE KEY id (id)
         ) $charset_collate;";
 
-        dbDelta( $sql );
+        dbDelta($sql);
     }
 
     function wps_uninstall() {
@@ -67,11 +67,11 @@ Author URI: http://devsoftbaltic.com/
     include("ajax_handlers/add_survey.php");
     new SurveyJS_AddSurvey();
 
-    include("ajax_handlers/delete_survey.php");
-    new SurveyJS_DeleteSurvey();
-
     include("ajax_handlers/clone_survey.php");
     new SurveyJS_CloneSurvey();
+
+    include("ajax_handlers/delete_survey.php");
+    new SurveyJS_DeleteSurvey();
 
     include("ajax_handlers/get_survey_json.php");
     new SurveyJS_GetSurveyJson();
