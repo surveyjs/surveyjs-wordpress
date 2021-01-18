@@ -36,6 +36,21 @@ registerBlockType("sjs/gutenberg-block", {
       });
     });
 
+    var pdfButtonOptions = [
+      {
+        label: "Never",
+        value: "never"
+      },
+      {
+        label: "Always",
+        value: "always"
+      },
+      {
+        label: "On Complete",
+        value: "onComplete"
+      }
+    ];
+
     var inspectorControl = el(
       InspectorControls,
       {},
@@ -49,18 +64,26 @@ registerBlockType("sjs/gutenberg-block", {
         onChange: function(value) {
           setAttributes({ surveyid: value });
         }
-      })
+      }),
+      el(SelectControl, {
+        label: "Show Save To Pdf Button",
+        defaultValue: "never",
+        value: attributes.saveToPdf,
+        options: pdfButtonOptions,
+        onChange: function(value) {
+          setAttributes({ saveToPdf: value });
+        }
+      }),
     );
 
     var surveyid = attributes.surveyid;
     var shortCodeString =
       surveyid === "none"
         ? "Please choose a survey in the Settings => Block menu"
-        : '[Survey id="' +
-          surveyid +
-          '" name="' +
-          surveys[surveyid].name +
-          '"] ';
+        : '[Survey id="' + surveyid + '" ' +
+          'name="' + surveys[surveyid].name + '" ' +
+          'saveToPdf="' + attributes.saveToPdf + '" ' +
+          '] ';
 
     setAttributes({ shortcode: shortCodeString });
 

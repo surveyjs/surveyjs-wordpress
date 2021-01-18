@@ -62,6 +62,10 @@ class SurveyJS_SurveyJS {
                         'type' => 'string',
                         'default' => 'none',
                     ),
+                    'saveToPdf' => array(
+                        'type' => 'string',
+                        'default' => 'never',
+                    ), 
                 ),
                 'editor_script' => $blockscriptname,
                 'render_callback' => array(self::class, 'render_callback_shortcode'),
@@ -144,6 +148,7 @@ class SurveyJS_SurveyJS {
         ob_start();
         
         $id = sanitize_text_field($attrs["id"]);
+        $saveToPdf = sanitize_text_field($attrs["savetopdf"]);
         $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
         ?>
@@ -204,12 +209,21 @@ class SurveyJS_SurveyJS {
                             data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
                             success: function (data) {}
                         });
-                        jQuery('#survey-saveToPDFbtn-<?php echo $id ?>').show();
+                        <?php
+                            if ($saveToPdf <> "never") {
+                                echo "jQuery('#survey-saveToPDFbtn-" . $id . "').show();";
+                            }
+                        ?>
                         //document
                         //    .querySelector("#surveyResult-<?php echo $id ?>")
                         //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
 
+                <?php
+                    if ($saveToPdf == "always") {
+                        echo "jQuery('#survey-saveToPDFbtn-" . $id . "').show();";
+                    }
+                ?>
                 jQuery('#surveyElement-<?php echo $id ?>').Survey({model: survey<?php echo $id ?>, css: customCss});
                 jQuery('.sv_custom_header').hide();
                 jQuery('#survey-saveToPDFbtn-<?php echo $id ?>').on("click", function(e) {
