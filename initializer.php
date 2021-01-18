@@ -112,6 +112,8 @@ class SurveyJS_SurveyJS {
         wp_enqueue_style('wps-survey-modern-css', plugins_url('libs/modern.css', __FILE__) );
         wp_enqueue_style('wps-survey-modern-override-css', plugins_url('libs/modern.css', __FILE__) );
         wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
+        wp_enqueue_script('wps-survey-pdf-jspdf', plugins_url('libs/jspdf.min.js', __FILE__));
+        wp_enqueue_script('wps-survey-pdf', plugins_url('libs/survey.pdf.min.js', __FILE__), array('wps-survey-jquery-js', 'wps-survey-pdf-jspdf'));
     }
   
     function wps_add_menu() {
@@ -148,6 +150,7 @@ class SurveyJS_SurveyJS {
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo $id ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
             <div id="surveyResult-<?php echo $id ?>"></div>
+            <button id="survey-saveToPDFbtn-<?php echo $id ?>"style="margin:10px;display:none;">Save to PDF</button>
         </div>
         <script>
             jQuery.ajax({
@@ -162,6 +165,22 @@ class SurveyJS_SurveyJS {
                     initSurvey<?php echo $id ?>(json);
                 }
             });
+
+            function saveSurveyToPdf(filename, surveyModel, pdfWidth, pdfHeight) {
+                var options = {
+                    fontSize: 14,
+                    margins: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bot: 10
+                    },
+                    format: [pdfWidth, pdfHeight]
+                };
+                var surveyPDF = new SurveyPDF.SurveyPDF(surveyModel.toJSON(), options);
+                surveyPDF.data = surveyModel.data;
+                surveyPDF.save(filename);
+            }
 
             function initSurvey<?php echo $id ?>(json) {
                 Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(SurveyJS_SettingsPage::get_theme()) ?>');
@@ -185,12 +204,19 @@ class SurveyJS_SurveyJS {
                             data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
                             success: function (data) {}
                         });
+                        jQuery('#survey-saveToPDFbtn-<?php echo $id ?>').show();
                         //document
                         //    .querySelector("#surveyResult-<?php echo $id ?>")
                         //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
 
                 jQuery('#surveyElement-<?php echo $id ?>').Survey({model: survey<?php echo $id ?>, css: customCss});
+                jQuery('.sv_custom_header').hide();
+                jQuery('#survey-saveToPDFbtn-<?php echo $id ?>').on("click", function(e) {
+                    var pdfWidth = survey<?php echo $id ?>.pdfWidth || 210;
+                    var pdfHeight = survey<?php echo $id ?>.pdfHeight || 297;
+                    saveSurveyToPdf("surveyResult.pdf", survey<?php echo $id ?>, pdfWidth, pdfHeight);
+                });
             }
         </script>        
         <?php
