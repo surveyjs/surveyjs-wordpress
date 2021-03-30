@@ -1,0 +1,13 @@
+.wp-sjs-plugin {
+    margin: 10px;
+}
+
+.wp-sjs-plugin label {
+    font-weight: initial;
+    color: #6d7072;
+}
+
+.wp-sjs-plugin h5 {
+    letter-spacing: initial;
+    text-transform: none;
+}
