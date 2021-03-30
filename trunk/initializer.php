@@ -106,11 +106,14 @@ class SurveyJS_SurveyJS {
         }
     }
 
-    public function enqueue_frontend_scripts() {       
-        wp_enqueue_style('wps-survey-css', plugins_url('libs/survey.css', __FILE__) );
+    public function enqueue_frontend_scripts() { 
+        $theme = sanitize_text_field(SurveyJS_SettingsPage::get_theme());
+        if ($theme == "modern") {
+            wp_enqueue_style('wps-survey-modern-css', plugins_url('libs/modern.css', __FILE__) );
+        } else {
+            wp_enqueue_style('wps-survey-css', plugins_url('libs/survey.css', __FILE__) );
+        }
         wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
-        wp_enqueue_style('wps-survey-modern-css', plugins_url('libs/modern.css', __FILE__) );
-        wp_enqueue_style('wps-survey-modern-override-css', plugins_url('libs/modern.css', __FILE__) );
         wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
     }
   
