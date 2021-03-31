@@ -88,8 +88,8 @@ class SurveyJS_Editor {
                 </h3>
                 <div id="sjs-editor-container"></div>
                 <script>
-                    var surveyJSCreatorHaveCommercialLicenseProperty = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'haveCommercialLicense.txt')) ?>;
-                    var editorOptions = { showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: surveyJSCreatorHaveCommercialLicenseProperty };
+                    var CommercialLicense = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'CommercialLicense.txt')) ?>;
+                    var editorOptions = { showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
                     var editor = new SurveyCreator.SurveyCreator("sjs-editor-container", editorOptions);
                     editor.showState = true;
                     editor.isAutoSave = true;
