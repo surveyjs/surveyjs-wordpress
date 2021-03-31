@@ -1,1 +1,5 @@
-src/trunk/views/haveCommercialLicense.txt
+src/trunk/views/CommercialLicense.txt
+src/.svn
+.svn
+.svn*
+src/.svn
