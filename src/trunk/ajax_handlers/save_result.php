@@ -10,6 +10,8 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            do_action('surveyjs_save_result');
+
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_results';
 

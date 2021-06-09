@@ -39,6 +39,12 @@ To find out more and review SurveyJS Examples please go to [https://surveyjs.io/
 7. Go to the preview and check your survey.
 8. Check your wordpress database for *wp_sjs_my_surveys* and *wp_sjs_results* tables.
 
+== Hooks ==
+1. surveyjs_save_result :
+    add_action( 'surveyjs_save_result', function ( ) {
+        // do something with $_POST
+    } );
+
 == Screenshots ==
 
 1. My surveys page
