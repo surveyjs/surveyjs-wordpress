@@ -11,3 +11,26 @@
     letter-spacing: initial;
     text-transform: none;
 }
+
+.wp-sjs-plugin input[type="text"]:focus {
+    border-color: initial;
+    outline: none;
+    outline-offset: none;
+}
+
+.wp-sjs-plugin input[type="text"] {
+    -webkit-backface-visibility: initial;
+    background: initial;
+    border: none;
+    box-sizing: initial;
+    outline: none;
+    padding: 0;
+    -webkit-appearance: none;
+    outline-offset: 0;
+    border-radius: 0;
+}
+
+.wp-sjs-plugin .sv-dropdown_clean-button {
+    padding-top: 0;
+    padding-bottom: 0;
+}
