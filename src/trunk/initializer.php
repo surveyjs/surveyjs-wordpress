@@ -82,13 +82,26 @@ class SurveyJS_SurveyJS {
         ) {
             wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
 
-            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/knockout.min.js', __FILE__));
-            wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/survey.core.min.js', __FILE__));
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/survey.i18n.min.js', __FILE__));
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/themes/index.min.js', __FILE__));
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/survey-react-ui.min.js', __FILE__));
 
-            wp_enqueue_style('wps-adm-survey-css', plugins_url('libs/modern.css', __FILE__) );
-            wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.ko.min.js', __FILE__), array('wps-adm-knockout-js'));
-            wp_enqueue_style('wps-adm-surveyjseditor-css', plugins_url('libs/survey-creator.css', __FILE__) );
-            wp_enqueue_script('wps-adm-surveyjseditor-js', plugins_url('libs/survey-creator.min.js', __FILE__), array('wps-adm-survey-ko-js'));
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/creator/survey-creator-core.min.js', __FILE__));
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/creator/survey-creator-core.i18n.min.js', __FILE__));
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/creator/survey-creator-react.min.js', __FILE__));
+
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/defaultV2.min.css', __FILE__));
+
+            wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/creator/survey-creator-core.min.css', __FILE__));
+
+
+            // wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/knockout.min.js', __FILE__));
+
+            // wp_enqueue_style('wps-adm-survey-css', plugins_url('libs/modern.css', __FILE__) );
+            // wp_enqueue_script('wps-adm-survey-ko-js', plugins_url('libs/survey.ko.min.js', __FILE__), array('wps-adm-knockout-js'));
+            // wp_enqueue_style('wps-adm-surveyjseditor-css', plugins_url('libs/survey-creator.css', __FILE__) );
+            // wp_enqueue_script('wps-adm-surveyjseditor-js', plugins_url('libs/survey-creator.min.js', __FILE__), array('wps-adm-survey-ko-js'));
 
             wp_enqueue_style('wps-adm-datatables-css', plugins_url('libs/datatables/dataTables.min.css', __FILE__) );
             wp_enqueue_script('wps-adm-sdatatables-js', plugins_url('libs/datatables/dataTables.min.js', __FILE__) );
@@ -107,14 +120,19 @@ class SurveyJS_SurveyJS {
     }
 
     public function enqueue_frontend_scripts() { 
-        $theme = sanitize_text_field(SurveyJS_SettingsPage::get_theme());
-        if ($theme == "modern") {
-            wp_enqueue_style('wps-survey-modern-css', plugins_url('libs/modern.css', __FILE__) );
-        } else {
-            wp_enqueue_style('wps-survey-css', plugins_url('libs/survey.css', __FILE__) );
-        }
-        wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
-        wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
+        // $theme = sanitize_text_field(SurveyJS_SettingsPage::get_theme());
+        // if ($theme == "modern") {
+        //     wp_enqueue_style('wps-survey-modern-css', plugins_url('libs/modern.css', __FILE__) );
+        // } else {
+        //     wp_enqueue_style('wps-survey-css', plugins_url('libs/survey.css', __FILE__) );
+        // }
+        // wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
+        // wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
+        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/survey.core.min.js', __FILE__));
+        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/survey.i18n.min.js', __FILE__));
+        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/themes/index.min.js', __FILE__));
+        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/survey-react-ui.min.js', __FILE__));
+        wp_enqueue_script('wps-adm-knockout-js', plugins_url('libs/library/defaultV2.min.css', __FILE__));
     }
   
     function wps_add_menu() {
