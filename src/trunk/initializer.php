@@ -131,6 +131,8 @@ class SurveyJS_SurveyJS {
         // }
         // wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
         // wp_enqueue_script('wps-survey-jquery-js', plugins_url('libs/survey.jquery.min.js', __FILE__), array('jquery'));
+        wp_enqueue_script('wps-adm--babel.min.js', plugins_url('libs/babel.min.js', __FILE__));
+
         wp_enqueue_script('wps-front--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__));
         wp_enqueue_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__));
         wp_enqueue_script('wps-front--themes-index.min.js', plugins_url('libs/library/themes/index.min.js', __FILE__));
@@ -173,7 +175,7 @@ class SurveyJS_SurveyJS {
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
             <div id="surveyResult-<?php echo $id ?>"></div>
         </div>
-        <script>
+        <script type="text/babel">
             jQuery.ajax({
                 url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
                 type: "POST",
@@ -188,21 +190,20 @@ class SurveyJS_SurveyJS {
             });
 
             function initSurvey<?php echo $id ?>(json) {
-                Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(SurveyJS_SettingsPage::get_theme()) ?>');
+                // Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(SurveyJS_SettingsPage::get_theme()) ?>');
 
-                var customCss = {
-                    <?php 
-                        if (SurveyJS_SettingsPage::get_allow_paddings() == 0) {
-                            echo '"root": "sv_main sv_default_css"';
-                        }
-                    ?>
-                }
+                // var customCss = {
+                //     <?php 
+                //         if (SurveyJS_SettingsPage::get_allow_paddings() == 0) {
+                //             echo '"root": "sv_main sv_default_css"';
+                //         }
+                //     ?>
+                // }
 
-                window.survey<?php echo $id ?> = new Survey.Model(json);
-
-                survey<?php echo $id ?>
-                    .onComplete
-                    .add(function (result) {
+                function SurveyComponent() {
+                    const survey<?php echo $id ?> = new Survey.Model(json);
+                    window.survey<?php echo $id ?> = new Survey.Model(json);
+                    survey<?php echo $id ?>.onComplete.add(function (result) {
                         jQuery.ajax({
                             url:  "<?php echo esc_url($saveResultUri) ?>",
                             type: "POST",
@@ -213,8 +214,28 @@ class SurveyJS_SurveyJS {
                         //    .querySelector("#surveyResult-<?php echo $id ?>")
                         //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
+                    return (<SurveyReact.Survey model={survey<?php echo $id ?>} />);
+                }
 
-                jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>, css: customCss});
+
+                // survey<?php echo $id ?>
+                //     .onComplete
+                //     .add(function (result) {
+                //         jQuery.ajax({
+                //             url:  "<?php echo esc_url($saveResultUri) ?>",
+                //             type: "POST",
+                //             data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
+                //             success: function (data) {}
+                //         });
+                //         //document
+                //         //    .querySelector("#surveyResult-<?php echo $id ?>")
+                //         //    .innerHTML = "result: " + JSON.stringify(result.data);
+                //     });
+
+                const root = ReactDOM.createRoot(document.getElementById("surveyElement-<?php echo $id ?>"));
+                root.render(<SurveyComponent />);
+
+                // jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>, css: customCss});
             }
         </script>        
         <?php
