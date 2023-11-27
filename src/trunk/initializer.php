@@ -80,6 +80,8 @@ class SurveyJS_SurveyJS {
             $_GET['page'] == "surveyjs_editor" ||
             $_GET['page'] == "surveyjs_results")
         ) {
+            wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
+            
             wp_enqueue_style('wps-adm-index-css', plugins_url('/normalize.css', __FILE__) );
             wp_enqueue_style('wps-adm-index-css', plugins_url('/index.css', __FILE__) );
 
