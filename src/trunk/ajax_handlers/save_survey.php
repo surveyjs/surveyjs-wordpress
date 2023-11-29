@@ -12,6 +12,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = sanitize_key($_POST['Id']);
             $json = current_user_can( 'unfiltered_html' ) ? $_POST['Json'] : wp_kses_post( $_POST['Json'] );
+            $theme = current_user_can( 'unfiltered_html' ) ? $_POST['Theme'] : wp_kses_post( $_POST['Theme'] );
 
             if(!!$json) {
                 global $wpdb;
@@ -20,7 +21,8 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
                 $result = $wpdb->update(
                     $table_name,
                     array(
-                        'json' => $json
+                        'json' => $json,
+                        'theme' => $theme
                     ),
                     array(
                         'id' => intval($id)

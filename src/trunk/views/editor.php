@@ -90,23 +90,38 @@ class SurveyJS_Editor {
                 <script type="text/babel">
                     function SurveyCreatorRenderComponent() {
                         var CommercialLicense = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'CommercialLicense.txt')) ?>;
-                        var editorOptions = { showLogicTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
+                        var editorOptions = { showThemeTab: true, showLogicTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
                         const editor = new SurveyCreator.SurveyCreator(editorOptions);
                         editor.showState = true;
                         editor.isAutoSave = true;
                         editor.saveSurveyFunc = function(saveNo, callback) {
                             var json = JSON.stringify(editor.getSurveyJSON());   
+                            var theme = JSON.stringify(editor.theme); 
                             jQuery.ajax({
                                 url:  "<?php echo esc_url($saveSurveyUri) ?>",
                                 type: "POST",
-                                data: { Id: '<?php echo $surveyId ?>', Json: json },
+                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme },
                                 success: function (data) {
                                     // if(data.isSuccess) {
                                     // }
                                     callback(saveNo, data.IsSuccess === 1);
                                 }
                             });
-                        }
+                        };
+                        editor.saveThemeFunc = function(saveNo, callback) {
+                            var json = JSON.stringify(editor.getSurveyJSON());   
+                            var theme = JSON.stringify(editor.theme); 
+                            jQuery.ajax({
+                                url:  "<?php echo esc_url($saveSurveyUri) ?>",
+                                type: "POST",
+                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme },
+                                success: function (data) {
+                                    // if(data.isSuccess) {
+                                    // }
+                                    callback(saveNo, data.IsSuccess === 1);
+                                }
+                            });
+                        };
                         editor.onUploadFile.add(function(editor, options) {
                             var formData = new FormData();
                             options.files.forEach(function(file) {
