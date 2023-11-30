@@ -182,11 +182,14 @@ class SurveyJS_SurveyJS {
                     if (data.json) {
                         json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
                     }
-                    initSurvey<?php echo $id ?>(json);
+                    if (data.theme) {
+                        theme = JSON.parse(data.theme.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
+                    }
+                    initSurvey<?php echo $id ?>(json, theme);
                 }
             });
 
-            function initSurvey<?php echo $id ?>(json) {
+            function initSurvey<?php echo $id ?>(json, theme) {
                 // Survey.StylesManager.applyTheme('<?php echo sanitize_text_field(SurveyJS_SettingsPage::get_theme()) ?>');
 
                 // var customCss = {
@@ -198,6 +201,7 @@ class SurveyJS_SurveyJS {
                 // }
 
                 const survey<?php echo $id ?> = new Survey.Model(json);
+                survey<?php echo $id ?>.applyTheme(theme);
                 window.survey<?php echo $id ?> = survey<?php echo $id ?>;
                 survey<?php echo $id ?>
                     .onComplete
