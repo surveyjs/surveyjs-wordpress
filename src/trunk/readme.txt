@@ -1,10 +1,10 @@
 === SurveyJS ===
 Contributors: devsoftbaltic
 Tags: survey, quiz, form builder, survey creator, survey maker, quiz creator
-Requires at least: 4.6
-Tested up to: 6.1.1
+Requires at least: 6.4.1
+Tested up to: 6.4.1
 Stable tag: trunk
-Requires PHP: 5.2.4
+Requires PHP: php8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
