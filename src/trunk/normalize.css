@@ -74,3 +74,27 @@
 #sjs-editor-container textarea:disabled {
     box-shadow: none;
   }
+
+
+#sjs-editor-container .spg-input-container__input {
+    flex-grow: 1;
+    width: 100%;
+    padding: var(--sjs-base-unit, var(--base-unit, 8px)) calc(1.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
+    color: var(--sjs-general-forecolor, var(--foreground, #161616));
+    font-size: calc(2*(var(--sjs-base-unit, var(--base-unit, 8px))));
+    font-family: var(--sjs-font-family, var(--font-family));
+    outline: none;
+    border: none;
+    line-height: calc(3*(var(--sjs-base-unit, var(--base-unit, 8px))));
+    background-color: rgba(0, 0, 0, 0);
+}
+
+#sjs-editor-container  .spg-input-container {
+    display: flex;
+    justify-content: space-between;
+    cursor: default;
+    padding: calc(0.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
+    align-items: center;
+    gap: calc(0.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
+    box-shadow: 0 0 0 1px inset var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
+}
