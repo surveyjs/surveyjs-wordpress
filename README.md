@@ -51,6 +51,19 @@ Please also refer to the collection of demos specially designed for various real
 SurveyJS offers a simple way to add digital signatures to your e-forms with a build-it input field. This [signature field](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/reactjs) enables respondents to sign a form with their mouse pointer or even a finger by simply drawing a signature within the signature pad area.
 
 ## Screenshots ##
+
+1. Admin UI wiht your SurveyJS forms<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-1.png?raw=true)
+2. Form builder UI for drag-and-drop form creation<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-2.png?raw=true)
+3. GUI for setting up conditional rules<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-3.png?raw=true)
+4. Theme editor<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-4.png?raw=true)
+5. Add a block with your SurveyJS form
+6. Embed and publish your form
+7. View the result
+
 ## Installation ##
 
 SurveyJS plugin is free for everyone who [self-host](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) Wordpress. If you use WordPress.com, the SurveyJS plugin is only free for users with Business plan or higher (due to the WordPress.com [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/)).
@@ -73,17 +86,6 @@ SurveyJS plugin is free for everyone who [self-host](https://wordpress.com/go/we
 ## Release Notes ##
 
 Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-notes) to keep yourself informed about our latest enhancements and new features introduced every week.
-
-## Screenshots ##
-
-1. My surveys page<br/>
-![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-1.png?raw=true)
-2. Survey Creator<br/>
-![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-2.png?raw=true)
-3. Results page<br/>
-![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-3.png?raw=true)
-4. Settings<br/>
-![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-4.png?raw=true)
 
 ## Support ##
 * [View Support Forum](https://wordpress.org/support/plugin/surveyjs)
