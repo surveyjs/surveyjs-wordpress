@@ -60,9 +60,12 @@ SurveyJS offers a simple way to add digital signatures to your e-forms with a bu
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-3.png?raw=true)
 4. Theme editor<br/>
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-4.png?raw=true)
-5. Add a block with your SurveyJS form
-6. Embed and publish your form
-7. View the result
+5. Add a block with your SurveyJS form<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-5.png?raw=true)
+6. Embed and publish your form<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-6.png?raw=true)
+7. View the result<br/>
+![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-7.png?raw=true)
 
 ## Installation ##
 
