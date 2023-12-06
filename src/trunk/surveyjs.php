@@ -26,6 +26,7 @@ Author URI: http://devsoftbaltic.com/
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             name text NOT NULL,
             json LONGTEXT,
+            theme LONGTEXT,
             UNIQUE KEY id (id)
         ) $charset_collate;";
 

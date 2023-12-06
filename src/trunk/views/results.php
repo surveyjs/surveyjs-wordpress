@@ -75,7 +75,7 @@ class SurveyJS_Results {
                     `
                 });
 
-                var windowSurvey = new Survey.SurveyWindow(surveyJson);
+                var windowSurvey = new Survey.PopupSurveyModel(surveyJson);
                 windowSurvey.survey.mode = "display";
                 windowSurvey.survey.title = "<?php echo $surveyName; ?>";
                 windowSurvey.show();

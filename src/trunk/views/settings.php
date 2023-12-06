@@ -30,8 +30,8 @@ class SurveyJS_SettingsPage {
     public function init() {
 		register_setting( 'sjs-settings-group', 'sjs-settings' );
 			
-		add_settings_section( 'sjs-themes-section', __( 'Tnemes', 'sjs' ), array($this, 'sjs_themes_section'), 'sjs-settings-page' );
-		add_settings_field( 'theme', __( 'Current Theme', 'sjs' ), array($this, 'theme_render'), 'sjs-settings-page', 'sjs-themes-section' );
+		// add_settings_section( 'sjs-themes-section', __( 'Tnemes', 'sjs' ), array($this, 'sjs_themes_section'), 'sjs-settings-page' );
+		//add_settings_field( 'theme', __( 'Current Theme', 'sjs' ), array($this, 'theme_render'), 'sjs-settings-page', 'sjs-themes-section' );
 		add_settings_field( 'allow-paddings', __( 'Allow Paddings', 'sjs' ), array($this, 'allow_paddings_render'), 'sjs-settings-page', 'sjs-themes-section' );
     }
 

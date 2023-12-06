@@ -18,14 +18,14 @@ class SurveyJS_Editor {
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFile'), admin_url('admin-ajax.php'));
         ?>
             <style>
-                #sjs-editor-container .svd_container .card {
+                /* #sjs-editor-container .svd_container .card {
                     max-width: none;
                 }
                 #sjs-editor-container .svd_container select {
                     height: 34px;
                     line-height: 20px;
                     padding: 6px 12px;
-                }
+                } */
             </style>
             <script>
                 var surveyName = "<?php echo sanitize_text_field($_GET['name']) ?>";
@@ -86,60 +86,83 @@ class SurveyJS_Editor {
                         </a>
                     </span>
                 </h3>
-                <div id="sjs-editor-container"></div>
-                <script>
-                    var CommercialLicense = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'CommercialLicense.txt')) ?>;
-                    var editorOptions = { showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
-                    var editor = new SurveyCreator.SurveyCreator("sjs-editor-container", editorOptions);
-                    editor.showState = true;
-                    editor.isAutoSave = true;
-                    editor.saveSurveyFunc = function(saveNo, callback) {
-                        var json = JSON.stringify(editor.getSurveyJSON());   
-                        jQuery.ajax({
-                            url:  "<?php echo esc_url($saveSurveyUri) ?>",
-                            type: "POST",
-                            data: { Id: '<?php echo $surveyId ?>', Json: json },
-                            success: function (data) {
-                                // if(data.isSuccess) {
-                                // }
-                                callback(saveNo, data.IsSuccess === 1);
-                            }
-                        });
-                    }
-                    editor.onUploadFile.add(function(editor, options) {
-                        var formData = new FormData();
-                        options.files.forEach(function(file) {
-                            formData.append("file", file);
-                        });
-                        jQuery.ajax({
-                            url: "<?php echo esc_url($uploadFileUri) ?>",
-                            type: "POST",
-                            xhr: function () {
-                                var myXhr = jQuery.ajaxSettings.xhr();
-                                if (myXhr.upload) {
-                                    myXhr.upload.addEventListener('progress', function (event) {
-                                        var percent = 0;
-                                        var position = event.loaded || event.position;
-                                        var total = event.total;
-                                    }, false);
+                <div id="sjs-editor-container" style="height: 77vh;"></div>
+                <script type="text/babel">
+                    function SurveyCreatorRenderComponent() {
+                        var CommercialLicense = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'CommercialLicense.txt')) ?>;
+                        var editorOptions = { showThemeTab: true, showLogicTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
+                        const editor = new SurveyCreator.SurveyCreator(editorOptions);
+                        editor.showState = true;
+                        editor.isAutoSave = true;
+                        editor.saveSurveyFunc = function(saveNo, callback) {
+                            var json = JSON.stringify(editor.getSurveyJSON());   
+                            var theme = JSON.stringify(editor.theme); 
+                            jQuery.ajax({
+                                url:  "<?php echo esc_url($saveSurveyUri) ?>",
+                                type: "POST",
+                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme },
+                                success: function (data) {
+                                    // if(data.isSuccess) {
+                                    // }
+                                    callback(saveNo, data.IsSuccess === 1);
                                 }
-                                return myXhr;
-                            },
-                            success: function (data) {
-                                options.callback("success", data["url"]);
-                            },
-                            error: function (error) {
-                            },
-                            async: true,
-                            data: formData,
-                            cache: false,
-                            contentType: false,
-                            processData: false,
-                            timeout: 60000
+                            });
+                        };
+                        editor.saveThemeFunc = function(saveNo, callback) {
+                            var json = JSON.stringify(editor.getSurveyJSON());   
+                            var theme = JSON.stringify(editor.theme); 
+                            jQuery.ajax({
+                                url:  "<?php echo esc_url($saveSurveyUri) ?>",
+                                type: "POST",
+                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme },
+                                success: function (data) {
+                                    // if(data.isSuccess) {
+                                    // }
+                                    callback(saveNo, data.IsSuccess === 1);
+                                }
+                            });
+                        };
+                        editor.onUploadFile.add(function(editor, options) {
+                            var formData = new FormData();
+                            options.files.forEach(function(file) {
+                                formData.append("file", file);
+                            });
+                            jQuery.ajax({
+                                url: "<?php echo esc_url($uploadFileUri) ?>",
+                                type: "POST",
+                                xhr: function () {
+                                    var myXhr = jQuery.ajaxSettings.xhr();
+                                    if (myXhr.upload) {
+                                        myXhr.upload.addEventListener('progress', function (event) {
+                                            var percent = 0;
+                                            var position = event.loaded || event.position;
+                                            var total = event.total;
+                                        }, false);
+                                    }
+                                    return myXhr;
+                                },
+                                success: function (data) {
+                                    options.callback("success", data["url"]);
+                                },
+                                error: function (error) {
+                                },
+                                async: true,
+                                data: formData,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                timeout: 60000
+                            });
                         });
-                    });
-                    var json = '<?php echo htmlspecialchars_decode($json); ?>';
-                    editor.text = json;      
+                        const creator = editor;
+                        var json = '<?php echo htmlspecialchars_decode($json); ?>';
+                        creator.text = json;
+                        //creator.JSON = surveyJSON;
+                        return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
+                    }
+
+                    const root = ReactDOM.createRoot(document.getElementById("sjs-editor-container"));
+                    root.render(<SurveyCreatorRenderComponent />);
                 </script>
             </div>
             <script>

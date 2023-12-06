@@ -15,8 +15,9 @@ class SurveyJS_GetSurveyJson extends SurveyJS_AJAX_Handler {
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
             $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
             $json =  $wpdb->get_row($query)->json;
+            $theme =  $wpdb->get_row($query)->theme;
 
-            wp_send_json( array('json' => $json) );
+            wp_send_json( array('json' => $json, 'theme' => $theme) );
         }
     }
 }
