@@ -66,20 +66,47 @@ SurveyJS offers a simple way to add digital signatures to your e-forms with a bu
 6. Embed and publish your form
 7. View the result
 
+== Installation ==
+
+SurveyJS plugin is free for everyone who [self-host](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) Wordpress. If you use WordPress.com, the SurveyJS plugin is only free for users with Business plan or higher (due to the WordPress.com [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/)).
+
+**Install the plugin from the WordPress directory**
+
+1. Inside your admin area, go to Plugins > Add New Plugin
+2. Search for “surveyjs”
+3. Click Add New Plugin and then click Install now
+4. Once installed, activate the plugin 
+
+**Upload & Install the plugin the WordPress admin plugin upload**
+
+1. Go to the [WordPress.org plugin repository](https://wordpress.org/plugins/surveyjs/) and search for the SurveyJS plugin
+2. Download the zip file of the plugin
+3. Inside your admin area, go to Plugins > Add New Plugin
+4. Click Upload Plugin and then click Install now
+5. Once installed, activate the plugin
+
+== Release Notes ==
+Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-notes) to keep yourself informed about our latest enhancements and new features introduced every week.
+
 == Changelog ==
+Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
 
 = 0.5 =
+
 * first public release
+
 = v1.9.120 =
+
 * synchronized version with SurveyJS project
 * added Survey Creator V2
 
 == Support ==
-* [https://wordpress.org/support/plugin/surveyjs](https://wordpress.org/support/plugin/surveyjs)
-* [https://github.com/surveyjs/surveyjs/issues](https://github.com/surveyjs/surveyjs/issues) or [https://github.com/surveyjs/editor/issues](https://github.com/surveyjs/editor/issues)
-* [https://surveyjs.answerdesk.io](https://surveyjs.answerdesk.io)
+
+* [View Support Forum](https://wordpress.org/support/plugin/surveyjs)
+* [Visit SurveyJS Support Page](https://surveyjs.io/support)
 
 == Our web sites ==
+
 * [https://surveyjs.io/](https://surveyjs.io/)
 * [http://devsoftbaltic.com/](http://devsoftbaltic.com/)
 
