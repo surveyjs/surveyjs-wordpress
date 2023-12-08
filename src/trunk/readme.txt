@@ -91,14 +91,8 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 == Changelog ==
 Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
 
-= 0.5 =
-
-* first public release
 
 = v1.9.120 =
-
-* synchronized version with SurveyJS project
-* added Survey Creator V2
 
 == Support ==
 
