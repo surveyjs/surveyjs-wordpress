@@ -4,7 +4,7 @@
 
 ### Drag & Drop WordPress Form Builder for your Enterprise
 
-SurveyJS is **the most advanced yet easy-to-use form builder,** perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and pre-defined conditions.
+SurveyJS is **the most advanced yet easy-to-use form builder,** perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and predefined conditions.
 
 ### Flexible Configuration Options
 
@@ -12,7 +12,7 @@ SurveyJS is **the most advanced yet easy-to-use form builder,** perfect for ente
 
 ### Diverse Question types
 
-Unlike the vast majority of form builders, SurveyJS goes far beyond common question types such as Single-line input (date, email, name, surname etc.), Long text, Rating and Radio button group. Among some more advanced form elements that you can use are the following:
+Unlike the vast majority of form builders, SurveyJS goes far beyond common question types such as Single-line input (date, email, name, surname etc.), Long text, Rating, and Radio button group. Among some more advanced form elements that you can use are the following:
 
 - [**Single-Select Dropdown**](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/)
 - [**Multi-Select Dropdown**](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) **(Tag Box)**
@@ -28,7 +28,7 @@ Unlike the vast majority of form builders, SurveyJS goes far beyond common quest
 
 ### Features
 
-In addition to offering a wide variety of question elements, SurveyJS enables you to implement some advanced features:
+In addition to offering a wide variety of question elements, SurveyJS enables you to implement the following advanced features:
 
 - [**Calculations**](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic-totals/) - Dynamically calculate values based on user input or predefined variables and display the calculated values in your form or survey.
 - [**Carry Forward Responses**](https://surveyjs.io/form-library/examples/survey-carry-forward/) - Copy choices from one question (the source) to another (the target). 
@@ -37,7 +37,7 @@ In addition to offering a wide variety of question elements, SurveyJS enables yo
 - [**Input validation**](https://surveyjs.io/form-library/examples/javascript-form-validation/) - Ensure that respondents fill out all required form fields and the format of values is correct before they are submitted.
 - [**Panels**](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/) - Group questions and configure settings for several questions at once. 
 - [**Duplicate group option**](https://surveyjs.io/form-library/examples/dynamic-matrix-table-question-with-dropdown-cell-type/) - Save time and effort by allowing respondents to quickly clone a set of questions or elements without having to recreate them manually.
-- [**Multi-file upload**](https://surveyjs.io/form-library/examples/file-upload/) - Enable respondents to upload multiple files of a required format within one file upload field. Once uploaded, files can be managed in the preview mode.
+- [**Multi-file upload**](https://surveyjs.io/form-library/examples/file-upload/) - Enable respondents to upload multiple files of a required format within one file upload field. Once uploaded, files can be managed in preview mode.
 - [**Join identifier**](https://surveyjs.io/form-library/examples/merge-question-values/) - Link several questions within a form together and sync their values.
 
 ### Display and Skip Logic
