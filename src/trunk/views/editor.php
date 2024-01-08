@@ -90,7 +90,7 @@ class SurveyJS_Editor {
                 <script type="text/babel">
                     function SurveyCreatorRenderComponent() {
                         var CommercialLicense = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'CommercialLicense.txt')) ?>;
-                        var editorOptions = { showThemeTab: true, showLogicTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
+                        var editorOptions = { showThemeTab: true, showLogicTab: true, showTranslationTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
                         const editor = new SurveyCreator.SurveyCreator(editorOptions);
                         editor.showState = true;
                         editor.isAutoSave = true;

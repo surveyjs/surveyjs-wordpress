@@ -173,6 +173,7 @@ class SurveyJS_SurveyJS {
             <div id="surveyResult-<?php echo $id ?>"></div>
         </div>
         <script>
+            let theme;
             jQuery.ajax({
                 url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
                 type: "POST",
@@ -201,7 +202,9 @@ class SurveyJS_SurveyJS {
                 // }
 
                 const survey<?php echo $id ?> = new Survey.Model(json);
-                survey<?php echo $id ?>.applyTheme(theme);
+                if (!!theme) {
+                    survey<?php echo $id ?>.applyTheme(theme);
+                }
                 window.survey<?php echo $id ?> = survey<?php echo $id ?>;
                 survey<?php echo $id ?>
                     .onComplete
