@@ -167,6 +167,7 @@ class SurveyJS_SurveyJS {
         $id = sanitize_text_field($attrs["id"]);
         $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
+        $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFile'), admin_url('admin-ajax.php'));
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo $id ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
@@ -219,6 +220,66 @@ class SurveyJS_SurveyJS {
                         //    .querySelector("#surveyResult-<?php echo $id ?>")
                         //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
+
+                    survey<?php echo $id ?>.onUploadFiles.add((_, options) => {
+                        const formData = new FormData();
+                        options.files.forEach((file) => {
+                            formData.append(file.name, file);
+                        });
+
+                        fetch("<?php echo esc_url($uploadFileUri) ?>", {
+                            method: "POST",
+                            body: formData
+                        })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                options.callback(
+                                    options.files.map((file) => {
+                                        return {
+                                            file: file,
+                                            content: "https://api.surveyjs.io/private/Surveys/getTempFile?name=" + data[file.name]
+                                        };
+                                    })
+                                );
+                            })
+                            .catch((error) => {
+                                console.error("Error: ", error);
+                                options.callback([], [ 'An error occurred during file upload.' ]);
+                            });
+                    });
+
+                    // editor.onUploadFile.add(function(editor, options) {
+                    //         var formData = new FormData();
+                    //         options.files.forEach(function(file) {
+                    //             formData.append("file", file);
+                    //         });
+                    //         jQuery.ajax({
+                    //             url: "<?php echo esc_url($uploadFileUri) ?>",
+                    //             type: "POST",
+                    //             xhr: function () {
+                    //                 var myXhr = jQuery.ajaxSettings.xhr();
+                    //                 if (myXhr.upload) {
+                    //                     myXhr.upload.addEventListener('progress', function (event) {
+                    //                         var percent = 0;
+                    //                         var position = event.loaded || event.position;
+                    //                         var total = event.total;
+                    //                     }, false);
+                    //                 }
+                    //                 return myXhr;
+                    //             },
+                    //             success: function (data) {
+                    //                 options.callback("success", data["url"]);
+                    //             },
+                    //             error: function (error) {
+                    //             },
+                    //             async: true,
+                    //             data: formData,
+                    //             cache: false,
+                    //             contentType: false,
+                    //             processData: false,
+                    //             timeout: 60000
+                    //         });
+                    //     });
 
                 jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>/*, css: customCss*/});
             }
