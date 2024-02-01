@@ -168,6 +168,7 @@ class SurveyJS_SurveyJS {
         $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php'));
+        $deleteFileUri = add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php'));
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo $id ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
@@ -221,32 +222,65 @@ class SurveyJS_SurveyJS {
                         //    .innerHTML = "result: " + JSON.stringify(result.data);
                     });
 
-                    survey<?php echo $id ?>.onUploadFiles.add((_, options) => {
-                        const formData = new FormData();
-                        options.files.forEach((file) => {
-                            formData.append(file.name, file);
-                        });
-
-                        fetch("<?php echo esc_url($uploadFileUri) ?>", {
-                            method: "POST",
-                            body: formData
-                        })
-                            .then((response) => response.json())
-                            .then((data) => {
-                                options.callback(
-                                    options.files.map((file) => {
-                                        return {
-                                            file: file,
-                                            content: data[file.name]
-                                        };
-                                    })
-                                );
-                            })
-                            .catch((error) => {
-                                console.error("Error: ", error);
-                                options.callback([], [ 'An error occurred during file upload.' ]);
-                            });
+                survey<?php echo $id ?>.onUploadFiles.add((_, options) => {
+                    const formData = new FormData();
+                    options.files.forEach((file) => {
+                        formData.append(file.name, file);
                     });
+
+                    fetch("<?php echo esc_url($uploadFileUri) ?>", {
+                        method: "POST",
+                        body: formData
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            options.callback(
+                                options.files.map((file) => {
+                                    return {
+                                        file: file,
+                                        content: data[file.name]
+                                    };
+                                })
+                            );
+                        })
+                        .catch((error) => {
+                            console.error("Error: ", error);
+                            options.callback([], [ 'An error occurred during file upload.' ]);
+                        });
+                });
+
+                function deleteFile(fileURL, options) {
+                    try {
+                        const apiUrl = `<?php echo esc_url($deleteFileUri) ?>&name=${fileURL}`;
+                        fetch(apiUrl);
+                    } catch (error) {
+                        options.callback("error");
+                    }
+                }
+
+                survey<?php echo $id ?>.onClearFiles.add((_, options) => {
+                    if (!options.value || options.value.length === 0) {
+                        options.callback("success");
+                        return;
+                    }
+
+                    if (!options.fileName && !!options.value) {
+                        for (const item of options.value) {
+                            deleteFile(item.content, options);
+                        }
+                    } else {
+                        const fileToRemove = options.value.find(
+                            (item) => item.name === options.fileName
+                        );
+                        if (fileToRemove) {
+                            deleteFile(fileToRemove.content, options);
+                        } else {
+                            console.error(`File with name ${options.fileName} is not found`);
+                        }
+                    }
+                    options.callback("success");
+                });
+
                 jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>/*, css: customCss*/});
             }
         </script>        

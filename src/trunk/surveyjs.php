@@ -89,6 +89,9 @@ Author URI: http://devsoftbaltic.com/
     include("ajax_handlers/upload_files.php");
     new SurveyJS_UploadFiles();
 
+    include("ajax_handlers/delete_file.php");
+    new SurveyJS_DeleteFile();
+
     include("initializer.php");
     new SurveyJS_SurveyJS();
 ?>
