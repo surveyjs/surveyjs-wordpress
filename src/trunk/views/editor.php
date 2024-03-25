@@ -16,6 +16,7 @@ class SurveyJS_Editor {
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFile'), admin_url('admin-ajax.php'));
+        $lk = sanitize_text_field(SurveyJS_SettingsPage::get_license_key());
         ?>
             <style>
                 /* #sjs-editor-container .svd_container .card {
@@ -89,8 +90,9 @@ class SurveyJS_Editor {
                 <div id="sjs-editor-container" style="height: 77vh;"></div>
                 <script type="text/babel">
                     function SurveyCreatorRenderComponent() {
-                        var CommercialLicense = <?php echo json_encode(file_exists(plugin_dir_path(__FILE__) . 'CommercialLicense.txt')) ?>;
-                        var editorOptions = { showThemeTab: true, showLogicTab: true, showTranslationTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false, haveCommercialLicense: CommercialLicense };
+                        var lk = '<?php echo $lk ?>';
+                        Survey.slk(lk);
+                        var editorOptions = { showThemeTab: true, showLogicTab: true, showTranslationTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false };
                         const editor = new SurveyCreator.SurveyCreator(editorOptions);
                         editor.showState = true;
                         editor.isAutoSave = true;
