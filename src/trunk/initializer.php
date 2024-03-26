@@ -175,18 +175,20 @@ class SurveyJS_SurveyJS {
             <div id="surveyResult-<?php echo $id ?>"></div>
         </div>
         <script>
-            let theme;
             jQuery.ajax({
                 url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
                 type: "POST",
                 data: { Id: <?php echo $id ?> },
                 success: function (data) {
                     var json = {}
+                    let theme;
                     if (data.json) {
                         json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
                     }
                     if (data.theme) {
                         theme = JSON.parse(data.theme.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
+                    } else {
+                        theme = null
                     }
                     initSurvey<?php echo $id ?>(json, theme);
                 }
