@@ -12,6 +12,7 @@ class SurveyJS_Editor {
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
         $json = $wpdb->get_row($query)->json;
+        $themeJson = $wpdb->get_row($query)->theme;
 
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
@@ -160,6 +161,7 @@ class SurveyJS_Editor {
                         var json = '<?php echo htmlspecialchars_decode($json); ?>';
                         creator.text = json;
                         //creator.JSON = surveyJSON;
+                        creator.theme = JSON.parse('<?php echo htmlspecialchars_decode($themeJson); ?>');
                         return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
                     }
 
