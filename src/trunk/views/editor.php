@@ -161,7 +161,9 @@ class SurveyJS_Editor {
                         var json = '<?php echo htmlspecialchars_decode($json); ?>';
                         creator.text = json;
                         //creator.JSON = surveyJSON;
-                        creator.theme = JSON.parse('<?php echo htmlspecialchars_decode($themeJson); ?>');
+                        if (typeof $themeJson !== "undefined" && $themeJson) {
+                            creator.theme = JSON.parse('<?php echo htmlspecialchars_decode($themeJson); ?>');
+                        }
                         return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
                     }
 
