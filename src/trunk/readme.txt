@@ -2,7 +2,7 @@
 Contributors: devsoftbaltic
 Tags: survey, quiz, form builder, survey creator, survey maker, quiz creator
 Requires at least: 6.4.1
-Tested up to: 6.4.1
+Tested up to: 6.5.3
 Stable tag: trunk
 Requires PHP: php8.2
 License: GPLv2 or later
