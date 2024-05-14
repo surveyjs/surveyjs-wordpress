@@ -89,7 +89,7 @@ class SurveyJS_Results {
                 var results = <?php echo $surveyResults; ?>;
                 
                 var data = results.map(function(result) {
-                    var dataItem = JSON.parse(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'") || "{}");
+                    var dataItem = JSON.parse(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'").replace(/\\&quot;/g, "\"") || "{}");
                     dataItem.resultId = result.id;
                     return dataItem;
                 });
