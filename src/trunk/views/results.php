@@ -6,13 +6,12 @@ class SurveyJS_Results {
     function __construct() {
     }
 
-
     public static function render() {
         global $wpdb;
         $surveyId = sanitize_key($_GET['id']);
         $table_name = $wpdb->prefix . 'sjs_results';
         $query = "SELECT id, json FROM " . $table_name . " WHERE surveyId=" . $surveyId;
-        $surveyResults = json_encode( $wpdb->get_results($query) );
+        $surveyResults = $wpdb->get_results($query);
 
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
         $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
@@ -86,10 +85,20 @@ class SurveyJS_Results {
                     windowSurvey.isExpanded = true;
                 });
 
-                var results = <?php echo $surveyResults; ?>;
-                
+ 
+                <?php
+                    echo 'var results = ', json_encode($surveyResults), ';';
+                ?>
+
+                function decodeHtml(str) {
+                    var textarea = document.createElement("textarea");
+                    textarea.innerHTML = str;
+                    return textarea.innerText;
+                }
+
                 var data = results.map(function(result) {
-                    var dataItem = JSON.parse(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'").replace(/\\&quot;/g, "\"") || "{}");
+                    var replacedResult = decodeHtml(result.json).replace(/\\/g, "");
+                    var dataItem = JSON.parse(replacedResult || "{}");
                     dataItem.resultId = result.id;
                     return dataItem;
                 });
