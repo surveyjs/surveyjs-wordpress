@@ -9,11 +9,11 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        $SurveyId = intval(sanitize_key($_POST['SurveyId']));
-        $Json =  sanitize_text_field($_POST['Json']);
-        $TableName = 'sjs_results';
-
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $SurveyId = intval(sanitize_key($_POST['SurveyId']));
+            $Json =  sanitize_text_field($_POST['Json']);
+            $TableName = 'sjs_results';
+            
             if (function_exists('surveyjs_save_result'))
             {
                 do_action('wp_surveyjs_save_result', $SurveyId, $Json, $TableName);
