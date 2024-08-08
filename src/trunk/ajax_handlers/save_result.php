@@ -33,4 +33,13 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     }
 }
 
+/**
+ * Custom Save Survey Result function
+ * file functions.php
+ */
+/*function surveyjs_save_result($SurveyId=null, $Json=null, $TableName=null) {
+	do stuff
+}
+add_action( 'wp_surveyjs_save_result', 'surveyjs_save_result', 10, 3 );*/
+
 ?>
