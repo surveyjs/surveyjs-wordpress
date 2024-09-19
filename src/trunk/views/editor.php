@@ -157,6 +157,13 @@ class SurveyJS_Editor {
                                 timeout: 60000
                             });
                         });
+                        editor.onSurveyInstanceCreated.add(function(creatot, options) {
+                            const reason = options.reason;
+                            const survey = options.survey;
+                            if (reason === "test" || reason === "theme") {
+                                survey.getAllQuestions().forEach((q)=>{q.storeDataAsText = true});
+                            }
+                        })
                         const creator = editor;
                         var json = '<?php echo htmlspecialchars_decode($json); ?>';
                         creator.text = json;
