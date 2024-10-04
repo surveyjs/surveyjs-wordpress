@@ -51,10 +51,10 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
                 
                 $uploadedfile["name"] = $filename;
                 
-                $movefile = upload_user_file( $uploadedfile, $path);
+                // $movefile = upload_user_file( $uploadedfile, $path);
 
-                // $upload_overrides = array( 'test_form' => false );
-                //$movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
+                $upload_overrides = array( 'test_form' => false );
+                $movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
 
                 if ( !$movefile || isset( $movefile['error'] ) ) {
                     wp_send_json( array('error' => $movefile['error']) );
