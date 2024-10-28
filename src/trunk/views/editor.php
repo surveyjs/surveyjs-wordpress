@@ -168,8 +168,10 @@ class SurveyJS_Editor {
                         var json = '<?php echo htmlspecialchars_decode($json); ?>';
                         creator.text = json;
                         //creator.JSON = surveyJSON;
-                        const themeJSON = JSON.parse('<?php echo htmlspecialchars_decode($themeJson); ?>');
-                        creator.theme = themeJSON;
+                        const themeJSON = '<?php echo htmlspecialchars_decode($themeJson); ?>';
+                        if (themeJSON) {
+                            creator.theme = JSON.parse(themeJSON);
+                        }
                         return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
                     }
 
