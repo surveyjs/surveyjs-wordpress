@@ -12,7 +12,7 @@ function get_file_url( $file = __FILE__ ) {
     return false;
 }
 
-function upload_user_file( $file = array(),$path) {
+function upload_user_file($path, $file = array()) {
     $result = [];
     if(!empty($file)) 
     {
