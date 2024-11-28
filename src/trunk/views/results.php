@@ -97,7 +97,7 @@ class SurveyJS_Results {
                 }
 
                 var data = results.map(function(result) {
-                    var replacedResult = decodeHtml(result.json).replace(/\\/g, "").replace(/""/g, "\"");
+                    var replacedResult  = decodeHtml(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));                    
                     var dataItem = JSON.parse(replacedResult || "{}");
                     dataItem.resultId = result.id;
                     return dataItem;
