@@ -9,7 +9,7 @@ class SurveyJS_CloneSurvey extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
             global $wpdb;
             $surveyId = sanitize_key($_POST['SurveyParentId']);
             $table_name = $wpdb->prefix . 'sjs_my_surveys';

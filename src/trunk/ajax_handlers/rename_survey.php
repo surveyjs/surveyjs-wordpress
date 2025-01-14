@@ -9,7 +9,7 @@ class SurveyJS_RenameSurvey extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
             $id = sanitize_key($_POST['Id']);
             $name = sanitize_text_field($_POST['Name']);
             if(!!$name) {
