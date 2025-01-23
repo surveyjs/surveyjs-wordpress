@@ -184,7 +184,9 @@ class SurveyJS_SurveyJS {
                     } else {
                         theme = null
                     }
-                    initSurvey<?php echo $id ?>(json, theme);
+                    jQuery(document).ready(()=>{
+                        initSurvey<?php echo $id ?>(json, theme);
+                    });
                 }
             });
 
