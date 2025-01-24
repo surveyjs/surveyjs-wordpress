@@ -1,6 +1,6 @@
 /*!
- * surveyjs - Survey JavaScript library v1.12.17
- * Copyright (c) 2015-2024 Devsoft Baltic OÜ  - http://surveyjs.io/
+ * surveyjs - Survey JavaScript library v1.12.20
+ * Copyright (c) 2015-2025 Devsoft Baltic OÜ  - http://surveyjs.io/
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
