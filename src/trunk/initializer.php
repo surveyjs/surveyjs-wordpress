@@ -195,19 +195,21 @@ class SurveyJS_SurveyJS {
                 if (!!theme) {
                     survey<?php echo $id ?>.applyTheme(theme);
                 }
-                window.survey<?php echo $id ?> = survey<?php echo $id ?>;
+                window.survey<?php echo $id ?> = survey<?php echo $id ?>;               
                 survey<?php echo $id ?>
                     .onComplete
-                    .add(function (result) {
+                    .add(function (sender, options) {
+                        options.showSaveInProgress();
                         jQuery.ajax({
                             url:  "<?php echo esc_url($saveResultUri) ?>",
                             type: "POST",
-                            data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(result.data) },
-                            success: function (data) {}
+                            data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(sender.data) },
+                            success: function (data) {options.showSaveSuccess();},
+                            error: function (xhr) {options.showSaveError(xhr.responseText);}
                         });
                         //document
                         //    .querySelector("#surveyResult-<?php echo $id ?>")
-                        //    .innerHTML = "result: " + JSON.stringify(result.data);
+                        //    .innerHTML = "result: " + JSON.stringify(sender.data);
                     });
 
                 survey<?php echo $id ?>.onUploadFiles.add((_, options) => {
