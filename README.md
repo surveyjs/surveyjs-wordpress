@@ -84,9 +84,26 @@ SurveyJS offers a simple way to add digital signatures to your e-forms with a bu
 
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-7.png?raw=true)
 
-## Installation ##
+## Installation & Licensing ##
 
-SurveyJS plugin is free for everyone who [self-hosts](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) Wordpress. If you use WordPress.com, the SurveyJS plugin is only free for users with Business plan or higher (due to the WordPress.com [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/)).
+The SurveyJS plugin demonstrates how SurveyJS UI libraries can be integrated into a WordPress environment. By default, it includes the MIT-licensed **Form Library** for rendering forms and **Survey Creator**, a form-building UI component.
+
+The SurveyJS product family _also_ includes:
+
+- **PDF Generator** – Exports forms as editable PDF files.
+- **Dashboard** – Enables the creation of custom survey data dashboards populated with user responses.
+
+Survey Creator, PDF Generator, and Dashboard are proprietary libraries. The PDF Generator and Dashboard libraries are **not** integrated into the SurveyJS plugin by default but can be added if needed.
+
+The SurveyJS plugin is free under the following conditions:
+
+✅ You use it **as is** (without modifying the integrated form builder).\
+✅ You do **not** integrate PDF Generator or Dashboard.\
+✅ You [self-host WordPress](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/).
+
+If you use WordPress.com, the plugin is only free for users on the Business plan or higher due to platform [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/). Please see [WordPress.com vs. WordPress.org](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) to learn more.
+
+If you plan to **fork** the plugin to modify Survey Creator **or** integrate PDF Generator and/or Dashboard, you must purchase a [developer license](https://surveyjs.io/pricing) for each developer involved in the integration and working with the SurveyJS API.
 
 **Install the plugin from the WordPress directory**
 
