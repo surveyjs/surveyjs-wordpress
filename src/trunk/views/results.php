@@ -39,6 +39,7 @@ class SurveyJS_Results {
                         </div>
                     </div>
                 </div>
+                <div id="surveyElement"></div>
             </div>
 
             <script>
@@ -74,15 +75,29 @@ class SurveyJS_Results {
                     `
                 });
 
-                var windowSurvey = new Survey.PopupSurveyModel(surveyJson);
-                windowSurvey.survey.mode = "display";
-                windowSurvey.survey.title = "<?php echo $surveyName; ?>";
-                windowSurvey.show();
+                // var windowSurvey = new Survey.PopupSurveyModel(surveyJson);
+                // windowSurvey.survey.mode = "display";
+                // windowSurvey.survey.title = "<?php echo $surveyName; ?>";
+                // windowSurvey.show();
 
-                $(document).on("click", "#showInSurvey", function(e) {
-                    var row_object = table.row(this).data();
-                    windowSurvey.survey.data = row_object;
-                    windowSurvey.isExpanded = true;
+
+                $(document).on("click", ".wp-sjs-plugin", function(e) {
+                    var rowEl = $(e.target).parent("tr");
+                    var row_object = table.row(rowEl).data();
+                    var survey = new Survey.Model(surveyJson);
+                    survey.data = row_object;
+
+                    var handlePopupClose = () => {
+                        $("#surveyElement").remove();
+                    }
+
+                    $("#surveyElement").PopupSurvey({
+                        model: survey,
+                        isExpanded: true,
+                        closeOnCompleteTimeout: -1,
+                        allowClose: true,
+                        onClose: handlePopupClose
+                    });
                 });
 
  
