@@ -122,6 +122,10 @@ class SurveyJS_SurveyJS {
             wp_enqueue_style('thickbox');
             wp_enqueue_script('thickbox');
         }
+
+        if ( isset( $_GET["page"] ) && $_GET['page'] == "surveyjs_results") {
+            wp_enqueue_script('wps-adm-jquery-js', plugins_url('libs/library/survey.jquery.min.js', __FILE__)); // for "Show in Survey btn"
+        }
     }
 
     public function enqueue_frontend_scripts() { 
