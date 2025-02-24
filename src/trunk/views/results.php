@@ -82,7 +82,7 @@ class SurveyJS_Results {
 
 
                 $(document).on("click", ".wp-sjs-plugin", function(e) {
-                    var rowEl = $(e.target).parent("tr");
+                    var rowEl = $(e.target).parents("tr");
                     var row_object = table.row(rowEl).data();
                     var survey = new Survey.Model(surveyJson);
                     survey.data = row_object;
