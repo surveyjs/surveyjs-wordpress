@@ -162,7 +162,7 @@ class SurveyJS_SurveyJS {
     function wps_process_shortcode($attrs) {
         ob_start();
         
-        $id = sanitize_text_field($attrs["id"]);
+        $id = esc_attr($attrs["id"]);
         $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php'));
