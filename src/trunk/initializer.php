@@ -168,7 +168,7 @@ class SurveyJS_SurveyJS {
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php'));
         $deleteFileUri = add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php'));
         ?>
-        <div class="wp-sjs-plugin" id="surveyContainer-<?php echo $id ?>">
+        <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
             <div id="surveyResult-<?php echo $id ?>"></div>
         </div>
