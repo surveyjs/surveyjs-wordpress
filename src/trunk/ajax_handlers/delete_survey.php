@@ -13,6 +13,7 @@ class SurveyJS_DeleteSurvey extends SurveyJS_AJAX_Handler {
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
             $id = sanitize_key($_POST['Id']);
+            check_ajax_referer( 'delete-survey-ajax-referer');
 
             $result = $wpdb->delete( 
                 $table_name, 

@@ -12,6 +12,7 @@ class SurveyJS_MySurveys {
         $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
         $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
         $cloneSurveyUri = add_query_arg(array('action' => 'SurveyJS_CloneSurvey'), admin_url('admin-ajax.php'));
+        $deleteSurveyNonce = wp_create_nonce("delete-survey-ajax-referer");
         ?>
             <script>
                 function addNewSurvey() {
@@ -30,7 +31,7 @@ class SurveyJS_MySurveys {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
                         type: "POST",
-                        data: { Id: id },
+                        data: { Id: id, _wpnonce: '<?php echo $deleteSurveyNonce; ?>' },
                         success: function (data) {
                             window.location = "";
                         }
