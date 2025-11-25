@@ -10,6 +10,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            check_ajax_referer( 'surveyjs-save-result' );
             $SurveyId = intval(sanitize_key($_POST['SurveyId']));
             $Json =  sanitize_text_field($_POST['Json']);
             $TableName = 'sjs_results';

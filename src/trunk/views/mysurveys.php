@@ -12,13 +12,16 @@ class SurveyJS_MySurveys {
         $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
         $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
         $cloneSurveyUri = add_query_arg(array('action' => 'SurveyJS_CloneSurvey'), admin_url('admin-ajax.php'));
+        $addSurveyNonce = wp_create_nonce('surveyjs-add-survey');
+        $deleteSurveyNonce = wp_create_nonce("delete-survey-ajax-referer");
+        $cloneSurveyNonce = wp_create_nonce('surveyjs-clone-survey');
         ?>
             <script>
                 function addNewSurvey() {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($addSurveyUri) ?>",
                         type: "POST",
-                        data: { Name: "New Survey" },
+                        data: { Name: "New Survey", _wpnonce: '<?php echo $addSurveyNonce; ?>' },
                         success: function (data) {
                             window.location = "<?php echo esc_url($editSurveyUri) ?>&id=" + data.Id + "&name=New Survey";
                         }
@@ -30,18 +33,17 @@ class SurveyJS_MySurveys {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
                         type: "POST",
-                        data: { Id: id },
+                        data: { Id: id, _wpnonce: '<?php echo $deleteSurveyNonce; ?>' },
                         success: function (data) {
                             window.location = "";
                         }
                     });
                 }
                 function cloneSurvey(id) {
-                    debugger;
                     jQuery.ajax({
                         url:  "<?php echo esc_url($cloneSurveyUri)  ?>",
                         type: "POST",
-                        data: { SurveyParentId: id },
+                        data: { SurveyParentId: id, _wpnonce: '<?php echo $cloneSurveyNonce; ?>' },
                         success: function (data) {
                             window.location = "";
                         }

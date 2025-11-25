@@ -13,6 +13,7 @@ class SurveyJS_UploadFile extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            check_ajax_referer( 'surveyjs-upload-file' );
             $uploadedfile = $_FILES['file'];
 
             $upload_overrides = array( 'test_form' => false );
