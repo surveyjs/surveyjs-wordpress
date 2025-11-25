@@ -152,6 +152,7 @@ class SurveyJS_SurveyJS {
 
     function wps_media_button() {
         $url = add_query_arg(array('action' => 'SurveyJS_InsertSurvey'), admin_url('admin-ajax.php'));
+        $url = wp_nonce_url($url, 'surveyjs-insert-survey', '_wpnonce');
         ?>
         <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php _e('Insert Survey', SurveyJS_SurveyJS::$prefix); ?>">
             <?php _e('Add Survey', SurveyJS_SurveyJS::$prefix); ?>
@@ -167,6 +168,11 @@ class SurveyJS_SurveyJS {
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php'));
         $deleteFileUri = add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php'));
+        $getSurveyJsonNonce = wp_create_nonce('surveyjs-get-survey-json');
+        $saveResultNonce = wp_create_nonce('surveyjs-save-result');
+        $uploadFilesNonce = wp_create_nonce('surveyjs-upload-files');
+        $deleteFileNonce = wp_create_nonce('surveyjs-delete-file');
+        $deleteFileUriWithNonce = add_query_arg('_wpnonce', $deleteFileNonce, $deleteFileUri);
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
             <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
@@ -176,7 +182,7 @@ class SurveyJS_SurveyJS {
             jQuery.ajax({
                 url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
                 type: "POST",
-                data: { Id: <?php echo $id ?> },
+                data: { Id: <?php echo $id ?>, _wpnonce: '<?php echo $getSurveyJsonNonce; ?>' },
                 success: function (data) {
                     var json = {}
                     let theme;
@@ -207,7 +213,7 @@ class SurveyJS_SurveyJS {
                         jQuery.ajax({
                             url:  "<?php echo esc_url($saveResultUri) ?>",
                             type: "POST",
-                            data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(sender.data) },
+                    data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(sender.data), _wpnonce: '<?php echo $saveResultNonce; ?>' },
                             success: function (data) {options.showSaveSuccess();},
                             error: function (xhr) {options.showSaveError(xhr.responseText);}
                         });
@@ -221,6 +227,7 @@ class SurveyJS_SurveyJS {
                     options.files.forEach((file) => {
                         formData.append(file.name, file);
                     });
+                formData.append("_wpnonce", "<?php echo $uploadFilesNonce; ?>");
 
                     fetch("<?php echo esc_url($uploadFileUri) ?>", {
                         method: "POST",
@@ -245,7 +252,8 @@ class SurveyJS_SurveyJS {
 
                 function deleteFile(fileURL, options) {
                     try {
-                        const apiUrl = `<?php echo esc_url($deleteFileUri) ?>&name=${fileURL}`;
+                        const deleteFileBaseUrl = "<?php echo esc_url($deleteFileUriWithNonce); ?>";
+                        const apiUrl = `${deleteFileBaseUrl}&name=${encodeURIComponent(fileURL)}`;
                         fetch(apiUrl);
                     } catch (error) {
                         options.callback("error");
