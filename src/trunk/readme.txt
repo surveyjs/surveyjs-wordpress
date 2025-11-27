@@ -81,7 +81,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
 
 
-= v1.12.20 =
+= v1.12.57 =
 
 == Support ==
 

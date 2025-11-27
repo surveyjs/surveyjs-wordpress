@@ -1,5 +1,5 @@
 /*!
- * surveyjs - Survey JavaScript library v1.12.20
+ * surveyjs - Survey JavaScript library v2.4.0
  * Copyright (c) 2015-2025 Devsoft Baltic OÜ  - http://surveyjs.io/
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -12,107 +12,22 @@
 		exports["index"] = factory();
 	else
 		root["SurveyTheme"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./packages/survey-core/src/themes/index.ts");
-/******/ })
-/************************************************************************/
-/******/ ({
+})(this, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
 
-/***/ "./packages/survey-core/src/themes/borderless-dark-panelless.ts":
-/*!**********************************************************************!*\
-  !*** ./packages/survey-core/src/themes/borderless-dark-panelless.ts ***!
-  \**********************************************************************/
-/*! exports provided: default, BorderlessDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/borderless-dark-panelless.ts":
+/*!*************************************************!*\
+  !*** ./src/themes/borderless-dark-panelless.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessDarkPanelless", function() { return BorderlessDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "borderless",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -200,25 +115,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var BorderlessDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/borderless-dark.ts":
-/*!************************************************************!*\
-  !*** ./packages/survey-core/src/themes/borderless-dark.ts ***!
-  \************************************************************/
-/*! exports provided: default, BorderlessDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/borderless-dark.ts":
+/*!***************************************!*\
+  !*** ./src/themes/borderless-dark.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessDark", function() { return BorderlessDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "borderless",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -306,25 +218,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var BorderlessDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/borderless-light-panelless.ts":
-/*!***********************************************************************!*\
-  !*** ./packages/survey-core/src/themes/borderless-light-panelless.ts ***!
-  \***********************************************************************/
-/*! exports provided: default, BorderlessLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/borderless-light-panelless.ts":
+/*!**************************************************!*\
+  !*** ./src/themes/borderless-light-panelless.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessLightPanelless", function() { return BorderlessLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "borderless",
     "colorPalette": "light",
     "isPanelless": true,
@@ -412,25 +321,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var BorderlessLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/borderless-light.ts":
-/*!*************************************************************!*\
-  !*** ./packages/survey-core/src/themes/borderless-light.ts ***!
-  \*************************************************************/
-/*! exports provided: default, BorderlessLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/borderless-light.ts":
+/*!****************************************!*\
+  !*** ./src/themes/borderless-light.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessLight", function() { return BorderlessLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "borderless",
     "colorPalette": "light",
     "isPanelless": false,
@@ -518,25 +424,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var BorderlessLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/contrast-dark-panelless.ts":
-/*!********************************************************************!*\
-  !*** ./packages/survey-core/src/themes/contrast-dark-panelless.ts ***!
-  \********************************************************************/
-/*! exports provided: default, ContrastDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/contrast-dark-panelless.ts":
+/*!***********************************************!*\
+  !*** ./src/themes/contrast-dark-panelless.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastDarkPanelless", function() { return ContrastDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "contrast",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -571,7 +474,7 @@ var Theme = {
         "--sjs-border-light": "rgba(232, 192, 51, 1)",
         "--sjs-border-default": "rgba(0, 0, 0, 1)",
         "--sjs-border-inside": "rgba(255, 255, 255, 0.08)",
-        "--sjs-special-red": "rgba(254, 76, 108, 1)",
+        "--sjs-special-red": "rgba(156, 2, 39, 1)",
         "--sjs-special-red-light": "rgba(254, 76, 108, 0.1)",
         "--sjs-special-red-forecolor": "rgba(48, 48, 48, 1)",
         "--sjs-special-green": "rgba(36, 197, 164, 1)",
@@ -624,25 +527,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ContrastDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/contrast-dark.ts":
-/*!**********************************************************!*\
-  !*** ./packages/survey-core/src/themes/contrast-dark.ts ***!
-  \**********************************************************/
-/*! exports provided: default, ContrastDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/contrast-dark.ts":
+/*!*************************************!*\
+  !*** ./src/themes/contrast-dark.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastDark", function() { return ContrastDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "contrast",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -677,7 +577,7 @@ var Theme = {
         "--sjs-border-light": "rgba(232, 192, 51, 1)",
         "--sjs-border-default": "rgba(0, 0, 0, 1)",
         "--sjs-border-inside": "rgba(255, 255, 255, 0.08)",
-        "--sjs-special-red": "rgba(254, 76, 108, 1)",
+        "--sjs-special-red": "rgba(156, 2, 39, 1)",
         "--sjs-special-red-light": "rgba(254, 76, 108, 0.1)",
         "--sjs-special-red-forecolor": "rgba(48, 48, 48, 1)",
         "--sjs-special-green": "rgba(36, 197, 164, 1)",
@@ -730,25 +630,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ContrastDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/contrast-light-panelless.ts":
-/*!*********************************************************************!*\
-  !*** ./packages/survey-core/src/themes/contrast-light-panelless.ts ***!
-  \*********************************************************************/
-/*! exports provided: default, ContrastLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/contrast-light-panelless.ts":
+/*!************************************************!*\
+  !*** ./src/themes/contrast-light-panelless.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastLightPanelless", function() { return ContrastLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "contrast",
     "colorPalette": "light",
     "isPanelless": true,
@@ -783,7 +680,7 @@ var Theme = {
         "--sjs-border-light": "rgba(0, 0, 0, 0.2)",
         "--sjs-border-default": "rgba(0, 0, 0, 1)",
         "--sjs-border-inside": "rgba(0, 0, 0, 0.16)",
-        "--sjs-special-red": "rgba(229, 10, 62, 1)",
+        "--sjs-special-red": "rgba(156, 2, 39, 1)",
         "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
         "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)",
         "--sjs-special-green": "rgba(25, 179, 148, 1)",
@@ -836,25 +733,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ContrastLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/contrast-light.ts":
-/*!***********************************************************!*\
-  !*** ./packages/survey-core/src/themes/contrast-light.ts ***!
-  \***********************************************************/
-/*! exports provided: default, ContrastLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/contrast-light.ts":
+/*!**************************************!*\
+  !*** ./src/themes/contrast-light.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastLight", function() { return ContrastLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "contrast",
     "colorPalette": "light",
     "isPanelless": false,
@@ -889,7 +783,7 @@ var Theme = {
         "--sjs-border-light": "rgba(0, 0, 0, 0.2)",
         "--sjs-border-default": "rgba(0, 0, 0, 1)",
         "--sjs-border-inside": "rgba(0, 0, 0, 0.16)",
-        "--sjs-special-red": "rgba(229, 10, 62, 1)",
+        "--sjs-special-red": "rgba(156, 2, 39, 1)",
         "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
         "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)",
         "--sjs-special-green": "rgba(25, 179, 148, 1)",
@@ -942,25 +836,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ContrastLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/default-dark-panelless.ts":
-/*!*******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/default-dark-panelless.ts ***!
-  \*******************************************************************/
-/*! exports provided: default, DefaultDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/default-dark-panelless.ts":
+/*!**********************************************!*\
+  !*** ./src/themes/default-dark-panelless.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultDarkPanelless", function() { return DefaultDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "default",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -1048,25 +939,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DefaultDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/default-dark.ts":
-/*!*********************************************************!*\
-  !*** ./packages/survey-core/src/themes/default-dark.ts ***!
-  \*********************************************************/
-/*! exports provided: default, DefaultDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/default-dark.ts":
+/*!************************************!*\
+  !*** ./src/themes/default-dark.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultDark", function() { return DefaultDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "default",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -1154,25 +1042,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DefaultDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/default-light-panelless.ts":
-/*!********************************************************************!*\
-  !*** ./packages/survey-core/src/themes/default-light-panelless.ts ***!
-  \********************************************************************/
-/*! exports provided: default, DefaultLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/default-light-panelless.ts":
+/*!***********************************************!*\
+  !*** ./src/themes/default-light-panelless.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultLightPanelless", function() { return DefaultLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "default",
     "colorPalette": "light",
     "isPanelless": true,
@@ -1260,25 +1145,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DefaultLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/default-light.ts":
-/*!**********************************************************!*\
-  !*** ./packages/survey-core/src/themes/default-light.ts ***!
-  \**********************************************************/
-/*! exports provided: default, DefaultLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/default-light.ts":
+/*!*************************************!*\
+  !*** ./src/themes/default-light.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultLight", function() { return DefaultLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "default",
     "colorPalette": "light",
     "isPanelless": false,
@@ -1366,25 +1248,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DefaultLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/doubleborder-dark-panelless.ts":
-/*!************************************************************************!*\
-  !*** ./packages/survey-core/src/themes/doubleborder-dark-panelless.ts ***!
-  \************************************************************************/
-/*! exports provided: default, DoubleBorderDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/doubleborder-dark-panelless.ts":
+/*!***************************************************!*\
+  !*** ./src/themes/doubleborder-dark-panelless.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderDarkPanelless", function() { return DoubleBorderDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "doubleborder",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -1472,25 +1351,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DoubleBorderDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/doubleborder-dark.ts":
-/*!**************************************************************!*\
-  !*** ./packages/survey-core/src/themes/doubleborder-dark.ts ***!
-  \**************************************************************/
-/*! exports provided: default, DoubleBorderDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/doubleborder-dark.ts":
+/*!*****************************************!*\
+  !*** ./src/themes/doubleborder-dark.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderDark", function() { return DoubleBorderDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "doubleborder",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -1578,25 +1454,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DoubleBorderDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/doubleborder-light-panelless.ts":
-/*!*************************************************************************!*\
-  !*** ./packages/survey-core/src/themes/doubleborder-light-panelless.ts ***!
-  \*************************************************************************/
-/*! exports provided: default, DoubleBorderLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/doubleborder-light-panelless.ts":
+/*!****************************************************!*\
+  !*** ./src/themes/doubleborder-light-panelless.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderLightPanelless", function() { return DoubleBorderLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "doubleborder",
     "colorPalette": "light",
     "isPanelless": true,
@@ -1684,25 +1557,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DoubleBorderLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/doubleborder-light.ts":
-/*!***************************************************************!*\
-  !*** ./packages/survey-core/src/themes/doubleborder-light.ts ***!
-  \***************************************************************/
-/*! exports provided: default, DoubleBorderLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/doubleborder-light.ts":
+/*!******************************************!*\
+  !*** ./src/themes/doubleborder-light.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderLight", function() { return DoubleBorderLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "doubleborder",
     "colorPalette": "light",
     "isPanelless": false,
@@ -1790,25 +1660,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var DoubleBorderLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/flat-dark-panelless.ts":
-/*!****************************************************************!*\
-  !*** ./packages/survey-core/src/themes/flat-dark-panelless.ts ***!
-  \****************************************************************/
-/*! exports provided: default, FlatDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/flat-dark-panelless.ts":
+/*!*******************************************!*\
+  !*** ./src/themes/flat-dark-panelless.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatDarkPanelless", function() { return FlatDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "flat",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -1896,25 +1763,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var FlatDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/flat-dark.ts":
-/*!******************************************************!*\
-  !*** ./packages/survey-core/src/themes/flat-dark.ts ***!
-  \******************************************************/
-/*! exports provided: default, FlatDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/flat-dark.ts":
+/*!*********************************!*\
+  !*** ./src/themes/flat-dark.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatDark", function() { return FlatDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "flat",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -2002,25 +1866,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var FlatDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/flat-light-panelless.ts":
-/*!*****************************************************************!*\
-  !*** ./packages/survey-core/src/themes/flat-light-panelless.ts ***!
-  \*****************************************************************/
-/*! exports provided: default, FlatLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/flat-light-panelless.ts":
+/*!********************************************!*\
+  !*** ./src/themes/flat-light-panelless.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatLightPanelless", function() { return FlatLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "flat",
     "colorPalette": "light",
     "isPanelless": true,
@@ -2108,25 +1969,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var FlatLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/flat-light.ts":
-/*!*******************************************************!*\
-  !*** ./packages/survey-core/src/themes/flat-light.ts ***!
-  \*******************************************************/
-/*! exports provided: default, FlatLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/flat-light.ts":
+/*!**********************************!*\
+  !*** ./src/themes/flat-light.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatLight", function() { return FlatLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "flat",
     "colorPalette": "light",
     "isPanelless": false,
@@ -2214,199 +2072,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var FlatLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/index.ts":
-/*!**************************************************!*\
-  !*** ./packages/survey-core/src/themes/index.ts ***!
-  \**************************************************/
-/*! exports provided: DefaultLight, DefaultDark, DefaultLightPanelless, DefaultDarkPanelless, SharpLight, SharpDark, SharpLightPanelless, SharpDarkPanelless, BorderlessLight, BorderlessDark, BorderlessLightPanelless, BorderlessDarkPanelless, FlatLight, FlatDark, FlatLightPanelless, FlatDarkPanelless, PlainLight, PlainDark, PlainLightPanelless, PlainDarkPanelless, DoubleBorderLight, DoubleBorderDark, DoubleBorderLightPanelless, DoubleBorderDarkPanelless, LayeredLight, LayeredDark, LayeredLightPanelless, LayeredDarkPanelless, SolidLight, SolidDark, SolidLightPanelless, SolidDarkPanelless, ThreeDimensionalLight, ThreeDimensionalDark, ThreeDimensionalLightPanelless, ThreeDimensionalDarkPanelless, ContrastLight, ContrastDark, ContrastLightPanelless, ContrastDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/layered-dark-panelless.ts":
+/*!**********************************************!*\
+  !*** ./src/themes/layered-dark-panelless.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultLight", function() { return DefaultLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultDark", function() { return DefaultDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultLightPanelless", function() { return DefaultLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DefaultDarkPanelless", function() { return DefaultDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpLight", function() { return SharpLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpDark", function() { return SharpDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpLightPanelless", function() { return SharpLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpDarkPanelless", function() { return SharpDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessLight", function() { return BorderlessLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessDark", function() { return BorderlessDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessLightPanelless", function() { return BorderlessLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BorderlessDarkPanelless", function() { return BorderlessDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatLight", function() { return FlatLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatDark", function() { return FlatDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatLightPanelless", function() { return FlatLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FlatDarkPanelless", function() { return FlatDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainLight", function() { return PlainLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainDark", function() { return PlainDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainLightPanelless", function() { return PlainLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainDarkPanelless", function() { return PlainDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderLight", function() { return DoubleBorderLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderDark", function() { return DoubleBorderDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderLightPanelless", function() { return DoubleBorderLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DoubleBorderDarkPanelless", function() { return DoubleBorderDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredLight", function() { return LayeredLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredDark", function() { return LayeredDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredLightPanelless", function() { return LayeredLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredDarkPanelless", function() { return LayeredDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidLight", function() { return SolidLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidDark", function() { return SolidDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidLightPanelless", function() { return SolidLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidDarkPanelless", function() { return SolidDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalLight", function() { return ThreeDimensionalLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalDark", function() { return ThreeDimensionalDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalLightPanelless", function() { return ThreeDimensionalLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalDarkPanelless", function() { return ThreeDimensionalDarkPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastLight", function() { return ContrastLight; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastDark", function() { return ContrastDark; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastLightPanelless", function() { return ContrastLightPanelless; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ContrastDarkPanelless", function() { return ContrastDarkPanelless; });
-/* harmony import */ var _default_light__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./default-light */ "./packages/survey-core/src/themes/default-light.ts");
-/* harmony import */ var _default_dark__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./default-dark */ "./packages/survey-core/src/themes/default-dark.ts");
-/* harmony import */ var _default_light_panelless__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./default-light-panelless */ "./packages/survey-core/src/themes/default-light-panelless.ts");
-/* harmony import */ var _default_dark_panelless__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./default-dark-panelless */ "./packages/survey-core/src/themes/default-dark-panelless.ts");
-/* harmony import */ var _sharp_light__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sharp-light */ "./packages/survey-core/src/themes/sharp-light.ts");
-/* harmony import */ var _sharp_dark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sharp-dark */ "./packages/survey-core/src/themes/sharp-dark.ts");
-/* harmony import */ var _sharp_light_panelless__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sharp-light-panelless */ "./packages/survey-core/src/themes/sharp-light-panelless.ts");
-/* harmony import */ var _sharp_dark_panelless__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./sharp-dark-panelless */ "./packages/survey-core/src/themes/sharp-dark-panelless.ts");
-/* harmony import */ var _borderless_light__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./borderless-light */ "./packages/survey-core/src/themes/borderless-light.ts");
-/* harmony import */ var _borderless_dark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./borderless-dark */ "./packages/survey-core/src/themes/borderless-dark.ts");
-/* harmony import */ var _borderless_light_panelless__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./borderless-light-panelless */ "./packages/survey-core/src/themes/borderless-light-panelless.ts");
-/* harmony import */ var _borderless_dark_panelless__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./borderless-dark-panelless */ "./packages/survey-core/src/themes/borderless-dark-panelless.ts");
-/* harmony import */ var _flat_light__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./flat-light */ "./packages/survey-core/src/themes/flat-light.ts");
-/* harmony import */ var _flat_dark__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./flat-dark */ "./packages/survey-core/src/themes/flat-dark.ts");
-/* harmony import */ var _flat_light_panelless__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./flat-light-panelless */ "./packages/survey-core/src/themes/flat-light-panelless.ts");
-/* harmony import */ var _flat_dark_panelless__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./flat-dark-panelless */ "./packages/survey-core/src/themes/flat-dark-panelless.ts");
-/* harmony import */ var _plain_light__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./plain-light */ "./packages/survey-core/src/themes/plain-light.ts");
-/* harmony import */ var _plain_dark__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./plain-dark */ "./packages/survey-core/src/themes/plain-dark.ts");
-/* harmony import */ var _plain_light_panelless__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./plain-light-panelless */ "./packages/survey-core/src/themes/plain-light-panelless.ts");
-/* harmony import */ var _plain_dark_panelless__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./plain-dark-panelless */ "./packages/survey-core/src/themes/plain-dark-panelless.ts");
-/* harmony import */ var _doubleborder_light__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./doubleborder-light */ "./packages/survey-core/src/themes/doubleborder-light.ts");
-/* harmony import */ var _doubleborder_dark__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./doubleborder-dark */ "./packages/survey-core/src/themes/doubleborder-dark.ts");
-/* harmony import */ var _doubleborder_light_panelless__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./doubleborder-light-panelless */ "./packages/survey-core/src/themes/doubleborder-light-panelless.ts");
-/* harmony import */ var _doubleborder_dark_panelless__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./doubleborder-dark-panelless */ "./packages/survey-core/src/themes/doubleborder-dark-panelless.ts");
-/* harmony import */ var _layered_light__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./layered-light */ "./packages/survey-core/src/themes/layered-light.ts");
-/* harmony import */ var _layered_dark__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./layered-dark */ "./packages/survey-core/src/themes/layered-dark.ts");
-/* harmony import */ var _layered_light_panelless__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./layered-light-panelless */ "./packages/survey-core/src/themes/layered-light-panelless.ts");
-/* harmony import */ var _layered_dark_panelless__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./layered-dark-panelless */ "./packages/survey-core/src/themes/layered-dark-panelless.ts");
-/* harmony import */ var _solid_light__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./solid-light */ "./packages/survey-core/src/themes/solid-light.ts");
-/* harmony import */ var _solid_dark__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./solid-dark */ "./packages/survey-core/src/themes/solid-dark.ts");
-/* harmony import */ var _solid_light_panelless__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./solid-light-panelless */ "./packages/survey-core/src/themes/solid-light-panelless.ts");
-/* harmony import */ var _solid_dark_panelless__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./solid-dark-panelless */ "./packages/survey-core/src/themes/solid-dark-panelless.ts");
-/* harmony import */ var _threedimensional_light__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./threedimensional-light */ "./packages/survey-core/src/themes/threedimensional-light.ts");
-/* harmony import */ var _threedimensional_dark__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./threedimensional-dark */ "./packages/survey-core/src/themes/threedimensional-dark.ts");
-/* harmony import */ var _threedimensional_light_panelless__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./threedimensional-light-panelless */ "./packages/survey-core/src/themes/threedimensional-light-panelless.ts");
-/* harmony import */ var _threedimensional_dark_panelless__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./threedimensional-dark-panelless */ "./packages/survey-core/src/themes/threedimensional-dark-panelless.ts");
-/* harmony import */ var _contrast_light__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./contrast-light */ "./packages/survey-core/src/themes/contrast-light.ts");
-/* harmony import */ var _contrast_dark__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./contrast-dark */ "./packages/survey-core/src/themes/contrast-dark.ts");
-/* harmony import */ var _contrast_light_panelless__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./contrast-light-panelless */ "./packages/survey-core/src/themes/contrast-light-panelless.ts");
-/* harmony import */ var _contrast_dark_panelless__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./contrast-dark-panelless */ "./packages/survey-core/src/themes/contrast-dark-panelless.ts");
-
-var DefaultLight = _default_light__WEBPACK_IMPORTED_MODULE_0__["default"];
-
-var DefaultDark = _default_dark__WEBPACK_IMPORTED_MODULE_1__["default"];
-
-var DefaultLightPanelless = _default_light_panelless__WEBPACK_IMPORTED_MODULE_2__["default"];
-
-var DefaultDarkPanelless = _default_dark_panelless__WEBPACK_IMPORTED_MODULE_3__["default"];
-
-var SharpLight = _sharp_light__WEBPACK_IMPORTED_MODULE_4__["default"];
-
-var SharpDark = _sharp_dark__WEBPACK_IMPORTED_MODULE_5__["default"];
-
-var SharpLightPanelless = _sharp_light_panelless__WEBPACK_IMPORTED_MODULE_6__["default"];
-
-var SharpDarkPanelless = _sharp_dark_panelless__WEBPACK_IMPORTED_MODULE_7__["default"];
-
-var BorderlessLight = _borderless_light__WEBPACK_IMPORTED_MODULE_8__["default"];
-
-var BorderlessDark = _borderless_dark__WEBPACK_IMPORTED_MODULE_9__["default"];
-
-var BorderlessLightPanelless = _borderless_light_panelless__WEBPACK_IMPORTED_MODULE_10__["default"];
-
-var BorderlessDarkPanelless = _borderless_dark_panelless__WEBPACK_IMPORTED_MODULE_11__["default"];
-
-var FlatLight = _flat_light__WEBPACK_IMPORTED_MODULE_12__["default"];
-
-var FlatDark = _flat_dark__WEBPACK_IMPORTED_MODULE_13__["default"];
-
-var FlatLightPanelless = _flat_light_panelless__WEBPACK_IMPORTED_MODULE_14__["default"];
-
-var FlatDarkPanelless = _flat_dark_panelless__WEBPACK_IMPORTED_MODULE_15__["default"];
-
-var PlainLight = _plain_light__WEBPACK_IMPORTED_MODULE_16__["default"];
-
-var PlainDark = _plain_dark__WEBPACK_IMPORTED_MODULE_17__["default"];
-
-var PlainLightPanelless = _plain_light_panelless__WEBPACK_IMPORTED_MODULE_18__["default"];
-
-var PlainDarkPanelless = _plain_dark_panelless__WEBPACK_IMPORTED_MODULE_19__["default"];
-
-var DoubleBorderLight = _doubleborder_light__WEBPACK_IMPORTED_MODULE_20__["default"];
-
-var DoubleBorderDark = _doubleborder_dark__WEBPACK_IMPORTED_MODULE_21__["default"];
-
-var DoubleBorderLightPanelless = _doubleborder_light_panelless__WEBPACK_IMPORTED_MODULE_22__["default"];
-
-var DoubleBorderDarkPanelless = _doubleborder_dark_panelless__WEBPACK_IMPORTED_MODULE_23__["default"];
-
-var LayeredLight = _layered_light__WEBPACK_IMPORTED_MODULE_24__["default"];
-
-var LayeredDark = _layered_dark__WEBPACK_IMPORTED_MODULE_25__["default"];
-
-var LayeredLightPanelless = _layered_light_panelless__WEBPACK_IMPORTED_MODULE_26__["default"];
-
-var LayeredDarkPanelless = _layered_dark_panelless__WEBPACK_IMPORTED_MODULE_27__["default"];
-
-var SolidLight = _solid_light__WEBPACK_IMPORTED_MODULE_28__["default"];
-
-var SolidDark = _solid_dark__WEBPACK_IMPORTED_MODULE_29__["default"];
-
-var SolidLightPanelless = _solid_light_panelless__WEBPACK_IMPORTED_MODULE_30__["default"];
-
-var SolidDarkPanelless = _solid_dark_panelless__WEBPACK_IMPORTED_MODULE_31__["default"];
-
-var ThreeDimensionalLight = _threedimensional_light__WEBPACK_IMPORTED_MODULE_32__["default"];
-
-var ThreeDimensionalDark = _threedimensional_dark__WEBPACK_IMPORTED_MODULE_33__["default"];
-
-var ThreeDimensionalLightPanelless = _threedimensional_light_panelless__WEBPACK_IMPORTED_MODULE_34__["default"];
-
-var ThreeDimensionalDarkPanelless = _threedimensional_dark_panelless__WEBPACK_IMPORTED_MODULE_35__["default"];
-
-var ContrastLight = _contrast_light__WEBPACK_IMPORTED_MODULE_36__["default"];
-
-var ContrastDark = _contrast_dark__WEBPACK_IMPORTED_MODULE_37__["default"];
-
-var ContrastLightPanelless = _contrast_light_panelless__WEBPACK_IMPORTED_MODULE_38__["default"];
-
-var ContrastDarkPanelless = _contrast_dark_panelless__WEBPACK_IMPORTED_MODULE_39__["default"];
-
-
-/***/ }),
-
-/***/ "./packages/survey-core/src/themes/layered-dark-panelless.ts":
-/*!*******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/layered-dark-panelless.ts ***!
-  \*******************************************************************/
-/*! exports provided: default, LayeredDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredDarkPanelless", function() { return LayeredDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "layered",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -2494,25 +2175,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var LayeredDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/layered-dark.ts":
-/*!*********************************************************!*\
-  !*** ./packages/survey-core/src/themes/layered-dark.ts ***!
-  \*********************************************************/
-/*! exports provided: default, LayeredDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/layered-dark.ts":
+/*!************************************!*\
+  !*** ./src/themes/layered-dark.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredDark", function() { return LayeredDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "layered",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -2600,25 +2278,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var LayeredDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/layered-light-panelless.ts":
-/*!********************************************************************!*\
-  !*** ./packages/survey-core/src/themes/layered-light-panelless.ts ***!
-  \********************************************************************/
-/*! exports provided: default, LayeredLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/layered-light-panelless.ts":
+/*!***********************************************!*\
+  !*** ./src/themes/layered-light-panelless.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredLightPanelless", function() { return LayeredLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "layered",
     "colorPalette": "light",
     "isPanelless": true,
@@ -2706,25 +2381,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var LayeredLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/layered-light.ts":
-/*!**********************************************************!*\
-  !*** ./packages/survey-core/src/themes/layered-light.ts ***!
-  \**********************************************************/
-/*! exports provided: default, LayeredLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/layered-light.ts":
+/*!*************************************!*\
+  !*** ./src/themes/layered-light.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LayeredLight", function() { return LayeredLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "layered",
     "colorPalette": "light",
     "isPanelless": false,
@@ -2812,25 +2484,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var LayeredLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/plain-dark-panelless.ts":
-/*!*****************************************************************!*\
-  !*** ./packages/survey-core/src/themes/plain-dark-panelless.ts ***!
-  \*****************************************************************/
-/*! exports provided: default, PlainDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/plain-dark-panelless.ts":
+/*!********************************************!*\
+  !*** ./src/themes/plain-dark-panelless.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainDarkPanelless", function() { return PlainDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "plain",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -2918,25 +2587,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var PlainDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/plain-dark.ts":
-/*!*******************************************************!*\
-  !*** ./packages/survey-core/src/themes/plain-dark.ts ***!
-  \*******************************************************/
-/*! exports provided: default, PlainDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/plain-dark.ts":
+/*!**********************************!*\
+  !*** ./src/themes/plain-dark.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainDark", function() { return PlainDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "plain",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -3024,25 +2690,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var PlainDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/plain-light-panelless.ts":
-/*!******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/plain-light-panelless.ts ***!
-  \******************************************************************/
-/*! exports provided: default, PlainLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/plain-light-panelless.ts":
+/*!*********************************************!*\
+  !*** ./src/themes/plain-light-panelless.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainLightPanelless", function() { return PlainLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "plain",
     "colorPalette": "light",
     "isPanelless": true,
@@ -3130,25 +2793,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var PlainLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/plain-light.ts":
-/*!********************************************************!*\
-  !*** ./packages/survey-core/src/themes/plain-light.ts ***!
-  \********************************************************/
-/*! exports provided: default, PlainLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/plain-light.ts":
+/*!***********************************!*\
+  !*** ./src/themes/plain-light.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainLight", function() { return PlainLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "plain",
     "colorPalette": "light",
     "isPanelless": false,
@@ -3236,25 +2896,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var PlainLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/sharp-dark-panelless.ts":
-/*!*****************************************************************!*\
-  !*** ./packages/survey-core/src/themes/sharp-dark-panelless.ts ***!
-  \*****************************************************************/
-/*! exports provided: default, SharpDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/sharp-dark-panelless.ts":
+/*!********************************************!*\
+  !*** ./src/themes/sharp-dark-panelless.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpDarkPanelless", function() { return SharpDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "sharp",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -3342,25 +2999,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SharpDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/sharp-dark.ts":
-/*!*******************************************************!*\
-  !*** ./packages/survey-core/src/themes/sharp-dark.ts ***!
-  \*******************************************************/
-/*! exports provided: default, SharpDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/sharp-dark.ts":
+/*!**********************************!*\
+  !*** ./src/themes/sharp-dark.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpDark", function() { return SharpDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "sharp",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -3448,25 +3102,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SharpDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/sharp-light-panelless.ts":
-/*!******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/sharp-light-panelless.ts ***!
-  \******************************************************************/
-/*! exports provided: default, SharpLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/sharp-light-panelless.ts":
+/*!*********************************************!*\
+  !*** ./src/themes/sharp-light-panelless.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpLightPanelless", function() { return SharpLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "sharp",
     "colorPalette": "light",
     "isPanelless": true,
@@ -3554,25 +3205,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SharpLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/sharp-light.ts":
-/*!********************************************************!*\
-  !*** ./packages/survey-core/src/themes/sharp-light.ts ***!
-  \********************************************************/
-/*! exports provided: default, SharpLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/sharp-light.ts":
+/*!***********************************!*\
+  !*** ./src/themes/sharp-light.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharpLight", function() { return SharpLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "sharp",
     "colorPalette": "light",
     "isPanelless": false,
@@ -3660,25 +3308,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SharpLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/solid-dark-panelless.ts":
-/*!*****************************************************************!*\
-  !*** ./packages/survey-core/src/themes/solid-dark-panelless.ts ***!
-  \*****************************************************************/
-/*! exports provided: default, SolidDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/solid-dark-panelless.ts":
+/*!********************************************!*\
+  !*** ./src/themes/solid-dark-panelless.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidDarkPanelless", function() { return SolidDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "solid",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -3766,25 +3411,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SolidDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/solid-dark.ts":
-/*!*******************************************************!*\
-  !*** ./packages/survey-core/src/themes/solid-dark.ts ***!
-  \*******************************************************/
-/*! exports provided: default, SolidDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/solid-dark.ts":
+/*!**********************************!*\
+  !*** ./src/themes/solid-dark.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidDark", function() { return SolidDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "solid",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -3872,25 +3514,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SolidDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/solid-light-panelless.ts":
-/*!******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/solid-light-panelless.ts ***!
-  \******************************************************************/
-/*! exports provided: default, SolidLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/solid-light-panelless.ts":
+/*!*********************************************!*\
+  !*** ./src/themes/solid-light-panelless.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidLightPanelless", function() { return SolidLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "solid",
     "colorPalette": "light",
     "isPanelless": true,
@@ -3978,25 +3617,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SolidLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/solid-light.ts":
-/*!********************************************************!*\
-  !*** ./packages/survey-core/src/themes/solid-light.ts ***!
-  \********************************************************/
-/*! exports provided: default, SolidLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/solid-light.ts":
+/*!***********************************!*\
+  !*** ./src/themes/solid-light.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SolidLight", function() { return SolidLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "solid",
     "colorPalette": "light",
     "isPanelless": false,
@@ -4084,25 +3720,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var SolidLight = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/threedimensional-dark-panelless.ts":
-/*!****************************************************************************!*\
-  !*** ./packages/survey-core/src/themes/threedimensional-dark-panelless.ts ***!
-  \****************************************************************************/
-/*! exports provided: default, ThreeDimensionalDarkPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/threedimensional-dark-panelless.ts":
+/*!*******************************************************!*\
+  !*** ./src/themes/threedimensional-dark-panelless.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalDarkPanelless", function() { return ThreeDimensionalDarkPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "threedimensional",
     "colorPalette": "dark",
     "isPanelless": true,
@@ -4190,25 +3823,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ThreeDimensionalDarkPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/threedimensional-dark.ts":
-/*!******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/threedimensional-dark.ts ***!
-  \******************************************************************/
-/*! exports provided: default, ThreeDimensionalDark */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/threedimensional-dark.ts":
+/*!*********************************************!*\
+  !*** ./src/themes/threedimensional-dark.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalDark", function() { return ThreeDimensionalDark; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "threedimensional",
     "colorPalette": "dark",
     "isPanelless": false,
@@ -4296,25 +3926,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ThreeDimensionalDark = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/threedimensional-light-panelless.ts":
-/*!*****************************************************************************!*\
-  !*** ./packages/survey-core/src/themes/threedimensional-light-panelless.ts ***!
-  \*****************************************************************************/
-/*! exports provided: default, ThreeDimensionalLightPanelless */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/threedimensional-light-panelless.ts":
+/*!********************************************************!*\
+  !*** ./src/themes/threedimensional-light-panelless.ts ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalLightPanelless", function() { return ThreeDimensionalLightPanelless; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "threedimensional",
     "colorPalette": "light",
     "isPanelless": true,
@@ -4402,25 +4029,22 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ThreeDimensionalLightPanelless = Theme;
+});
 
 
 /***/ }),
 
-/***/ "./packages/survey-core/src/themes/threedimensional-light.ts":
-/*!*******************************************************************!*\
-  !*** ./packages/survey-core/src/themes/threedimensional-light.ts ***!
-  \*******************************************************************/
-/*! exports provided: default, ThreeDimensionalLight */
-/*! ModuleConcatenation bailout: Module is an entry point */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/themes/threedimensional-light.ts":
+/*!**********************************************!*\
+  !*** ./src/themes/threedimensional-light.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ThreeDimensionalLight", function() { return ThreeDimensionalLight; });
-var Theme = {
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
     "themeName": "threedimensional",
     "colorPalette": "light",
     "isPanelless": false,
@@ -4508,13 +4132,206 @@ var Theme = {
         "--sjs-article-font-default-paragraphIndent": "0px",
         "--sjs-article-font-default-textCase": "none"
     }
-};
-/* harmony default export */ __webpack_exports__["default"] = (Theme);
-var ThreeDimensionalLight = Theme;
+});
 
 
 /***/ })
 
-/******/ });
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
+/*!*****************************!*\
+  !*** ./src/themes/index.ts ***!
+  \*****************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BorderlessDark: () => (/* reexport safe */ _borderless_dark__WEBPACK_IMPORTED_MODULE_9__["default"]),
+/* harmony export */   BorderlessDarkPanelless: () => (/* reexport safe */ _borderless_dark_panelless__WEBPACK_IMPORTED_MODULE_11__["default"]),
+/* harmony export */   BorderlessLight: () => (/* reexport safe */ _borderless_light__WEBPACK_IMPORTED_MODULE_8__["default"]),
+/* harmony export */   BorderlessLightPanelless: () => (/* reexport safe */ _borderless_light_panelless__WEBPACK_IMPORTED_MODULE_10__["default"]),
+/* harmony export */   ContrastDark: () => (/* reexport safe */ _contrast_dark__WEBPACK_IMPORTED_MODULE_37__["default"]),
+/* harmony export */   ContrastDarkPanelless: () => (/* reexport safe */ _contrast_dark_panelless__WEBPACK_IMPORTED_MODULE_39__["default"]),
+/* harmony export */   ContrastLight: () => (/* reexport safe */ _contrast_light__WEBPACK_IMPORTED_MODULE_36__["default"]),
+/* harmony export */   ContrastLightPanelless: () => (/* reexport safe */ _contrast_light_panelless__WEBPACK_IMPORTED_MODULE_38__["default"]),
+/* harmony export */   DefaultDark: () => (/* reexport safe */ _default_dark__WEBPACK_IMPORTED_MODULE_1__["default"]),
+/* harmony export */   DefaultDarkPanelless: () => (/* reexport safe */ _default_dark_panelless__WEBPACK_IMPORTED_MODULE_3__["default"]),
+/* harmony export */   DefaultLight: () => (/* reexport safe */ _default_light__WEBPACK_IMPORTED_MODULE_0__["default"]),
+/* harmony export */   DefaultLightPanelless: () => (/* reexport safe */ _default_light_panelless__WEBPACK_IMPORTED_MODULE_2__["default"]),
+/* harmony export */   DoubleBorderDark: () => (/* reexport safe */ _doubleborder_dark__WEBPACK_IMPORTED_MODULE_21__["default"]),
+/* harmony export */   DoubleBorderDarkPanelless: () => (/* reexport safe */ _doubleborder_dark_panelless__WEBPACK_IMPORTED_MODULE_23__["default"]),
+/* harmony export */   DoubleBorderLight: () => (/* reexport safe */ _doubleborder_light__WEBPACK_IMPORTED_MODULE_20__["default"]),
+/* harmony export */   DoubleBorderLightPanelless: () => (/* reexport safe */ _doubleborder_light_panelless__WEBPACK_IMPORTED_MODULE_22__["default"]),
+/* harmony export */   FlatDark: () => (/* reexport safe */ _flat_dark__WEBPACK_IMPORTED_MODULE_13__["default"]),
+/* harmony export */   FlatDarkPanelless: () => (/* reexport safe */ _flat_dark_panelless__WEBPACK_IMPORTED_MODULE_15__["default"]),
+/* harmony export */   FlatLight: () => (/* reexport safe */ _flat_light__WEBPACK_IMPORTED_MODULE_12__["default"]),
+/* harmony export */   FlatLightPanelless: () => (/* reexport safe */ _flat_light_panelless__WEBPACK_IMPORTED_MODULE_14__["default"]),
+/* harmony export */   LayeredDark: () => (/* reexport safe */ _layered_dark__WEBPACK_IMPORTED_MODULE_25__["default"]),
+/* harmony export */   LayeredDarkPanelless: () => (/* reexport safe */ _layered_dark_panelless__WEBPACK_IMPORTED_MODULE_27__["default"]),
+/* harmony export */   LayeredLight: () => (/* reexport safe */ _layered_light__WEBPACK_IMPORTED_MODULE_24__["default"]),
+/* harmony export */   LayeredLightPanelless: () => (/* reexport safe */ _layered_light_panelless__WEBPACK_IMPORTED_MODULE_26__["default"]),
+/* harmony export */   PlainDark: () => (/* reexport safe */ _plain_dark__WEBPACK_IMPORTED_MODULE_17__["default"]),
+/* harmony export */   PlainDarkPanelless: () => (/* reexport safe */ _plain_dark_panelless__WEBPACK_IMPORTED_MODULE_19__["default"]),
+/* harmony export */   PlainLight: () => (/* reexport safe */ _plain_light__WEBPACK_IMPORTED_MODULE_16__["default"]),
+/* harmony export */   PlainLightPanelless: () => (/* reexport safe */ _plain_light_panelless__WEBPACK_IMPORTED_MODULE_18__["default"]),
+/* harmony export */   SharpDark: () => (/* reexport safe */ _sharp_dark__WEBPACK_IMPORTED_MODULE_5__["default"]),
+/* harmony export */   SharpDarkPanelless: () => (/* reexport safe */ _sharp_dark_panelless__WEBPACK_IMPORTED_MODULE_7__["default"]),
+/* harmony export */   SharpLight: () => (/* reexport safe */ _sharp_light__WEBPACK_IMPORTED_MODULE_4__["default"]),
+/* harmony export */   SharpLightPanelless: () => (/* reexport safe */ _sharp_light_panelless__WEBPACK_IMPORTED_MODULE_6__["default"]),
+/* harmony export */   SolidDark: () => (/* reexport safe */ _solid_dark__WEBPACK_IMPORTED_MODULE_29__["default"]),
+/* harmony export */   SolidDarkPanelless: () => (/* reexport safe */ _solid_dark_panelless__WEBPACK_IMPORTED_MODULE_31__["default"]),
+/* harmony export */   SolidLight: () => (/* reexport safe */ _solid_light__WEBPACK_IMPORTED_MODULE_28__["default"]),
+/* harmony export */   SolidLightPanelless: () => (/* reexport safe */ _solid_light_panelless__WEBPACK_IMPORTED_MODULE_30__["default"]),
+/* harmony export */   ThreeDimensionalDark: () => (/* reexport safe */ _threedimensional_dark__WEBPACK_IMPORTED_MODULE_33__["default"]),
+/* harmony export */   ThreeDimensionalDarkPanelless: () => (/* reexport safe */ _threedimensional_dark_panelless__WEBPACK_IMPORTED_MODULE_35__["default"]),
+/* harmony export */   ThreeDimensionalLight: () => (/* reexport safe */ _threedimensional_light__WEBPACK_IMPORTED_MODULE_32__["default"]),
+/* harmony export */   ThreeDimensionalLightPanelless: () => (/* reexport safe */ _threedimensional_light_panelless__WEBPACK_IMPORTED_MODULE_34__["default"]),
+/* harmony export */   __surveyjs_internal_themes_hash: () => (/* binding */ __surveyjs_internal_themes_hash),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _default_light__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./default-light */ "./src/themes/default-light.ts");
+/* harmony import */ var _default_dark__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./default-dark */ "./src/themes/default-dark.ts");
+/* harmony import */ var _default_light_panelless__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./default-light-panelless */ "./src/themes/default-light-panelless.ts");
+/* harmony import */ var _default_dark_panelless__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./default-dark-panelless */ "./src/themes/default-dark-panelless.ts");
+/* harmony import */ var _sharp_light__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sharp-light */ "./src/themes/sharp-light.ts");
+/* harmony import */ var _sharp_dark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sharp-dark */ "./src/themes/sharp-dark.ts");
+/* harmony import */ var _sharp_light_panelless__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sharp-light-panelless */ "./src/themes/sharp-light-panelless.ts");
+/* harmony import */ var _sharp_dark_panelless__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./sharp-dark-panelless */ "./src/themes/sharp-dark-panelless.ts");
+/* harmony import */ var _borderless_light__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./borderless-light */ "./src/themes/borderless-light.ts");
+/* harmony import */ var _borderless_dark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./borderless-dark */ "./src/themes/borderless-dark.ts");
+/* harmony import */ var _borderless_light_panelless__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./borderless-light-panelless */ "./src/themes/borderless-light-panelless.ts");
+/* harmony import */ var _borderless_dark_panelless__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./borderless-dark-panelless */ "./src/themes/borderless-dark-panelless.ts");
+/* harmony import */ var _flat_light__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./flat-light */ "./src/themes/flat-light.ts");
+/* harmony import */ var _flat_dark__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./flat-dark */ "./src/themes/flat-dark.ts");
+/* harmony import */ var _flat_light_panelless__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./flat-light-panelless */ "./src/themes/flat-light-panelless.ts");
+/* harmony import */ var _flat_dark_panelless__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./flat-dark-panelless */ "./src/themes/flat-dark-panelless.ts");
+/* harmony import */ var _plain_light__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./plain-light */ "./src/themes/plain-light.ts");
+/* harmony import */ var _plain_dark__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./plain-dark */ "./src/themes/plain-dark.ts");
+/* harmony import */ var _plain_light_panelless__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./plain-light-panelless */ "./src/themes/plain-light-panelless.ts");
+/* harmony import */ var _plain_dark_panelless__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./plain-dark-panelless */ "./src/themes/plain-dark-panelless.ts");
+/* harmony import */ var _doubleborder_light__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./doubleborder-light */ "./src/themes/doubleborder-light.ts");
+/* harmony import */ var _doubleborder_dark__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./doubleborder-dark */ "./src/themes/doubleborder-dark.ts");
+/* harmony import */ var _doubleborder_light_panelless__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./doubleborder-light-panelless */ "./src/themes/doubleborder-light-panelless.ts");
+/* harmony import */ var _doubleborder_dark_panelless__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./doubleborder-dark-panelless */ "./src/themes/doubleborder-dark-panelless.ts");
+/* harmony import */ var _layered_light__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./layered-light */ "./src/themes/layered-light.ts");
+/* harmony import */ var _layered_dark__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./layered-dark */ "./src/themes/layered-dark.ts");
+/* harmony import */ var _layered_light_panelless__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./layered-light-panelless */ "./src/themes/layered-light-panelless.ts");
+/* harmony import */ var _layered_dark_panelless__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./layered-dark-panelless */ "./src/themes/layered-dark-panelless.ts");
+/* harmony import */ var _solid_light__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./solid-light */ "./src/themes/solid-light.ts");
+/* harmony import */ var _solid_dark__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./solid-dark */ "./src/themes/solid-dark.ts");
+/* harmony import */ var _solid_light_panelless__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./solid-light-panelless */ "./src/themes/solid-light-panelless.ts");
+/* harmony import */ var _solid_dark_panelless__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./solid-dark-panelless */ "./src/themes/solid-dark-panelless.ts");
+/* harmony import */ var _threedimensional_light__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./threedimensional-light */ "./src/themes/threedimensional-light.ts");
+/* harmony import */ var _threedimensional_dark__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./threedimensional-dark */ "./src/themes/threedimensional-dark.ts");
+/* harmony import */ var _threedimensional_light_panelless__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./threedimensional-light-panelless */ "./src/themes/threedimensional-light-panelless.ts");
+/* harmony import */ var _threedimensional_dark_panelless__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./threedimensional-dark-panelless */ "./src/themes/threedimensional-dark-panelless.ts");
+/* harmony import */ var _contrast_light__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./contrast-light */ "./src/themes/contrast-light.ts");
+/* harmony import */ var _contrast_dark__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./contrast-dark */ "./src/themes/contrast-dark.ts");
+/* harmony import */ var _contrast_light_panelless__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./contrast-light-panelless */ "./src/themes/contrast-light-panelless.ts");
+/* harmony import */ var _contrast_dark_panelless__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./contrast-dark-panelless */ "./src/themes/contrast-dark-panelless.ts");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var __surveyjs_internal_themes_hash = true;
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({ DefaultLight: _default_light__WEBPACK_IMPORTED_MODULE_0__["default"], DefaultDark: _default_dark__WEBPACK_IMPORTED_MODULE_1__["default"], DefaultLightPanelless: _default_light_panelless__WEBPACK_IMPORTED_MODULE_2__["default"], DefaultDarkPanelless: _default_dark_panelless__WEBPACK_IMPORTED_MODULE_3__["default"], SharpLight: _sharp_light__WEBPACK_IMPORTED_MODULE_4__["default"], SharpDark: _sharp_dark__WEBPACK_IMPORTED_MODULE_5__["default"], SharpLightPanelless: _sharp_light_panelless__WEBPACK_IMPORTED_MODULE_6__["default"], SharpDarkPanelless: _sharp_dark_panelless__WEBPACK_IMPORTED_MODULE_7__["default"], BorderlessLight: _borderless_light__WEBPACK_IMPORTED_MODULE_8__["default"], BorderlessDark: _borderless_dark__WEBPACK_IMPORTED_MODULE_9__["default"], BorderlessLightPanelless: _borderless_light_panelless__WEBPACK_IMPORTED_MODULE_10__["default"], BorderlessDarkPanelless: _borderless_dark_panelless__WEBPACK_IMPORTED_MODULE_11__["default"], FlatLight: _flat_light__WEBPACK_IMPORTED_MODULE_12__["default"], FlatDark: _flat_dark__WEBPACK_IMPORTED_MODULE_13__["default"], FlatLightPanelless: _flat_light_panelless__WEBPACK_IMPORTED_MODULE_14__["default"], FlatDarkPanelless: _flat_dark_panelless__WEBPACK_IMPORTED_MODULE_15__["default"], PlainLight: _plain_light__WEBPACK_IMPORTED_MODULE_16__["default"], PlainDark: _plain_dark__WEBPACK_IMPORTED_MODULE_17__["default"], PlainLightPanelless: _plain_light_panelless__WEBPACK_IMPORTED_MODULE_18__["default"], PlainDarkPanelless: _plain_dark_panelless__WEBPACK_IMPORTED_MODULE_19__["default"], DoubleBorderLight: _doubleborder_light__WEBPACK_IMPORTED_MODULE_20__["default"], DoubleBorderDark: _doubleborder_dark__WEBPACK_IMPORTED_MODULE_21__["default"], DoubleBorderLightPanelless: _doubleborder_light_panelless__WEBPACK_IMPORTED_MODULE_22__["default"], DoubleBorderDarkPanelless: _doubleborder_dark_panelless__WEBPACK_IMPORTED_MODULE_23__["default"], LayeredLight: _layered_light__WEBPACK_IMPORTED_MODULE_24__["default"], LayeredDark: _layered_dark__WEBPACK_IMPORTED_MODULE_25__["default"], LayeredLightPanelless: _layered_light_panelless__WEBPACK_IMPORTED_MODULE_26__["default"], LayeredDarkPanelless: _layered_dark_panelless__WEBPACK_IMPORTED_MODULE_27__["default"], SolidLight: _solid_light__WEBPACK_IMPORTED_MODULE_28__["default"], SolidDark: _solid_dark__WEBPACK_IMPORTED_MODULE_29__["default"], SolidLightPanelless: _solid_light_panelless__WEBPACK_IMPORTED_MODULE_30__["default"], SolidDarkPanelless: _solid_dark_panelless__WEBPACK_IMPORTED_MODULE_31__["default"], ThreeDimensionalLight: _threedimensional_light__WEBPACK_IMPORTED_MODULE_32__["default"], ThreeDimensionalDark: _threedimensional_dark__WEBPACK_IMPORTED_MODULE_33__["default"], ThreeDimensionalLightPanelless: _threedimensional_light_panelless__WEBPACK_IMPORTED_MODULE_34__["default"], ThreeDimensionalDarkPanelless: _threedimensional_dark_panelless__WEBPACK_IMPORTED_MODULE_35__["default"], ContrastLight: _contrast_light__WEBPACK_IMPORTED_MODULE_36__["default"], ContrastDark: _contrast_dark__WEBPACK_IMPORTED_MODULE_37__["default"], ContrastLightPanelless: _contrast_light_panelless__WEBPACK_IMPORTED_MODULE_38__["default"], ContrastDarkPanelless: _contrast_dark_panelless__WEBPACK_IMPORTED_MODULE_39__["default"], __surveyjs_internal_themes_hash: __surveyjs_internal_themes_hash });
+
+})();
+
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
 });
 //# sourceMappingURL=index.js.map
