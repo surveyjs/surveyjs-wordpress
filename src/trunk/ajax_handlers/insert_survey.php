@@ -10,6 +10,7 @@ class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
+        check_ajax_referer( 'surveyjs-insert-survey' );
         //wp_send_json_success(array('test'=>'Works!'));
         $client = new SurveyJS_Client();
         ?>

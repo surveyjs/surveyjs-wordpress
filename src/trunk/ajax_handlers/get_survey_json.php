@@ -10,6 +10,7 @@ class SurveyJS_GetSurveyJson extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            check_ajax_referer( 'surveyjs-get-survey-json' );
             $surveyId = sanitize_key($_POST['Id']);
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';

@@ -20,6 +20,7 @@ class SurveyJS_Results {
         $surveyName = sanitize_text_field($_GET['name']);
 
         $deleteResultUri = add_query_arg(array('action' => 'SurveyJS_DeleteResult'), admin_url('admin-ajax.php'));
+        $deleteResultNonce = wp_create_nonce('surveyjs-delete-result');
 
         ?>
             <div class="wp-sjs-plugin">
@@ -136,7 +137,7 @@ class SurveyJS_Results {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($deleteResultUri) ?>",
                         type: "POST",
-                        data: { ResultId: data.resultId },
+                        data: { ResultId: data.resultId, _wpnonce: '<?php echo $deleteResultNonce; ?>' },
                         success: function (data) {
                             row.remove();
                             table.draw();

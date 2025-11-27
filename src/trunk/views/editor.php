@@ -17,6 +17,9 @@ class SurveyJS_Editor {
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFile'), admin_url('admin-ajax.php'));
+        $saveSurveyNonce = wp_create_nonce('surveyjs-save-survey');
+        $renameSurveyNonce = wp_create_nonce('surveyjs-rename-survey');
+        $uploadFileNonce = wp_create_nonce('surveyjs-upload-file');
         $lk = sanitize_text_field(SurveyJS_SettingsPage::get_license_key());
         ?>
             <style>
@@ -60,7 +63,7 @@ class SurveyJS_Editor {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($renameSurveyUri) ?>",
                         type: "POST",
-                        data: { Id: '<?php echo $surveyId ?>', Name: surveyName },
+                        data: { Id: '<?php echo $surveyId ?>', Name: surveyName, _wpnonce: '<?php echo $renameSurveyNonce; ?>' },
                         success: function (data) {
                             // if(data.isSuccess) {
                             // }
@@ -103,7 +106,7 @@ class SurveyJS_Editor {
                             jQuery.ajax({
                                 url:  "<?php echo esc_url($saveSurveyUri) ?>",
                                 type: "POST",
-                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme },
+                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme, _wpnonce: '<?php echo $saveSurveyNonce; ?>' },
                                 success: function (data) {
                                     // if(data.isSuccess) {
                                     // }
@@ -117,7 +120,7 @@ class SurveyJS_Editor {
                             jQuery.ajax({
                                 url:  "<?php echo esc_url($saveSurveyUri) ?>",
                                 type: "POST",
-                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme },
+                                data: { Id: '<?php echo $surveyId ?>', Json: json, Theme: theme, _wpnonce: '<?php echo $saveSurveyNonce; ?>' },
                                 success: function (data) {
                                     // if(data.isSuccess) {
                                     // }
@@ -130,6 +133,7 @@ class SurveyJS_Editor {
                             options.files.forEach(function(file) {
                                 formData.append("file", file);
                             });
+                            formData.append("_wpnonce", "<?php echo $uploadFileNonce; ?>");
                             jQuery.ajax({
                                 url: "<?php echo esc_url($uploadFileUri) ?>",
                                 type: "POST",
