@@ -1,100 +1,219 @@
+/* normalize.css content above... */
+
+/* Column format control styles added from results.php */
+#columnFormat {
+  margin-bottom: 10px;
+}
+#columnFormat .column-format-label {
+  min-width: 150px;
+  background-color: transparent;
+  border: 2px solid #1ab394;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  color: #fff;
+}
+#columnFormat .column-format-label.active {
+  background-color: #1ab394;
+  color: #fff;
+}
+#columnFormat .column-format-label:focus-within {
+  outline: 2px solid rgba(26, 179, 148, 0.25);
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  #columnFormat .column-format-label {
+    min-width: 120px;
+    padding: 6px 8px;
+  }
+}
+
+/* SurveyJS results: column format radiogroup styles */
+.sjs-radiogroup {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: auto;
+  width: fit-content;
+  margin: 10px;
+  padding: 5px;
+  border: 1px solid #1ab384;
+  border-radius: 5px;
+}
+
+.sjs-radio-option {
+  min-width: 150px;
+  padding: 6px;
+  border: 2px solid #1ab394;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  color: #1ab394;
+  transition: background-color 0.12s ease, color 0.12s ease,
+    border-color 0.12s ease;
+  text-align: center;
+}
+
+.sjs-radio-input {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.sjs-radio-option.sjs-active {
+  background: #1ab394;
+  color: #fff;
+  border-color: #1ab394;
+}
+
+.sjs-radio-option:focus-within {
+  outline: 3px solid rgba(26, 179, 148, 0.18);
+  outline-offset: 2px;
+}
+
+/* Screen-reader only helpers */
+.sjs-sr-only,
+.sjs-column-format-live {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 #sjs-editor-container .spg-search-editor_input {
-    color: var(--sjs-general-forecolor, var(--foreground, #161616));
-    font-family: var(--sjs-font-family, var(--font-family));
-    font-size: calc(1.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    font-style: normal;
-    font-weight: 600;
-    line-height: calc(2*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    border: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    display: block;
-    background: rgba(0,0,0,0);
-    box-sizing: border-box;
-    width: 100%;
-    outline: none;
-    padding-inline-start: var(--sjs-base-unit, var(--base-unit, 8px));
-    padding-inline-end: var(--sjs-base-unit, var(--base-unit, 8px));
+  color: var(--sjs-general-forecolor, var(--foreground, #161616));
+  font-family: var(--sjs-font-family, var(--font-family));
+  font-size: calc(1.5 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  font-style: normal;
+  font-weight: 600;
+  line-height: calc(2 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  border: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: block;
+  background: rgba(0, 0, 0, 0);
+  box-sizing: border-box;
+  width: 100%;
+  outline: none;
+  padding-inline-start: var(--sjs-base-unit, var(--base-unit, 8px));
+  padding-inline-end: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 #sjs-editor-container .spg-input {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    display: block;
-    background-color: var(--sjs-general-backcolor, var(--background, #fff));
-    box-sizing: border-box;
-    width: 100%;
-    height: calc(6*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    border: none;
-    box-shadow: inset 0 0 0 1px var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
-    padding: calc(1.5*(var(--sjs-base-unit, var(--base-unit, 8px)))) calc(2*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    outline: none;
-    font-size: calc(2*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    font-family: var(--sjs-font-family, var(--font-family));
-    color: var(--sjs-general-forecolor, var(--foreground, #161616));
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: block;
+  background-color: var(--sjs-general-backcolor, var(--background, #fff));
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(6 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  border: none;
+  box-shadow: inset 0 0 0 1px
+    var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
+  padding: calc(1.5 * (var(--sjs-base-unit, var(--base-unit, 8px))))
+    calc(2 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  outline: none;
+  font-size: calc(2 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  font-family: var(--sjs-font-family, var(--font-family));
+  color: var(--sjs-general-forecolor, var(--foreground, #161616));
 }
 
 #sjs-editor-container .spg-input:focus,
 #sjs-editor-container .spg-input.spg-dropdown:focus,
 #sjs-editor-container .spg-input.spg-dropdown:focus-within,
 #sjs-editor-container .spg-input-container:focus-within {
-  box-shadow: inset 0 0 0 2px var(--sjs-primary-backcolor, var(--primary, #19b394));
+  box-shadow: inset 0 0 0 2px
+    var(--sjs-primary-backcolor, var(--primary, #19b394));
 }
 
 #sjs-editor-container .sd-dropdown__filter-string-input {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    max-width: 100%;
-    border: none;
-    outline: none;
-    padding: 0;
-    font-family: var(--sjs-font-editorfont-family, var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family))));
-    font-weight: var(--sjs-font-editorfont-weight, 400);
-    color: var(--sjs-font-editorfont-color, var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91)));
-    font-size: var(--sjs-mobile-font-editorfont-size, var(--sjs-font-editorfont-size, var(--sjs-font-size, 16px)));
-    line-height: calc(1.5*(var(--sjs-mobile-font-editorfont-size, var(--sjs-font-editorfont-size, var(--sjs-font-size, 16px)))));
-    background-color: rgba(0,0,0,0);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    appearance: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-family: var(
+    --sjs-font-editorfont-family,
+    var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)))
+  );
+  font-weight: var(--sjs-font-editorfont-weight, 400);
+  color: var(
+    --sjs-font-editorfont-color,
+    var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91))
+  );
+  font-size: var(
+    --sjs-mobile-font-editorfont-size,
+    var(--sjs-font-editorfont-size, var(--sjs-font-size, 16px))
+  );
+  line-height: calc(
+    1.5 *
+      (
+        var(
+          --sjs-mobile-font-editorfont-size,
+          var(--sjs-font-editorfont-size, var(--sjs-font-size, 16px))
+        )
+      )
+  );
+  background-color: rgba(0, 0, 0, 0);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  appearance: none;
 }
 
 #sjs-editor-container input.disabled,
-#sjs-editor-container input:disabled, 
-#sjs-editor-container select.disabled, 
-#sjs-editor-container select:disabled, 
-#sjs-editor-container textarea.disabled, 
+#sjs-editor-container input:disabled,
+#sjs-editor-container select.disabled,
+#sjs-editor-container select:disabled,
+#sjs-editor-container textarea.disabled,
 #sjs-editor-container textarea:disabled {
-    box-shadow: none;
-  }
-
-
-#sjs-editor-container .spg-input-container__input {
-    flex-grow: 1;
-    width: 100%;
-    padding: var(--sjs-base-unit, var(--base-unit, 8px)) calc(1.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    color: var(--sjs-general-forecolor, var(--foreground, #161616));
-    font-size: calc(2*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    font-family: var(--sjs-font-family, var(--font-family));
-    outline: none;
-    border: none;
-    line-height: calc(3*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    background-color: rgba(0, 0, 0, 0);
+  box-shadow: none;
 }
 
-#sjs-editor-container  .spg-input-container {
-    display: flex;
-    justify-content: space-between;
-    cursor: default;
-    padding: calc(0.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    align-items: center;
-    gap: calc(0.5*(var(--sjs-base-unit, var(--base-unit, 8px))));
-    box-shadow: 0 0 0 1px inset var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
+#sjs-editor-container .spg-input-container__input {
+  flex-grow: 1;
+  width: 100%;
+  padding: var(--sjs-base-unit, var(--base-unit, 8px))
+    calc(1.5 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  color: var(--sjs-general-forecolor, var(--foreground, #161616));
+  font-size: calc(2 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  font-family: var(--sjs-font-family, var(--font-family));
+  outline: none;
+  border: none;
+  line-height: calc(3 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  background-color: rgba(0, 0, 0, 0);
+}
+
+#sjs-editor-container .spg-input-container {
+  display: flex;
+  justify-content: space-between;
+  cursor: default;
+  padding: calc(0.5 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  align-items: center;
+  gap: calc(0.5 * (var(--sjs-base-unit, var(--base-unit, 8px))));
+  box-shadow: 0 0 0 1px inset
+    var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
 }
