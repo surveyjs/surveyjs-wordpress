@@ -179,7 +179,24 @@ class SurveyJS_Editor {
                         return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
                     }
 
-                    const root = ReactDOM.createRoot(document.getElementById("sjs-editor-container"));
+                    const container = document.getElementById("sjs-editor-container");
+
+                    const shadowRoot = container.attachShadow({ mode: 'open' });
+                    const rootElement = document.createElement("div");
+                    rootElement.classList.add("sjs-editor-shadow-root");
+                    rootElement.style.height = "100%";
+                    const style = document.createElement("style");
+                    const surveyStyles = document.createElement('link');
+                    surveyStyles.setAttribute('rel', 'stylesheet');
+                    surveyStyles.setAttribute('href', "<?php echo plugins_url('../libs/library/survey-core.min.css', __FILE__) ?>");
+                    const creatorStyles = document.createElement('link');
+                    creatorStyles.setAttribute('rel', 'stylesheet');
+                    creatorStyles.setAttribute('href', "<?php echo plugins_url('../libs/creator/survey-creator-core.min.css', __FILE__) ?>");
+                    shadowRoot.appendChild(surveyStyles);
+                    shadowRoot.appendChild(creatorStyles);
+                    shadowRoot.appendChild(rootElement);
+
+                    const root = ReactDOM.createRoot(rootElement);
                     root.render(<SurveyCreatorRenderComponent />);
                 </script>
             </div>
