@@ -74,7 +74,7 @@ class SurveyJS_Editor {
             <div class="wrap">
                 <div class="survey-page-header">
                     <div class="sv_main survey-page-header-content">
-                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=sjs-main-menu'">&lt&nbspBack</button>
+                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=surveyjs-main-menu'">&lt&nbspBack</button>
                     </div>
                 </div>
                 <h2 style="display:inline-block;"><?php _e( 'Survey: ', 'sjs' ); ?></h2>

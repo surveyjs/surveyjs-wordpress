@@ -1,10 +1,10 @@
 === SurveyJS: Drag & Drop WordPress Form Builder to create, style and embed multiple forms of any complexity ===
 Contributors: devsoftbaltic
 Tags: survey, quiz, form builder, survey creator, survey maker, quiz creator
-Requires at least: 6.4.1
-Tested up to: 6.8.1
+Requires at least: 6.4
+Tested up to: 6.9
 Stable tag: trunk
-Requires PHP: php8.2
+Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,7 +81,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
 
 
-= v2.4.0 =
+= v2.4.1 =
 
 == Support ==
 
