@@ -21,16 +21,16 @@ class SurveyJS_SurveyJS {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
-        add_action('init', array($this, 'register_sjs_gutenberg_block'));
+        add_action('init', array($this, 'register_surveyjs_gutenberg_block'));
     }
 
-    public function register_sjs_gutenberg_block() {
+    public function register_surveyjs_gutenberg_block() {
         if ( ! function_exists( 'register_block_type' ) ) {
             return;
         }
 
         $blockname = 'sjs/gutenberg-block';
-        $blockscriptname = 'sjs-block-js';
+        $blockscriptname = 'surveyjs-block-js';
 
         $client = new SurveyJS_Client();
         $surveys = $client->getSurveys();
@@ -75,8 +75,8 @@ class SurveyJS_SurveyJS {
 
     public function enqueue_admin_scripts() {
         if ( isset( $_GET["page"] ) &&
-            ($_GET["page"] == "sjs-settings" ||
-            $_GET['page'] == "sjs-main-menu" ||
+            ($_GET["page"] == "surveyjs-settings" ||
+            $_GET['page'] == "surveyjs-main-menu" ||
             $_GET['page'] == "surveyjs_editor" ||
             $_GET['page'] == "surveyjs_results")
         ) {
@@ -135,13 +135,13 @@ class SurveyJS_SurveyJS {
     }
   
     function wps_add_menu() {
-        add_menu_page( 'My surveys', 'SurveyJS', 'manage_options', 'sjs-main-menu', array(
+        add_menu_page( 'My surveys', 'SurveyJS', 'manage_options', 'surveyjs-main-menu', array(
                         "SurveyJS_MySurveys", 'render'
                         ), plugins_url('images/logo_20х20.png', __FILE__));
-        // add_submenu_page( 'sjs-main-menu', __( 'My Surveys', 'sjs-main-menu' ), __( 'My Surveys', 'sjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
+        // add_submenu_page( 'surveyjs-main-menu', __( 'My Surveys', 'surveyjs-main-menu' ), __( 'My Surveys', 'surveyjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
         //                 __CLASS__, 'wps_mysurveys_page'
         //                 ));
-        add_submenu_page( 'sjs-main-menu', __( 'Settings', 'sjs-main-menu' ), __( 'Settings', 'sjs-main-menu' ), 'manage_options', 'sjs-settings', array( 'SurveyJS_SettingsPage', 'sjs_render_settings' ) );
+        add_submenu_page( 'surveyjs-main-menu', __( 'Settings', 'surveyjs-main-menu' ), __( 'Settings', 'surveyjs-main-menu' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_results', array('SurveyJS_Results', 'render'));
     }
