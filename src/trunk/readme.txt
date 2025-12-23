@@ -1,5 +1,5 @@
-=== SurveyJS: Drag & Drop WordPress Form Builder to create, style and embed multiple forms of any complexity ===
-Contributors: devsoftbaltic
+=== SurveyJS: Drag & Drop Form Builder ===
+Contributors: DevSoft Baltic
 Tags: survey, quiz, form builder, survey creator, survey maker, quiz creator
 Requires at least: 6.4
 Tested up to: 6.9
@@ -10,8 +10,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-== Drag & Drop WordPress Form Builder for your Enterprise ==
-SurveyJS is **the most advanced yet easy-to-use form builder**, perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and predefined conditions.
+== Drag & Drop Form Builder for WordPress  ==
+SurveyJS is **an advanced yet easy-to-use form builder**, perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and predefined conditions.
 
 == Flexible Configuration Options ==
 **Every single element of your form is fully customizable**, from titles and helper texts to placeholder texts and error messages&mdash;all to make sure you can provide your respondents with tailored guides and instructions and ensure high-quality user experience.
