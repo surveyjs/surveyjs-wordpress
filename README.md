@@ -1,10 +1,10 @@
-# SurveyJS: Drag & Drop WordPress Form Builder to create, style, and embed multiple forms of any complexity #
+# SurveyJS: Drag & Drop Form Builder #
 
 ## Description ##
 
-### Drag & Drop WordPress Form Builder for your Enterprise
+### Drag & Drop Form Builder for WordPress
 
-SurveyJS is **the most advanced yet easy-to-use form builder,** perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and predefined conditions.
+SurveyJS is **an advanced yet easy-to-use form builder,** perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and predefined conditions.
 
 ### Flexible Configuration Options
 
