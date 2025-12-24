@@ -27,7 +27,7 @@ class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
                 <?php
                 foreach ($client->getSurveys() as $surveyDefinition) {
                     ?>
-                    <option value="<?php echo sanitize_text_field($surveyDefinition->id) ?>"><?php echo sanitize_text_field($surveyDefinition->name) ?></option>
+                    <option value="<?php echo esc_attr($surveyDefinition->id) ?>"><?php echo esc_html($surveyDefinition->name) ?></option>
                     <?php
                 }
                 ?>

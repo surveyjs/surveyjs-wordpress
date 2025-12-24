@@ -33,7 +33,7 @@ class SurveyJS_Results {
                     <div class="sv_custom_header"></div>
                     <div class="sv_container">
                         <div class="sv_header">
-                            <h3 class="results-header"><?php echo $surveyName; ?> survey results</h3>
+                            <h3 class="results-header"><?php echo esc_html($surveyName); ?> survey results</h3>
                         </div>
                         <div class="sv_body">
                             <table id="wpSjsResultsTable" class="table table-striped table-bordered"></table>
@@ -45,7 +45,7 @@ class SurveyJS_Results {
 
             <script>
                 var $ = jQuery;
-                var surveyJson = "<?php echo $surveyJson; ?>";
+                var surveyJson = '<?php echo htmlspecialchars_decode($surveyJson); ?>';
                 var survey = new Survey.Model(JSON.parse(surveyJson));
 
                 var columns = survey.getAllQuestions().map(function(q) {
@@ -103,7 +103,7 @@ class SurveyJS_Results {
 
  
                 <?php
-                    echo 'var results = ', json_encode($surveyResults), ';';
+                    echo 'var results = ', wp_json_encode($surveyResults), ';';
                 ?>
 
                 function decodeHtml(str) {
@@ -137,7 +137,7 @@ class SurveyJS_Results {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($deleteResultUri) ?>",
                         type: "POST",
-                        data: { ResultId: data.resultId, _wpnonce: '<?php echo $deleteResultNonce; ?>' },
+                        data: { ResultId: data.resultId, _wpnonce: '<?php echo esc_js($deleteResultNonce); ?>' },
                         success: function (data) {
                             row.remove();
                             table.draw();
