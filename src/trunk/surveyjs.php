@@ -6,6 +6,8 @@ Description: Easy to use, drag & drop Survey Builder with myriad options.
 Version: 2.4.1
 Author: Devsoft Baltic OÜ
 Author URI: http://devsoftbaltic.com/
+License: "SEE LICENSE IN LICENSE"
+License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=License-1-ov-file"
 */
 ?>
 <?php

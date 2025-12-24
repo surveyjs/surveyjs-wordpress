@@ -1,9 +1,9 @@
 === SurveyJS: Drag & Drop Form Builder ===
 Contributors: DevSoft Baltic
-Tags: survey, quiz, form builder, survey creator, survey maker, quiz creator
+Tags: survey, quiz, form builder, survey creator, survey maker
 Requires at least: 6.4
 Tested up to: 6.9
-Stable tag: trunk
+Stable tag: 2.4.1
 Requires PHP: 8.2
 
 == Description ==

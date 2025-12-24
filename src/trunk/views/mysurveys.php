@@ -21,7 +21,7 @@ class SurveyJS_MySurveys {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($addSurveyUri) ?>",
                         type: "POST",
-                        data: { Name: "New Survey", _wpnonce: '<?php echo $addSurveyNonce; ?>' },
+                        data: { Name: "New Survey", _wpnonce: '<?php echo esc_js($addSurveyNonce); ?>' },
                         success: function (data) {
                             window.location = "<?php echo esc_url($editSurveyUri) ?>&id=" + data.Id + "&name=New Survey";
                         }
@@ -33,7 +33,7 @@ class SurveyJS_MySurveys {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
                         type: "POST",
-                        data: { Id: id, _wpnonce: '<?php echo $deleteSurveyNonce; ?>' },
+                        data: { Id: id, _wpnonce: '<?php echo esc_js($deleteSurveyNonce); ?>' },
                         success: function (data) {
                             window.location = "";
                         }
@@ -43,7 +43,7 @@ class SurveyJS_MySurveys {
                     jQuery.ajax({
                         url:  "<?php echo esc_url($cloneSurveyUri)  ?>",
                         type: "POST",
-                        data: { SurveyParentId: id, _wpnonce: '<?php echo $cloneSurveyNonce; ?>' },
+                        data: { SurveyParentId: id, _wpnonce: '<?php echo esc_js($cloneSurveyNonce); ?>' },
                         success: function (data) {
                             window.location = "";
                         }
@@ -55,7 +55,7 @@ class SurveyJS_MySurveys {
                     <div class="sv_custom_header"></div>
                     <div class="sv_container">
                         <div class="sv_header">
-                            <h3><?php _e( 'SurveyJS Wordpress plugin', 'sjs' ); ?></h2></h3>
+                            <h3><?php esc_html_e( 'SurveyJS Wordpress plugin', 'surveyjs' ); ?></h3>
                             <p>Below you can see the list of available surveys you can edit, run and see the results</p>
                         </div>
                         <div class="sv_body">
@@ -77,7 +77,7 @@ class SurveyJS_MySurveys {
                                             $resultsUrl = add_query_arg(array('page' => 'surveyjs_results', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
                                         ?>
                                         <tr>
-                                            <td><?php echo sanitize_text_field($surveyDefinition->name) ?></td>
+                                            <td><?php echo esc_html($surveyDefinition->name) ?></td>
                                             <td>
                                                 <!-- <a class="sv_button_link" href="<?php echo sanitize_key($surveyDefinition->id) ?>">Run</a> -->
                                                 <a class="sv_button_link" href="<?php echo esc_url($editUrl) ?>">Edit</a>

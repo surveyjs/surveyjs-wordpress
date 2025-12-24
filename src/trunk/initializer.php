@@ -141,7 +141,7 @@ class SurveyJS_SurveyJS {
         // add_submenu_page( 'surveyjs-main-menu', __( 'My Surveys', 'surveyjs-main-menu' ), __( 'My Surveys', 'surveyjs-main-menu' ), 'manage_options', 'sjs-my-surveys', array(
         //                 __CLASS__, 'wps_mysurveys_page'
         //                 ));
-        add_submenu_page( 'surveyjs-main-menu', __( 'Settings', 'surveyjs-main-menu' ), __( 'Settings', 'surveyjs-main-menu' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
+        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_results', array('SurveyJS_Results', 'render'));
     }
@@ -153,8 +153,8 @@ class SurveyJS_SurveyJS {
         $url = add_query_arg(array('action' => 'SurveyJS_InsertSurvey'), admin_url('admin-ajax.php'));
         $url = wp_nonce_url($url, 'surveyjs-insert-survey', '_wpnonce');
         ?>
-        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php _e('Insert Survey', SurveyJS_SurveyJS::$prefix); ?>">
-            <?php _e('Add Survey', SurveyJS_SurveyJS::$prefix); ?>
+        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php esc_attr_e('Insert Survey', 'surveyjs'); ?>">
+            <?php esc_html_e('Add Survey', 'surveyjs'); ?>
         </a>
         <?php
     }
@@ -174,14 +174,14 @@ class SurveyJS_SurveyJS {
         $deleteFileUriWithNonce = add_query_arg('_wpnonce', $deleteFileNonce, $deleteFileUri);
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
-            <div id="surveyElement-<?php echo $id ?>">Survey is loading...</div>
-            <div id="surveyResult-<?php echo $id ?>"></div>
+            <div id="surveyElement-<?php echo esc_attr($id) ?>">Survey is loading...</div>
+            <div id="surveyResult-<?php echo esc_attr($id) ?>"></div>
         </div>
         <script>
             jQuery.ajax({
                 url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
                 type: "POST",
-                data: { Id: <?php echo $id ?>, _wpnonce: '<?php echo $getSurveyJsonNonce; ?>' },
+                data: { Id: <?php echo intval($id); ?>, _wpnonce: '<?php echo esc_js( $getSurveyJsonNonce ); ?>' },
                 success: function (data) {
                     var json = {}
                     let theme;
@@ -194,39 +194,39 @@ class SurveyJS_SurveyJS {
                         theme = null
                     }
                     jQuery(document).ready(()=>{
-                        initSurvey<?php echo $id ?>(json, theme);
+                        initSurvey<?php echo intval($id); ?>(json, theme);
                     });
                 }
             });
 
-            function initSurvey<?php echo $id ?>(json, theme) {
-                const survey<?php echo $id ?> = new Survey.Model(json);
+            function initSurvey<?php echo intval($id); ?>(json, theme) {
+                const survey<?php echo intval($id); ?> = new Survey.Model(json);
                 if (!!theme) {
-                    survey<?php echo $id ?>.applyTheme(theme);
+                    survey<?php echo intval($id); ?>.applyTheme(theme);
                 }
-                window.survey<?php echo $id ?> = survey<?php echo $id ?>;               
-                survey<?php echo $id ?>
+                window.survey<?php echo intval($id); ?> = survey<?php echo intval($id); ?>;               
+                survey<?php echo intval($id); ?>
                     .onComplete
                     .add(function (sender, options) {
                         options.showSaveInProgress();
                         jQuery.ajax({
                             url:  "<?php echo esc_url($saveResultUri) ?>",
                             type: "POST",
-                    data: { SurveyId: '<?php echo $id ?>', Json : JSON.stringify(sender.data), _wpnonce: '<?php echo $saveResultNonce; ?>' },
+                    data: { SurveyId: '<?php echo intval($id); ?>', Json : JSON.stringify(sender.data), _wpnonce: '<?php echo esc_js( $saveResultNonce ); ?>' },
                             success: function (data) {options.showSaveSuccess();},
                             error: function (xhr) {options.showSaveError(xhr.responseText);}
                         });
                         //document
-                        //    .querySelector("#surveyResult-<?php echo $id ?>")
+                        //    .querySelector("#surveyResult-<?php echo intval($id); ?>")
                         //    .innerHTML = "result: " + JSON.stringify(sender.data);
                     });
 
-                survey<?php echo $id ?>.onUploadFiles.add((_, options) => {
+                survey<?php echo intval($id); ?>.onUploadFiles.add((_, options) => {
                     const formData = new FormData();
                     options.files.forEach((file) => {
                         formData.append(file.name, file);
                     });
-                formData.append("_wpnonce", "<?php echo $uploadFilesNonce; ?>");
+                formData.append("_wpnonce", "<?php echo esc_js( $uploadFilesNonce ); ?>");
 
                     fetch("<?php echo esc_url($uploadFileUri) ?>", {
                         method: "POST",
@@ -259,7 +259,7 @@ class SurveyJS_SurveyJS {
                     }
                 }
 
-                survey<?php echo $id ?>.onClearFiles.add((_, options) => {
+                survey<?php echo intval($id); ?>.onClearFiles.add((_, options) => {
                     if (!options.value || options.value.length === 0) {
                         options.callback("success");
                         return;
@@ -282,7 +282,7 @@ class SurveyJS_SurveyJS {
                     options.callback("success");
                 });
 
-                jQuery("#surveyElement-<?php echo $id ?>").Survey({model: survey<?php echo $id ?>/*, css: customCss*/});
+                jQuery("#surveyElement-<?php echo esc_attr($id) ?>").Survey({model: survey<?php echo intval($id); ?>/*, css: customCss*/});
             }
         </script>        
         <?php
