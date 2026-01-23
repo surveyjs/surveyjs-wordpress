@@ -10,11 +10,11 @@ class SurveyJS_Results {
         global $wpdb;
         $surveyId = sanitize_key($_GET['id']);
         $table_name = $wpdb->prefix . 'sjs_results';
-        $query = $wpdb->prepare("SELECT id, json FROM " . $table_name . " WHERE surveyId=%d", $surveyId);
+        $query = $wpdb->prepare("SELECT id, json FROM " . esc_sql( $table_name ) . " WHERE surveyId=%d", intval($surveyId));
         $surveyResults = $wpdb->get_results($query);
 
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = $wpdb->prepare("SELECT * FROM " . $table_name . " WHERE id=%d", $surveyId);
+        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
         $row = $wpdb->get_row($query);
         $surveyJson = isset($row->json) ? $row->json : '{}';
         
@@ -46,7 +46,7 @@ class SurveyJS_Results {
 
             <script>
                 var $ = jQuery;
-                var surveyJson = '<?php echo htmlspecialchars_decode($surveyJson); ?>';
+                var surveyJson = '<?php echo htmlspecialchars_decode($surveyJson); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
                 var survey = new Survey.Model(JSON.parse(surveyJson));
 
                 var columns = survey.getAllQuestions().map(function(q) {

@@ -15,7 +15,7 @@ class SurveyJS_GetSurveyJson extends SurveyJS_AJAX_Handler {
             $surveyId = intval(sanitize_key($_POST['Id']));
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
-            $query = $wpdb->prepare("SELECT * FROM " . $table_name . " WHERE id=%d", $surveyId);
+            $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", $surveyId);
             $row = $wpdb->get_row($query);
             if (!$row) {
                 wp_send_json_error(array('message' => 'Survey not found'));

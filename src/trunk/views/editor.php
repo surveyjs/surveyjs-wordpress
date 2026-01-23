@@ -10,7 +10,7 @@ class SurveyJS_Editor {
         $surveyId = sanitize_key($_GET['id']);
         global $wpdb;
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = $wpdb->prepare("SELECT * FROM " . $table_name . " WHERE id=%d", $surveyId);
+        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
         $row = $wpdb->get_row($query);
         $json = isset($row->json) ? $row->json : '{}';
         $themeJson = isset($row->theme) ? $row->theme : null;
@@ -170,11 +170,11 @@ class SurveyJS_Editor {
                             }
                         })
                         const creator = editor;
-                        var json = '<?php echo htmlspecialchars_decode($json); ?>';
+                        var json = '<?php echo htmlspecialchars_decode($json); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
                         creator.text = json;
                         //creator.JSON = surveyJSON;
                         <?php if (!empty($themeJson)): ?>
-                        const themeJSON = '<?php echo htmlspecialchars_decode($themeJson); ?>';
+                        const themeJSON = '<?php echo htmlspecialchars_decode($themeJson); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
                         if (themeJSON) {
                             creator.theme = JSON.parse(themeJSON);
                         }
