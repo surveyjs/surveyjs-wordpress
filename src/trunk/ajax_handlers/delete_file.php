@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once("ajax_handler.php");
 if ( ! function_exists( 'wp_handle_upload' ) ) {

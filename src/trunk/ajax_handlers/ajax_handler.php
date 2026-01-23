@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 abstract class SurveyJS_AJAX_Handler {
 

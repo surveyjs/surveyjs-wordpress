@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once("ajax_handler.php");
 include( __DIR__ . "/../service_client.php");

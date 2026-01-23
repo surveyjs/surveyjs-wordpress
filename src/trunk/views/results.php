@@ -10,12 +10,13 @@ class SurveyJS_Results {
         global $wpdb;
         $surveyId = sanitize_key($_GET['id']);
         $table_name = $wpdb->prefix . 'sjs_results';
-        $query = "SELECT id, json FROM " . $table_name . " WHERE surveyId=" . $surveyId;
+        $query = $wpdb->prepare("SELECT id, json FROM " . $table_name . " WHERE surveyId=%d", $surveyId);
         $surveyResults = $wpdb->get_results($query);
 
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
-        $surveyJson = $wpdb->get_row($query)->json;
+        $query = $wpdb->prepare("SELECT * FROM " . $table_name . " WHERE id=%d", $surveyId);
+        $row = $wpdb->get_row($query);
+        $surveyJson = isset($row->json) ? $row->json : '{}';
         
         $surveyName = sanitize_text_field($_GET['name']);
 
@@ -78,7 +79,7 @@ class SurveyJS_Results {
 
                 // var windowSurvey = new Survey.PopupSurveyModel(surveyJson);
                 // windowSurvey.survey.mode = "display";
-                // windowSurvey.survey.title = "<?php echo $surveyName; ?>";
+                // windowSurvey.survey.title = <?php echo wp_json_encode( $surveyName ); ?>;
                 // windowSurvey.show();
 
 

@@ -9,6 +9,7 @@ Author URI: http://devsoftbaltic.com/
 License: "SEE LICENSE IN LICENSE"
 License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=License-1-ov-file"
 */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
     function wps_install() {
