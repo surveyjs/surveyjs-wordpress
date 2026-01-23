@@ -10,7 +10,7 @@ class SurveyJS_DeleteResult extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
-            check_ajax_referer( 'surveyjs-delete-result' );
+            if(!check_ajax_referer( 'surveyjs-delete-result' )) exit;
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_results';
 

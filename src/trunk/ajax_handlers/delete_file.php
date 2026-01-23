@@ -13,7 +13,7 @@ class SurveyJS_DeleteFile extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'GET') {
-            check_ajax_referer( 'surveyjs-delete-file' );
+            if(!check_ajax_referer( 'surveyjs-delete-file' )) exit;
             $filename = sanitize_file_name($_GET["name"]);
 
             if (str_contains($filename, "/uploads/surveyjs") && current_user_can( 'administrator' ) ) {
