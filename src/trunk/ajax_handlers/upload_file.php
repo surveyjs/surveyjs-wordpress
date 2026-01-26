@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once("ajax_handler.php");
 if ( ! function_exists( 'wp_handle_upload' ) ) {
@@ -13,7 +14,7 @@ class SurveyJS_UploadFile extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            check_ajax_referer( 'surveyjs-upload-file' );
+            if(!check_ajax_referer( 'surveyjs-upload-file' )) exit;
             $uploadedfile = $_FILES['file'];
 
             $upload_overrides = array( 'test_form' => false );

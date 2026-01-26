@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once("ajax_handler.php");
 
@@ -10,7 +11,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
 
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
-            check_ajax_referer( 'surveyjs-save-survey' );
+            if(!check_ajax_referer( 'surveyjs-save-survey' )) exit;
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
 

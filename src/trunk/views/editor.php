@@ -6,13 +6,14 @@ class SurveyJS_Editor {
     function __construct() {
     }
 
-    public static function render() {
+    public static function render() { 
         $surveyId = sanitize_key($_GET['id']);
         global $wpdb;
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = "SELECT * FROM " . $table_name . " WHERE id=" . $surveyId;
-        $json = $wpdb->get_row($query)->json;
-        $themeJson = $wpdb->get_row($query)->theme;
+        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
+        $row = $wpdb->get_row($query);
+        $json = isset($row->json) ? $row->json : '{}';
+        $themeJson = isset($row->theme) ? $row->theme : null;
 
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
@@ -87,7 +88,7 @@ class SurveyJS_Editor {
                     <span id="sjs_editor_title_show">
                         <span style="padding-top: 1px; height: 39px; display: inline-block;"></span>
                         <a href="#" class="edit-survey-name" onclick="startEdit()" title="Change Name">
-                            <img class="edit-icon" src="<?php echo plugin_dir_url( __FILE__ )?>../images/Edit_12x12.svg" style="width:24px; height:24px; margin-top: -5px;"/>
+                            <img class="edit-icon" src="<?php echo esc_url( plugins_url( '../images/Edit_12x12.svg', __FILE__ ) ); ?>" style="width:24px; height:24px; margin-top: -5px;" />
                         </a>
                     </span>
                 </h3>
@@ -169,13 +170,15 @@ class SurveyJS_Editor {
                             }
                         })
                         const creator = editor;
-                        var json = '<?php echo htmlspecialchars_decode($json); ?>';
+                        var json = '<?php echo htmlspecialchars_decode($json); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
                         creator.text = json;
                         //creator.JSON = surveyJSON;
-                        const themeJSON = '<?php echo htmlspecialchars_decode($themeJson); ?>';
+                        <?php if (!empty($themeJson)): ?>
+                        const themeJSON = '<?php echo htmlspecialchars_decode($themeJson); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
                         if (themeJSON) {
                             creator.theme = JSON.parse(themeJSON);
                         }
+                        <?php endif; ?>
                         return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
                     }
 
@@ -188,10 +191,10 @@ class SurveyJS_Editor {
                     const style = document.createElement("style");
                     const surveyStyles = document.createElement('link');
                     surveyStyles.setAttribute('rel', 'stylesheet');
-                    surveyStyles.setAttribute('href', "<?php echo plugins_url('../libs/library/survey-core.min.css', __FILE__) ?>");
+                    surveyStyles.setAttribute('href', <?php echo wp_json_encode( plugins_url('../libs/library/survey-core.min.css', __FILE__) ); ?>);
                     const creatorStyles = document.createElement('link');
                     creatorStyles.setAttribute('rel', 'stylesheet');
-                    creatorStyles.setAttribute('href', "<?php echo plugins_url('../libs/creator/survey-creator-core.min.css', __FILE__) ?>");
+                    creatorStyles.setAttribute('href', <?php echo wp_json_encode( plugins_url('../libs/creator/survey-creator-core.min.css', __FILE__) ); ?>);
                     shadowRoot.appendChild(surveyStyles);
                     shadowRoot.appendChild(creatorStyles);
                     shadowRoot.appendChild(rootElement);
