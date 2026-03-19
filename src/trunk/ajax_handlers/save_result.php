@@ -12,8 +12,18 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!check_ajax_referer( 'surveyjs-save-result' )) exit;
-            $SurveyId = intval(sanitize_key($_POST['SurveyId']));
-            $Json =  sanitize_text_field($_POST['Json']);
+            $SurveyId = absint( wp_unslash( $_POST['SurveyId'] ?? 0 ) );
+            $raw_json = wp_unslash( $_POST['Json'] ?? '' );
+            $Json = $this->sanitize_result_json( $raw_json );
+            if ( null === $Json ) {
+                wp_send_json_error(
+                    array(
+                        'message' => 'Invalid survey result payload',
+                    ),
+                    400
+                );
+                return;
+            }
             $TableName = 'sjs_results';
             
             if (function_exists('surveyjs_save_result'))
@@ -32,6 +42,36 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 );
             }
         }
+    }
+
+    private function sanitize_result_json( $raw_json ) {
+        if ( ! is_string( $raw_json ) || '' === trim( $raw_json ) ) {
+            return null;
+        }
+
+        $decoded = json_decode( $raw_json, true );
+        if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $decoded ) ) {
+            return null;
+        }
+
+        $sanitized = $this->sanitize_json_value( $decoded );
+        return wp_json_encode( $sanitized );
+    }
+
+    private function sanitize_json_value( $value ) {
+        if ( is_array( $value ) ) {
+            $sanitized = array();
+            foreach ( $value as $key => $item ) {
+                $sanitized[ $key ] = $this->sanitize_json_value( $item );
+            }
+            return $sanitized;
+        }
+
+        if ( is_string( $value ) ) {
+            return sanitize_text_field( wp_kses( $value, array() ) );
+        }
+
+        return $value;
     }
 }
 

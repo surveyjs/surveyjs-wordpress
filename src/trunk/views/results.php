@@ -8,7 +8,7 @@ class SurveyJS_Results {
 
     public static function render() {
         global $wpdb;
-        $surveyId = sanitize_key($_GET['id']);
+        $surveyId = absint( wp_unslash( $_GET['id'] ?? 0 ) );
         $table_name = $wpdb->prefix . 'sjs_results';
         $query = $wpdb->prepare("SELECT id, json FROM " . esc_sql( $table_name ) . " WHERE surveyId=%d", intval($surveyId));
         $surveyResults = $wpdb->get_results($query);
@@ -17,8 +17,9 @@ class SurveyJS_Results {
         $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
         $row = $wpdb->get_row($query);
         $surveyJson = isset($row->json) ? $row->json : '{}';
+        $decodedSurveyJson = self::decode_survey_json( $surveyJson );
         
-        $surveyName = sanitize_text_field($_GET['name']);
+        $surveyName = sanitize_text_field( wp_unslash( $_GET['name'] ?? '' ) );
 
         $deleteResultUri = add_query_arg(array('action' => 'SurveyJS_DeleteResult'), admin_url('admin-ajax.php'));
         $deleteResultNonce = wp_create_nonce('surveyjs-delete-result');
@@ -46,8 +47,8 @@ class SurveyJS_Results {
 
             <script>
                 var $ = jQuery;
-                var surveyJson = '<?php echo htmlspecialchars_decode($surveyJson); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
-                var survey = new Survey.Model(JSON.parse(surveyJson));
+                var surveyJson = <?php echo wp_json_encode( $decodedSurveyJson ); ?>;
+                var survey = new Survey.Model(surveyJson);
 
                 var columns = survey.getAllQuestions().map(function(q) {
                     return {
@@ -56,11 +57,12 @@ class SurveyJS_Results {
                         mRender: function(data, type, row) {
                         survey.data = row;
                         var displayValue = q.displayValue;
-                        return (
-                            (typeof displayValue === "string"
+                        var safeValue = (
+                            typeof displayValue === "string"
                             ? displayValue
-                            : JSON.stringify(displayValue)) || ""
-                        );
+                            : JSON.stringify(displayValue)
+                        ) || "";
+                        return $.fn.dataTable.render.text().display(safeValue);
                         }
                     };
                 });
@@ -107,15 +109,13 @@ class SurveyJS_Results {
                     echo 'var results = ', wp_json_encode($surveyResults), ';';
                 ?>
 
-                function decodeHtml(str) {
-                    var textarea = document.createElement("textarea");
-                    textarea.innerHTML = str;
-                    return textarea.innerText;
-                }
-
                 var data = results.map(function(result) {
-                    var replacedResult  = decodeHtml(result.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));                    
-                    var dataItem = JSON.parse(replacedResult || "{}");
+                    var dataItem = {};
+                    try {
+                        dataItem = JSON.parse(result.json || "{}");
+                    } catch (e) {
+                        dataItem = {};
+                    }
                     dataItem.resultId = result.id;
                     return dataItem;
                 });
@@ -149,6 +149,41 @@ class SurveyJS_Results {
             </script>
         <?php
         
+    }
+
+    private static function decode_survey_json( $raw_json ) {
+        if ( ! is_string( $raw_json ) || '' === trim( $raw_json ) ) {
+            return array();
+        }
+
+        $candidates = array(
+            $raw_json,
+            wp_specialchars_decode( $raw_json, ENT_QUOTES ),
+            stripslashes( $raw_json ),
+            wp_specialchars_decode( stripslashes( $raw_json ), ENT_QUOTES ),
+        );
+
+        foreach ( $candidates as $candidate ) {
+            $decoded = json_decode( $candidate, true );
+            if ( JSON_ERROR_NONE !== json_last_error() ) {
+                continue;
+            }
+
+            // Some legacy records store survey JSON as a JSON string (double encoded).
+            if ( is_string( $decoded ) ) {
+                $decoded_twice = json_decode( $decoded, true );
+                if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded_twice ) ) {
+                    return $decoded_twice;
+                }
+                continue;
+            }
+
+            if ( is_array( $decoded ) ) {
+                return $decoded;
+            }
+        }
+
+        return array();
     }
 }
 
