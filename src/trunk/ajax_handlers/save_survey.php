@@ -15,9 +15,11 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
-            $id = sanitize_key($_POST['Id']);
-            $json = current_user_can( 'unfiltered_html' ) ? $_POST['Json'] : wp_kses_post( $_POST['Json'] );
-            $theme = current_user_can( 'unfiltered_html' ) ? $_POST['Theme'] : wp_kses_post( $_POST['Theme'] );
+            $id = absint( wp_unslash( $_POST['Id'] ?? 0 ) );
+            $raw_json = wp_unslash( $_POST['Json'] ?? '' );
+            $raw_theme = wp_unslash( $_POST['Theme'] ?? '' );
+            $json = current_user_can( 'unfiltered_html' ) ? $raw_json : wp_kses_post( $raw_json );
+            $theme = current_user_can( 'unfiltered_html' ) ? $raw_theme : wp_kses_post( $raw_theme );
 
             // create 'theme' column if not exists
             $row = $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = $table_name AND column_name = 'theme'"  );
@@ -34,7 +36,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
                         'theme' => $theme
                     ),
                     array(
-                        'id' => intval($id)
+                        'id' => $id
                     )
                 );
                 wp_send_json( array('IsSuccess' => $result === FALSE ? 0 : 1) );

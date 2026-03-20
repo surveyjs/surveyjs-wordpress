@@ -3,7 +3,7 @@
 Plugin Name: SurveyJS
 Plugin URI: https://wordpress.org/plugins/surveyjs
 Description: Easy to use, drag & drop Survey Builder with myriad options.
-Version: 2.5.3
+Version: 2.5.4
 Author: Devsoft Baltic OÜ
 Author URI: http://devsoftbaltic.com/
 License: "SEE LICENSE IN LICENSE"
