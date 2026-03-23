@@ -41,7 +41,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             global $wpdb;
             $table_name = $wpdb->prefix . $TableName;
 
-            $wpdb->insert(
+            $inserted = $wpdb->insert(
                 $table_name,
                 array(
                     'surveyId' => $SurveyId,
@@ -49,6 +49,10 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 ),
                 array( '%d', '%s' )
             );
+
+            if ( false === $inserted ) {
+                wp_send_json_error( array( 'message' => 'Failed to save result' ), 500 );
+            }
         }
 
         wp_send_json( array( 'IsSuccess' => true ) );

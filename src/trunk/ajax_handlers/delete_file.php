@@ -48,8 +48,14 @@ class SurveyJS_DeleteFile extends SurveyJS_AJAX_Handler {
             wp_send_json_error( array( 'message' => 'Invalid file path' ), 400 );
         }
 
+        if ( ! file_exists( $full_path ) ) {
+            wp_send_json_error( array( 'message' => 'File not found' ), 404 );
+        }
+
+        wp_delete_file( $full_path );
+
         if ( file_exists( $full_path ) ) {
-            wp_delete_file( $full_path );
+            wp_send_json_error( array( 'message' => 'Failed to delete file' ), 500 );
         }
 
         wp_send_json( array( 'IsSuccess' => true ) );

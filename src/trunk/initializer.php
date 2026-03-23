@@ -263,41 +263,38 @@ class SurveyJS_SurveyJS {
                         });
                 });
 
-                function deleteFile(fileURL, options) {
-                    try {
-                        const formData = new FormData();
-                        formData.append("name", fileURL);
-                        formData.append("_wpnonce", "<?php echo esc_js( $deleteFileNonce ); ?>");
-                        fetch("<?php echo esc_url( $deleteFileUri ); ?>", {
-                            method: "POST",
-                            body: formData
-                        });
-                    } catch (error) {
-                        options.callback("error");
+                async function deleteFile(fileURL) {
+                    const formData = new FormData();
+                    formData.append("name", fileURL);
+                    formData.append("_wpnonce", "<?php echo esc_js( $deleteFileNonce ); ?>");
+                    const response = await fetch("<?php echo esc_url( $deleteFileUri ); ?>", {
+                        method: "POST",
+                        body: formData
+                    });
+                    if (!response.ok) {
+                        throw new Error("Delete failed: " + response.status);
                     }
                 }
 
-                survey<?php echo intval($id); ?>.onClearFiles.add((_, options) => {
+                survey<?php echo intval($id); ?>.onClearFiles.add(async (_, options) => {
                     if (!options.value || options.value.length === 0) {
                         options.callback("success");
                         return;
                     }
 
-                    if (!options.fileName && !!options.value) {
-                        for (const item of options.value) {
-                            deleteFile(item.content, options);
-                        }
-                    } else {
-                        const fileToRemove = options.value.find(
-                            (item) => item.name === options.fileName
+                    try {
+                        const filesToDelete = options.fileName
+                            ? options.value.filter((item) => item.name === options.fileName)
+                            : options.value;
+
+                        await Promise.all(
+                            filesToDelete.map((item) => deleteFile(item.content))
                         );
-                        if (fileToRemove) {
-                            deleteFile(fileToRemove.content, options);
-                        } else {
-                            console.error(`File with name ${options.fileName} is not found`);
-                        }
+                        options.callback("success");
+                    } catch (error) {
+                        console.error("File deletion error:", error);
+                        options.callback("error");
                     }
-                    options.callback("success");
                 });
 
                 jQuery("#surveyElement-<?php echo esc_attr($id) ?>").Survey({model: survey<?php echo intval($id); ?>/*, css: customCss*/});
