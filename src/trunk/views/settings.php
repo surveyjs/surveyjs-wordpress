@@ -39,22 +39,17 @@ class SurveyJS_SettingsPage {
 
 	public function sjs_license_key_section() {
 		esc_html_e( 'setting your license key', 'surveyjs' );
-		if ( isset( $_GET["settings-updated"] ) && sanitize_text_field($_GET["settings-updated"]) ) {
-			flush_rewrite_rules( true );
+		$settings_updated = sanitize_text_field( wp_unslash( $_GET['settings-updated'] ?? '' ) );
+		if ( ! empty( $settings_updated ) ) {
 			echo "<div style='color: #179d82;'>" . esc_html__( 'Successfully updated!', 'surveyjs' ) . "</div>";
 		}
 	}
 
 	public function set_license_key_render() {
 		$settings = (array) get_option( 'surveyjs-settings' );
+		$license_key = isset( $settings['license_key'] ) ? $settings['license_key'] : '';
 
-		if (isset($settings['license_key']))
-		{
-			$license_key = esc_attr( $settings['license_key'] );
-		}
-		$value = '';
-		if ($license_key )
-		{
+		if ( $license_key ) {
 			echo "<input type='text' placeholder='put the license key here...' name='surveyjs-settings[license_key]' id='surveyjs-settings[license_key]' value='" . esc_attr( $license_key ) . "' style='width: 350px;'/>";
 		} else {
 			echo "<input type='text' placeholder='put the license key here...' name='surveyjs-settings[license_key]' id='surveyjs-settings[license_key]' style='width: 350px;'/>";

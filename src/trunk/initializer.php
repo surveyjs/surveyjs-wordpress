@@ -41,7 +41,8 @@ class SurveyJS_SurveyJS {
                 $blockscriptname,
                 plugins_url( 'block/block.js', __FILE__),
                 array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
-                true // Enqueue the script in the footer.
+                $this->plugin_version,
+                true
             );
 
             wp_localize_script(
@@ -75,11 +76,13 @@ class SurveyJS_SurveyJS {
 	}
 
     public function enqueue_admin_scripts() {
-        if ( isset( $_GET["page"] ) &&
-            ($_GET["page"] == "surveyjs-settings" ||
-            $_GET['page'] == "surveyjs-main-menu" ||
-            $_GET['page'] == "surveyjs_editor" ||
-            $_GET['page'] == "surveyjs_results")
+        $page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
+        if (
+            in_array(
+                $page,
+                array( 'surveyjs-settings', 'surveyjs-main-menu', 'surveyjs_editor', 'surveyjs_results' ),
+                true
+            )
         ) {
             wp_enqueue_style('wps-adm-bootstrap-css', plugins_url('libs/bootstrap.min.css', __FILE__) );
             
@@ -123,7 +126,7 @@ class SurveyJS_SurveyJS {
             wp_enqueue_script('thickbox');
         }
 
-        if ( isset( $_GET["page"] ) && $_GET['page'] == "surveyjs_results") {
+        if ( 'surveyjs_results' === $page ) {
             wp_enqueue_script('wps-adm-jquery-js', plugins_url('libs/library/survey.jquery.min.js', __FILE__)); // for "Show in Survey btn"
         }
     }
@@ -161,9 +164,20 @@ class SurveyJS_SurveyJS {
     }
 
     function wps_process_shortcode($attrs) {
+        $attrs = shortcode_atts(
+            array(
+                'id' => 0,
+            ),
+            is_array( $attrs ) ? $attrs : array(),
+            'Survey'
+        );
+        $id = absint( $attrs['id'] );
+        if ( $id <= 0 ) {
+            return '';
+        }
+
         ob_start();
-        
-        $id = esc_attr($attrs["id"]);
+
         $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
         $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
         $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php'));
@@ -172,7 +186,6 @@ class SurveyJS_SurveyJS {
         $saveResultNonce = wp_create_nonce('surveyjs-save-result');
         $uploadFilesNonce = wp_create_nonce('surveyjs-upload-files');
         $deleteFileNonce = wp_create_nonce('surveyjs-delete-file');
-        $deleteFileUriWithNonce = add_query_arg('_wpnonce', $deleteFileNonce, $deleteFileUri);
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
             <div id="surveyElement-<?php echo esc_attr($id) ?>">Survey is loading...</div>
@@ -252,9 +265,13 @@ class SurveyJS_SurveyJS {
 
                 function deleteFile(fileURL, options) {
                     try {
-                        const deleteFileBaseUrl = "<?php echo esc_url($deleteFileUriWithNonce); ?>";
-                        const apiUrl = `${deleteFileBaseUrl}&name=${encodeURIComponent(fileURL)}`;
-                        fetch(apiUrl);
+                        const formData = new FormData();
+                        formData.append("name", fileURL);
+                        formData.append("_wpnonce", "<?php echo esc_js( $deleteFileNonce ); ?>");
+                        fetch("<?php echo esc_url( $deleteFileUri ); ?>", {
+                            method: "POST",
+                            body: formData
+                        });
                     } catch (error) {
                         options.callback("error");
                     }

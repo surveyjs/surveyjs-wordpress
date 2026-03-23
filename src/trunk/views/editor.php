@@ -7,13 +7,20 @@ class SurveyJS_Editor {
     }
 
     public static function render() { 
-        $surveyId = sanitize_key($_GET['id']);
+        $surveyId = absint( wp_unslash( $_GET['id'] ?? 0 ) );
+        if ( $surveyId <= 0 ) {
+            echo esc_html__( 'Invalid survey ID.', 'surveyjs' );
+            return;
+        }
+
         global $wpdb;
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
+        $query = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE id=%d", $surveyId );
         $row = $wpdb->get_row($query);
         $json = isset($row->json) ? $row->json : '{}';
         $themeJson = isset($row->theme) ? $row->theme : null;
+        $survey_name = sanitize_text_field( wp_unslash( $_GET['name'] ?? '' ) );
+        $back_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
 
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
@@ -34,7 +41,7 @@ class SurveyJS_Editor {
                 } */
             </style>
             <script>
-                var surveyName = "<?php echo esc_js( sanitize_text_field($_GET['name']) ); ?>";
+                var surveyName = "<?php echo esc_js( $survey_name ); ?>";
                 function setSurveyName(name) {
                     var $titleTitle = jQuery("#sjs_editor_title_show");
                     $titleTitle.find("span").text(name);
@@ -75,7 +82,7 @@ class SurveyJS_Editor {
             <div class="wrap">
                 <div class="survey-page-header">
                     <div class="sv_main survey-page-header-content">
-                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=surveyjs-main-menu'">&lt&nbspBack</button>
+                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '<?php echo esc_js( $back_url ); ?>'">&lt&nbspBack</button>
                     </div>
                 </div>
                 <h2 style="display:inline-block;"><?php esc_html_e( 'Survey: ', 'surveyjs' ); ?></h2>

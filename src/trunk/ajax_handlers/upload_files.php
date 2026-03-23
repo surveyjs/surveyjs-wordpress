@@ -6,29 +6,6 @@ if ( ! function_exists( 'wp_handle_upload' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/file.php' );
 }
 
-function get_file_url( $file = __FILE__ ) {
-    $file_path = str_replace( "\\", "/", str_replace( str_replace( "/", "\\", WP_CONTENT_DIR ), "", $file ) );
-    if ( $file_path )
-        return content_url( $file_path );
-    return false;
-}
-
-function upload_user_file($path, $file = array()) {
-    $result = [];
-    if(!empty($file)) 
-    {
-        $uploaded=move_uploaded_file($file['tmp_name'],$path.$file['name']);
-    if($uploaded) 
-    {
-        $relativePath = substr($path, strlen($_SERVER['DOCUMENT_ROOT'] . "/wp-content"));
-        $result["url"] = get_file_url($relativePath.$file['name']);
-    } else {
-        $result["error"] = $file['error'];
-    }
-    }
-    return $result;
-}
-
 class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
     
     function __construct() {
@@ -37,37 +14,61 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
 
     
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!check_ajax_referer( 'surveyjs-upload-files' )) exit;
-            $result = [];
-            $upload_dir=wp_upload_dir();
-            $path=$upload_dir['basedir'].'/surveyjs/';  //upload dir.
-            if(!is_dir($path)) { mkdir($path); }
+        if ( 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid request method' ), 405 );
+        }
+        if ( ! check_ajax_referer( 'surveyjs-upload-files', '_wpnonce', false ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
+        }
+        if ( empty( $_FILES ) ) {
+            wp_send_json_error( array( 'message' => 'No files uploaded' ), 400 );
+        }
 
-            foreach ($_FILES as $key=>$value) {
-                $uploadedfile = $value;
-                $path_info = pathinfo($uploadedfile["name"]);
-                $originalname = $uploadedfile["name"];
-                $filename = uniqid(rand(), true) . "." . $path_info['extension'];
+        $result = array();
+        $upload_dir = wp_upload_dir();
+        if ( ! empty( $upload_dir['error'] ) ) {
+            wp_send_json_error( array( 'error' => $upload_dir['error'] ), 500 );
+        }
 
-                
-                $uploadedfile["name"] = $filename;
-                
-                // $movefile = upload_user_file( $uploadedfile, $path);
+        $surveyjs_dir = trailingslashit( $upload_dir['basedir'] ) . 'surveyjs';
+        if ( ! wp_mkdir_p( $surveyjs_dir ) ) {
+            wp_send_json_error( array( 'error' => 'Cannot create upload directory' ), 500 );
+        }
 
-                $upload_overrides = array( 'test_form' => false );
-                $movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
+        add_filter( 'upload_dir', array( $this, 'set_upload_subdir' ) );
 
-                if ( !$movefile || isset( $movefile['error'] ) ) {
-                    wp_send_json( array('error' => $movefile['error']) );
-                    return;
-                }
-
-                $result[$originalname] = $movefile['url'];
+        foreach ( $_FILES as $value ) {
+            if ( ! is_array( $value ) || empty( $value['name'] ) ) {
+                remove_filter( 'upload_dir', array( $this, 'set_upload_subdir' ) );
+                wp_send_json_error( array( 'error' => 'Invalid file payload' ), 400 );
             }
 
-            wp_send_json( $result );
+            $uploadedfile = $value;
+            $originalname = (string) $uploadedfile['name'];
+            $uploadedfile['name'] = sanitize_file_name( (string) $uploadedfile['name'] );
+
+            $upload_overrides = array( 'test_form' => false );
+            $movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
+
+            if ( ! $movefile || isset( $movefile['error'] ) ) {
+                remove_filter( 'upload_dir', array( $this, 'set_upload_subdir' ) );
+                wp_send_json_error( array( 'error' => isset( $movefile['error'] ) ? $movefile['error'] : 'Upload failed' ), 400 );
+            }
+
+            $result[ $originalname ] = $movefile['url'];
         }
+
+        remove_filter( 'upload_dir', array( $this, 'set_upload_subdir' ) );
+
+        wp_send_json( $result );
+    }
+
+    public function set_upload_subdir( $dirs ) {
+        $dirs['subdir'] = '/surveyjs';
+        $dirs['path'] = $dirs['basedir'] . $dirs['subdir'];
+        $dirs['url'] = $dirs['baseurl'] . $dirs['subdir'];
+
+        return $dirs;
     }
 }
 

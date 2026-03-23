@@ -82,8 +82,8 @@ class SurveyJS_MySurveys {
                                                 <!-- <a class="sv_button_link" href="<?php echo sanitize_key($surveyDefinition->id) ?>">Run</a> -->
                                                 <a class="sv_button_link" href="<?php echo esc_url($editUrl) ?>">Edit</a>
                                                 <a class="sv_button_link" href="<?php echo esc_url($resultsUrl) ?>">Results</a>
-                                                <span class="sv_button_link" onclick="cloneSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Clone</span>
-                                                <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Delete</span>
+                                                <span class="sv_button_link" onclick="cloneSurvey(<?php echo absint( $surveyDefinition->id ); ?>)">Clone</span>
+                                                <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo absint( $surveyDefinition->id ); ?>)">Delete</span>
                                             </td>
                                         </tr>
                                         <?php

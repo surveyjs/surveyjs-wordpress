@@ -11,7 +11,15 @@ class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if(!check_ajax_referer( 'surveyjs-insert-survey' )) exit;
+        if ( 'GET' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) ) {
+            wp_die( esc_html__( 'Invalid request method.', 'surveyjs' ), '', array( 'response' => 405 ) );
+        }
+        if ( ! check_ajax_referer( 'surveyjs-insert-survey', '_wpnonce', false ) ) {
+            wp_die( esc_html__( 'Security check failed.', 'surveyjs' ), '', array( 'response' => 403 ) );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You do not have permission to access this page.', 'surveyjs' ), '', array( 'response' => 403 ) );
+        }
         //wp_send_json_success(array('test'=>'Works!'));
         $client = new SurveyJS_Client();
         ?>

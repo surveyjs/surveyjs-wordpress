@@ -10,7 +10,7 @@ class SurveyJS_Client {
     public function getSurveys() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = "SELECT * FROM " . esc_sql( $table_name );
+        $query = "SELECT * FROM {$table_name}";
         
         return $wpdb->get_results( $query );
     }

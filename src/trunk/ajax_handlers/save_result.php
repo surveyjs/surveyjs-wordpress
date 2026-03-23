@@ -10,38 +10,48 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if(!check_ajax_referer( 'surveyjs-save-result' )) exit;
-            $SurveyId = absint( wp_unslash( $_POST['SurveyId'] ?? 0 ) );
-            $raw_json = wp_unslash( $_POST['Json'] ?? '' );
-            $Json = $this->sanitize_result_json( $raw_json );
-            if ( null === $Json ) {
-                wp_send_json_error(
-                    array(
-                        'message' => 'Invalid survey result payload',
-                    ),
-                    400
-                );
-                return;
-            }
-            $TableName = 'sjs_results';
-            
-            if (function_exists('surveyjs_save_result'))
-            {
-                do_action('wp_surveyjs_save_result', $SurveyId, $Json, $TableName);
-            } else {
-                global $wpdb;
-                $table_name = $wpdb->prefix . $TableName;
-    
-                $wpdb->insert( 
-                    $table_name, 
-                    array( 
-                     'surveyId' => $SurveyId,
-                     'json' => $Json
-                    ) 
-                );
-            }
+        if ( 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid request method' ), 405 );
         }
+        if ( ! check_ajax_referer( 'surveyjs-save-result', '_wpnonce', false ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
+        }
+
+        $SurveyId = absint( wp_unslash( $_POST['SurveyId'] ?? 0 ) );
+        if ( $SurveyId <= 0 ) {
+            wp_send_json_error( array( 'message' => 'Invalid survey ID' ), 400 );
+        }
+
+        $raw_json = wp_unslash( $_POST['Json'] ?? '' );
+        $Json = $this->sanitize_result_json( $raw_json );
+        if ( null === $Json ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'Invalid survey result payload',
+                ),
+                400
+            );
+        }
+
+        $TableName = 'sjs_results';
+
+        if ( function_exists( 'surveyjs_save_result' ) ) {
+            do_action( 'wp_surveyjs_save_result', $SurveyId, $Json, $TableName );
+        } else {
+            global $wpdb;
+            $table_name = $wpdb->prefix . $TableName;
+
+            $wpdb->insert(
+                $table_name,
+                array(
+                    'surveyId' => $SurveyId,
+                    'json' => $Json,
+                ),
+                array( '%d', '%s' )
+            );
+        }
+
+        wp_send_json( array( 'IsSuccess' => true ) );
     }
 
     private function sanitize_result_json( $raw_json ) {

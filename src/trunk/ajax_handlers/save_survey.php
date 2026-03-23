@@ -10,38 +10,59 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
     }
 
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
-            if(!check_ajax_referer( 'surveyjs-save-survey' )) exit;
-            global $wpdb;
-            $table_name = $wpdb->prefix . 'sjs_my_surveys';
+        if ( 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid request method' ), 405 );
+        }
+        if ( ! check_ajax_referer( 'surveyjs-save-survey', '_wpnonce', false ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions' ), 403 );
+        }
 
-            $id = absint( wp_unslash( $_POST['Id'] ?? 0 ) );
-            $raw_json = wp_unslash( $_POST['Json'] ?? '' );
-            $raw_theme = wp_unslash( $_POST['Theme'] ?? '' );
-            $json = current_user_can( 'unfiltered_html' ) ? $raw_json : wp_kses_post( $raw_json );
-            $theme = current_user_can( 'unfiltered_html' ) ? $raw_theme : wp_kses_post( $raw_theme );
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
-            // create 'theme' column if not exists
-            $row = $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = $table_name AND column_name = 'theme'"  );
-            if(empty($row)){
-                $wpdb->query("ALTER TABLE $table_name ADD theme LONGTEXT");
-            }
-            // EO create 'theme' column if not exists
+        $id = absint( wp_unslash( $_POST['Id'] ?? 0 ) );
+        $json = wp_unslash( $_POST['Json'] ?? '' );
+        $theme = wp_unslash( $_POST['Theme'] ?? '' );
 
-            if(!!$json) {
-                $result = $wpdb->update(
-                    $table_name,
-                    array(
-                        'json' => $json,
-                        'theme' => $theme
-                    ),
-                    array(
-                        'id' => $id
-                    )
-                );
-                wp_send_json( array('IsSuccess' => $result === FALSE ? 0 : 1) );
+        if ( $id <= 0 || ! is_string( $json ) || '' === trim( $json ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid survey payload' ), 400 );
+        }
+
+        $decoded_json = json_decode( $json, true );
+        if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $decoded_json ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid survey JSON' ), 400 );
+        }
+
+        $decoded_theme = null;
+        if ( '' !== trim( (string) $theme ) ) {
+            $decoded_theme = json_decode( $theme, true );
+            if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $decoded_theme ) ) {
+                wp_send_json_error( array( 'message' => 'Invalid theme payload' ), 400 );
             }
         }
+
+        $theme_column = $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM `{$table_name}` LIKE %s", 'theme' ) );
+        if ( empty( $theme_column ) ) {
+            $wpdb->query( "ALTER TABLE `{$table_name}` ADD `theme` LONGTEXT" );
+        }
+
+        $result = $wpdb->update(
+            $table_name,
+            array(
+                'json' => wp_json_encode( $decoded_json ),
+                'theme' => is_array( $decoded_theme ) ? wp_json_encode( $decoded_theme ) : '',
+            ),
+            array(
+                'id' => $id,
+            ),
+            array( '%s', '%s' ),
+            array( '%d' )
+        );
+
+        wp_send_json( array( 'IsSuccess' => false !== $result ? 1 : 0 ) );
     }
 }
 

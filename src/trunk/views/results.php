@@ -9,12 +9,13 @@ class SurveyJS_Results {
     public static function render() {
         global $wpdb;
         $surveyId = absint( wp_unslash( $_GET['id'] ?? 0 ) );
+        $back_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $table_name = $wpdb->prefix . 'sjs_results';
-        $query = $wpdb->prepare("SELECT id, json FROM " . esc_sql( $table_name ) . " WHERE surveyId=%d", intval($surveyId));
+        $query = $wpdb->prepare( "SELECT id, json FROM {$table_name} WHERE surveyId=%d", $surveyId );
         $surveyResults = $wpdb->get_results($query);
 
         $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
+        $query = $wpdb->prepare( "SELECT * FROM {$table_name} WHERE id=%d", $surveyId );
         $row = $wpdb->get_row($query);
         $surveyJson = isset($row->json) ? $row->json : '{}';
         $decodedSurveyJson = self::decode_survey_json( $surveyJson );
@@ -28,7 +29,7 @@ class SurveyJS_Results {
             <div class="wp-sjs-plugin">
                 <div class="survey-page-header">
                     <div class="sv_main survey-page-header-content">
-                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=surveyjs-main-menu'">&lt&nbspBack</button>
+                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '<?php echo esc_js( $back_url ); ?>'">&lt&nbspBack</button>
                     </div>
                 </div>
                 <div class="sv_main sv_frame sv_default_css">

@@ -10,20 +10,29 @@ class SurveyJS_AddSurvey extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
-            if(!check_ajax_referer( 'surveyjs-add-survey' )) exit;
-            global $wpdb;
-            $table_name = $wpdb->prefix . 'sjs_my_surveys';
-
-            $wpdb->insert( 
-                $table_name, 
-                array( 
-                 'name' => sanitize_text_field($_POST['Name'])
-                ) 
-            );
-
-            wp_send_json( array('Id' => $wpdb->insert_id) );
+        if ( 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid request method' ), 405 );
         }
+        if ( ! check_ajax_referer( 'surveyjs-add-survey', '_wpnonce', false ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions' ), 403 );
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sjs_my_surveys';
+        $name = sanitize_text_field( wp_unslash( $_POST['Name'] ?? 'New Survey' ) );
+
+        $wpdb->insert(
+            $table_name,
+            array(
+                'name' => $name,
+            ),
+            array( '%s' )
+        );
+
+        wp_send_json( array( 'Id' => (int) $wpdb->insert_id ) );
     }
 }
 
