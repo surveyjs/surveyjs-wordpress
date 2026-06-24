@@ -170,11 +170,12 @@ class SurveyJS_Editor {
                             }
                         })
                         const creator = editor;
-                        var json = '<?php echo htmlspecialchars_decode($json); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
+                        // wp_json_encode() safely escapes quotes
+                        var json = <?php echo wp_json_encode( htmlspecialchars_decode( $json ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
                         creator.text = json;
                         //creator.JSON = surveyJSON;
                         <?php if (!empty($themeJson)): ?>
-                        const themeJSON = '<?php echo htmlspecialchars_decode($themeJson); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
+                        const themeJSON = <?php echo wp_json_encode( htmlspecialchars_decode( $themeJson ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
                         if (themeJSON) {
                             creator.theme = JSON.parse(themeJSON);
                         }
