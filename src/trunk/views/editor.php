@@ -170,11 +170,7 @@ class SurveyJS_Editor {
                             }
                         })
                         const creator = editor;
-                        // Emit the stored JSON as a properly-encoded JS string literal.
-                        // wp_json_encode() safely escapes quotes, apostrophes, backslashes,
-                        // newlines, "</script>" and unicode, so survey content containing
-                        // e.g. visibleIf expressions like {Jagat} contains 'Item 1' no
-                        // longer breaks out of the string literal.
+                        // wp_json_encode() safely escapes quotes
                         var json = <?php echo wp_json_encode( htmlspecialchars_decode( $json ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
                         creator.text = json;
                         //creator.JSON = surveyJSON;
