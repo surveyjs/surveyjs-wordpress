@@ -1,5 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
+include_once( __DIR__ . "/../service_client.php");
 
 class SurveyJS_Editor {
 
@@ -9,11 +10,15 @@ class SurveyJS_Editor {
     public static function render() { 
         $surveyId = sanitize_key($_GET['id']);
         global $wpdb;
-        $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
-        $row = $wpdb->get_row($query);
+        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", intval($surveyId) ) );
         $json = isset($row->json) ? $row->json : '{}';
         $themeJson = isset($row->theme) ? $row->theme : null;
+
+        $decodedJson    = SurveyJS_Client::decode_survey_json( $json );
+        $surveyJsonText = empty( $decodedJson ) ? "{}" : wp_json_encode( $decodedJson );
+
+        $decodedTheme  = SurveyJS_Client::decode_survey_json( $themeJson );
+        $themeJsonText = empty( $decodedTheme ) ? "" : wp_json_encode( $decodedTheme );
 
         $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
         $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
@@ -171,11 +176,11 @@ class SurveyJS_Editor {
                         })
                         const creator = editor;
                         // wp_json_encode() safely escapes quotes
-                        var json = <?php echo wp_json_encode( htmlspecialchars_decode( $json ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+                        var json = <?php echo wp_json_encode( $surveyJsonText ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
                         creator.text = json;
                         //creator.JSON = surveyJSON;
-                        <?php if (!empty($themeJson)): ?>
-                        const themeJSON = <?php echo wp_json_encode( htmlspecialchars_decode( $themeJson ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+                        <?php if ( "" !== $themeJsonText ): ?>
+                        const themeJSON = <?php echo wp_json_encode( $themeJsonText ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
                         if (themeJSON) {
                             creator.theme = JSON.parse(themeJSON);
                         }

@@ -10,7 +10,7 @@ class SurveyJS_AddSurvey extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'manage_options' )) {
             if(!check_ajax_referer( 'surveyjs-add-survey' )) exit;
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';

@@ -228,6 +228,7 @@ class SurveyJS_SurveyJS {
                         formData.append(file.name, file);
                     });
                 formData.append("_wpnonce", "<?php echo esc_js( $uploadFilesNonce ); ?>");
+                formData.append("SurveyId", "<?php echo intval($id); ?>");
 
                     fetch("<?php echo esc_url($uploadFileUri) ?>", {
                         method: "POST",

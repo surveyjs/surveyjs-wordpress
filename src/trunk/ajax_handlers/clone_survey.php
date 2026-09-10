@@ -10,14 +10,13 @@ class SurveyJS_CloneSurvey extends SurveyJS_AJAX_Handler {
     }
         
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'manage_options' )) {
             if(!check_ajax_referer( 'surveyjs-clone-survey' )) exit;
             global $wpdb;
             $surveyId = intval(sanitize_key($_POST['SurveyParentId']));
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
 
-            $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", $surveyId);
-            $row = $wpdb->get_row($query);
+            $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", $surveyId ) );
             if (!$row) {
                 wp_send_json_error(array('message' => 'Survey not found'));
                 return;

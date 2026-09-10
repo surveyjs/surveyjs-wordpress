@@ -10,7 +10,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
     }
 
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'administrator' )) {
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'manage_options' )) {
             if(!check_ajax_referer( 'surveyjs-save-survey' )) exit;
             global $wpdb;
             $table_name = $wpdb->prefix . 'sjs_my_surveys';
@@ -22,9 +22,9 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
             $theme = current_user_can( 'unfiltered_html' ) ? $raw_theme : wp_kses_post( $raw_theme );
 
             // create 'theme' column if not exists
-            $row = $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = $table_name AND column_name = 'theme'"  );
+            $row = $wpdb->get_results( $wpdb->prepare( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s AND table_name = %s AND column_name = %s", DB_NAME, $table_name, "theme" ) );
             if(empty($row)){
-                $wpdb->query("ALTER TABLE $table_name ADD theme LONGTEXT");
+                $wpdb->query( "ALTER TABLE {$wpdb->prefix}sjs_my_surveys ADD theme LONGTEXT" );
             }
             // EO create 'theme' column if not exists
 

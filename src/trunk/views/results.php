@@ -1,5 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
+include_once( __DIR__ . "/../service_client.php");
 
 class SurveyJS_Results {
 
@@ -9,15 +10,11 @@ class SurveyJS_Results {
     public static function render() {
         global $wpdb;
         $surveyId = absint( wp_unslash( $_GET['id'] ?? 0 ) );
-        $table_name = $wpdb->prefix . 'sjs_results';
-        $query = $wpdb->prepare("SELECT id, json FROM " . esc_sql( $table_name ) . " WHERE surveyId=%d", intval($surveyId));
-        $surveyResults = $wpdb->get_results($query);
+        $surveyResults = $wpdb->get_results( $wpdb->prepare( "SELECT id, json FROM {$wpdb->prefix}sjs_results WHERE surveyId = %d", intval($surveyId) ) );
 
-        $table_name = $wpdb->prefix . 'sjs_my_surveys';
-        $query = $wpdb->prepare("SELECT * FROM " . esc_sql( $table_name ) . " WHERE id=%d", intval($surveyId));
-        $row = $wpdb->get_row($query);
+        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", intval($surveyId) ) );
         $surveyJson = isset($row->json) ? $row->json : '{}';
-        $decodedSurveyJson = self::decode_survey_json( $surveyJson );
+        $decodedSurveyJson = SurveyJS_Client::decode_survey_json( $surveyJson );
         
         $surveyName = sanitize_text_field( wp_unslash( $_GET['name'] ?? '' ) );
 
@@ -106,19 +103,14 @@ class SurveyJS_Results {
 
  
                 <?php
-                    echo 'var results = ', wp_json_encode($surveyResults), ';';
-                ?>
-
-                var data = results.map(function(result) {
-                    var dataItem = {};
-                    try {
-                        dataItem = JSON.parse(result.json || "{}");
-                    } catch (e) {
-                        dataItem = {};
+                    $normalizedResults = array();
+                    foreach ( (array) $surveyResults as $surveyResult ) {
+                        $resultData = SurveyJS_Client::decode_survey_json( $surveyResult->json );
+                        $resultData["resultId"] = $surveyResult->id;
+                        $normalizedResults[] = $resultData;
                     }
-                    dataItem.resultId = result.id;
-                    return dataItem;
-                });
+                    echo 'var data = ', wp_json_encode( $normalizedResults ), ';';
+                ?>
 
                 var table = $("#wpSjsResultsTable").DataTable({
                     dom: 'Bfrtip',
@@ -149,41 +141,6 @@ class SurveyJS_Results {
             </script>
         <?php
         
-    }
-
-    private static function decode_survey_json( $raw_json ) {
-        if ( ! is_string( $raw_json ) || '' === trim( $raw_json ) ) {
-            return array();
-        }
-
-        $candidates = array(
-            $raw_json,
-            wp_specialchars_decode( $raw_json, ENT_QUOTES ),
-            stripslashes( $raw_json ),
-            wp_specialchars_decode( stripslashes( $raw_json ), ENT_QUOTES ),
-        );
-
-        foreach ( $candidates as $candidate ) {
-            $decoded = json_decode( $candidate, true );
-            if ( JSON_ERROR_NONE !== json_last_error() ) {
-                continue;
-            }
-
-            // Some legacy records store survey JSON as a JSON string (double encoded).
-            if ( is_string( $decoded ) ) {
-                $decoded_twice = json_decode( $decoded, true );
-                if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded_twice ) ) {
-                    return $decoded_twice;
-                }
-                continue;
-            }
-
-            if ( is_array( $decoded ) ) {
-                return $decoded;
-            }
-        }
-
-        return array();
     }
 }
 

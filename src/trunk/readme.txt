@@ -2,8 +2,8 @@
 Contributors: DevSoft Baltic
 Tags: survey, quiz, form builder, survey creator, survey maker
 Requires at least: 6.4
-Tested up to: 6.9
-Stable tag: 2.5.5
+Tested up to: 7.1
+Stable tag: 2.5.6
 Requires PHP: 8.2
 
 == Description ==
@@ -77,6 +77,10 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 
 == Changelog ==
 Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
+
+
+= v2.5.6 =
+Security: added permission checks to the file upload and file delete handlers. Survey respondents can attach files again: an upload is only accepted when the survey really has a file question, only allowed file types go through, there is a size limit, and files are saved to a separate folder where PHP cannot run.
 
 
 = v2.5.5 =

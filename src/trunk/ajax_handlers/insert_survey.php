@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once("ajax_handler.php");
-include( __DIR__ . "/../service_client.php");
+include_once( __DIR__ . "/../service_client.php");
 
 class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
     
@@ -12,6 +12,7 @@ class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
         
     function callback() {
         if(!check_ajax_referer( 'surveyjs-insert-survey' )) exit;
+        if ( ! current_user_can( 'edit_posts' ) ) exit;
         //wp_send_json_success(array('test'=>'Works!'));
         $client = new SurveyJS_Client();
         ?>

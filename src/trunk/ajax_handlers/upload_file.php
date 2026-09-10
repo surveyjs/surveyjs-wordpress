@@ -15,6 +15,9 @@ class SurveyJS_UploadFile extends SurveyJS_AJAX_Handler {
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!check_ajax_referer( 'surveyjs-upload-file' )) exit;
+            if ( ! current_user_can( 'upload_files' ) ) {
+                wp_send_json( array( 'error' => 'forbidden' ), 403 );
+            }
             $uploadedfile = $_FILES['file'];
 
             $upload_overrides = array( 'test_form' => false );
