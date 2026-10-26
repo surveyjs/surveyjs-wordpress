@@ -71,9 +71,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("ajax_handlers/save_result.php");
     new SurveyJS_SaveResult();
 
-    include("ajax_handlers/delete_result.php");
-    new SurveyJS_DeleteResult();
-
     include("ajax_handlers/upload_file.php");
     new SurveyJS_UploadFile();
 

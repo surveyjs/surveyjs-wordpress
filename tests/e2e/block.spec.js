@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { test, expect } = require("@playwright/test");
 const { uniqueName, createSurvey, deleteSurveys } = require("./helpers");
 
@@ -13,7 +14,7 @@ test.describe("Gutenberg block", () => {
     await deleteSurveys(page, name);
   });
 
-  test("inserts a survey and completes it on the site", async ({ page }) => {
+  test("inserts a survey, completes it on the site and manages the result", async ({ page }) => {
     name = uniqueName("E2E block");
     const surveyId = await createSurvey(page, name);
 
@@ -45,7 +46,25 @@ test.describe("Gutenberg block", () => {
     expect((await saved).ok()).toBe(true);
     await expect(page.getByText("Thank you for completing the survey")).toBeVisible();
 
-    await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}&name=${encodeURIComponent(name)}`);
-    await expect(page.locator("#wpSjsResultsTable")).toContainText("E2E answer");
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
+    const row = page.locator("#the-list tr", { hasText: "E2E answer" });
+    await expect(row).toBeVisible();
+
+    await row.hover();
+    await row.getByRole("link", { name: "View", exact: true }).click();
+    await expect(page.locator("#wp-sjs-result-popup").getByLabel("What is your name?")).toHaveValue("E2E answer");
+    await page.reload();
+
+    const downloadEvent = page.waitForEvent("download");
+    await page.getByRole("link", { name: "Export CSV" }).click();
+    const csv = fs.readFileSync(await (await downloadEvent).path(), "utf8");
+    expect(csv).toContain("What is your name?");
+    expect(csv).toContain("E2E answer");
+
+    await row.hover();
+    page.once("dialog", dialog => dialog.accept());
+    await row.getByRole("link", { name: "Delete", exact: true }).click();
+    await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
+    await expect(page.locator("#the-list .no-items")).toBeVisible();
   });
 });

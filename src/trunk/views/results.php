@@ -7,142 +7,154 @@ class SurveyJS_Results {
     function __construct() {
     }
 
-    public static function render() {
+    private static function load_survey() {
+        require_once __DIR__ . '/surveys_list_table.php';
+        require_once __DIR__ . '/results_list_table.php';
+        $client = new SurveyJS_Client();
+        return $client->getSurvey( absint( $_GET['id'] ?? 0 ) );
+    }
+
+    public static function handle_actions() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        $survey = self::load_survey();
+        if ( ! $survey ) {
+            return;
+        }
         global $wpdb;
-        $surveyId = absint( wp_unslash( $_GET['id'] ?? 0 ) );
-        $surveyResults = $wpdb->get_results( $wpdb->prepare( "SELECT id, json FROM {$wpdb->prefix}sjs_results WHERE surveyId = %d", intval($surveyId) ) );
+        $results_url = SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array( 'id' => $survey->id ) );
 
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", intval($surveyId) ) );
-        $surveyJson = isset($row->json) ? $row->json : '{}';
-        $decodedSurveyJson = SurveyJS_Client::decode_survey_json( $surveyJson );
-        
-        $surveyName = sanitize_text_field( wp_unslash( $_GET['name'] ?? '' ) );
+        $action = sanitize_key( wp_unslash( $_REQUEST['action'] ?? '' ) );
+        if ( '' === $action || '-1' === $action ) {
+            $action = sanitize_key( wp_unslash( $_REQUEST['action2'] ?? '' ) );
+        }
 
-        $deleteResultUri = add_query_arg(array('action' => 'SurveyJS_DeleteResult'), admin_url('admin-ajax.php'));
-        $deleteResultNonce = wp_create_nonce('surveyjs-delete-result');
+        if ( 'delete' === $action ) {
+            if ( isset( $_REQUEST['result'] ) ) {
+                check_admin_referer( 'bulk-results' );
+                $ids = array_map( 'absint', (array) wp_unslash( $_REQUEST['result'] ) );
+            } else {
+                $id = absint( $_GET['result_id'] ?? 0 );
+                check_admin_referer( 'surveyjs-delete-result_' . $id );
+                $ids = array( $id );
+            }
+            foreach ( $ids as $id ) {
+                $wpdb->delete( $wpdb->prefix . 'sjs_results', array( 'id' => $id, 'surveyId' => $survey->id ) );
+            }
+            wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => count( $ids ) ), $results_url ) );
+            exit;
+        }
 
+        if ( 'export' === $action ) {
+            check_admin_referer( 'surveyjs-export-results_' . $survey->id );
+            self::export_csv( $survey );
+            exit;
+        }
+
+        if ( ! empty( $_GET['_wp_http_referer'] ) ) {
+            wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+            exit;
+        }
+    }
+
+    private static function export_csv( $survey ) {
+        global $wpdb;
+        $questions = SurveyJS_Results_List_Table::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json FROM {$wpdb->prefix}sjs_results WHERE surveyId = %d ORDER BY id", $survey->id ) );
+
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $survey->name . '-results.csv' ) . '"' );
+        $output = fopen( 'php://output', 'w' );
+        fwrite( $output, "\xEF\xBB\xBF" );
+        fputcsv( $output, array_merge( array( 'ID' ), array_map( array( 'SurveyJS_Results_List_Table', 'question_title' ), $questions ) ) );
+        foreach ( $rows as $row ) {
+            $data = SurveyJS_Client::decode_survey_json( $row->json );
+            $line = array( $row->id );
+            foreach ( $questions as $question ) {
+                $line[] = SurveyJS_Results_List_Table::display_value( $question, is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null );
+            }
+            fputcsv( $output, $line );
+        }
+        fclose( $output );
+    }
+
+    public static function render() {
+        $survey = self::load_survey();
+        if ( ! $survey ) {
+            wp_die( esc_html__( 'Survey not found.', 'surveyjs' ) );
+        }
+
+        $json = SurveyJS_Client::decode_survey_json( $survey->json );
+        $table = new SurveyJS_Results_List_Table( (int) $survey->id, SurveyJS_Results_List_Table::survey_questions( $json ) );
+        $table->prepare_items();
+
+        $message = sanitize_key( $_GET['message'] ?? '' );
+        $count = absint( $_GET['count'] ?? 0 );
+        $export_url = wp_nonce_url(
+            SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array( 'id' => $survey->id, 'action' => 'export' ) ),
+            'surveyjs-export-results_' . $survey->id
+        );
+        $view_data = array(
+            'survey'  => empty( $json ) ? new stdClass() : SurveyJS_Client::decode_survey_json( $survey->json, false ),
+            'results' => $table->get_items_data(),
+        );
         ?>
-            <div class="wp-sjs-plugin">
-                <div class="survey-page-header">
-                    <div class="sv_main survey-page-header-content">
-                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=surveyjs-main-menu'">&lt&nbspBack</button>
-                    </div>
-                </div>
-                <div class="sv_main sv_frame sv_default_css">
-                    <div class="sv_custom_header"></div>
-                    <div class="sv_container">
-                        <div class="sv_header">
-                            <h3 class="results-header"><?php echo esc_html($surveyName); ?> survey results</h3>
-                        </div>
-                        <div class="sv_body">
-                            <table id="wpSjsResultsTable" class="table table-striped table-bordered"></table>
-                        </div>
-                    </div>
-                </div>
-                <div id="surveyElement"></div>
-            </div>
+        <div class="wrap">
+            <h1 class="wp-heading-inline">
+                <?php
+                /* translators: %s: survey name */
+                printf( esc_html__( '%s: Results', 'surveyjs' ), esc_html( $survey->name ) );
+                ?>
+            </h1>
+            <a href="<?php echo esc_url( $export_url ); ?>" class="page-title-action"><?php esc_html_e( 'Export CSV', 'surveyjs' ); ?></a>
+            <hr class="wp-header-end">
+            <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Surveys', 'surveyjs' ); ?></a></p>
 
-            <script>
-                var $ = jQuery;
-                var surveyJson = <?php echo wp_json_encode( $decodedSurveyJson ); ?>;
-                var survey = new Survey.Model(surveyJson);
+            <?php if ( 'deleted' === $message ) : ?>
+                <div class="notice notice-success is-dismissible"><p>
+                    <?php
+                    /* translators: %s: number of deleted results */
+                    echo esc_html( sprintf( _n( '%s result deleted.', '%s results deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ) );
+                    ?>
+                </p></div>
+            <?php endif; ?>
 
-                var columns = survey.getAllQuestions().map(function(q) {
-                    return {
-                        data: q.name,
-                        sTitle: (q.title || "").trim(" ") || q.name,
-                        mRender: function(data, type, row) {
-                        survey.data = row;
-                        var displayValue = q.displayValue;
-                        var safeValue = (
-                            typeof displayValue === "string"
-                            ? displayValue
-                            : JSON.stringify(displayValue)
-                        ) || "";
-                        return $.fn.dataTable.render.text().display(safeValue);
-                        }
-                    };
-                });
-
-                columns.push({
-                    targets: -1,
-                    data: null,
-                    sortable: false,
-                    className: "center",
-                    defaultContent:
-                    `
-                     <button id='showInSurvey' style='min-width: 150px; margin-right: 50px; color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;'>Show in Survey</button>
-                     <button id='deleteResult' style='min-width: 150px; color: white;background-color: #d9534f;border: none;padding: 6px;border-radius: 5px;'>Delete result </button>
-                    `
-                });
-
-                // var windowSurvey = new Survey.PopupSurveyModel(surveyJson);
-                // windowSurvey.survey.mode = "display";
-                // windowSurvey.survey.title = <?php echo wp_json_encode( $surveyName ); ?>;
-                // windowSurvey.show();
-
-
-                $(document).on("click", ".wp-sjs-plugin", function(e) {
-                    var rowEl = $(e.target).parents("tr");
-                    var row_object = table.row(rowEl).data();
-                    var survey = new Survey.Model(surveyJson);
-                    survey.data = row_object;
-
-                    var popupContainer = document.createElement("div");
-                    document.getElementById("surveyElement").appendChild(popupContainer);
-                    var handlePopupClose = () => {
-                        popupContainer.remove();
+            <form method="get">
+                <input type="hidden" name="page" value="surveyjs_results" />
+                <input type="hidden" name="id" value="<?php echo esc_attr( $survey->id ); ?>" />
+                <?php
+                $table->search_box( __( 'Search Results', 'surveyjs' ), 'surveyjs-result' );
+                $table->display();
+                ?>
+            </form>
+            <div id="wp-sjs-result-popup"></div>
+        </div>
+        <script type="application/json" id="wp-sjs-results-data"><?php echo wp_json_encode( $view_data, JSON_HEX_TAG | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
+        <script>
+            (function () {
+                var viewData = JSON.parse(document.getElementById("wp-sjs-results-data").textContent);
+                document.addEventListener("click", function (event) {
+                    var link = event.target.closest(".wp-sjs-view-result");
+                    if (!link) {
+                        return;
                     }
-
+                    event.preventDefault();
+                    var survey = new Survey.Model(viewData.survey);
+                    survey.data = viewData.results[link.dataset.resultId];
+                    survey.readOnly = true;
+                    var popupContainer = document.createElement("div");
+                    document.getElementById("wp-sjs-result-popup").appendChild(popupContainer);
                     SurveyUI.renderPopupSurvey(survey, popupContainer, {
                         isExpanded: true,
-                        closeOnCompleteTimeout: -1,
                         allowClose: true,
-                        onClose: handlePopupClose
-                    });
-                });
-
- 
-                <?php
-                    $normalizedResults = array();
-                    foreach ( (array) $surveyResults as $surveyResult ) {
-                        $resultData = SurveyJS_Client::decode_survey_json( $surveyResult->json );
-                        $resultData["resultId"] = $surveyResult->id;
-                        $normalizedResults[] = $resultData;
-                    }
-                    echo 'var data = ', wp_json_encode( $normalizedResults ), ';';
-                ?>
-
-                var table = $("#wpSjsResultsTable").DataTable({
-                    dom: 'Bfrtip',
-                    buttons: [
-                        'copy', 'csv', 'excel', /*'pdf',*/ 'print'
-                    ],
-                    columns: columns,
-                    data: data
-                });
-
-                $('#wpSjsResultsTable tbody').on('click', '#deleteResult', function (e) {
-                    e.preventDefault();
-                    var confirmResult = confirm("This action CANNOT be undone! Are you ABSOLUTELY sure?");
-                    if (!confirmResult) return;
-                    var row = table.row( $(this).parents('tr') );
-                    var data = row.data();
-                    jQuery.ajax({
-                        url:  "<?php echo esc_url($deleteResultUri) ?>",
-                        type: "POST",
-                        data: { ResultId: data.resultId, _wpnonce: '<?php echo esc_js($deleteResultNonce); ?>' },
-                        success: function (data) {
-                            row.remove();
-                            table.draw();
+                        onClose: function () {
+                            popupContainer.remove();
                         }
                     });
-
                 });
-            </script>
+            })();
+        </script>
         <?php
-        
     }
 }
-
-?>
