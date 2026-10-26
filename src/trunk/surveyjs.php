@@ -68,15 +68,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("ajax_handlers/rename_survey.php");
     new SurveyJS_RenameSurvey();
 
-    include("ajax_handlers/add_survey.php");
-    new SurveyJS_AddSurvey();
-
-    include("ajax_handlers/delete_survey.php");
-    new SurveyJS_DeleteSurvey();
-
-    include("ajax_handlers/clone_survey.php");
-    new SurveyJS_CloneSurvey();
-
     include("ajax_handlers/save_result.php");
     new SurveyJS_SaveResult();
 

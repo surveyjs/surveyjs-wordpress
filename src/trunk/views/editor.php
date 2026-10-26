@@ -98,7 +98,7 @@ class SurveyJS_Editor {
                     </span>
                 </h3>
                 <div id="sjs-editor-container" style="height: 77vh;"></div>
-                <script type="text/babel">
+                <script>
                     function SurveyCreatorRenderComponent() {
                         var lk = '<?php echo esc_js( $lk ); ?>';
                         Survey.setLicenseKey(lk);
@@ -185,7 +185,7 @@ class SurveyJS_Editor {
                             creator.theme = JSON.parse(themeJSON);
                         }
                         <?php endif; ?>
-                        return (<SurveyCreator.SurveyCreatorComponent creator={creator} />);
+                        return React.createElement(SurveyCreator.SurveyCreatorComponent, { creator: creator });
                     }
 
                     const container = document.getElementById("sjs-editor-container");
@@ -206,7 +206,7 @@ class SurveyJS_Editor {
                     shadowRoot.appendChild(rootElement);
 
                     const root = ReactDOM.createRoot(rootElement);
-                    root.render(<SurveyCreatorRenderComponent />);
+                    root.render(React.createElement(SurveyCreatorRenderComponent));
                 </script>
             </div>
             <script>
