@@ -1,8 +1,9 @@
 var el = wp.element.createElement;
 var registerBlockType = wp.blocks.registerBlockType;
 var SelectControl = wp.components.SelectControl;
-var InspectorControls = wp.editor.InspectorControls;
-var blockStyle = { border: "2px solid #1ab394", padding: "20px" };
+var Placeholder = wp.components.Placeholder;
+var InspectorControls = wp.blockEditor.InspectorControls;
+var blockIcon = "welcome-write-blog";
 var surveysArray = this.surveys;
 var surveys = {};
 
@@ -14,16 +15,21 @@ for (var i = 0; i < surveysArray.length; i++) {
   };
 }
 
+function getShortcode(surveyid) {
+  return '[Survey id="' + surveyid + '" name="' + surveys[surveyid].name + '"] ';
+}
+
 registerBlockType("sjs/gutenberg-block", {
   title: "SurveyJS",
 
-  icon: "welcome-write-blog",
+  icon: blockIcon,
 
   category: "common",
 
   edit: function(props) {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
+    var surveyid = attributes.surveyid;
     var options = [
       {
         label: "choose the survey...",
@@ -38,6 +44,13 @@ registerBlockType("sjs/gutenberg-block", {
       });
     });
 
+    function onSurveyChange(value) {
+      setAttributes({
+        surveyid: value,
+        shortcode: value === "none" ? "" : getShortcode(value)
+      });
+    }
+
     var inspectorControl = el(
       InspectorControls,
       {},
@@ -45,32 +58,21 @@ registerBlockType("sjs/gutenberg-block", {
       el("hr"),
       el(SelectControl, {
         label: "Choose survey to insert",
-        defaultValue: "none",
-        value: attributes.surveyid,
+        value: surveyid,
         options: options,
-        onChange: function(value) {
-          setAttributes({ surveyid: value });
-        }
+        onChange: onSurveyChange
       })
     );
 
-    var surveyid = attributes.surveyid;
-    var shortCodeString =
-      surveyid === "none"
-        ? "Please choose a survey in the Settings => Block menu"
-        : '[Survey id="' +
-          surveyid +
-          '" name="' +
-          surveys[surveyid].name +
-          '"] ';
-
-    setAttributes({ shortcode: shortCodeString });
-
     return el(
-      "div",
-      { style: blockStyle },
-      el("h3", {}, "SurveyJS shortcode: "),
-      el("div", {}, shortCodeString),
+      Placeholder,
+      { icon: blockIcon, label: "SurveyJS", instructions: "Choose survey to insert" },
+      el(SelectControl, {
+        value: surveys[surveyid] ? surveyid : "none",
+        options: options,
+        onChange: onSurveyChange,
+        __nextHasNoMarginBottom: true
+      }),
       inspectorControl
     );
   },

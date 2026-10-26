@@ -41,7 +41,7 @@ class SurveyJS_SurveyJS {
             wp_enqueue_script(
                 $blockscriptname,
                 plugins_url( 'block/block.js', __FILE__),
-                array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
+                array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-block-editor' ),
                 true // Enqueue the script in the footer.
             );
 
