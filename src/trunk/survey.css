@@ -38,3 +38,7 @@
 .wp-sjs-survey:empty {
     min-height: 400px;
 }
+
+.wp-sjs-plugin .sd-theme-root {
+    --sjs2-typography-font-family-text: initial;
+}

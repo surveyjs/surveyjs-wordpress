@@ -1,5 +1,9 @@
 (function () {
     function initSurvey(configElement) {
+        if (configElement.dataset.initialized) {
+            return;
+        }
+        configElement.dataset.initialized = "true";
         const config = JSON.parse(configElement.textContent);
         const survey = new Survey.Model(config.json);
         if (config.theme) {
@@ -80,5 +84,6 @@
         SurveyUI.renderSurvey(survey, configElement.parentElement.querySelector(".wp-sjs-survey"));
     }
 
+    window.wpSurveyJSInit = initSurvey;
     document.querySelectorAll(".wp-sjs-survey-config").forEach(initSurvey);
 })();

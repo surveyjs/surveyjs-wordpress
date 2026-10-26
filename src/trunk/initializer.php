@@ -19,6 +19,7 @@ class SurveyJS_SurveyJS {
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
 
 
+        add_action('init', array($this, 'register_frontend_assets'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
@@ -127,32 +128,89 @@ class SurveyJS_SurveyJS {
         }
     }
 
-    public function enqueue_frontend_scripts() {
-        $defer = array('in_footer' => true, 'strategy' => 'defer');
-        wp_register_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
+    public function register_frontend_assets() {
+        wp_register_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__), array('wps-front--survey-core.min.css'));
         wp_register_style('wps-front--survey-core.min.css', plugins_url('libs/library/survey-core.min.css', __FILE__));
-        wp_register_script('wps-front--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__), array(), false, $defer);
-        wp_register_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-front--survey.core.min.js'), false, $defer);
-        wp_register_script('wps-front--survey-js-ui.min.js', plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array('wps-front--survey.core.min.js'), false, $defer);
-        wp_register_script('wps-front--survey.js', plugins_url('/survey.js', __FILE__), array('wps-front--survey.i18n.min.js', 'wps-front--survey-js-ui.min.js'), false, $defer);
+        wp_register_script('wps-front--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__), array());
+        wp_register_script('wps-front--survey-js-ui.min.js', plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array('wps-front--survey.core.min.js'));
+        wp_register_script('wps-front--survey.js', plugins_url('/survey.js', __FILE__), array('wps-front--survey-js-ui.min.js'));
+    }
 
-        if ( $this->current_post_has_survey() ) {
-            $this->enqueue_frontend_assets();
+    public function enqueue_frontend_scripts() {
+        $client = new SurveyJS_Client();
+        foreach ( $this->get_current_post_survey_ids() as $id ) {
+            $row = $client->getSurvey($id);
+            if ( $row ) {
+                $this->enqueue_frontend_assets(SurveyJS_Client::decode_survey_json($row->json, false));
+            }
         }
     }
 
-    private function current_post_has_survey() {
-        if ( ! is_singular() ) {
-            return false;
+    private function get_current_post_survey_ids() {
+        $post = is_singular() ? get_post() : null;
+        if ( ! $post ) {
+            return array();
         }
-        $post = get_post();
-        return $post && ( has_shortcode( $post->post_content, 'Survey' ) || has_block( 'sjs/gutenberg-block', $post ) );
+        $ids = array();
+        if ( preg_match_all('/' . get_shortcode_regex(array('Survey')) . '/', $post->post_content, $matches) ) {
+            foreach ( $matches[3] as $shortcodeAttrs ) {
+                $attrs = shortcode_parse_atts($shortcodeAttrs);
+                $ids[] = absint($attrs['id'] ?? 0);
+            }
+        }
+        $this->collect_block_survey_ids(parse_blocks($post->post_content), $ids);
+        return array_unique(array_filter($ids));
     }
 
-    private function enqueue_frontend_assets() {
+    private function collect_block_survey_ids($blocks, &$ids) {
+        foreach ( $blocks as $block ) {
+            if ( 'sjs/gutenberg-block' === $block['blockName'] ) {
+                $ids[] = absint($block['attrs']['surveyid'] ?? 0);
+            }
+            $this->collect_block_survey_ids($block['innerBlocks'], $ids);
+        }
+    }
+
+    private function enqueue_frontend_assets($json) {
         wp_enqueue_style('wps-survey-override-css');
         wp_enqueue_style('wps-front--survey-core.min.css');
+        $locales = array();
+        if ( isset($json->locale) && is_string($json->locale) ) {
+            $locales[] = strtolower($json->locale);
+        }
+        $this->collect_survey_locales($json, $locales);
+        $surveyScript = wp_scripts()->query('wps-front--survey.js');
+        foreach ( array_unique($locales) as $locale ) {
+            $file = 'libs/library/i18n/' . $locale . '.min.js';
+            if ( ! preg_match('/^[a-z-]+$/', $locale) || ! file_exists(plugin_dir_path(__FILE__) . $file) ) {
+                continue;
+            }
+            $handle = 'wps-front--survey-i18n-' . $locale;
+            wp_register_script($handle, plugins_url($file, __FILE__), array('wps-front--survey.core.min.js'));
+            if ( $surveyScript && ! in_array($handle, $surveyScript->deps, true) ) {
+                $surveyScript->deps[] = $handle;
+            }
+        }
         wp_enqueue_script('wps-front--survey.js');
+    }
+
+    private function collect_survey_locales($node, &$locales) {
+        if ( is_object($node) ) {
+            $node = get_object_vars($node);
+            if ( isset($node['default']) && is_string($node['default']) ) {
+                foreach ( $node as $key => $value ) {
+                    if ( 'default' !== $key && is_string($value) ) {
+                        $locales[] = strtolower($key);
+                    }
+                }
+                return;
+            }
+        }
+        if ( is_array($node) ) {
+            foreach ( $node as $child ) {
+                $this->collect_survey_locales($child, $locales);
+            }
+        }
     }
   
     function wps_add_menu() {
@@ -188,10 +246,10 @@ class SurveyJS_SurveyJS {
             return '';
         }
 
-        $this->enqueue_frontend_assets();
-
         $json = SurveyJS_Client::decode_survey_json($row->json, false);
         $theme = SurveyJS_Client::decode_survey_json($row->theme, false);
+
+        $this->enqueue_frontend_assets($json);
         $deleteFileUri = add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php'));
         $config = array(
             'id' => $id,
@@ -209,6 +267,7 @@ class SurveyJS_SurveyJS {
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
             <div class="wp-sjs-survey" id="surveyElement-<?php echo esc_attr($id) ?>"></div>
             <script type="application/json" class="wp-sjs-survey-config"><?php echo wp_json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
+            <script>window.wpSurveyJSInit && window.wpSurveyJSInit(document.currentScript.previousElementSibling);</script>
         </div>
         <?php
         return ob_get_clean();
