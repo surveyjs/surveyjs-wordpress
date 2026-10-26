@@ -88,15 +88,14 @@ class SurveyJS_SurveyJS {
             wp_enqueue_script('wps-adm--babel.min.js', plugins_url('libs/babel.min.js', __FILE__));
 
             wp_enqueue_script('wps-adm--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__));
-            wp_enqueue_script('wps-adm--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__));
-            wp_enqueue_script('wps-adm--themes-index.min.js', plugins_url('libs/library/themes/index.min.js', __FILE__));
-            wp_enqueue_script('wps-adm--survey-react-ui.min.js', plugins_url('libs/library/survey-react-ui.min.js', __FILE__));
+            wp_enqueue_script('wps-adm--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-adm--survey.core.min.js'));
+            wp_enqueue_script('wps-adm--survey-react-ui.min.js', plugins_url('libs/library/survey-react-ui.min.js', __FILE__), array('react', 'react-dom', 'wps-adm--survey.core.min.js'));
 
-            wp_enqueue_script('wps-adm--survey-creator-core.min.js', plugins_url('libs/creator/survey-creator-core.min.js', __FILE__));
-            wp_enqueue_script('wps-adm--survey-creator-core.i18n.min.js', plugins_url('libs/creator/survey-creator-core.i18n.min.js', __FILE__));
-            wp_enqueue_script('wps-adm--survey-creator-react.min.js', plugins_url('libs/creator/survey-creator-react.min.js', __FILE__));
+            wp_enqueue_script('wps-adm--survey-creator-core.min.js', plugins_url('libs/creator/survey-creator-core.min.js', __FILE__), array('wps-adm--survey.core.min.js'));
+            wp_enqueue_script('wps-adm--survey-creator-core.i18n.min.js', plugins_url('libs/creator/survey-creator-core.i18n.min.js', __FILE__), array('wps-adm--survey-creator-core.min.js'));
+            wp_enqueue_script('wps-adm--survey-creator-react.min.js', plugins_url('libs/creator/survey-creator-react.min.js', __FILE__), array('react', 'react-dom', 'wps-adm--survey-react-ui.min.js', 'wps-adm--survey-creator-core.min.js'));
 
-            wp_enqueue_style('wps-adm--defaultV2.min.css', plugins_url('libs/library/defaultV2.min.css', __FILE__));
+            wp_enqueue_style('wps-adm--survey-core.min.css', plugins_url('libs/library/survey-core.min.css', __FILE__));
 
             wp_enqueue_style('wps-adm--survey-creator-core.min.css', plugins_url('libs/creator/survey-creator-core.min.css', __FILE__));
 
@@ -124,15 +123,16 @@ class SurveyJS_SurveyJS {
         }
 
         if ( isset( $_GET["page"] ) && $_GET['page'] == "surveyjs_results") {
-            wp_enqueue_script('wps-adm-jquery-js', plugins_url('libs/library/survey.jquery.min.js', __FILE__)); // for "Show in Survey btn"
+            wp_enqueue_script('wps-adm--survey-js-ui.min.js', plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array('wps-adm--survey.core.min.js')); // for "Show in Survey btn"
         }
     }
 
-    public function enqueue_frontend_scripts() { 
+    public function enqueue_frontend_scripts() {
         wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
-        wp_enqueue_script('wps-front-jquery-js', plugins_url('libs/library/survey.jquery.min.js', __FILE__), array('jquery'));
-        wp_enqueue_script('wps-front--themes-index.min.js', plugins_url('libs/library/themes/index.min.js', __FILE__));
-        wp_enqueue_style('wps-front--defaultV2.min.css', plugins_url('libs/library/defaultV2.min.css', __FILE__));        
+        wp_enqueue_script('wps-front--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__), array('jquery'));
+        wp_enqueue_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-front--survey.core.min.js'));
+        wp_enqueue_script('wps-front--survey-js-ui.min.js', plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array('wps-front--survey.core.min.js'));
+        wp_enqueue_style('wps-front--survey-core.min.css', plugins_url('libs/library/survey-core.min.css', __FILE__));
     }
   
     function wps_add_menu() {
@@ -284,7 +284,7 @@ class SurveyJS_SurveyJS {
                     options.callback("success");
                 });
 
-                jQuery("#surveyElement-<?php echo esc_attr($id) ?>").Survey({model: survey<?php echo intval($id); ?>/*, css: customCss*/});
+                SurveyUI.renderSurvey(survey<?php echo intval($id); ?>, document.getElementById("surveyElement-<?php echo esc_attr($id) ?>"));
             }
         </script>        
         <?php

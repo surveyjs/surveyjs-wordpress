@@ -88,12 +88,13 @@ class SurveyJS_Results {
                     var survey = new Survey.Model(surveyJson);
                     survey.data = row_object;
 
+                    var popupContainer = document.createElement("div");
+                    document.getElementById("surveyElement").appendChild(popupContainer);
                     var handlePopupClose = () => {
-                        $("#surveyElement").remove();
+                        popupContainer.remove();
                     }
 
-                    $("#surveyElement").PopupSurvey({
-                        model: survey,
+                    SurveyUI.renderPopupSurvey(survey, popupContainer, {
                         isExpanded: true,
                         closeOnCompleteTimeout: -1,
                         allowClose: true,

@@ -101,8 +101,8 @@ class SurveyJS_Editor {
                 <script type="text/babel">
                     function SurveyCreatorRenderComponent() {
                         var lk = '<?php echo esc_js( $lk ); ?>';
-                        Survey.slk(lk);
-                        var editorOptions = { showThemeTab: true, showLogicTab: true, showTranslationTab: true, showEmbededSurveyTab: false, showOptions: true, generateValidJSON : false };
+                        Survey.setLicenseKey(lk);
+                        var editorOptions = { showThemeTab: true, showLogicTab: true, showTranslationTab: true };
                         const editor = new SurveyCreator.SurveyCreator(editorOptions);
                         editor.showState = true;
                         editor.isAutoSave = true;
@@ -168,9 +168,9 @@ class SurveyJS_Editor {
                             });
                         });
                         editor.onSurveyInstanceCreated.add(function(creatot, options) {
-                            const reason = options.reason;
+                            const area = options.area;
                             const survey = options.survey;
-                            if (reason === "test" || reason === "theme") {
+                            if (area === "preview-tab" || area === "theme-tab") {
                                 survey.getAllQuestions().forEach((q)=>{q.storeDataAsText = true});
                             }
                         })
