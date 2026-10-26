@@ -77,9 +77,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("ajax_handlers/clone_survey.php");
     new SurveyJS_CloneSurvey();
 
-    include("ajax_handlers/get_survey_json.php");
-    new SurveyJS_GetSurveyJson();
-
     include("ajax_handlers/save_result.php");
     new SurveyJS_SaveResult();
 

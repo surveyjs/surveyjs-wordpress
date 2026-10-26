@@ -34,3 +34,7 @@
     padding-top: 0;
     padding-bottom: 0;
 }
+
+.wp-sjs-survey:empty {
+    min-height: 400px;
+}

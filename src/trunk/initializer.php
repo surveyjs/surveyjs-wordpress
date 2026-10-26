@@ -128,11 +128,31 @@ class SurveyJS_SurveyJS {
     }
 
     public function enqueue_frontend_scripts() {
-        wp_enqueue_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
-        wp_enqueue_script('wps-front--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__), array('jquery'));
-        wp_enqueue_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-front--survey.core.min.js'));
-        wp_enqueue_script('wps-front--survey-js-ui.min.js', plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array('wps-front--survey.core.min.js'));
-        wp_enqueue_style('wps-front--survey-core.min.css', plugins_url('libs/library/survey-core.min.css', __FILE__));
+        $defer = array('in_footer' => true, 'strategy' => 'defer');
+        wp_register_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__) );
+        wp_register_style('wps-front--survey-core.min.css', plugins_url('libs/library/survey-core.min.css', __FILE__));
+        wp_register_script('wps-front--survey.core.min.js', plugins_url('libs/library/survey.core.min.js', __FILE__), array(), false, $defer);
+        wp_register_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-front--survey.core.min.js'), false, $defer);
+        wp_register_script('wps-front--survey-js-ui.min.js', plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array('wps-front--survey.core.min.js'), false, $defer);
+        wp_register_script('wps-front--survey.js', plugins_url('/survey.js', __FILE__), array('wps-front--survey.i18n.min.js', 'wps-front--survey-js-ui.min.js'), false, $defer);
+
+        if ( $this->current_post_has_survey() ) {
+            $this->enqueue_frontend_assets();
+        }
+    }
+
+    private function current_post_has_survey() {
+        if ( ! is_singular() ) {
+            return false;
+        }
+        $post = get_post();
+        return $post && ( has_shortcode( $post->post_content, 'Survey' ) || has_block( 'sjs/gutenberg-block', $post ) );
+    }
+
+    private function enqueue_frontend_assets() {
+        wp_enqueue_style('wps-survey-override-css');
+        wp_enqueue_style('wps-front--survey-core.min.css');
+        wp_enqueue_script('wps-front--survey.js');
     }
   
     function wps_add_menu() {
@@ -161,134 +181,36 @@ class SurveyJS_SurveyJS {
     }
 
     function wps_process_shortcode($attrs) {
-        ob_start();
-        
-        $id = esc_attr($attrs["id"]);
-        $getSurveyJsonUri = add_query_arg(array('action' => 'SurveyJS_GetSurveyJson'), admin_url('admin-ajax.php'));
-        $saveResultUri = add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php'));
-        $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php'));
+        $id = absint($attrs["id"] ?? 0);
+        $client = new SurveyJS_Client();
+        $row = $client->getSurvey($id);
+        if ( ! $row ) {
+            return '';
+        }
+
+        $this->enqueue_frontend_assets();
+
+        $json = SurveyJS_Client::decode_survey_json($row->json, false);
+        $theme = SurveyJS_Client::decode_survey_json($row->theme, false);
         $deleteFileUri = add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php'));
-        $getSurveyJsonNonce = wp_create_nonce('surveyjs-get-survey-json');
-        $saveResultNonce = wp_create_nonce('surveyjs-save-result');
-        $uploadFilesNonce = wp_create_nonce('surveyjs-upload-files');
-        $deleteFileNonce = wp_create_nonce('surveyjs-delete-file');
-        $deleteFileUriWithNonce = add_query_arg('_wpnonce', $deleteFileNonce, $deleteFileUri);
+        $config = array(
+            'id' => $id,
+            'json' => empty($json) ? new stdClass() : $json,
+            'theme' => empty($theme) ? null : $theme,
+            'saveResultUrl' => add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php')),
+            'saveResultNonce' => wp_create_nonce('surveyjs-save-result'),
+            'uploadFilesUrl' => add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php')),
+            'uploadFilesNonce' => wp_create_nonce('surveyjs-upload-files'),
+            'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
+        );
+
+        ob_start();
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
-            <div id="surveyElement-<?php echo esc_attr($id) ?>">Survey is loading...</div>
-            <div id="surveyResult-<?php echo esc_attr($id) ?>"></div>
+            <div class="wp-sjs-survey" id="surveyElement-<?php echo esc_attr($id) ?>"></div>
+            <script type="application/json" class="wp-sjs-survey-config"><?php echo wp_json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
         </div>
-        <script>
-            jQuery.ajax({
-                url:  "<?php echo esc_url($getSurveyJsonUri)  ?>",
-                type: "POST",
-                data: { Id: <?php echo intval($id); ?>, _wpnonce: '<?php echo esc_js( $getSurveyJsonNonce ); ?>' },
-                success: function (data) {
-                    var json = {}
-                    let theme;
-                    if (data.json) {
-                        json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
-                    }
-                    if (data.theme) {
-                        theme = JSON.parse(data.theme.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
-                    } else {
-                        theme = null
-                    }
-                    jQuery(document).ready(()=>{
-                        initSurvey<?php echo intval($id); ?>(json, theme);
-                    });
-                }
-            });
-
-            function initSurvey<?php echo intval($id); ?>(json, theme) {
-                const survey<?php echo intval($id); ?> = new Survey.Model(json);
-                if (!!theme) {
-                    survey<?php echo intval($id); ?>.applyTheme(theme);
-                }
-                window.survey<?php echo intval($id); ?> = survey<?php echo intval($id); ?>;               
-                survey<?php echo intval($id); ?>
-                    .onComplete
-                    .add(function (sender, options) {
-                        options.showSaveInProgress();
-                        jQuery.ajax({
-                            url:  "<?php echo esc_url($saveResultUri) ?>",
-                            type: "POST",
-                    data: { SurveyId: '<?php echo intval($id); ?>', Json : JSON.stringify(sender.data), _wpnonce: '<?php echo esc_js( $saveResultNonce ); ?>' },
-                            success: function (data) {options.showSaveSuccess();},
-                            error: function (xhr) {options.showSaveError(xhr.responseText);}
-                        });
-                        //document
-                        //    .querySelector("#surveyResult-<?php echo intval($id); ?>")
-                        //    .innerHTML = "result: " + JSON.stringify(sender.data);
-                    });
-
-                survey<?php echo intval($id); ?>.onUploadFiles.add((_, options) => {
-                    const formData = new FormData();
-                    options.files.forEach((file) => {
-                        formData.append(file.name, file);
-                    });
-                formData.append("_wpnonce", "<?php echo esc_js( $uploadFilesNonce ); ?>");
-                formData.append("SurveyId", "<?php echo intval($id); ?>");
-
-                    fetch("<?php echo esc_url($uploadFileUri) ?>", {
-                        method: "POST",
-                        body: formData
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            options.callback(
-                                options.files.map((file) => {
-                                    return {
-                                        file: file,
-                                        content: data[file.name]
-                                    };
-                                })
-                            );
-                        })
-                        .catch((error) => {
-                            console.error("Error: ", error);
-                            options.callback([], [ 'An error occurred during file upload.' ]);
-                        });
-                });
-
-                function deleteFile(fileURL, options) {
-                    try {
-                        const deleteFileBaseUrl = "<?php echo esc_url($deleteFileUriWithNonce); ?>";
-                        const apiUrl = `${deleteFileBaseUrl}&name=${encodeURIComponent(fileURL)}`;
-                        fetch(apiUrl);
-                    } catch (error) {
-                        options.callback("error");
-                    }
-                }
-
-                survey<?php echo intval($id); ?>.onClearFiles.add((_, options) => {
-                    if (!options.value || options.value.length === 0) {
-                        options.callback("success");
-                        return;
-                    }
-
-                    if (!options.fileName && !!options.value) {
-                        for (const item of options.value) {
-                            deleteFile(item.content, options);
-                        }
-                    } else {
-                        const fileToRemove = options.value.find(
-                            (item) => item.name === options.fileName
-                        );
-                        if (fileToRemove) {
-                            deleteFile(fileToRemove.content, options);
-                        } else {
-                            console.error(`File with name ${options.fileName} is not found`);
-                        }
-                    }
-                    options.callback("success");
-                });
-
-                SurveyUI.renderSurvey(survey<?php echo intval($id); ?>, document.getElementById("surveyElement-<?php echo esc_attr($id) ?>"));
-            }
-        </script>        
         <?php
-                        
         return ob_get_clean();
     }
   
