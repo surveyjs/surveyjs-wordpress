@@ -7,211 +7,56 @@ class SurveyJS_Editor {
     function __construct() {
     }
 
-    public static function render() { 
-        $surveyId = sanitize_key($_GET['id']);
-        global $wpdb;
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", intval($surveyId) ) );
-        $json = isset($row->json) ? $row->json : '{}';
-        $themeJson = isset($row->theme) ? $row->theme : null;
+    public static function render() {
+        $client = new SurveyJS_Client();
+        $survey = $client->getSurvey( absint( $_GET['id'] ?? 0 ) );
+        if ( ! $survey ) {
+            wp_die( esc_html__( 'Survey not found.', 'surveyjs' ) );
+        }
 
-        $decodedJson    = SurveyJS_Client::decode_survey_json( $json );
-        $surveyJsonText = empty( $decodedJson ) ? "{}" : wp_json_encode( $decodedJson );
-
-        $decodedTheme  = SurveyJS_Client::decode_survey_json( $themeJson );
-        $themeJsonText = empty( $decodedTheme ) ? "" : wp_json_encode( $decodedTheme );
-
-        $saveSurveyUri = add_query_arg(array('action' => 'SurveyJS_SaveSurvey'), admin_url('admin-ajax.php'));
-        $renameSurveyUri = add_query_arg(array('action' => 'SurveyJS_RenameSurvey'), admin_url('admin-ajax.php'));
-        $uploadFileUri = add_query_arg(array('action' => 'SurveyJS_UploadFile'), admin_url('admin-ajax.php'));
-        $saveSurveyNonce = wp_create_nonce('surveyjs-save-survey');
-        $renameSurveyNonce = wp_create_nonce('surveyjs-rename-survey');
-        $uploadFileNonce = wp_create_nonce('surveyjs-upload-file');
-        $lk = SurveyJS_SettingsPage::get_license_key();
+        $json = SurveyJS_Client::decode_survey_json( $survey->json, false );
+        $theme = SurveyJS_Client::decode_survey_json( $survey->theme, false );
+        $config = array(
+            'id'        => (int) $survey->id,
+            'name'      => $survey->name,
+            'json'      => empty( $json ) ? new stdClass() : $json,
+            'theme'     => empty( $theme ) ? new stdClass() : $theme,
+            'saveUrl'   => add_query_arg( array( 'action' => 'SurveyJS_SaveSurvey' ), admin_url( 'admin-ajax.php' ) ),
+            'saveNonce' => wp_create_nonce( 'surveyjs-save-survey' ),
+            'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
+        );
+        $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         ?>
-            <style>
-                /* #sjs-editor-container .svd_container .card {
-                    max-width: none;
-                }
-                #sjs-editor-container .svd_container select {
-                    height: 34px;
-                    line-height: 20px;
-                    padding: 6px 12px;
-                } */
-            </style>
-            <script>
-                var surveyName = "<?php echo esc_js( sanitize_text_field($_GET['name']) ); ?>";
-                function setSurveyName(name) {
-                    var $titleTitle = jQuery("#sjs_editor_title_show");
-                    $titleTitle.find("span").text(name);
-                }
-                function startEdit() {
-                    var $titleEditor = jQuery("#sjs_editor_title_edit");
-                    var $titleTitle = jQuery("#sjs_editor_title_show");
-                    $titleTitle.hide();
-                    $titleEditor.show();
-                    $titleEditor.find("input")[0].value = surveyName;
-                    $titleEditor.find("input").focus();
-                }
-                function cancelEdit() {
-                    var $titleEditor = jQuery("#sjs_editor_title_edit");
-                    var $titleTitle = jQuery("#sjs_editor_title_show");
-                    $titleEditor.hide();
-                    $titleTitle.show();
-                }
-                function postEdit() {
-                    cancelEdit();
-                    var oldName = surveyName;
-                    var $titleEditor = jQuery("#sjs_editor_title_edit");
-                    surveyName = $titleEditor.find("input")[0].value;
+        <div class="wrap wp-sjs-editor">
+            <h1 class="wp-heading-inline"><?php esc_html_e( 'Edit Survey', 'surveyjs' ); ?></h1>
+            <hr class="wp-header-end">
 
-                    setSurveyName(surveyName);
-
-                    jQuery.ajax({
-                        url:  "<?php echo esc_url($renameSurveyUri) ?>",
-                        type: "POST",
-                        data: { Id: '<?php echo intval($surveyId); ?>', Name: surveyName, _wpnonce: '<?php echo esc_js($renameSurveyNonce); ?>' },
-                        success: function (data) {
-                            // if(data.isSuccess) {
-                            // }
-                        }
-                    });
-                }
-            </script>
-            <div class="wrap">
-                <div class="survey-page-header">
-                    <div class="sv_main survey-page-header-content">
-                        <button style="min-width: 80px;color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;margin-top: 10px;" onclick="window.location = '/wp-admin/admin.php?page=surveyjs-main-menu'">&lt&nbspBack</button>
-                    </div>
-                </div>
-                <h2 style="display:inline-block;"><?php esc_html_e( 'Survey: ', 'surveyjs' ); ?></h2>
-                <h3 style="display:inline-block; margin: 0;">
-                    <span id="sjs_editor_title_edit" style="display: none;">
-                        <input style="border-top: none; border-left: none; border-right: none; outline: none;"/>
-                        <a class="btn btn-success" onclick="postEdit()" href="#" style="margin:5px; margin-top: -5px; background-color: #1ab394; border-color: #1ab394;">Update</a>
-                        <a class="btn btn-warning" onclick="cancelEdit()" href="#" style="margin:5px; margin-top: -5px;">Cancel</a>
-                    </span>
-                    <span id="sjs_editor_title_show">
-                        <span style="padding-top: 1px; height: 39px; display: inline-block;"></span>
-                        <a href="#" class="edit-survey-name" onclick="startEdit()" title="Change Name">
-                            <img class="edit-icon" src="<?php echo esc_url( plugins_url( '../images/Edit_12x12.svg', __FILE__ ) ); ?>" style="width:24px; height:24px; margin-top: -5px;" />
-                        </a>
-                    </span>
-                </h3>
-                <div id="sjs-editor-container" style="height: 77vh;"></div>
-                <script>
-                    function SurveyCreatorRenderComponent() {
-                        var lk = '<?php echo esc_js( $lk ); ?>';
-                        Survey.setLicenseKey(lk);
-                        var editorOptions = { showThemeTab: true, showLogicTab: true, showTranslationTab: true };
-                        const editor = new SurveyCreator.SurveyCreator(editorOptions);
-                        editor.showState = true;
-                        editor.isAutoSave = true;
-                        editor.saveSurveyFunc = function(saveNo, callback) {
-                            var json = JSON.stringify(editor.getSurveyJSON());   
-                            var theme = JSON.stringify(editor.theme); 
-                            jQuery.ajax({
-                                url:  "<?php echo esc_url($saveSurveyUri) ?>",
-                                type: "POST",
-                                data: { Id: '<?php echo intval($surveyId); ?>', Json: json, Theme: theme, _wpnonce: '<?php echo esc_js($saveSurveyNonce); ?>' },
-                                success: function (data) {
-                                    // if(data.isSuccess) {
-                                    // }
-                                    callback(saveNo, data.IsSuccess === 1);
-                                }
-                            });
-                        };
-                        editor.saveThemeFunc = function(saveNo, callback) {
-                            var json = JSON.stringify(editor.getSurveyJSON());   
-                            var theme = JSON.stringify(editor.theme); 
-                            jQuery.ajax({
-                                url:  "<?php echo esc_url($saveSurveyUri) ?>",
-                                type: "POST",
-                                data: { Id: '<?php echo intval($surveyId); ?>', Json: json, Theme: theme, _wpnonce: '<?php echo esc_js($saveSurveyNonce); ?>' },
-                                success: function (data) {
-                                    // if(data.isSuccess) {
-                                    // }
-                                    callback(saveNo, data.IsSuccess === 1);
-                                }
-                            });
-                        };
-                        editor.onUploadFile.add(function(editor, options) {
-                            var formData = new FormData();
-                            options.files.forEach(function(file) {
-                                formData.append("file", file);
-                            });
-                            formData.append("_wpnonce", "<?php echo esc_js($uploadFileNonce); ?>");
-                            jQuery.ajax({
-                                url: "<?php echo esc_url($uploadFileUri) ?>",
-                                type: "POST",
-                                xhr: function () {
-                                    var myXhr = jQuery.ajaxSettings.xhr();
-                                    if (myXhr.upload) {
-                                        myXhr.upload.addEventListener('progress', function (event) {
-                                            var percent = 0;
-                                            var position = event.loaded || event.position;
-                                            var total = event.total;
-                                        }, false);
-                                    }
-                                    return myXhr;
-                                },
-                                success: function (data) {
-                                    options.callback("success", data["url"]);
-                                },
-                                error: function (error) {
-                                },
-                                async: true,
-                                data: formData,
-                                cache: false,
-                                contentType: false,
-                                processData: false,
-                                timeout: 60000
-                            });
-                        });
-                        editor.onSurveyInstanceCreated.add(function(creatot, options) {
-                            const area = options.area;
-                            const survey = options.survey;
-                            if (area === "preview-tab" || area === "theme-tab") {
-                                survey.getAllQuestions().forEach((q)=>{q.storeDataAsText = true});
-                            }
-                        })
-                        const creator = editor;
-                        // wp_json_encode() safely escapes quotes
-                        var json = <?php echo wp_json_encode( $surveyJsonText ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-                        creator.text = json;
-                        //creator.JSON = surveyJSON;
-                        <?php if ( "" !== $themeJsonText ): ?>
-                        const themeJSON = <?php echo wp_json_encode( $themeJsonText ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-                        if (themeJSON) {
-                            creator.theme = JSON.parse(themeJSON);
-                        }
-                        <?php endif; ?>
-                        return React.createElement(SurveyCreator.SurveyCreatorComponent, { creator: creator });
-                    }
-
-                    const container = document.getElementById("sjs-editor-container");
-
-                    const shadowRoot = container.attachShadow({ mode: 'open' });
-                    const rootElement = document.createElement("div");
-                    rootElement.classList.add("sjs-editor-shadow-root");
-                    rootElement.style.height = "100%";
-                    const style = document.createElement("style");
-                    const surveyStyles = document.createElement('link');
-                    surveyStyles.setAttribute('rel', 'stylesheet');
-                    surveyStyles.setAttribute('href', <?php echo wp_json_encode( plugins_url('../libs/library/survey-core.min.css', __FILE__) ); ?>);
-                    const creatorStyles = document.createElement('link');
-                    creatorStyles.setAttribute('rel', 'stylesheet');
-                    creatorStyles.setAttribute('href', <?php echo wp_json_encode( plugins_url('../libs/creator/survey-creator-core.min.css', __FILE__) ); ?>);
-                    shadowRoot.appendChild(surveyStyles);
-                    shadowRoot.appendChild(creatorStyles);
-                    shadowRoot.appendChild(rootElement);
-
-                    const root = ReactDOM.createRoot(rootElement);
-                    root.render(React.createElement(SurveyCreatorRenderComponent));
-                </script>
+            <div class="wp-sjs-editor__toolbar">
+                <input type="text" id="wp-sjs-survey-name" class="regular-text" aria-label="<?php esc_attr_e( 'Survey name', 'surveyjs' ); ?>" />
+                <a href="<?php echo esc_url( $list_url ); ?>" class="button"><?php esc_html_e( 'Back', 'surveyjs' ); ?></a>
+                <button type="button" class="button button-primary" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </div>
-            <script>
-                setSurveyName(surveyName);
-            </script>
+            <div id="wp-sjs-editor-notice"></div>
+
+            <nav class="nav-tab-wrapper wp-sjs-editor__tabs">
+                <a href="#" class="nav-tab nav-tab-active" data-tab="survey"><?php esc_html_e( 'Survey JSON', 'surveyjs' ); ?></a>
+                <a href="#" class="nav-tab" data-tab="theme"><?php esc_html_e( 'Theme JSON', 'surveyjs' ); ?></a>
+            </nav>
+
+            <div class="wp-sjs-editor__columns">
+                <div class="wp-sjs-editor__pane">
+                    <div class="wp-sjs-editor__overlay">
+                        <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>
+                    </div>
+                    <div id="wp-sjs-monaco" class="wp-sjs-editor__monaco"><p class="wp-sjs-editor__loading"><?php esc_html_e( 'Loading editor…', 'surveyjs' ); ?></p></div>
+                    <div id="wp-sjs-lint" class="wp-sjs-lint"></div>
+                </div>
+                <div class="wp-sjs-editor__preview">
+                    <div id="wp-sjs-preview"></div>
+                </div>
+            </div>
+        </div>
+        <script type="application/json" id="wp-sjs-editor-config"><?php echo wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
         <?php
     }
 }

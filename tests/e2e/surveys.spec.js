@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, addSurvey, renameSurvey, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, addSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys } = require("./helpers");
 
 test.describe("survey list", () => {
   let name;
@@ -11,23 +11,19 @@ test.describe("survey list", () => {
   test("adds a survey", async ({ page }) => {
     name = uniqueName("E2E add");
     await addSurvey(page);
-    await renameSurvey(page, name);
+    await page.getByLabel("Survey name").fill(name);
+    await saveSurvey(page);
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .row-title")).toHaveText([name]);
   });
 
-  test("saves survey changes made in the editor", async ({ page }) => {
-    name = uniqueName("E2E edit");
-    await createSurvey(page, name);
-
-    await page.reload();
-    await expect(page.locator(".svc-creator").getByText("What is your name?")).toBeVisible();
-  });
-
   test("clones a survey", async ({ page }) => {
     name = uniqueName("E2E clone");
     await createSurvey(page, name);
+    await page.getByRole("link", { name: "Theme JSON" }).click();
+    await setEditorJson(page, { themeName: "e2e-theme" });
+    await saveSurvey(page);
 
     await page.goto(listUrl(name));
     const row = page.locator("#the-list tr", { hasText: name });
@@ -39,7 +35,9 @@ test.describe("survey list", () => {
     await expect(page.locator("#the-list .row-title")).toHaveText([name, `Copy of ${name}`]);
 
     await page.locator("#the-list .row-title", { hasText: `Copy of ${name}` }).click();
-    await expect(page.locator(".svc-creator").getByText("What is your name?")).toBeVisible();
+    await expect(page.locator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
+    await page.getByRole("link", { name: "Theme JSON" }).click();
+    expect(await page.evaluate(() => window.monaco.editor.getEditors()[0].getValue())).toContain("e2e-theme");
   });
 
   test("deletes a survey", async ({ page }) => {

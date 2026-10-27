@@ -29,12 +29,16 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
             // EO create 'theme' column if not exists
 
             if(!!$json) {
+                $data = array(
+                    'json' => $json,
+                    'theme' => $theme
+                );
+                if ( isset( $_POST['Name'] ) ) {
+                    $data['name'] = sanitize_text_field( wp_unslash( $_POST['Name'] ) );
+                }
                 $result = $wpdb->update(
                     $table_name,
-                    array(
-                        'json' => $json,
-                        'theme' => $theme
-                    ),
+                    $data,
                     array(
                         'id' => $id
                     )
