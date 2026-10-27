@@ -53,6 +53,15 @@ Please also refer to the collection of demos specially designed for various real
 == E-signature capture field ==
 SurveyJS offers a simple way to add digital signatures to your e-forms with a build-it input field. This [signature field](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/) enables respondents to sign a form with their mouse pointer or even a finger by simply drawing a signature within the signature pad area.
 
+== External services ==
+This plugin can open a survey in the SurveyJS UI Builder, a free online visual survey editor provided by Devsoft Baltic OÜ at [surveyjs.io/wordpress-ui-builder](https://surveyjs.io/wordpress-ui-builder).
+
+The plugin connects to this service only when you click **Open in UI Builder** in the survey editor. The UI Builder then opens in a new browser tab, and the plugin sends it the survey ID, the survey name, the survey JSON, and the theme JSON currently open in the editor. When you click **Save and back to WordPress**, the UI Builder sends the edited survey JSON and theme JSON back to the editor, where you can review them before saving. Survey responses and other site data are never sent.
+
+The plugin works without this service: you can create and edit surveys in the built-in JSON editor.
+
+This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
+
 == Installation ==
 
 SurveyJS plugin is free for everyone who [self-hosts](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) Wordpress. If you use WordPress.com, the SurveyJS plugin is only free for users with Business plan or higher (due to the WordPress.com [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/)).
