@@ -1,8 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { uniqueName, saveSurvey, createSurvey, deleteSurveys } = require("./helpers");
 
-const UI_BUILDER_URL = "https://surveyjs.io/wordpress-ui-builder";
-
 const MOCK_UI_BUILDER = `<!doctype html>
 <script>
   window.addEventListener("message", (event) => {
@@ -27,7 +25,8 @@ test.describe("UI Builder", () => {
   test("sends the survey to the UI Builder and takes the edited JSON back", async ({ page, context }) => {
     name = uniqueName("E2E builder");
     const surveyId = await createSurvey(page, name);
-    await context.route(`${UI_BUILDER_URL}**`, route => route.fulfill({ contentType: "text/html", body: MOCK_UI_BUILDER }));
+    const uiBuilderUrl = await page.evaluate(() => JSON.parse(document.getElementById("wp-sjs-editor-config").textContent).uiBuilderUrl);
+    await context.route(`${uiBuilderUrl}**`, route => route.fulfill({ contentType: "text/html", body: MOCK_UI_BUILDER }));
 
     const popupEvent = page.waitForEvent("popup");
     await page.getByRole("button", { name: "Open in UI Builder" }).click();
