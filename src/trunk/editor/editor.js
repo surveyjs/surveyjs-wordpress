@@ -6,6 +6,8 @@
     const nameInput = document.getElementById("wp-sjs-survey-name");
     const formatButton = document.getElementById("wp-sjs-format");
     const saveButton = document.getElementById("wp-sjs-save");
+    const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
+    const uiBuilderOrigin = new URL(config.uiBuilderUrl).origin;
     const noticeElement = document.getElementById("wp-sjs-editor-notice");
     const monacoElement = document.getElementById("wp-sjs-monaco");
     const lintElement = document.getElementById("wp-sjs-lint");
@@ -247,6 +249,7 @@
     function updateState() {
         const error = syntaxError();
         saveButton.disabled = Boolean(error);
+        uiBuilderButton.disabled = Boolean(error);
         formatButton.disabled = Boolean(parse(sources[activeTab]).error);
         if (error) {
             showNotice("error", error);
@@ -499,6 +502,50 @@
             .finally(updateState);
     }
 
+    function isJsonObject(value) {
+        return typeof value === "object" && value !== null && !Array.isArray(value);
+    }
+
+    function replaceSource(tab, json) {
+        const text = JSON.stringify(json, null, 2);
+        if (!models) {
+            sources[tab] = text;
+            return;
+        }
+        models[tab].pushStackElement();
+        models[tab].pushEditOperations([], [{ range: models[tab].getFullModelRange(), text: text }], () => null);
+        models[tab].pushStackElement();
+    }
+
+    function openUiBuilder() {
+        window.open(config.uiBuilderUrl, "surveyjs-ui-builder-" + config.id);
+    }
+
+    function onUiBuilderMessage(event) {
+        const message = event.data;
+        if (event.origin !== uiBuilderOrigin || !isJsonObject(message) || message.source !== "surveyjs-ui-builder") return;
+        if (message.type === "ready") {
+            const survey = parse(sources.survey);
+            const theme = parse(sources.theme);
+            if (!survey.json || !theme.json) return;
+            event.source.postMessage({
+                source: "surveyjs-wordpress",
+                type: "load",
+                surveyId: config.id,
+                name: nameInput.value,
+                json: survey.json,
+                theme: theme.json
+            }, event.origin);
+        } else if (message.type === "save" && message.surveyId === config.id && isJsonObject(message.json)) {
+            replaceSource("survey", message.json);
+            replaceSource("theme", isJsonObject(message.theme) ? message.theme : {});
+            saveNotice = { type: "info", message: "Changes from the UI Builder are in the editor. Press Save to keep them." };
+            updateState();
+            renderPreview();
+            runLint();
+        }
+    }
+
     function loadMonaco() {
         return new Promise((resolve) => {
             const base = config.monacoUrl;
@@ -526,6 +573,8 @@
     }));
     formatButton.addEventListener("click", format);
     saveButton.addEventListener("click", save);
+    uiBuilderButton.addEventListener("click", openUiBuilder);
+    window.addEventListener("message", onUiBuilderMessage);
     nameInput.addEventListener("input", () => {
         saveNotice = null;
         updateState();

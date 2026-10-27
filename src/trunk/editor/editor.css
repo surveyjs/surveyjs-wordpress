@@ -6,6 +6,20 @@
     margin: 12px 0;
 }
 
+.wp-sjs-editor__toolbar .wp-sjs-editor__ui-builder {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.wp-sjs-editor__toolbar .wp-sjs-editor__ui-builder .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
 .wp-sjs-editor__tabs {
     margin-bottom: 12px;
 }
