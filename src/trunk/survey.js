@@ -5,6 +5,7 @@
         }
         configElement.dataset.initialized = "true";
         const config = JSON.parse(configElement.textContent);
+        const honeypot = configElement.parentElement.querySelector(".wp-sjs-hp input");
         const survey = new Survey.Model(config.json);
         if (config.theme) {
             survey.applyTheme(config.theme);
@@ -15,7 +16,7 @@
             options.showSaveInProgress();
             fetch(config.saveResultUrl, {
                 method: "POST",
-                body: new URLSearchParams({ SurveyId: config.id, Json: JSON.stringify(sender.data), _wpnonce: config.saveResultNonce })
+                body: new URLSearchParams({ SurveyId: config.id, Json: JSON.stringify(sender.data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce })
             })
                 .then((response) => response.ok ? options.showSaveSuccess() : response.text().then((text) => options.showSaveError(text)))
                 .catch(() => options.showSaveError());

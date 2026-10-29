@@ -12,6 +12,10 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     function callback() {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(!check_ajax_referer( 'surveyjs-save-result' )) exit;
+            $honeypot = trim( (string) wp_unslash( $_POST['Website'] ?? '' ) );
+            if ( '' !== $honeypot ) {
+                return;
+            }
             $SurveyId = absint( wp_unslash( $_POST['SurveyId'] ?? 0 ) );
             $raw_json = wp_unslash( $_POST['Json'] ?? '' );
             $Json = $this->sanitize_result_json( $raw_json );

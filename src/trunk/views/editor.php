@@ -97,7 +97,7 @@ class SurveyJS_Editor {
                             <th scope="row"><label for="wp-sjs-notification-from-name"><?php esc_html_e( 'From Name', 'surveyjs' ); ?></label></th>
                             <td>
                                 <input type="text" id="wp-sjs-notification-from-name" class="regular-text" data-setting="notificationFromName" />
-                                <p class="description"><?php esc_html_e( 'Sender name shown in the inbox.', 'surveyjs' ); ?></p>
+                                <p class="description"><?php esc_html_e( 'Sender name shown in the inbox. {site_name} is replaced with the site name.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
                         <tr>
@@ -133,6 +133,32 @@ class SurveyJS_Editor {
                             </td>
                         </tr>
                     </table>
+                    <div role="group" aria-labelledby="wp-sjs-auto-reply-title">
+                        <h2 class="title" id="wp-sjs-auto-reply-title"><?php esc_html_e( 'Auto-reply', 'surveyjs' ); ?></h2>
+                        <table class="form-table" role="presentation">
+                            <tr>
+                                <th scope="row"><?php esc_html_e( 'Send auto-reply', 'surveyjs' ); ?></th>
+                                <td>
+                                    <label><input type="checkbox" data-setting="autoReplyEnabled" /> <?php esc_html_e( 'Send an auto-reply to the respondent', 'surveyjs' ); ?></label>
+                                    <p class="description"><?php esc_html_e( 'Sent to the address the respondent entered in the Reply-To question. When the respondent replies, the reply goes to the Send To addresses. Bots can enter someone else\'s address, so turn this on together with spam protection.', 'surveyjs' ); ?></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="wp-sjs-auto-reply-subject"><?php esc_html_e( 'Subject', 'surveyjs' ); ?></label></th>
+                                <td>
+                                    <input type="text" id="wp-sjs-auto-reply-subject" class="regular-text" data-setting="autoReplySubject" />
+                                    <p class="description"><?php esc_html_e( '{site_name} is replaced with the site name.', 'surveyjs' ); ?></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="wp-sjs-auto-reply-message"><?php esc_html_e( 'Message', 'surveyjs' ); ?></label></th>
+                                <td>
+                                    <textarea id="wp-sjs-auto-reply-message" class="large-text" rows="8" data-setting="autoReplyMessage"></textarea>
+                                    <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <div class="wp-sjs-editor__preview">
                     <div id="wp-sjs-preview"></div>

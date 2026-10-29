@@ -13,16 +13,21 @@ class SurveyJS_Form_Settings {
             'notificationReplyTo'   => '',
             'notificationSubject'   => '',
             'notificationMessage'   => '',
+            'autoReplyEnabled'      => false,
+            'autoReplySubject'      => '',
+            'autoReplyMessage'      => '',
         );
     }
 
     public static function fallbacks() {
         return array(
             'notificationTo'        => get_option( 'admin_email' ),
-            'notificationFromName'  => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+            'notificationFromName'  => '{site_name}',
             'notificationFromEmail' => self::default_from_email(),
             'notificationSubject'   => 'New entry: {form_name}',
             'notificationMessage'   => '{all_fields}',
+            'autoReplySubject'      => 'Thanks for contacting {site_name}',
+            'autoReplyMessage'      => "Thanks for your message. We received it and will get back to you soon.\n\nYour answers:\n{all_fields}",
         );
     }
 
@@ -53,6 +58,9 @@ class SurveyJS_Form_Settings {
             'notificationReplyTo'   => sanitize_text_field( $input['notificationReplyTo'] ),
             'notificationSubject'   => sanitize_text_field( $input['notificationSubject'] ),
             'notificationMessage'   => sanitize_textarea_field( $input['notificationMessage'] ),
+            'autoReplyEnabled'      => ! empty( $input['autoReplyEnabled'] ),
+            'autoReplySubject'      => sanitize_text_field( $input['autoReplySubject'] ),
+            'autoReplyMessage'      => sanitize_textarea_field( $input['autoReplyMessage'] ),
         );
     }
 }

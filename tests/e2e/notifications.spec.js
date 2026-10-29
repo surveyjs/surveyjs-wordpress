@@ -62,22 +62,28 @@ test.describe("email notification", () => {
   test("emails the submitted answers and skips storing them when entries are off", async ({ page }) => {
     name = uniqueName("E2E notify");
     const subject = `E2E notification ${Date.now()}`;
+    const autoReplySubject = `E2E auto-reply ${Date.now()}`;
     const surveyId = await createSurvey(page, name, CONTACT_JSON);
 
     const emailTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" });
     const entriesTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Entries" });
+    const notificationSubject = page.locator("#wp-sjs-notification-subject");
+    const autoReply = page.getByRole("group", { name: "Auto-reply" });
     await entriesTab.click();
     await page.getByLabel("Save submitted entries in the database").uncheck();
     await emailTab.click();
     await page.getByLabel("Send an email when the form is submitted").check();
     await page.getByLabel("Send To").fill("owner@example.com");
     await page.getByLabel("Reply-To", { exact: true }).selectOption("visitor_email");
-    await page.getByLabel("Subject").fill(subject);
+    await notificationSubject.fill(subject);
+    await autoReply.getByLabel("Send an auto-reply to the respondent").check();
+    await autoReply.getByLabel("Subject").fill(autoReplySubject);
     await saveSurvey(page);
 
     await page.reload();
     await emailTab.click();
-    await expect(page.getByLabel("Subject")).toHaveValue(subject);
+    await expect(notificationSubject).toHaveValue(subject);
+    await expect(autoReply.getByLabel("Subject")).toHaveValue(autoReplySubject);
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("visitor_email");
     await entriesTab.click();
     await expect(page.getByLabel("Save submitted entries in the database")).not.toBeChecked();
@@ -101,6 +107,12 @@ test.describe("email notification", () => {
     expect(mail.ReplyTo.map(to => to.Address)).toEqual(["jane@example.com"]);
     expect(mail.Text).toContain("Your name: Jane");
     expect(mail.Text).toContain("Your email: jane@example.com");
+
+    const autoReplyMail = await findMail(page.request, autoReplySubject);
+    expect(autoReplyMail.To.map(to => to.Address)).toEqual(["jane@example.com"]);
+    expect(autoReplyMail.ReplyTo.map(to => to.Address)).toEqual(["owner@example.com"]);
+    expect(autoReplyMail.Text).toContain("Thanks for your message.");
+    expect(autoReplyMail.Text).toContain("Your name: Jane");
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
     await expect(page.locator("#the-list .no-items")).toBeVisible();

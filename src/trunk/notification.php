@@ -4,8 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class SurveyJS_Notification {
 
     public static function send( $survey, $settings, $data ) {
-        if ( empty( $settings['notificationEnabled'] ) ) {
-            return false;
+        if ( empty( $settings['notificationEnabled'] ) && empty( $settings['autoReplyEnabled'] ) ) {
+            return;
         }
 
         $data = is_array( $data ) ? $data : array();
@@ -22,21 +22,24 @@ class SurveyJS_Notification {
         };
 
         $to = array_filter( array_map( 'trim', explode( ',', $value( 'notificationTo' ) ) ), 'is_email' );
-        if ( empty( $to ) ) {
-            return false;
-        }
+        $respondent_email = $data[ $settings['notificationReplyTo'] ] ?? '';
+        $respondent_email = is_string( $respondent_email ) && is_email( $respondent_email ) ? $respondent_email : '';
 
-        $headers = array();
+        $from = array();
         $from_email = $value( 'notificationFromEmail' );
         if ( is_email( $from_email ) ) {
-            $headers[] = sprintf( 'From: %s <%s>', $value( 'notificationFromName' ), $from_email );
-        }
-        $reply_to = $data[ $settings['notificationReplyTo'] ] ?? '';
-        if ( is_string( $reply_to ) && is_email( $reply_to ) ) {
-            $headers[] = 'Reply-To: ' . $reply_to;
+            $from[] = sprintf( 'From: %s <%s>', $value( 'notificationFromName' ), $from_email );
         }
 
-        return wp_mail( $to, $value( 'notificationSubject' ), $value( 'notificationMessage' ), $headers );
+        if ( ! empty( $settings['notificationEnabled'] ) && ! empty( $to ) ) {
+            $headers = $respondent_email ? array_merge( $from, array( 'Reply-To: ' . $respondent_email ) ) : $from;
+            wp_mail( $to, $value( 'notificationSubject' ), $value( 'notificationMessage' ), $headers );
+        }
+
+        if ( ! empty( $settings['autoReplyEnabled'] ) && $respondent_email ) {
+            $headers = ! empty( $to ) ? array_merge( $from, array( 'Reply-To: ' . implode( ', ', $to ) ) ) : $from;
+            wp_mail( $respondent_email, $value( 'autoReplySubject' ), $value( 'autoReplyMessage' ), $headers );
+        }
     }
 
     private static function all_fields( $questions, $data ) {

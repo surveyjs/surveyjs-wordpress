@@ -233,6 +233,7 @@ class SurveyJS_SurveyJS {
         ?>
         <div class="wp-sjs-plugin" id="surveyContainer-<?php echo esc_attr($id) ?>">
             <div class="wp-sjs-survey" id="surveyElement-<?php echo esc_attr($id) ?>"></div>
+            <div class="wp-sjs-hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
             <script type="application/json" class="wp-sjs-survey-config"><?php echo wp_json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
             <script>window.wpSurveyJSInit && window.wpSurveyJSInit(document.currentScript.previousElementSibling);</script>
         </div>
