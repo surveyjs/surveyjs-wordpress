@@ -31,7 +31,7 @@ test.describe("Gutenberg block", () => {
     await page.getByRole("option", { name: "SurveyJS" }).click();
 
     const block = canvas.locator("[data-type='sjs/gutenberg-block']");
-    await expect(block.getByText("Choose survey to insert")).toBeVisible();
+    await expect(block.getByText("Choose form to insert")).toBeVisible();
     await block.locator("select").selectOption(String(surveyId));
 
     await page.getByRole("button", { name: "Publish", exact: true }).click();

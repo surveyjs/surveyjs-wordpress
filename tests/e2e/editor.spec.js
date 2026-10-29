@@ -37,7 +37,7 @@ test.describe("JSON editor", () => {
     await expect(page.locator(".wp-sjs-lint__finding")).toHaveClass(/is-selected/);
 
     await page.getByRole("button", { name: "Save", exact: true }).click();
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Survey saved with 1 issue.");
+    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Form saved with 1 issue.");
   });
 
   test("blocks saving invalid JSON and formats valid JSON", async ({ page }) => {

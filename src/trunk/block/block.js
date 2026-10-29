@@ -16,11 +16,11 @@ for (var i = 0; i < surveysArray.length; i++) {
 }
 
 function getShortcode(surveyid) {
-  return '[Survey id="' + surveyid + '" name="' + surveys[surveyid].name + '"] ';
+  return '[surveyjs id="' + surveyid + '" title="' + surveys[surveyid].name.replace(/["\[\]]/g, "") + '"] ';
 }
 
 registerBlockType("sjs/gutenberg-block", {
-  title: "SurveyJS",
+  title: "SurveyJS Forms",
 
   icon: blockIcon,
 
@@ -32,7 +32,7 @@ registerBlockType("sjs/gutenberg-block", {
     var surveyid = attributes.surveyid;
     var options = [
       {
-        label: "choose the survey...",
+        label: "Choose a form...",
         value: "none"
       }
     ];
@@ -54,10 +54,10 @@ registerBlockType("sjs/gutenberg-block", {
     var inspectorControl = el(
       InspectorControls,
       {},
-      el("h4", {}, "Embedding your Survey inside your website"),
+      el("h4", {}, "Embed a form on your site"),
       el("hr"),
       el(SelectControl, {
-        label: "Choose survey to insert",
+        label: "Choose form to insert",
         value: surveyid,
         options: options,
         onChange: onSurveyChange
@@ -66,7 +66,7 @@ registerBlockType("sjs/gutenberg-block", {
 
     return el(
       Placeholder,
-      { icon: blockIcon, label: "SurveyJS", instructions: "Choose survey to insert" },
+      { icon: blockIcon, label: "SurveyJS", instructions: "Choose form to insert" },
       el(SelectControl, {
         value: surveys[surveyid] ? surveyid : "none",
         options: options,

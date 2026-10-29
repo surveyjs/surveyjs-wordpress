@@ -29,7 +29,7 @@ test.describe("UI Builder", () => {
     await context.route(`${uiBuilderUrl}**`, route => route.fulfill({ contentType: "text/html", body: MOCK_UI_BUILDER }));
 
     const popupEvent = page.waitForEvent("popup");
-    await page.getByRole("button", { name: "Open in UI Builder" }).click();
+    await page.getByRole("button", { name: "Open in free UI Builder" }).click();
     const popup = await popupEvent;
 
     await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Changes from the UI Builder are in the editor.");

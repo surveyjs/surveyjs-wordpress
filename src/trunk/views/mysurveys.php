@@ -76,14 +76,14 @@ class SurveyJS_MySurveys {
         $count = absint( $_GET['count'] ?? 0 );
         $messages = array(
             /* translators: %s: number of deleted surveys */
-            'deleted' => sprintf( _n( '%s survey deleted.', '%s surveys deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
-            'cloned'  => __( 'Survey cloned.', 'surveyjs' ),
+            'deleted' => sprintf( _n( '%s form deleted.', '%s forms deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
+            'cloned'  => __( 'Form cloned.', 'surveyjs' ),
         );
         $add_url = wp_nonce_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu', array( 'action' => 'add' ) ), 'surveyjs-add-survey' );
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline"><?php esc_html_e( 'Surveys', 'surveyjs' ); ?></h1>
-            <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Survey', 'surveyjs' ); ?></a>
+            <h1 class="wp-heading-inline"><?php esc_html_e( 'Forms', 'surveyjs' ); ?></h1>
+            <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
             <?php if ( '' !== $search ) : ?>
                 <span class="subtitle">
                     <?php
@@ -101,7 +101,7 @@ class SurveyJS_MySurveys {
             <form method="get">
                 <input type="hidden" name="page" value="surveyjs-main-menu" />
                 <?php
-                $table->search_box( __( 'Search Surveys', 'surveyjs' ), 'surveyjs-survey' );
+                $table->search_box( __( 'Search Forms', 'surveyjs' ), 'surveyjs-survey' );
                 $table->display();
                 ?>
             </form>

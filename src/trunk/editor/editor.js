@@ -564,7 +564,7 @@
             details.id = "wp-sjs-lint-details";
             details.append(element("h3", "wp-sjs-lint__heading", "Checks performed"));
             details.append(element("p", "description", waiting
-                ? "The survey JSON does not parse yet, so no check has run."
+                ? "The form JSON does not parse yet, so no check has run."
                 : rules.length + " checks over " + analysis.elementCount + " named elements."));
 
             const findingsByRule = new Map();
@@ -702,11 +702,11 @@
         })
             .then((response) => response.ok ? response.json() : Promise.reject(new Error(response.statusText)))
             .then((data) => {
-                if (data.IsSuccess !== 1) throw new Error("The survey was not saved.");
+                if (data.IsSuccess !== 1) throw new Error("The form was not saved.");
                 Object.assign(saved, snapshot);
                 saveNotice = issueCount > 0
-                    ? { type: "warning", message: "Survey saved with " + plural(issueCount, "issue", "issues") + "." }
-                    : { type: "success", message: "Survey saved." };
+                    ? { type: "warning", message: "Form saved with " + plural(issueCount, "issue", "issues") + "." }
+                    : { type: "success", message: "Form saved." };
             })
             .catch((error) => {
                 saveNotice = { type: "error", message: "Save failed: " + error.message };
@@ -856,7 +856,9 @@
         if (event.key === "Escape") showName();
     });
     window.addEventListener("beforeunload", (event) => {
-        if (isDirty()) event.preventDefault();
+        if (!isDirty()) return;
+        event.preventDefault();
+        event.returnValue = "";
     });
 
     runLint();

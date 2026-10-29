@@ -28,7 +28,7 @@ test.describe("survey list", () => {
     const row = page.locator("#the-list tr", { hasText: name });
     await row.hover();
     await row.getByRole("link", { name: "Clone", exact: true }).click();
-    await expect(page.locator(".notice-success")).toContainText("Survey cloned.");
+    await expect(page.locator(".notice-success")).toContainText("Form cloned.");
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .row-title")).toHaveText([name, `Copy of ${name}`]);
@@ -48,7 +48,7 @@ test.describe("survey list", () => {
     await row.hover();
     page.once("dialog", dialog => dialog.accept());
     await row.getByRole("link", { name: "Delete", exact: true }).click();
-    await expect(page.locator(".notice-success")).toContainText("1 survey deleted.");
+    await expect(page.locator(".notice-success")).toContainText("1 form deleted.");
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .no-items")).toBeVisible();

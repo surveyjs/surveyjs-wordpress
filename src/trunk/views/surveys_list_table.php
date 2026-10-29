@@ -37,7 +37,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
     }
 
     public function no_items() {
-        esc_html_e( 'No surveys found.', 'surveyjs' );
+        esc_html_e( 'No forms found.', 'surveyjs' );
     }
 
     public function prepare_items() {

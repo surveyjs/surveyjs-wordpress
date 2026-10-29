@@ -22,7 +22,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             if ( null === $Json ) {
                 wp_send_json_error(
                     array(
-                        'message' => 'Invalid survey result payload',
+                        'message' => 'Invalid form result payload',
                     ),
                     400
                 );
@@ -31,7 +31,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             $client = new SurveyJS_Client();
             $survey = $client->getSurvey( $SurveyId );
             if ( ! $survey ) {
-                wp_send_json_error( array( 'message' => 'Survey not found' ), 404 );
+                wp_send_json_error( array( 'message' => 'Form not found' ), 404 );
                 return;
             }
             $settings = SurveyJS_Form_Settings::get( $survey );

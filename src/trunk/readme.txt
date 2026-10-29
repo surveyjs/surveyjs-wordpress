@@ -1,20 +1,39 @@
-=== SurveyJS: Drag & Drop Form Builder ===
+=== SurveyJS Forms - Contact Forms, Survey & Form Builder & More ===
 Contributors: DevSoft Baltic
-Tags: survey, quiz, form builder, survey creator, survey maker
+Tags: contact form, form builder, survey, forms, quiz
 Requires at least: 6.4
 Tested up to: 7.1
 Stable tag: 2.5.6
 Requires PHP: 8.2
 
+Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries stored in WordPress — free.
+
 == Description ==
 
-== Drag & Drop Form Builder for WordPress  ==
-SurveyJS is **an advanced yet easy-to-use form builder**, perfect for enterprises of any size. You can use it to build something as simple as a Contact or Feedback form or to handle more complex use cases, such as an Application form with dynamic fields whose values are calculated and set based on the user's input and predefined conditions.
+SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms** of any complexity and add them to any page with a block or a shortcode. Forms run on the open-source SurveyJS Form Library.
 
-== Flexible Configuration Options ==
+= Contact forms with email =
+* **Email notification** to the site owner on every submission: recipients, sender, subject and message.
+* **Reply-To** set to the respondent's email, so you can answer right from your inbox.
+* **Auto-reply** to the respondent.
+* **Tags** in the subject and message: all answers at once or the answer to a single question.
+* **HTML emails**, **file attachments** and a **test email** button.
+* **Spam protection** with a hidden honeypot field.
+
+= Entries =
+* Submitted entries are stored in WordPress; you can turn this off for any form.
+* Entries table with a column per question, entry view and CSV export.
+* Files uploaded by respondents are stored on your site.
+
+= Form builder =
+* Describe your form in JSON with validation hints, formatting and a live preview.
+* Style the form on the Theme tab.
+* Prefer a visual editor? Open the form in the **free online SurveyJS UI Builder** with drag & drop, a logic editor and a theme editor. When you save there, the form comes back to WordPress. Optional: the plugin works fully without it (see External services below).
+
+= Flexible Configuration Options =
 **Every single element of your form is fully customizable**, from titles and helper texts to placeholder texts and error messages&mdash;all to make sure you can provide your respondents with tailored guides and instructions and ensure high-quality user experience.
 
-== Diverse Question types ==
+= Diverse Question types =
 Unlike the vast majority of form builders, SurveyJS goes far beyond common question types such as Single-line input (date, email, name, surname etc.), Long text, Rating, and Radio button group. Among some more advanced form elements that you can use are the following:
 
 * [**Single-Select Dropdown**](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/)
@@ -29,7 +48,7 @@ Unlike the vast majority of form builders, SurveyJS goes far beyond common quest
 * [**Multi-Select Matrix**](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/)
 * [**Dynamic Matrix**](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/)
 
-== Features ==
+= Features =
 In addition to offering a wide variety of question elements, SurveyJS enables you to implement the following advanced features:
 
 * [**Calculations**](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic-totals/) - Dynamically calculate values based on user input or predefined variables and display the calculated values in your form or survey.
@@ -42,29 +61,29 @@ In addition to offering a wide variety of question elements, SurveyJS enables yo
 * [**Multi-file upload**](https://surveyjs.io/form-library/examples/file-upload/) - Enable respondents to upload multiple files of a required format within one file upload field. Once uploaded, files can be managed in preview mode.
 * [**Join identifier**](https://surveyjs.io/form-library/examples/merge-question-values/) - Link several questions within a form together and sync their values.
 
-== Display and Skip Logic ==
-To simplify the process of setting up conditional rules, SurveyJS ships with a **dedicated GUI for conditional rules** that makes the process simple for everyone. For example, you can set a rule that defines the [visibility of the next question](https://surveyjs.io/form-library/examples/conditional-logic-and-branching-in-surveys/) based on a given answer, or you can [customize the text of the Thank you page](https://surveyjs.io/form-library/examples/nps-question/) based on how the respondent answered your questions.
+= Display and Skip Logic =
+Show or hide questions, skip pages and change texts based on the answers. For example, you can set the [visibility of the next question](https://surveyjs.io/form-library/examples/conditional-logic-and-branching-in-surveys/) based on a given answer, or [customize the text of the Thank you page](https://surveyjs.io/form-library/examples/nps-question/) based on how the respondent answered your questions.
 
-== Styling ==
-But this is not all! **SurveyJS Theme Editor gives you the power to effortlessly customize survey UI themes and create unique survey looks** tailored to your application. And here's the exciting part: we've included a [collection of predefined themes](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles#add-surveyjs-themes-to-your-application) to help you get started. Just pick a theme as your base, refine it further to align with your brand's aesthetic, and witness real-time changes - from colors to layouts. Notably, our predefined themes prioritize accessibility. Dark mode and a specially designed contrast theme are particularly suited for individuals with visual impairments.
+= Styling =
+Start from one of the [predefined themes](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles#add-surveyjs-themes-to-your-application) and adjust colors, fonts and layout on the Theme tab with a live preview. The predefined themes prioritize accessibility: dark mode and a contrast theme are particularly suited for individuals with visual impairments.
 
 Please also refer to the collection of demos specially designed for various real-life use cases: [View Featured Demos](https://surveyjs.io/form-library/examples/overview).
 
-== E-signature capture field ==
+= E-signature capture field =
 SurveyJS offers a simple way to add digital signatures to your e-forms with a build-it input field. This [signature field](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/) enables respondents to sign a form with their mouse pointer or even a finger by simply drawing a signature within the signature pad area.
 
 == External services ==
-This plugin can open a survey in the SurveyJS UI Builder, a free online visual survey editor provided by Devsoft Baltic OÜ at [surveyjs.io/wordpress-ui-builder](https://surveyjs.io/wordpress-ui-builder).
+This plugin can open a form in the SurveyJS UI Builder, a free online visual form editor provided by Devsoft Baltic OÜ at [surveyjs.io/wordpress-ui-builder](https://surveyjs.io/wordpress-ui-builder).
 
-The plugin connects to this service only when you click **Open in UI Builder** in the survey editor. The UI Builder then opens in a new browser tab, and the plugin sends it the survey ID, the survey name, the survey JSON, and the theme JSON currently open in the editor. When you click **Save and back to WordPress**, the UI Builder sends the edited survey JSON and theme JSON back to the editor, where you can review them before saving. Survey responses and other site data are never sent.
+The plugin connects to this service only when you click **Open in free UI Builder** in the form editor. The UI Builder then opens in a new browser tab, and the plugin sends it the form ID, the form name, the form JSON, and the theme JSON currently open in the editor. When you click **Save and back to WordPress**, the UI Builder sends the edited form JSON and theme JSON back to the editor, where you can review them before saving. Form entries and other site data are never sent.
 
-The plugin works without this service: you can create and edit surveys in the built-in JSON editor.
+The plugin works without this service: you can create and edit forms in the built-in JSON editor.
 
 This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
 
 == Installation ==
 
-SurveyJS plugin is free for everyone who [self-hosts](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) Wordpress. If you use WordPress.com, the SurveyJS plugin is only free for users with Business plan or higher (due to the WordPress.com [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/)).
+SurveyJS plugin is free. It works on [self-hosted](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) WordPress and on WordPress.com plans that support plugins.
 
 **Install the plugin from the WordPress directory**
 

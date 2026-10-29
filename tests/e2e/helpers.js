@@ -16,7 +16,7 @@ function listUrl(search) {
 
 async function addSurvey(page) {
   await page.goto(LIST_URL);
-  await page.getByRole("link", { name: "Add New Survey" }).click();
+  await page.getByRole("link", { name: "Add New Form" }).click();
   await expect(page).toHaveURL(/page=surveyjs_editor/);
   await expect(page.locator(".monaco-editor")).toBeVisible();
   return Number(new URL(page.url()).searchParams.get("id"));
@@ -30,12 +30,12 @@ async function saveSurvey(page) {
   const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveSurvey"));
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await saved;
-  await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Survey saved");
+  await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Form saved");
 }
 
 async function renameSurvey(page, name) {
-  await page.getByRole("button", { name: "Edit survey name" }).click();
-  await page.getByLabel("Survey name", { exact: true }).fill(name);
+  await page.getByRole("button", { name: "Edit form name" }).click();
+  await page.getByLabel("Form name", { exact: true }).fill(name);
   const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveSurvey"));
   await page.getByRole("button", { name: "Save name" }).click();
   await saved;

@@ -1,4 +1,4 @@
-# SurveyJS: Drag & Drop Form Builder #
+# SurveyJS Forms - Contact Forms, Survey & Form Builder & More #
 
 ## Description ##
 

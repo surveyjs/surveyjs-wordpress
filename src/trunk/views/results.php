@@ -82,7 +82,7 @@ class SurveyJS_Results {
     public static function render() {
         $survey = self::load_survey();
         if ( ! $survey ) {
-            wp_die( esc_html__( 'Survey not found.', 'surveyjs' ) );
+            wp_die( esc_html__( 'Form not found.', 'surveyjs' ) );
         }
 
         $json = SurveyJS_Client::decode_survey_json( $survey->json );
@@ -103,13 +103,13 @@ class SurveyJS_Results {
         <div class="wrap">
             <h1 class="wp-heading-inline">
                 <?php
-                /* translators: %s: survey name */
+                /* translators: %s: form name */
                 printf( esc_html__( '%s: Results', 'surveyjs' ), esc_html( $survey->name ) );
                 ?>
             </h1>
             <a href="<?php echo esc_url( $export_url ); ?>" class="page-title-action"><?php esc_html_e( 'Export CSV', 'surveyjs' ); ?></a>
             <hr class="wp-header-end">
-            <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Surveys', 'surveyjs' ); ?></a></p>
+            <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Forms', 'surveyjs' ); ?></a></p>
 
             <?php if ( 'deleted' === $message ) : ?>
                 <div class="notice notice-success is-dismissible"><p>

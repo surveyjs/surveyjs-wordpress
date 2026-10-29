@@ -18,7 +18,7 @@ class SurveyJS_SendTestEmail extends SurveyJS_AJAX_Handler {
         $client = new SurveyJS_Client();
         $survey = $client->getSurvey( absint( wp_unslash( $_POST['Id'] ?? 0 ) ) );
         if ( ! $survey ) {
-            wp_send_json_error( array( 'message' => __( 'Survey not found.', 'surveyjs' ) ), 404 );
+            wp_send_json_error( array( 'message' => __( 'Form not found.', 'surveyjs' ) ), 404 );
         }
 
         $settings = SurveyJS_Form_Settings::sanitize( json_decode( wp_unslash( $_POST['Settings'] ?? '' ), true ) );

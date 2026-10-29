@@ -11,7 +11,7 @@ class SurveyJS_Editor {
         $client = new SurveyJS_Client();
         $survey = $client->getSurvey( absint( $_GET['id'] ?? 0 ) );
         if ( ! $survey ) {
-            wp_die( esc_html__( 'Survey not found.', 'surveyjs' ) );
+            wp_die( esc_html__( 'Form not found.', 'surveyjs' ) );
         }
 
         $json = SurveyJS_Client::decode_survey_json( $survey->json, false );
@@ -43,10 +43,10 @@ class SurveyJS_Editor {
                 <a href="<?php echo esc_url( $list_url ); ?>" class="button"><?php esc_html_e( 'Back', 'surveyjs' ); ?></a>
                 <div class="wp-sjs-editor__name" id="wp-sjs-name-view">
                     <h1 class="wp-heading-inline" id="wp-sjs-name-text"></h1>
-                    <button type="button" class="button button-small" id="wp-sjs-name-edit" aria-label="<?php esc_attr_e( 'Edit survey name', 'surveyjs' ); ?>"><?php esc_html_e( 'Edit', 'surveyjs' ); ?></button>
+                    <button type="button" class="button button-small" id="wp-sjs-name-edit" aria-label="<?php esc_attr_e( 'Edit form name', 'surveyjs' ); ?>"><?php esc_html_e( 'Edit', 'surveyjs' ); ?></button>
                 </div>
                 <div class="wp-sjs-editor__name" id="wp-sjs-name-form" hidden>
-                    <input type="text" id="wp-sjs-survey-name" class="regular-text" aria-label="<?php esc_attr_e( 'Survey name', 'surveyjs' ); ?>" />
+                    <input type="text" id="wp-sjs-survey-name" class="regular-text" aria-label="<?php esc_attr_e( 'Form name', 'surveyjs' ); ?>" />
                     <button type="button" class="button button-small" id="wp-sjs-name-save" aria-label="<?php esc_attr_e( 'Save name', 'surveyjs' ); ?>"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
                     <button type="button" class="button-link" id="wp-sjs-name-cancel"><?php esc_html_e( 'Cancel', 'surveyjs' ); ?></button>
                 </div>
@@ -65,7 +65,7 @@ class SurveyJS_Editor {
                 <div class="wp-sjs-editor__pane" id="wp-sjs-json-pane">
                     <div class="wp-sjs-editor__pane-header">
                         <span class="description"><?php esc_html_e( 'Prefer a visual editor? Edit this form in the free online UI Builder.', 'surveyjs' ); ?></span>
-                        <button type="button" class="button wp-sjs-editor__ui-builder" id="wp-sjs-ui-builder"><?php esc_html_e( 'Open in UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
+                        <button type="button" class="button wp-sjs-editor__ui-builder" id="wp-sjs-ui-builder"><?php esc_html_e( 'Open in free UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
                     </div>
                     <div class="wp-sjs-editor__overlay">
                         <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>

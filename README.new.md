@@ -19,12 +19,12 @@ Working draft of what the Base plugin does. Source for the future `readme.txt` a
   - **Theme** — theme JSON, same editor and preview.
   - **Email Notification** — see [Email](#email).
   - **Entries** — "Save submitted entries in the database" (on by default).
-- **Open in UI Builder** — opens the survey in the free online visual builder on surveyjs.io; the edited JSON comes back to the editor. The plugin works without it.
+- **Open in free UI Builder** — opens the survey in the free online visual builder on surveyjs.io; the edited JSON comes back to the editor. The plugin works without it.
 
 ## Adding a survey to a page
 
 - Gutenberg block **SurveyJS**: pick the survey right in the block.
-- Shortcode: `[Survey id="1"]`.
+- Shortcode: `[surveyjs id="1"]`; the old `[Survey id="1"]` still works.
 
 ## Entries
 
@@ -62,4 +62,4 @@ Working draft of what the Base plugin does. Source for the future `readme.txt` a
 
 ## External services
 
-- UI Builder on surveyjs.io — only when the user clicks Open in UI Builder; the survey JSON is sent there. Terms: https://surveyjs.io/terms-use, privacy: https://surveyjs.io/privacy-policy.
+- UI Builder on surveyjs.io — only when the user clicks Open in free UI Builder; the survey JSON is sent there. Terms: https://surveyjs.io/terms-use, privacy: https://surveyjs.io/privacy-policy.

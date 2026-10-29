@@ -94,7 +94,7 @@ test.describe("email notification", () => {
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
     const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
-      data: { title: name, status: "publish", content: `[Survey id="${surveyId}"]` }
+      data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();
     postId = post.id;
 
@@ -138,7 +138,7 @@ test.describe("email notification", () => {
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
     const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
-      data: { title: name, status: "publish", content: `[Survey id="${surveyId}"]` }
+      data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();
     postId = post.id;
 

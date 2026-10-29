@@ -16,6 +16,7 @@ class SurveyJS_SurveyJS {
     function __construct() {
         add_action('admin_menu', array( $this, 'wps_add_menu'));
         add_filter('media_buttons', array($this, 'wps_media_button'));
+        add_shortcode('surveyjs', array($this, 'wps_process_shortcode'));
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
 
 
@@ -117,7 +118,7 @@ class SurveyJS_SurveyJS {
             return array();
         }
         $ids = array();
-        if ( preg_match_all('/' . get_shortcode_regex(array('Survey')) . '/', $post->post_content, $matches) ) {
+        if ( preg_match_all('/' . get_shortcode_regex(array('surveyjs', 'Survey')) . '/', $post->post_content, $matches) ) {
             foreach ( $matches[3] as $shortcodeAttrs ) {
                 $attrs = shortcode_parse_atts($shortcodeAttrs);
                 $ids[] = absint($attrs['id'] ?? 0);
@@ -179,7 +180,7 @@ class SurveyJS_SurveyJS {
     }
   
     function wps_add_menu() {
-        $hook = add_menu_page( 'My surveys', 'SurveyJS', 'manage_options', 'surveyjs-main-menu', array(
+        $hook = add_menu_page( 'Forms', 'SurveyJS Forms', 'manage_options', 'surveyjs-main-menu', array(
                         "SurveyJS_MySurveys", 'render'
                         ), plugins_url('images/logo_20х20.png', __FILE__));
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
@@ -199,8 +200,8 @@ class SurveyJS_SurveyJS {
         $url = add_query_arg(array('action' => 'SurveyJS_InsertSurvey'), admin_url('admin-ajax.php'));
         $url = wp_nonce_url($url, 'surveyjs-insert-survey', '_wpnonce');
         ?>
-        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php esc_attr_e('Insert Survey', 'surveyjs'); ?>">
-            <?php esc_html_e('Add Survey', 'surveyjs'); ?>
+        <a onclick="tb_click.call(this); return false;" href="<?php echo esc_url($url); ?>" class="button" title="<?php esc_attr_e('Insert Form', 'surveyjs'); ?>">
+            <?php esc_html_e('Add Form', 'surveyjs'); ?>
         </a>
         <?php
     }

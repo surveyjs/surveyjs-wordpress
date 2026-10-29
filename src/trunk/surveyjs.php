@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: SurveyJS
+Plugin Name: SurveyJS Forms
 Plugin URI: https://wordpress.org/plugins/surveyjs
-Description: Easy to use, drag & drop Survey Builder with myriad options.
+Description: Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries stored in WordPress — free.
 Version: 2.5.6
 Author: Devsoft Baltic OÜ
 Author URI: http://devsoftbaltic.com/
