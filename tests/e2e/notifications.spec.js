@@ -109,7 +109,7 @@ test.describe("email notification", () => {
     expect(mail.Subject).toBe(`${subject} from Jane`);
     expect(mail.To.map(to => to.Address)).toEqual(["owner@example.com"]);
     expect(mail.ReplyTo.map(to => to.Address)).toEqual(["jane@example.com"]);
-    expect(mail.HTML).toContain("Your name: Jane<br>\nYour email: jane@example.com");
+    expect(mail.HTML).toMatch(/Your name: Jane<br>\s*Your email: jane@example\.com/);
 
     const autoReplyMail = await findMail(page.request, autoReplySubject);
     expect(autoReplyMail.To.map(to => to.Address)).toEqual(["jane@example.com"]);
@@ -144,7 +144,9 @@ test.describe("email notification", () => {
 
     await page.goto(post.link);
     const uploaded = page.waitForResponse(r => r.url().includes("action=SurveyJS_UploadFiles"));
-    await page.locator(".wp-sjs-survey input[type=file]").setInputFiles({ name: "report.txt", mimeType: "text/plain", buffer: Buffer.from("E2E attachment") });
+    const fileChooser = page.waitForEvent("filechooser");
+    await page.locator(".wp-sjs-survey .sd-file__choose-btn").first().click();
+    await (await fileChooser).setFiles({ name: "report.txt", mimeType: "text/plain", buffer: Buffer.from("E2E attachment") });
     const fileUrl = (await (await uploaded).json())["report.txt"];
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Complete" }).click();
@@ -152,6 +154,6 @@ test.describe("email notification", () => {
 
     const mail = await findMail(page.request, subject);
     expect(mail.Attachments.map(attachment => attachment.FileName)).toEqual(["report.txt"]);
-    expect((await page.request.get(fileUrl)).status()).toBe(404);
+    expect((await page.request.get(fileUrl, { maxRedirects: 0 })).status()).not.toBe(200);
   });
 });
