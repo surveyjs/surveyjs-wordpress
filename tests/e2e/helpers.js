@@ -33,9 +33,18 @@ async function saveSurvey(page) {
   await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Survey saved");
 }
 
+async function renameSurvey(page, name) {
+  await page.getByRole("button", { name: "Edit survey name" }).click();
+  await page.getByLabel("Survey name", { exact: true }).fill(name);
+  const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveSurvey"));
+  await page.getByRole("button", { name: "Save name" }).click();
+  await saved;
+  await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
+}
+
 async function createSurvey(page, name, json = SURVEY_JSON) {
   const id = await addSurvey(page);
-  await page.getByLabel("Survey name").fill(name);
+  await renameSurvey(page, name);
   await setEditorJson(page, json);
   await saveSurvey(page);
   return id;
@@ -52,4 +61,4 @@ async function deleteSurveys(page, search) {
   await expect(page.locator(".notice-success")).toContainText("deleted");
 }
 
-module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys };
+module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys };

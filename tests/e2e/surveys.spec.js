@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, addSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys } = require("./helpers");
 
 test.describe("survey list", () => {
   let name;
@@ -11,8 +11,7 @@ test.describe("survey list", () => {
   test("adds a survey", async ({ page }) => {
     name = uniqueName("E2E add");
     await addSurvey(page);
-    await page.getByLabel("Survey name").fill(name);
-    await saveSurvey(page);
+    await renameSurvey(page, name);
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .row-title")).toHaveText([name]);
@@ -21,7 +20,7 @@ test.describe("survey list", () => {
   test("clones a survey", async ({ page }) => {
     name = uniqueName("E2E clone");
     await createSurvey(page, name);
-    await page.getByRole("link", { name: "Theme JSON" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     await setEditorJson(page, { themeName: "e2e-theme" });
     await saveSurvey(page);
 
@@ -36,7 +35,7 @@ test.describe("survey list", () => {
 
     await page.locator("#the-list .row-title", { hasText: `Copy of ${name}` }).click();
     await expect(page.locator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
-    await page.getByRole("link", { name: "Theme JSON" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     expect(await page.evaluate(() => window.monaco.editor.getEditors()[0].getValue())).toContain("e2e-theme");
   });
 

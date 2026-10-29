@@ -60,19 +60,19 @@ class SurveyJS_Results {
 
     private static function export_csv( $survey ) {
         global $wpdb;
-        $questions = SurveyJS_Results_List_Table::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
+        $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
         $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json FROM {$wpdb->prefix}sjs_results WHERE surveyId = %d ORDER BY id", $survey->id ) );
 
         header( 'Content-Type: text/csv; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $survey->name . '-results.csv' ) . '"' );
         $output = fopen( 'php://output', 'w' );
         fwrite( $output, "\xEF\xBB\xBF" );
-        fputcsv( $output, array_merge( array( 'ID' ), array_map( array( 'SurveyJS_Results_List_Table', 'question_title' ), $questions ) ) );
+        fputcsv( $output, array_merge( array( 'ID' ), array_map( array( 'SurveyJS_Survey_Values', 'question_title' ), $questions ) ) );
         foreach ( $rows as $row ) {
             $data = SurveyJS_Client::decode_survey_json( $row->json );
             $line = array( $row->id );
             foreach ( $questions as $question ) {
-                $line[] = SurveyJS_Results_List_Table::display_value( $question, is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null );
+                $line[] = SurveyJS_Survey_Values::display_value( $question, is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null );
             }
             fputcsv( $output, $line );
         }
@@ -86,7 +86,7 @@ class SurveyJS_Results {
         }
 
         $json = SurveyJS_Client::decode_survey_json( $survey->json );
-        $table = new SurveyJS_Results_List_Table( (int) $survey->id, SurveyJS_Results_List_Table::survey_questions( $json ) );
+        $table = new SurveyJS_Results_List_Table( (int) $survey->id, SurveyJS_Survey_Values::survey_questions( $json ) );
         $table->prepare_items();
 
         $message = sanitize_key( $_GET['message'] ?? '' );

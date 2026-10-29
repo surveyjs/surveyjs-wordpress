@@ -24,23 +24,34 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 );
                 return;
             }
-            $TableName = 'sjs_results';
-            
-            if (function_exists('surveyjs_save_result'))
-            {
-                do_action('wp_surveyjs_save_result', $SurveyId, $Json, $TableName);
-            } else {
-                global $wpdb;
-                $table_name = $wpdb->prefix . $TableName;
-    
-                $wpdb->insert( 
-                    $table_name, 
-                    array( 
-                     'surveyId' => $SurveyId,
-                     'json' => $Json
-                    ) 
-                );
+            $client = new SurveyJS_Client();
+            $survey = $client->getSurvey( $SurveyId );
+            if ( ! $survey ) {
+                wp_send_json_error( array( 'message' => 'Survey not found' ), 404 );
+                return;
             }
+            $settings = SurveyJS_Form_Settings::get( $survey );
+            $TableName = 'sjs_results';
+
+            if ( $settings['storeEntries'] ) {
+                if (function_exists('surveyjs_save_result'))
+                {
+                    do_action('wp_surveyjs_save_result', $SurveyId, $Json, $TableName);
+                } else {
+                    global $wpdb;
+                    $table_name = $wpdb->prefix . $TableName;
+
+                    $wpdb->insert(
+                        $table_name,
+                        array(
+                         'surveyId' => $SurveyId,
+                         'json' => $Json
+                        )
+                    );
+                }
+            }
+
+            SurveyJS_Notification::send( $survey, $settings, json_decode( $Json, true ) );
         }
     }
 

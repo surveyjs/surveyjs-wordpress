@@ -28,14 +28,19 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
             }
             // EO create 'theme' column if not exists
 
+            $data = array();
             if(!!$json) {
-                $data = array(
-                    'json' => $json,
-                    'theme' => $theme
-                );
-                if ( isset( $_POST['Name'] ) ) {
-                    $data['name'] = sanitize_text_field( wp_unslash( $_POST['Name'] ) );
-                }
+                $data['json'] = $json;
+                $data['theme'] = $theme;
+            }
+            if ( isset( $_POST['Name'] ) && '' !== trim( sanitize_text_field( wp_unslash( $_POST['Name'] ) ) ) ) {
+                $data['name'] = sanitize_text_field( wp_unslash( $_POST['Name'] ) );
+            }
+            if ( isset( $_POST['Settings'] ) ) {
+                $data['settings'] = wp_json_encode( SurveyJS_Form_Settings::sanitize( json_decode( wp_unslash( $_POST['Settings'] ), true ) ) );
+            }
+
+            if ( ! empty( $data ) ) {
                 $result = $wpdb->update(
                     $table_name,
                     $data,

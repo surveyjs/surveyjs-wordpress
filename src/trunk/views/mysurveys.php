@@ -37,6 +37,7 @@ class SurveyJS_MySurveys {
                     'name' => sanitize_text_field( 'Copy of ' . $row->name ),
                     'json' => $row->json,
                     'theme' => $row->theme,
+                    'settings' => $row->settings,
                 ) );
             }
             wp_safe_redirect( add_query_arg( 'message', 'cloned', $list_url ) );

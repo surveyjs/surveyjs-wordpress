@@ -1,27 +1,57 @@
-.wp-sjs-editor__toolbar {
+.wp-sjs-editor__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.wp-sjs-editor__name {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    margin: 12px 0;
 }
 
-.wp-sjs-editor__toolbar .wp-sjs-editor__ui-builder {
+.wp-sjs-editor__name[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor .wp-sjs-editor__name h1 {
+    margin-right: 0;
+}
+
+.wp-sjs-editor__tabs {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 12px;
+}
+
+.wp-sjs-editor__tabs .wp-sjs-editor__save {
+    margin: 0 0 4px auto;
+}
+
+.wp-sjs-editor__pane-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #c3c4c7;
+    background: #f6f7f7;
+}
+
+.wp-sjs-editor__pane-header .wp-sjs-editor__ui-builder {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     margin-left: auto;
 }
 
-.wp-sjs-editor__toolbar .wp-sjs-editor__ui-builder .dashicons {
+.wp-sjs-editor__pane-header .wp-sjs-editor__ui-builder .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
     line-height: 16px;
-}
-
-.wp-sjs-editor__tabs {
-    margin-bottom: 12px;
 }
 
 .wp-sjs-editor__columns {
@@ -62,6 +92,14 @@
 
 .wp-sjs-editor__monaco {
     min-height: 300px;
+}
+
+.wp-sjs-editor__settings {
+    min-width: 0;
+}
+
+.wp-sjs-editor__settings h2:first-child {
+    margin-top: 0;
 }
 
 .wp-sjs-editor__loading {

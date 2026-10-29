@@ -12,11 +12,21 @@ License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=Lic
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
+    define( 'SURVEYJS_DB_VERSION', '2' );
+
     function wps_install() {
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         createMySurveysTable();
         createResultsTable();
+        update_option( 'surveyjs_db_version', SURVEYJS_DB_VERSION );
     }
+
+    function wps_maybe_upgrade() {
+        if ( get_option( 'surveyjs_db_version' ) !== SURVEYJS_DB_VERSION ) {
+            wps_install();
+        }
+    }
+    add_action( 'plugins_loaded', 'wps_maybe_upgrade' );
 
     function createMySurveysTable() {
         global $wpdb;
@@ -30,6 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             name text NOT NULL,
             json LONGTEXT,
             theme LONGTEXT,
+            settings LONGTEXT,
             UNIQUE KEY id (id)
         ) $charset_collate;";
 
@@ -58,6 +69,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     }
     register_activation_hook( __FILE__, 'wps_install');
     register_deactivation_hook( __FILE__, 'wps_uninstall');
+
+    include_once("service_client.php");
+    include("survey_values.php");
+    include("form_settings.php");
+    include("notification.php");
 
     include("ajax_handlers/insert_survey.php");
     new SurveyJS_InsertSurveyHandler();

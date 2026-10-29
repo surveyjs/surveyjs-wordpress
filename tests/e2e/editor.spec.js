@@ -14,7 +14,7 @@ test.describe("JSON editor", () => {
     name = uniqueName("E2E edit");
     await createSurvey(page, name);
 
-    await page.getByRole("link", { name: "Theme JSON" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     await setEditorJson(page, { themeName: "e2e-theme" });
     await saveSurvey(page);
 
@@ -22,7 +22,7 @@ test.describe("JSON editor", () => {
     await expect(page.locator(".monaco-editor")).toBeVisible();
     expect(await editorValue(page)).toContain("e2e_question");
     await expect(page.locator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
-    await page.getByRole("link", { name: "Theme JSON" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     expect(await editorValue(page)).toContain("e2e-theme");
   });
 
@@ -45,7 +45,7 @@ test.describe("JSON editor", () => {
     await createSurvey(page, name);
 
     await page.evaluate(() => window.monaco.editor.getEditors()[0].setValue("{ \"elements\": ["));
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Survey JSON:");
+    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Config:");
     await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
     await expect(page.locator(".wp-sjs-lint__bar")).toContainText("waiting for valid JSON");
 

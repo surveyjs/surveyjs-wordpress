@@ -4,6 +4,12 @@
 
     const config = JSON.parse(document.getElementById("wp-sjs-editor-config").textContent);
     const nameInput = document.getElementById("wp-sjs-survey-name");
+    const nameText = document.getElementById("wp-sjs-name-text");
+    const nameView = document.getElementById("wp-sjs-name-view");
+    const nameForm = document.getElementById("wp-sjs-name-form");
+    const nameEditButton = document.getElementById("wp-sjs-name-edit");
+    const nameSaveButton = document.getElementById("wp-sjs-name-save");
+    const nameCancelButton = document.getElementById("wp-sjs-name-cancel");
     const formatButton = document.getElementById("wp-sjs-format");
     const saveButton = document.getElementById("wp-sjs-save");
     const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
@@ -13,6 +19,13 @@
     const lintElement = document.getElementById("wp-sjs-lint");
     const previewElement = document.getElementById("wp-sjs-preview");
     const tabs = document.querySelectorAll(".wp-sjs-editor__tabs .nav-tab");
+    const jsonPane = document.getElementById("wp-sjs-json-pane");
+    const settingPanels = document.querySelectorAll(".wp-sjs-editor__settings[data-panel]");
+    const settingInputs = document.querySelectorAll(".wp-sjs-editor__settings [data-setting]");
+    const replyToSelect = document.getElementById("wp-sjs-notification-reply-to");
+    const replyToAddElement = document.getElementById("wp-sjs-reply-to-add");
+    const replyToAddCheckbox = document.getElementById("wp-sjs-add-reply-to");
+    const REPLY_TO_QUESTION = { type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
 
     const sources = {
         survey: JSON.stringify(config.json, null, 2),
@@ -34,8 +47,111 @@
     let lintTimer = null;
     let previewTimer = null;
     let saveNotice = null;
+    let previewFocusName = null;
 
-    nameInput.value = config.name;
+    nameText.textContent = config.name;
+    settingInputs.forEach((input) => {
+        const value = config.settings[input.dataset.setting];
+        if (input.type === "checkbox") {
+            input.checked = Boolean(value);
+        } else if (input === replyToSelect) {
+            renderReplyToOptions(value);
+        } else {
+            input.value = value;
+            input.placeholder = config.settingPlaceholders[input.dataset.setting] ?? "";
+        }
+    });
+    saved.settings = JSON.stringify(readSettings());
+
+    function readSettings() {
+        const settings = {};
+        settingInputs.forEach((input) => {
+            settings[input.dataset.setting] = input.type === "checkbox" ? input.checked : input.value;
+        });
+        return settings;
+    }
+
+    function emailQuestions(node, found) {
+        if (Array.isArray(node)) {
+            node.forEach((item) => emailQuestions(item, found));
+        } else if (node && typeof node === "object") {
+            if (node.type === "text" && node.inputType === "email" && typeof node.name === "string") {
+                found.push(node);
+            }
+            Object.values(node).forEach((item) => emailQuestions(item, found));
+        }
+        return found;
+    }
+
+    function isAddedReplyToQuestion(question) {
+        return /^reply_to_email\d*$/.test(question.name)
+            && Object.keys(question).length === Object.keys(REPLY_TO_QUESTION).length + 1
+            && Object.keys(REPLY_TO_QUESTION).every((key) => question[key] === REPLY_TO_QUESTION[key]);
+    }
+
+    function renderReplyToOptions(selected) {
+        const json = parse(sources.survey).json;
+        if (!json) return;
+        const questions = emailQuestions(json, []);
+        const added = questions.some(isAddedReplyToQuestion);
+        replyToAddElement.hidden = questions.length > 0 && !added;
+        replyToAddCheckbox.checked = added;
+        const names = questions.map((question) => question.name);
+        replyToSelect.replaceChildren(...[""].concat(names).map((name) => {
+            const node = element("option", "", name || "— None —");
+            node.value = name;
+            return node;
+        }));
+        replyToSelect.value = names.includes(selected) ? selected : "";
+    }
+
+    function addReplyToQuestion(json) {
+        const names = new Set();
+        const collectNames = (node) => {
+            if (Array.isArray(node)) return node.forEach(collectNames);
+            if (!node || typeof node !== "object") return;
+            if (typeof node.name === "string") names.add(node.name);
+            Object.values(node).forEach(collectNames);
+        };
+        collectNames(json);
+        let name = "reply_to_email";
+        for (let index = 2; names.has(name); index++) {
+            name = "reply_to_email" + index;
+        }
+        const container = Array.isArray(json.pages) && json.pages.length > 0 ? json.pages[json.pages.length - 1] : json;
+        if (!Array.isArray(container.elements)) {
+            container.elements = [];
+        }
+        container.elements.push(Object.assign({ name: name }, REPLY_TO_QUESTION));
+        return name;
+    }
+
+    function removeReplyToQuestion(node) {
+        if (Array.isArray(node)) return node.forEach(removeReplyToQuestion);
+        if (!node || typeof node !== "object") return;
+        if (Array.isArray(node.elements)) {
+            node.elements = node.elements.filter((item) => !(item && typeof item === "object" && isAddedReplyToQuestion(item)));
+        }
+        Object.values(node).forEach(removeReplyToQuestion);
+    }
+
+    function toggleReplyToQuestion() {
+        const json = parse(sources.survey).json;
+        if (!json) return;
+        const selected = replyToAddCheckbox.checked ? addReplyToQuestion(json) : "";
+        if (!replyToAddCheckbox.checked) {
+            removeReplyToQuestion(json);
+        }
+        previewFocusName = selected || null;
+        replaceSource("survey", json);
+        if (!models) {
+            renderPreview();
+            runLint();
+        }
+        renderReplyToOptions(selected);
+        saveNotice = null;
+        updateState();
+    }
 
     function parse(source) {
         try {
@@ -236,21 +352,22 @@
 
     function syntaxError() {
         const surveyError = parse(sources.survey).error;
-        if (surveyError) return "Survey JSON: " + surveyError;
+        if (surveyError) return "Config: " + surveyError;
         const themeError = parse(sources.theme).error;
-        if (themeError) return "Theme JSON: " + themeError;
+        if (themeError) return "Theme: " + themeError;
         return null;
     }
 
     function isDirty() {
-        return nameInput.value !== saved.name || sources.survey !== saved.survey || sources.theme !== saved.theme;
+        return (!nameForm.hidden && nameInput.value.trim() !== saved.name) || sources.survey !== saved.survey || sources.theme !== saved.theme || JSON.stringify(readSettings()) !== saved.settings;
     }
 
     function updateState() {
         const error = syntaxError();
         saveButton.disabled = Boolean(error);
         uiBuilderButton.disabled = Boolean(error);
-        formatButton.disabled = Boolean(parse(sources[activeTab]).error);
+        replyToAddCheckbox.disabled = Boolean(parse(sources.survey).error);
+        formatButton.disabled = !(activeTab in sources) || Boolean(parse(sources[activeTab]).error);
         if (error) {
             showNotice("error", error);
         } else if (saveNotice) {
@@ -438,6 +555,18 @@
         if (Object.keys(theme.json).length > 0) {
             model.applyTheme(theme.json);
         }
+        const focusName = previewFocusName;
+        previewFocusName = null;
+        const focusQuestion = focusName ? model.getQuestionByName(focusName) : null;
+        if (focusQuestion) {
+            if (focusQuestion.page) model.currentPage = focusQuestion.page;
+            model.onAfterRenderQuestion.add((_, options) => {
+                if (options.question !== focusQuestion) return;
+                const scroller = previewElement.parentElement;
+                const offset = options.htmlElement.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+                scroller.scrollTo({ top: scroller.scrollTop + offset - 16, behavior: "smooth" });
+            });
+        }
         const container = element("div");
         previewElement.replaceChildren(container);
         SurveyUI.renderSurvey(model, container);
@@ -458,6 +587,16 @@
     function switchTab(tab) {
         activeTab = tab;
         tabs.forEach((item) => item.classList.toggle("nav-tab-active", item.dataset.tab === tab));
+        const isJsonTab = tab in sources;
+        jsonPane.hidden = !isJsonTab;
+        settingPanels.forEach((panel) => {
+            panel.hidden = panel.dataset.panel !== tab;
+        });
+        if (!isJsonTab) {
+            renderReplyToOptions(replyToSelect.value);
+            updateState();
+            return;
+        }
         editor.setModel(models[tab]);
         fitHeight();
         renderMarkers();
@@ -476,15 +615,16 @@
         const theme = parse(sources.theme);
         if (!survey.json || !theme.json) return;
         const issueCount = SurveyLinter.lintSurvey(survey.json).findings.length;
-        const snapshot = { name: nameInput.value, survey: sources.survey, theme: sources.theme };
+        const settings = readSettings();
+        const snapshot = { survey: sources.survey, theme: sources.theme, settings: JSON.stringify(settings) };
         saveButton.disabled = true;
         fetch(config.saveUrl, {
             method: "POST",
             body: new URLSearchParams({
                 Id: config.id,
-                Name: snapshot.name,
                 Json: JSON.stringify(survey.json),
                 Theme: JSON.stringify(theme.json),
+                Settings: snapshot.settings,
                 _wpnonce: config.saveNonce
             })
         })
@@ -500,6 +640,35 @@
                 saveNotice = { type: "error", message: "Save failed: " + error.message };
             })
             .finally(updateState);
+    }
+
+    function showName() {
+        nameText.textContent = saved.name;
+        nameForm.hidden = true;
+        nameView.hidden = false;
+    }
+
+    function saveName() {
+        const name = nameInput.value.trim();
+        if (!name || name === saved.name) {
+            showName();
+            return;
+        }
+        nameSaveButton.disabled = true;
+        fetch(config.saveUrl, {
+            method: "POST",
+            body: new URLSearchParams({ Id: config.id, Name: name, _wpnonce: config.saveNonce })
+        })
+            .then((response) => response.ok ? response.json() : Promise.reject(new Error(response.statusText)))
+            .then((data) => {
+                if (data.IsSuccess !== 1) throw new Error("The name was not saved.");
+                saved.name = name;
+                showName();
+            })
+            .catch((error) => showNotice("error", "Save failed: " + error.message))
+            .finally(() => {
+                nameSaveButton.disabled = false;
+            });
     }
 
     function isJsonObject(value) {
@@ -532,7 +701,7 @@
                 source: "surveyjs-wordpress",
                 type: "load",
                 surveyId: config.id,
-                name: nameInput.value,
+                name: saved.name,
                 json: survey.json,
                 theme: theme.json
             }, event.origin);
@@ -569,15 +738,29 @@
 
     tabs.forEach((tab) => tab.addEventListener("click", (event) => {
         event.preventDefault();
-        if (editor) switchTab(tab.dataset.tab);
+        if (editor || !(tab.dataset.tab in sources)) switchTab(tab.dataset.tab);
     }));
+    ["input", "change"].forEach((type) => settingPanels.forEach((panel) => panel.addEventListener(type, () => {
+        saveNotice = null;
+        updateState();
+    })));
     formatButton.addEventListener("click", format);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
+    replyToAddCheckbox.addEventListener("change", toggleReplyToQuestion);
     window.addEventListener("message", onUiBuilderMessage);
-    nameInput.addEventListener("input", () => {
-        saveNotice = null;
-        updateState();
+    nameEditButton.addEventListener("click", () => {
+        nameInput.value = saved.name;
+        nameView.hidden = true;
+        nameForm.hidden = false;
+        nameInput.focus();
+        nameInput.select();
+    });
+    nameCancelButton.addEventListener("click", showName);
+    nameSaveButton.addEventListener("click", saveName);
+    nameInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") saveName();
+        if (event.key === "Escape") showName();
     });
     window.addEventListener("beforeunload", (event) => {
         if (isDirty()) event.preventDefault();
