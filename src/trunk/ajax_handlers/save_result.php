@@ -55,7 +55,13 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 }
             }
 
-            SurveyJS_Notification::send( $survey, $settings, json_decode( $Json, true ) );
+            $data = json_decode( $Json, true );
+            SurveyJS_Notification::send( $survey, $settings, $data );
+
+            if ( ! $settings['storeEntries'] && is_array( $data ) ) {
+                $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
+                array_map( 'wp_delete_file', SurveyJS_Uploaded_Files::entry_paths( $questions, $data ) );
+            }
         }
     }
 

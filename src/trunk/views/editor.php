@@ -86,50 +86,63 @@ class SurveyJS_Editor {
                             <th scope="row"><?php esc_html_e( 'Send notification', 'surveyjs' ); ?></th>
                             <td><label><input type="checkbox" data-setting="notificationEnabled" /> <?php esc_html_e( 'Send an email when the form is submitted', 'surveyjs' ); ?></label></td>
                         </tr>
-                        <tr>
+                        <tr data-enabled-by="notificationEnabled">
                             <th scope="row"><label for="wp-sjs-notification-to"><?php esc_html_e( 'Send To', 'surveyjs' ); ?></label></th>
                             <td>
                                 <input type="text" id="wp-sjs-notification-to" class="regular-text" data-setting="notificationTo" />
                                 <p class="description"><?php esc_html_e( 'Who receives the email. Separate multiple addresses with commas.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
-                        <tr>
+                        <tr data-enabled-by="notificationEnabled autoReplyEnabled">
                             <th scope="row"><label for="wp-sjs-notification-from-name"><?php esc_html_e( 'From Name', 'surveyjs' ); ?></label></th>
                             <td>
                                 <input type="text" id="wp-sjs-notification-from-name" class="regular-text" data-setting="notificationFromName" />
                                 <p class="description"><?php esc_html_e( 'Sender name shown in the inbox. {site_name} is replaced with the site name.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
-                        <tr>
+                        <tr data-enabled-by="notificationEnabled autoReplyEnabled">
                             <th scope="row"><label for="wp-sjs-notification-from-email"><?php esc_html_e( 'From Email', 'surveyjs' ); ?></label></th>
                             <td>
                                 <input type="text" id="wp-sjs-notification-from-email" class="regular-text" data-setting="notificationFromEmail" />
                                 <p class="description"><?php esc_html_e( 'Address the email is sent from. Use an address on your site\'s domain, otherwise the email may land in spam.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
-                        <tr>
+                        <tr data-enabled-by="notificationEnabled autoReplyEnabled">
                             <th scope="row"><label for="wp-sjs-notification-reply-to"><?php esc_html_e( 'Reply-To', 'surveyjs' ); ?></label></th>
                             <td>
                                 <select id="wp-sjs-notification-reply-to" data-setting="notificationReplyTo"></select>
-                                <p class="description"><?php esc_html_e( 'When you reply to the email, the reply goes to the address the respondent entered in this question.', 'surveyjs' ); ?></p>
-                                <div id="wp-sjs-reply-to-add" hidden>
-                                    <p><label><input type="checkbox" id="wp-sjs-add-reply-to" /> <?php esc_html_e( 'Add a Reply-To question (email) to the form', 'surveyjs' ); ?></label></p>
+                                <p class="description"><?php esc_html_e( 'The question where the respondent enters their email. When you reply to the email, the reply goes to this address. The auto-reply is also sent to it.', 'surveyjs' ); ?></p>
+                                <div id="wp-sjs-notification-reply-to-add" hidden>
+                                    <p><label><input type="checkbox" id="wp-sjs-notification-reply-to-add-question" /> <?php esc_html_e( 'Add a Reply-To question (email) to the form', 'surveyjs' ); ?></label></p>
                                     <p class="description"><?php esc_html_e( 'Adds the question “Leave your email so we can get back to you” to the end of the form. You can also add a Single-Line Input with the Email input type yourself.', 'surveyjs' ); ?></p>
                                 </div>
                             </td>
                         </tr>
-                        <tr>
+                        <tr data-enabled-by="notificationEnabled">
                             <th scope="row"><label for="wp-sjs-notification-subject"><?php esc_html_e( 'Subject', 'surveyjs' ); ?></label></th>
                             <td>
                                 <input type="text" id="wp-sjs-notification-subject" class="regular-text" data-setting="notificationSubject" />
                                 <p class="description"><?php esc_html_e( '{form_name} is replaced with the form name.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
-                        <tr>
+                        <tr data-enabled-by="notificationEnabled">
                             <th scope="row"><label for="wp-sjs-notification-message"><?php esc_html_e( 'Message', 'surveyjs' ); ?></label></th>
                             <td>
                                 <textarea id="wp-sjs-notification-message" class="large-text" rows="8" data-setting="notificationMessage"></textarea>
-                                <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. {field:question_name} is replaced with the answer to that question. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                <p><label><input type="checkbox" id="wp-sjs-notification-html" data-setting="notificationHtml" data-hint="wp-sjs-notification-html-hint" /> <?php esc_html_e( 'Use HTML content type', 'surveyjs' ); ?></label></p>
+                                <p class="description" id="wp-sjs-notification-html-hint" hidden><?php esc_html_e( 'Write the message in HTML, for example: <h2>New entry</h2><p>{all_fields}</p>. Line breaks in plain text become paragraphs. Scripts and <style> blocks are removed, so use inline styles (style="...").', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="notificationEnabled">
+                            <th scope="row"><label for="wp-sjs-notification-attachments"><?php esc_html_e( 'File Attachments', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <select id="wp-sjs-notification-attachments" data-setting="notificationAttachments"></select>
+                                <p class="description"><?php esc_html_e( 'Files the respondent uploaded in this question are attached to the email, up to 18 MB in total. Larger files are not attached.', 'surveyjs' ); ?></p>
+                                <div id="wp-sjs-notification-attachments-add" hidden>
+                                    <p><label><input type="checkbox" id="wp-sjs-notification-attachments-add-question" /> <?php esc_html_e( 'Add a File Upload question to the form', 'surveyjs' ); ?></label></p>
+                                    <p class="description"><?php esc_html_e( 'Adds the question “Attach files” to the end of the form. You can also add a File Upload question yourself.', 'surveyjs' ); ?></p>
+                                </div>
                             </td>
                         </tr>
                     </table>
@@ -140,21 +153,34 @@ class SurveyJS_Editor {
                                 <th scope="row"><?php esc_html_e( 'Send auto-reply', 'surveyjs' ); ?></th>
                                 <td>
                                     <label><input type="checkbox" data-setting="autoReplyEnabled" /> <?php esc_html_e( 'Send an auto-reply to the respondent', 'surveyjs' ); ?></label>
-                                    <p class="description"><?php esc_html_e( 'Sent to the address the respondent entered in the Reply-To question. When the respondent replies, the reply goes to the Send To addresses. Bots can enter someone else\'s address, so turn this on together with spam protection.', 'surveyjs' ); ?></p>
+                                    <p class="description"><?php esc_html_e( 'Sent to the address the respondent entered in the Reply-To question. When the respondent replies, the reply goes to the Send To addresses, or to the site admin email if the email notification is off. Bots can enter someone else\'s address, so turn this on together with spam protection.', 'surveyjs' ); ?></p>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr data-enabled-by="autoReplyEnabled">
                                 <th scope="row"><label for="wp-sjs-auto-reply-subject"><?php esc_html_e( 'Subject', 'surveyjs' ); ?></label></th>
                                 <td>
                                     <input type="text" id="wp-sjs-auto-reply-subject" class="regular-text" data-setting="autoReplySubject" />
                                     <p class="description"><?php esc_html_e( '{site_name} is replaced with the site name.', 'surveyjs' ); ?></p>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr data-enabled-by="autoReplyEnabled">
                                 <th scope="row"><label for="wp-sjs-auto-reply-message"><?php esc_html_e( 'Message', 'surveyjs' ); ?></label></th>
                                 <td>
                                     <textarea id="wp-sjs-auto-reply-message" class="large-text" rows="8" data-setting="autoReplyMessage"></textarea>
-                                    <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                    <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. {field:question_name} is replaced with the answer to that question. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                    <p><label><input type="checkbox" id="wp-sjs-auto-reply-html" data-setting="autoReplyHtml" data-hint="wp-sjs-auto-reply-html-hint" /> <?php esc_html_e( 'Use HTML content type', 'surveyjs' ); ?></label></p>
+                                    <p class="description" id="wp-sjs-auto-reply-html-hint" hidden><?php esc_html_e( 'Write the message in HTML, for example: <h2>Thank you!</h2><p>{all_fields}</p>. Line breaks in plain text become paragraphs. Scripts and <style> blocks are removed, so use inline styles (style="...").', 'surveyjs' ); ?></p>
+                                </td>
+                            </tr>
+                            <tr data-enabled-by="autoReplyEnabled">
+                                <th scope="row"><label for="wp-sjs-auto-reply-attachments"><?php esc_html_e( 'File Attachments', 'surveyjs' ); ?></label></th>
+                                <td>
+                                    <select id="wp-sjs-auto-reply-attachments" data-setting="autoReplyAttachments"></select>
+                                    <p class="description"><?php esc_html_e( 'Files the respondent uploaded in this question are attached to the email, up to 18 MB in total. Larger files are not attached.', 'surveyjs' ); ?></p>
+                                    <div id="wp-sjs-auto-reply-attachments-add" hidden>
+                                        <p><label><input type="checkbox" id="wp-sjs-auto-reply-attachments-add-question" /> <?php esc_html_e( 'Add a File Upload question to the form', 'surveyjs' ); ?></label></p>
+                                        <p class="description"><?php esc_html_e( 'Adds the question “Attach files” to the end of the form. You can also add a File Upload question yourself.', 'surveyjs' ); ?></p>
+                                    </div>
                                 </td>
                             </tr>
                         </table>

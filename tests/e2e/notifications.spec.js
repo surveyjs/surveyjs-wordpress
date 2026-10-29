@@ -42,6 +42,8 @@ test.describe("email notification", () => {
     const editorJson = async () => JSON.parse(await page.evaluate(() => window.monaco.editor.getEditors()[0].getModel().getValue()));
 
     await settingsTab.click();
+    await expect(addQuestion).toBeDisabled();
+    await page.getByLabel("Send an email when the form is submitted").check();
     await addQuestion.check();
     await expect(replyTo).toHaveValue("reply_to_email");
     await expect(replyTo.locator("option:checked")).toHaveText("reply_to_email");
@@ -75,14 +77,15 @@ test.describe("email notification", () => {
     await page.getByLabel("Send an email when the form is submitted").check();
     await page.getByLabel("Send To").fill("owner@example.com");
     await page.getByLabel("Reply-To", { exact: true }).selectOption("visitor_email");
-    await notificationSubject.fill(subject);
+    await notificationSubject.fill(`${subject} from {field:visitor_name}`);
+    await page.locator("#wp-sjs-notification-html").check();
     await autoReply.getByLabel("Send an auto-reply to the respondent").check();
     await autoReply.getByLabel("Subject").fill(autoReplySubject);
     await saveSurvey(page);
 
     await page.reload();
     await emailTab.click();
-    await expect(notificationSubject).toHaveValue(subject);
+    await expect(notificationSubject).toHaveValue(`${subject} from {field:visitor_name}`);
     await expect(autoReply.getByLabel("Subject")).toHaveValue(autoReplySubject);
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("visitor_email");
     await entriesTab.click();
@@ -103,10 +106,10 @@ test.describe("email notification", () => {
     expect((await saved).ok()).toBe(true);
 
     const mail = await findMail(page.request, subject);
+    expect(mail.Subject).toBe(`${subject} from Jane`);
     expect(mail.To.map(to => to.Address)).toEqual(["owner@example.com"]);
     expect(mail.ReplyTo.map(to => to.Address)).toEqual(["jane@example.com"]);
-    expect(mail.Text).toContain("Your name: Jane");
-    expect(mail.Text).toContain("Your email: jane@example.com");
+    expect(mail.HTML).toContain("Your name: Jane<br>\nYour email: jane@example.com");
 
     const autoReplyMail = await findMail(page.request, autoReplySubject);
     expect(autoReplyMail.To.map(to => to.Address)).toEqual(["jane@example.com"]);
@@ -116,5 +119,39 @@ test.describe("email notification", () => {
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
     await expect(page.locator("#the-list .no-items")).toBeVisible();
+  });
+
+  test("attaches uploaded files and deletes them when entries are off", async ({ page }) => {
+    name = uniqueName("E2E attachments");
+    const subject = `E2E attachments ${Date.now()}`;
+    const surveyId = await createSurvey(page, name, { elements: [{ type: "file", name: "document", title: "Your document" }] });
+
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Entries" }).click();
+    await page.getByLabel("Save submitted entries in the database").uncheck();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" }).click();
+    await page.getByLabel("Send an email when the form is submitted").check();
+    await page.getByLabel("Send To").fill("owner@example.com");
+    await page.locator("#wp-sjs-notification-subject").fill(subject);
+    await page.locator("#wp-sjs-notification-attachments").selectOption("document");
+    await saveSurvey(page);
+
+    restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
+    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+      headers: { "X-WP-Nonce": restNonce },
+      data: { title: name, status: "publish", content: `[Survey id="${surveyId}"]` }
+    })).json();
+    postId = post.id;
+
+    await page.goto(post.link);
+    const uploaded = page.waitForResponse(r => r.url().includes("action=SurveyJS_UploadFiles"));
+    await page.locator(".wp-sjs-survey input[type=file]").setInputFiles({ name: "report.txt", mimeType: "text/plain", buffer: Buffer.from("E2E attachment") });
+    const fileUrl = (await (await uploaded).json())["report.txt"];
+    const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
+    await page.getByRole("button", { name: "Complete" }).click();
+    expect((await saved).ok()).toBe(true);
+
+    const mail = await findMail(page.request, subject);
+    expect(mail.Attachments.map(attachment => attachment.FileName)).toEqual(["report.txt"]);
+    expect((await page.request.get(fileUrl)).status()).toBe(404);
   });
 });

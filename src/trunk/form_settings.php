@@ -13,9 +13,13 @@ class SurveyJS_Form_Settings {
             'notificationReplyTo'   => '',
             'notificationSubject'   => '',
             'notificationMessage'   => '',
+            'notificationHtml'      => false,
+            'notificationAttachments' => '',
             'autoReplyEnabled'      => false,
             'autoReplySubject'      => '',
             'autoReplyMessage'      => '',
+            'autoReplyHtml'         => false,
+            'autoReplyAttachments'  => '',
         );
     }
 
@@ -57,10 +61,18 @@ class SurveyJS_Form_Settings {
             'notificationFromEmail' => sanitize_text_field( $input['notificationFromEmail'] ),
             'notificationReplyTo'   => sanitize_text_field( $input['notificationReplyTo'] ),
             'notificationSubject'   => sanitize_text_field( $input['notificationSubject'] ),
-            'notificationMessage'   => sanitize_textarea_field( $input['notificationMessage'] ),
+            'notificationMessage'   => self::sanitize_message( $input['notificationMessage'], $input['notificationHtml'] ),
+            'notificationHtml'      => ! empty( $input['notificationHtml'] ),
+            'notificationAttachments' => sanitize_text_field( $input['notificationAttachments'] ),
             'autoReplyEnabled'      => ! empty( $input['autoReplyEnabled'] ),
             'autoReplySubject'      => sanitize_text_field( $input['autoReplySubject'] ),
-            'autoReplyMessage'      => sanitize_textarea_field( $input['autoReplyMessage'] ),
+            'autoReplyMessage'      => self::sanitize_message( $input['autoReplyMessage'], $input['autoReplyHtml'] ),
+            'autoReplyHtml'         => ! empty( $input['autoReplyHtml'] ),
+            'autoReplyAttachments'  => sanitize_text_field( $input['autoReplyAttachments'] ),
         );
+    }
+
+    private static function sanitize_message( $message, $html ) {
+        return ! empty( $html ) ? wp_kses_post( $message ) : sanitize_textarea_field( $message );
     }
 }

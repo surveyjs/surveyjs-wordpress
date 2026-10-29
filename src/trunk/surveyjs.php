@@ -73,6 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include_once("service_client.php");
     include("survey_values.php");
     include("form_settings.php");
+    include("uploaded_files.php");
     include("notification.php");
 
     include("ajax_handlers/insert_survey.php");

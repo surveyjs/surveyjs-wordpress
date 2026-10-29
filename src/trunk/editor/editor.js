@@ -22,10 +22,29 @@
     const jsonPane = document.getElementById("wp-sjs-json-pane");
     const settingPanels = document.querySelectorAll(".wp-sjs-editor__settings[data-panel]");
     const settingInputs = document.querySelectorAll(".wp-sjs-editor__settings [data-setting]");
-    const replyToSelect = document.getElementById("wp-sjs-notification-reply-to");
-    const replyToAddElement = document.getElementById("wp-sjs-reply-to-add");
-    const replyToAddCheckbox = document.getElementById("wp-sjs-add-reply-to");
     const REPLY_TO_QUESTION = { type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
+    const FILE_QUESTION = { type: "file", title: "Attach files", allowMultiple: true };
+    const emailPicker = (id) => ({
+        id: id,
+        baseName: "reply_to_email",
+        template: REPLY_TO_QUESTION,
+        matches: (node) => node.type === "text" && node.inputType === "email"
+    });
+    const filePicker = (id) => ({
+        id: id,
+        baseName: "attached_files",
+        template: FILE_QUESTION,
+        matches: (node) => node.type === "file"
+    });
+    const pickers = [
+        emailPicker("wp-sjs-notification-reply-to"),
+        filePicker("wp-sjs-notification-attachments"),
+        filePicker("wp-sjs-auto-reply-attachments")
+    ].map((picker) => Object.assign(picker, {
+        select: document.getElementById(picker.id),
+        addElement: document.getElementById(picker.id + "-add"),
+        addCheckbox: document.getElementById(picker.id + "-add-question")
+    }));
 
     const sources = {
         survey: JSON.stringify(config.json, null, 2),
@@ -54,14 +73,36 @@
         const value = config.settings[input.dataset.setting];
         if (input.type === "checkbox") {
             input.checked = Boolean(value);
-        } else if (input === replyToSelect) {
-            renderReplyToOptions(value);
+        } else if (input.tagName === "SELECT") {
+            renderPickerOptions(pickers.find((picker) => picker.select === input), value);
         } else {
             input.value = value;
             input.placeholder = config.settingPlaceholders[input.dataset.setting] ?? "";
         }
     });
     saved.settings = JSON.stringify(readSettings());
+
+    document.querySelectorAll("input[data-hint]").forEach((checkbox) => {
+        const hint = document.getElementById(checkbox.dataset.hint);
+        const updateHint = () => { hint.hidden = !checkbox.checked; };
+        checkbox.addEventListener("change", updateHint);
+        updateHint();
+    });
+
+    const dependentRows = document.querySelectorAll("[data-enabled-by]");
+    const rowToggles = (row) => row.dataset.enabledBy.split(" ").map((setting) => document.querySelector(`input[data-setting="${setting}"]`));
+    function updateDependentRows() {
+        dependentRows.forEach((row) => {
+            const enabled = rowToggles(row).some((toggle) => toggle.checked);
+            row.querySelectorAll("input, select, textarea").forEach((control) => { control.disabled = !enabled; });
+        });
+        const jsonInvalid = Boolean(parse(sources.survey).error);
+        pickers.forEach((picker) => { picker.addCheckbox.disabled ||= jsonInvalid; });
+    }
+    dependentRows.forEach((row) => {
+        rowToggles(row).forEach((toggle) => toggle.addEventListener("change", updateDependentRows));
+    });
+    updateDependentRows();
 
     function readSettings() {
         const settings = {};
@@ -71,41 +112,45 @@
         return settings;
     }
 
-    function emailQuestions(node, found) {
+    function findQuestions(node, picker, found) {
         if (Array.isArray(node)) {
-            node.forEach((item) => emailQuestions(item, found));
+            node.forEach((item) => findQuestions(item, picker, found));
         } else if (node && typeof node === "object") {
-            if (node.type === "text" && node.inputType === "email" && typeof node.name === "string") {
+            if (picker.matches(node) && typeof node.name === "string") {
                 found.push(node);
             }
-            Object.values(node).forEach((item) => emailQuestions(item, found));
+            Object.values(node).forEach((item) => findQuestions(item, picker, found));
         }
         return found;
     }
 
-    function isAddedReplyToQuestion(question) {
-        return /^reply_to_email\d*$/.test(question.name)
-            && Object.keys(question).length === Object.keys(REPLY_TO_QUESTION).length + 1
-            && Object.keys(REPLY_TO_QUESTION).every((key) => question[key] === REPLY_TO_QUESTION[key]);
+    function isAddedQuestion(picker, question) {
+        return new RegExp(`^${picker.baseName}\\d*$`).test(question.name)
+            && Object.keys(question).length === Object.keys(picker.template).length + 1
+            && Object.keys(picker.template).every((key) => question[key] === picker.template[key]);
     }
 
-    function renderReplyToOptions(selected) {
+    function renderPickerOptions(picker, selected) {
         const json = parse(sources.survey).json;
         if (!json) return;
-        const questions = emailQuestions(json, []);
-        const added = questions.some(isAddedReplyToQuestion);
-        replyToAddElement.hidden = questions.length > 0 && !added;
-        replyToAddCheckbox.checked = added;
+        const questions = findQuestions(json, picker, []);
+        const added = questions.some((question) => isAddedQuestion(picker, question));
+        picker.addElement.hidden = questions.length > 0 && !added;
+        picker.addCheckbox.checked = added;
         const names = questions.map((question) => question.name);
-        replyToSelect.replaceChildren(...[""].concat(names).map((name) => {
+        picker.select.replaceChildren(...[""].concat(names).map((name) => {
             const node = element("option", "", name || "— None —");
             node.value = name;
             return node;
         }));
-        replyToSelect.value = names.includes(selected) ? selected : "";
+        picker.select.value = names.includes(selected) ? selected : "";
     }
 
-    function addReplyToQuestion(json) {
+    function renderAllPickerOptions() {
+        pickers.forEach((picker) => renderPickerOptions(picker, picker.select.value));
+    }
+
+    function addQuestion(json, picker) {
         const names = new Set();
         const collectNames = (node) => {
             if (Array.isArray(node)) return node.forEach(collectNames);
@@ -114,33 +159,33 @@
             Object.values(node).forEach(collectNames);
         };
         collectNames(json);
-        let name = "reply_to_email";
+        let name = picker.baseName;
         for (let index = 2; names.has(name); index++) {
-            name = "reply_to_email" + index;
+            name = picker.baseName + index;
         }
         const container = Array.isArray(json.pages) && json.pages.length > 0 ? json.pages[json.pages.length - 1] : json;
         if (!Array.isArray(container.elements)) {
             container.elements = [];
         }
-        container.elements.push(Object.assign({ name: name }, REPLY_TO_QUESTION));
+        container.elements.push(Object.assign({ name: name }, picker.template));
         return name;
     }
 
-    function removeReplyToQuestion(node) {
-        if (Array.isArray(node)) return node.forEach(removeReplyToQuestion);
+    function removeAddedQuestions(node, picker) {
+        if (Array.isArray(node)) return node.forEach((item) => removeAddedQuestions(item, picker));
         if (!node || typeof node !== "object") return;
         if (Array.isArray(node.elements)) {
-            node.elements = node.elements.filter((item) => !(item && typeof item === "object" && isAddedReplyToQuestion(item)));
+            node.elements = node.elements.filter((item) => !(item && typeof item === "object" && isAddedQuestion(picker, item)));
         }
-        Object.values(node).forEach(removeReplyToQuestion);
+        Object.values(node).forEach((item) => removeAddedQuestions(item, picker));
     }
 
-    function toggleReplyToQuestion() {
+    function togglePickerQuestion(picker) {
         const json = parse(sources.survey).json;
         if (!json) return;
-        const selected = replyToAddCheckbox.checked ? addReplyToQuestion(json) : "";
-        if (!replyToAddCheckbox.checked) {
-            removeReplyToQuestion(json);
+        const selected = picker.addCheckbox.checked ? addQuestion(json, picker) : "";
+        if (!picker.addCheckbox.checked) {
+            removeAddedQuestions(json, picker);
         }
         previewFocusName = selected || null;
         replaceSource("survey", json);
@@ -148,7 +193,7 @@
             renderPreview();
             runLint();
         }
-        renderReplyToOptions(selected);
+        pickers.forEach((item) => renderPickerOptions(item, item === picker ? selected : item.select.value));
         saveNotice = null;
         updateState();
     }
@@ -366,7 +411,7 @@
         const error = syntaxError();
         saveButton.disabled = Boolean(error);
         uiBuilderButton.disabled = Boolean(error);
-        replyToAddCheckbox.disabled = Boolean(parse(sources.survey).error);
+        updateDependentRows();
         formatButton.disabled = !(activeTab in sources) || Boolean(parse(sources[activeTab]).error);
         if (error) {
             showNotice("error", error);
@@ -593,7 +638,7 @@
             panel.hidden = panel.dataset.panel !== tab;
         });
         if (!isJsonTab) {
-            renderReplyToOptions(replyToSelect.value);
+            renderAllPickerOptions();
             updateState();
             return;
         }
@@ -747,7 +792,7 @@
     formatButton.addEventListener("click", format);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
-    replyToAddCheckbox.addEventListener("change", toggleReplyToQuestion);
+    pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
     window.addEventListener("message", onUiBuilderMessage);
     nameEditButton.addEventListener("click", () => {
         nameInput.value = saved.name;
