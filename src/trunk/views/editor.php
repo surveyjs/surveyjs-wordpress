@@ -30,6 +30,7 @@ class SurveyJS_Editor {
             'settings'  => $settings,
             'settingPlaceholders' => SurveyJS_Form_Settings::fallbacks(),
             'saveUrl'   => add_query_arg( array( 'action' => 'SurveyJS_SaveSurvey' ), admin_url( 'admin-ajax.php' ) ),
+            'testEmailUrl' => add_query_arg( array( 'action' => 'SurveyJS_SendTestEmail' ), admin_url( 'admin-ajax.php' ) ),
             'saveNonce' => wp_create_nonce( 'surveyjs-save-survey' ),
             'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
             'uiBuilderUrl' => apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' ),
@@ -90,7 +91,9 @@ class SurveyJS_Editor {
                             <th scope="row"><label for="wp-sjs-notification-to"><?php esc_html_e( 'Send To', 'surveyjs' ); ?></label></th>
                             <td>
                                 <input type="text" id="wp-sjs-notification-to" class="regular-text" data-setting="notificationTo" />
+                                <button type="button" class="button" id="wp-sjs-send-test-email"><?php esc_html_e( 'Send test email', 'surveyjs' ); ?></button>
                                 <p class="description"><?php esc_html_e( 'Who receives the email. Separate multiple addresses with commas.', 'surveyjs' ); ?></p>
+                                <p id="wp-sjs-test-email-result" aria-live="polite"></p>
                             </td>
                         </tr>
                         <tr data-enabled-by="notificationEnabled autoReplyEnabled">
@@ -130,6 +133,7 @@ class SurveyJS_Editor {
                             <td>
                                 <textarea id="wp-sjs-notification-message" class="large-text" rows="8" data-setting="notificationMessage"></textarea>
                                 <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. {field:question_name} is replaced with the answer to that question. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                <p class="description wp-sjs-field-tags" hidden></p>
                                 <p><label><input type="checkbox" id="wp-sjs-notification-html" data-setting="notificationHtml" data-hint="wp-sjs-notification-html-hint" /> <?php esc_html_e( 'Use HTML content type', 'surveyjs' ); ?></label></p>
                                 <p class="description" id="wp-sjs-notification-html-hint" hidden><?php esc_html_e( 'Write the message in HTML, for example: <h2>New entry</h2><p>{all_fields}</p>. Line breaks in plain text become paragraphs. Scripts and <style> blocks are removed, so use inline styles (style="...").', 'surveyjs' ); ?></p>
                             </td>
@@ -168,6 +172,7 @@ class SurveyJS_Editor {
                                 <td>
                                     <textarea id="wp-sjs-auto-reply-message" class="large-text" rows="8" data-setting="autoReplyMessage"></textarea>
                                     <p class="description"><?php esc_html_e( '{all_fields} is replaced with all answers, one per line. {field:question_name} is replaced with the answer to that question. Other tags: {form_name}, {site_name}, {admin_email}', 'surveyjs' ); ?></p>
+                                    <p class="description wp-sjs-field-tags" hidden></p>
                                     <p><label><input type="checkbox" id="wp-sjs-auto-reply-html" data-setting="autoReplyHtml" data-hint="wp-sjs-auto-reply-html-hint" /> <?php esc_html_e( 'Use HTML content type', 'surveyjs' ); ?></label></p>
                                     <p class="description" id="wp-sjs-auto-reply-html-hint" hidden><?php esc_html_e( 'Write the message in HTML, for example: <h2>Thank you!</h2><p>{all_fields}</p>. Line breaks in plain text become paragraphs. Scripts and <style> blocks are removed, so use inline styles (style="...").', 'surveyjs' ); ?></p>
                                 </td>

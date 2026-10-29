@@ -85,6 +85,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("ajax_handlers/save_result.php");
     new SurveyJS_SaveResult();
 
+    include("ajax_handlers/send_test_email.php");
+    new SurveyJS_SendTestEmail();
+
     include("ajax_handlers/upload_files.php");
     new SurveyJS_UploadFiles();
 

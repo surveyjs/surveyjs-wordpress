@@ -22,7 +22,9 @@
     const jsonPane = document.getElementById("wp-sjs-json-pane");
     const settingPanels = document.querySelectorAll(".wp-sjs-editor__settings[data-panel]");
     const settingInputs = document.querySelectorAll(".wp-sjs-editor__settings [data-setting]");
-    const REPLY_TO_QUESTION = { type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
+    const testEmailButton = document.getElementById("wp-sjs-send-test-email");
+    const testEmailResult = document.getElementById("wp-sjs-test-email-result");
+    const REPLY_TO_QUESTION ={ type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
     const FILE_QUESTION = { type: "file", title: "Attach files", allowMultiple: true };
     const emailPicker = (id) => ({
         id: id,
@@ -94,7 +96,7 @@
     function updateDependentRows() {
         dependentRows.forEach((row) => {
             const enabled = rowToggles(row).some((toggle) => toggle.checked);
-            row.querySelectorAll("input, select, textarea").forEach((control) => { control.disabled = !enabled; });
+            row.querySelectorAll("input, select, textarea, button").forEach((control) => { control.disabled = !enabled; });
         });
         const jsonInvalid = Boolean(parse(sources.survey).error);
         pickers.forEach((picker) => { picker.addCheckbox.disabled ||= jsonInvalid; });
@@ -150,6 +152,29 @@
         pickers.forEach((picker) => renderPickerOptions(picker, picker.select.value));
     }
 
+    function formQuestionNames(json) {
+        const names = [];
+        const collect = (elements) => (Array.isArray(elements) ? elements : []).forEach((item) => {
+            if (!item || typeof item !== "object") return;
+            if (!item.type || item.type === "panel") return collect(item.elements);
+            if (["html", "image"].includes(item.type) || typeof item.name !== "string" || !item.name) return;
+            names.push(item.name);
+        });
+        collect(json.pages);
+        collect(json.elements);
+        return names;
+    }
+
+    function renderFieldTags() {
+        const json = parse(sources.survey).json;
+        if (!json) return;
+        const names = formQuestionNames(json);
+        document.querySelectorAll(".wp-sjs-field-tags").forEach((target) => {
+            target.hidden = names.length === 0;
+            target.replaceChildren("Tags of this form: ", ...names.flatMap((name, index) => (index ? [" "] : []).concat(element("code", "", "{field:" + name + "}"))));
+        });
+    }
+
     function addQuestion(json, picker) {
         const names = new Set();
         const collectNames = (node) => {
@@ -194,6 +219,7 @@
             runLint();
         }
         pickers.forEach((item) => renderPickerOptions(item, item === picker ? selected : item.select.value));
+        renderFieldTags();
         saveNotice = null;
         updateState();
     }
@@ -639,6 +665,7 @@
         });
         if (!isJsonTab) {
             renderAllPickerOptions();
+            renderFieldTags();
             updateState();
             return;
         }
@@ -713,6 +740,26 @@
             .catch((error) => showNotice("error", "Save failed: " + error.message))
             .finally(() => {
                 nameSaveButton.disabled = false;
+            });
+    }
+
+    function sendTestEmail() {
+        const showResult = (type, message) => {
+            const notice = element("div", "notice notice-" + type + " inline");
+            notice.append(element("p", "", message));
+            testEmailResult.replaceChildren(notice);
+        };
+        testEmailButton.disabled = true;
+        testEmailResult.replaceChildren();
+        fetch(config.testEmailUrl, {
+            method: "POST",
+            body: new URLSearchParams({ Id: config.id, Settings: JSON.stringify(readSettings()), _wpnonce: config.saveNonce })
+        })
+            .then((response) => response.json())
+            .then((result) => showResult(result.success ? "success" : "error", result.data?.message || "The test email could not be sent."))
+            .catch((error) => showResult("error", error.message))
+            .finally(() => {
+                testEmailButton.disabled = !document.querySelector('input[data-setting="notificationEnabled"]').checked;
             });
     }
 
@@ -793,6 +840,7 @@
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
+    testEmailButton.addEventListener("click", sendTestEmail);
     window.addEventListener("message", onUiBuilderMessage);
     nameEditButton.addEventListener("click", () => {
         nameInput.value = saved.name;
@@ -813,6 +861,7 @@
 
     runLint();
     renderPreview();
+    renderFieldTags();
     updateState();
 
     loadMonaco().then((loaded) => {

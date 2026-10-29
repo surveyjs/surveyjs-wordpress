@@ -36,7 +36,8 @@ Working draft of what the Base plugin does. Source for the future `readme.txt` a
   - Send To (comma-separated), From Name, From Email, Reply-To, Subject, Message;
   - Reply-To: an email question of the form; replying to the email goes to the respondent. A checkbox adds a ready email question to the form.
 - **Auto-reply** to the respondent (off by default), sent to the address from the Reply-To question. Works without the email notification.
-- **Tags** in Subject and Message: `{all_fields}`, `{field:question_name}`, `{form_name}`, `{site_name}`, `{admin_email}`.
+- **Tags** in Subject and Message: `{all_fields}`, `{field:question_name}`, `{form_name}`, `{site_name}`, `{admin_email}`. The tags of the current form are listed under Message.
+- **Send test email** — sends a test email to Send To with the current (even unsaved) settings and shows the delivery error, if any.
 - **Use HTML content type** — write the message in HTML. Dangerous tags are removed; answers are escaped.
 - **File Attachments** — pick a File Upload question; files the respondent uploaded there are attached to the email, up to 18 MB in total (larger files are skipped). A checkbox adds a ready File Upload question to the form. Separate setting for the email notification and the auto-reply.
 - Delivery depends on the site's mail setup (`wp_mail`); the plugin does not send mail itself.

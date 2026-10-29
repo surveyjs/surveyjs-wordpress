@@ -13,11 +13,7 @@ class SurveyJS_Notification {
 
         $data = is_array( $data ) ? $data : array();
         $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
-        $text_tags = array(
-            '{admin_email}' => get_option( 'admin_email' ),
-            '{site_name}'   => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-            '{form_name}'   => $survey->name,
-        );
+        $text_tags = self::common_tags( $survey );
         foreach ( $questions as $question ) {
             $text_tags[ '{field:' . $question['name'] . '}' ] = array_key_exists( $question['name'], $data ) ? SurveyJS_Survey_Values::display_value( $question, $data[ $question['name'] ] ) : '';
         }
@@ -30,15 +26,10 @@ class SurveyJS_Notification {
             return $html ? strtr( wpautop( $template ), $html_tags ) : strtr( $template, $text_tags );
         };
 
-        $to = array_filter( array_map( 'trim', explode( ',', $value( 'notificationTo' ) ) ), 'is_email' );
+        $to = self::recipients( $value( 'notificationTo' ) );
         $respondent_email = $data[ $settings['notificationReplyTo'] ] ?? '';
         $respondent_email = is_string( $respondent_email ) && is_email( $respondent_email ) ? $respondent_email : '';
-
-        $from = array();
-        $from_email = $value( 'notificationFromEmail' );
-        if ( is_email( $from_email ) ) {
-            $from[] = sprintf( 'From: %s <%s>', $value( 'notificationFromName' ), $from_email );
-        }
+        $from = self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) );
 
         $notify = ! empty( $settings['notificationEnabled'] ) && ! empty( $to );
         if ( $notify ) {
@@ -52,6 +43,52 @@ class SurveyJS_Notification {
             $headers = self::headers( $from, $notify ? implode( ', ', $to ) : get_option( 'admin_email' ), $html );
             wp_mail( $respondent_email, $value( 'autoReplySubject' ), $value( 'autoReplyMessage', $html ), $headers, self::attachments( $settings['autoReplyAttachments'], $data ) );
         }
+    }
+
+    public static function send_test( $survey, $settings ) {
+        $tags = self::common_tags( $survey );
+        $value = function ( $key ) use ( $settings, $tags ) {
+            return strtr( SurveyJS_Form_Settings::value( $settings, $key ), $tags );
+        };
+
+        $to = self::recipients( $value( 'notificationTo' ) );
+        if ( empty( $to ) ) {
+            return new WP_Error( 'no_recipients', __( 'Enter a valid email address in Send To.', 'surveyjs' ) );
+        }
+
+        $error = null;
+        $catch_error = function ( $wp_error ) use ( &$error ) {
+            $error = $wp_error;
+        };
+        add_action( 'wp_mail_failed', $catch_error );
+        $sent = wp_mail(
+            $to,
+            sprintf( __( 'Test email from %s', 'surveyjs' ), $tags['{site_name}'] ),
+            sprintf( __( "This is a test email from the form \"%s\". If you received it, emails from this form are delivered.", 'surveyjs' ), $survey->name ),
+            self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) )
+        );
+        remove_action( 'wp_mail_failed', $catch_error );
+
+        if ( $sent ) {
+            return $to;
+        }
+        return $error instanceof WP_Error ? $error : new WP_Error( 'mail_failed', __( 'The email could not be sent.', 'surveyjs' ) );
+    }
+
+    private static function common_tags( $survey ) {
+        return array(
+            '{admin_email}' => get_option( 'admin_email' ),
+            '{site_name}'   => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+            '{form_name}'   => $survey->name,
+        );
+    }
+
+    private static function recipients( $list ) {
+        return array_values( array_filter( array_map( 'trim', explode( ',', $list ) ), 'is_email' ) );
+    }
+
+    private static function from( $name, $email ) {
+        return is_email( $email ) ? array( sprintf( 'From: %s <%s>', $name, $email ) ) : array();
     }
 
     private static function attachments( $question_name, $data ) {
