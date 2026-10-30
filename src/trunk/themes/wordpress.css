@@ -118,6 +118,64 @@
   background-color: transparent;
 }
 
+/* Themes style every input and button on the page (input[type="text"], button, [type="button"], :hover),
+   which outranks the single-class survey-core rules, so the survey's own controls get them back here. */
+.wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input,
+.wp-sjs-adaptive .sjs-theme-overrides .sd-dropdown__filter-string-input {
+  height: auto;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  background: none;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input {
+  min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
+  padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+  color: var(--sjs2-color-component-input-default-value);
+  font-family: var(--sjs2-typography-font-family-component-input-content), inherit;
+  font-size: var(--sjs2-typography-font-size-component-input-content);
+  font-weight: var(--sjs2-typography-font-weight-component-input-content);
+  line-height: var(--sjs2-typography-line-height-component-input-content);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-dropdown__filter-string-input {
+  padding: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: var(--sd-action-padding);
+  border: none;
+  border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action));
+  box-shadow: none;
+  background: var(--sd-action-background);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action--border {
+  box-shadow: var(--sd-action-boxshadow);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
+  background: var(--sd-action-hover-background);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
+  box-shadow: var(--sd-action-hover-box-shadow);
+}
+
 .wp-sjs-adaptive .sjs-theme-overrides .sv-header--mobile {
   padding-top: calc(var(--sjs2-layout-component-survey-header-padding-top) + var(--sjs2-layout-component-survey-box-padding-top));
   padding-inline: var(--sjs2-layout-component-survey-header-padding-horizontal);

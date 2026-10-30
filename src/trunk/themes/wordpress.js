@@ -54,11 +54,14 @@
         };
         const parent = container.parentElement || container;
 
-        const button = createProbe(parent, "button", (el) => {
-            el.type = "button";
-            el.className = "wp-element-button wp-block-button__link";
-            el.textContent = "Submit";
+        const buttonWrapper = createProbe(parent, "div", (el) => {
+            el.className = "wp-block-button";
         });
+        const button = buttonWrapper.ownerDocument.createElement("button");
+        button.type = "button";
+        button.className = "wp-element-button wp-block-button__link";
+        button.textContent = "Submit";
+        buttonWrapper.appendChild(button);
         const input = createProbe(parent, "input", (el) => {
             el.type = "text";
         });
@@ -86,7 +89,7 @@
             set("--sjs-wp-font-size", textStyle.fontSize);
             set("--sjs-wp-line-height", textStyle.lineHeight, !!textStyle.lineHeight && textStyle.lineHeight !== "normal");
         } finally {
-            button.remove();
+            buttonWrapper.remove();
             input.remove();
         }
         return result;

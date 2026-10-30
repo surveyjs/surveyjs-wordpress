@@ -1,40 +1,3 @@
-.wp-sjs-plugin {
-    margin: 10px;
-}
-
-.wp-sjs-plugin label {
-    font-weight: initial;
-    color: #6d7072;
-}
-
-.wp-sjs-plugin h5 {
-    letter-spacing: initial;
-    text-transform: none;
-}
-
-.wp-sjs-plugin input[type="text"]:focus {
-    border-color: initial;
-    outline: none;
-    outline-offset: none;
-}
-
-.wp-sjs-plugin input[type="text"] {
-    -webkit-backface-visibility: initial;
-    background: initial;
-    border: none;
-    box-sizing: initial;
-    outline: none;
-    padding: 0;
-    -webkit-appearance: none;
-    outline-offset: 0;
-    border-radius: 0;
-}
-
-.wp-sjs-plugin .sv-dropdown_clean-button {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
 .wp-sjs-hp {
     position: absolute;
     left: -9999px;
@@ -45,8 +8,4 @@
 
 .wp-sjs-survey:empty {
     min-height: 400px;
-}
-
-.wp-sjs-plugin .sd-theme-root {
-    --sjs2-typography-font-family-text: initial;
 }
