@@ -11,7 +11,11 @@
         survey.getAllQuestions().filter((question) => question.getType() === "file").forEach((question) => {
             question.storeDataAsText = false;
         });
-        if (config.theme) {
+        const container = configElement.parentElement.querySelector(".wp-sjs-survey");
+        if (config.themeMode === "adaptive" && window.SurveyWordPress) {
+            container.classList.add("wp-sjs-adaptive");
+            SurveyWordPress.applyWordPressStyles(container);
+        } else if (config.theme) {
             survey.applyTheme(config.theme);
         }
         window["survey" + config.id] = survey;
@@ -86,7 +90,7 @@
             options.callback("success");
         });
 
-        SurveyUI.renderSurvey(survey, configElement.parentElement.querySelector(".wp-sjs-survey"));
+        SurveyUI.renderSurvey(survey, container);
     }
 
     window.wpSurveyJSInit = initSurvey;

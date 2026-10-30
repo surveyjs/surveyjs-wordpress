@@ -18,10 +18,14 @@
     const monacoElement = document.getElementById("wp-sjs-monaco");
     const lintElement = document.getElementById("wp-sjs-lint");
     const previewElement = document.getElementById("wp-sjs-preview");
+    const previewOrigin = new URL(config.previewUrl).origin;
     const tabs = document.querySelectorAll(".wp-sjs-editor__tabs .nav-tab");
     const jsonPane = document.getElementById("wp-sjs-json-pane");
     const settingPanels = document.querySelectorAll(".wp-sjs-editor__settings[data-panel]");
-    const settingInputs = document.querySelectorAll(".wp-sjs-editor__settings [data-setting]");
+    const settingInputs = document.querySelectorAll(".wp-sjs-editor [data-setting]");
+    const themeModeElement = document.getElementById("wp-sjs-theme-mode");
+    const themeModeCheckbox = document.getElementById("wp-sjs-theme-mode-adaptive");
+    const themePresetSelect = document.getElementById("wp-sjs-theme-preset");
     const testEmailButton = document.getElementById("wp-sjs-send-test-email");
     const testEmailResult = document.getElementById("wp-sjs-test-email-result");
     const REPLY_TO_QUESTION ={ type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
@@ -69,13 +73,14 @@
     let previewTimer = null;
     let saveNotice = null;
     let previewFocusName = null;
+    let previewReady = false;
 
     nameText.textContent = config.name;
     settingInputs.forEach((input) => {
         const value = config.settings[input.dataset.setting];
         if (input.type === "checkbox") {
-            input.checked = Boolean(value);
-        } else if (input.tagName === "SELECT") {
+            input.checked = "checkedValue" in input.dataset ? value === input.dataset.checkedValue : Boolean(value);
+        } else if (pickers.some((picker) => picker.select === input)) {
             renderPickerOptions(pickers.find((picker) => picker.select === input), value);
         } else {
             input.value = value;
@@ -106,10 +111,15 @@
     });
     updateDependentRows();
 
+    function checkboxValue(input) {
+        if (!("checkedValue" in input.dataset)) return input.checked;
+        return input.checked ? input.dataset.checkedValue : input.dataset.uncheckedValue;
+    }
+
     function readSettings() {
         const settings = {};
         settingInputs.forEach((input) => {
-            settings[input.dataset.setting] = input.type === "checkbox" ? input.checked : input.value;
+            settings[input.dataset.setting] = input.type === "checkbox" ? checkboxValue(input) : input.value;
         });
         return settings;
     }
@@ -438,7 +448,7 @@
         saveButton.disabled = Boolean(error);
         uiBuilderButton.disabled = Boolean(error);
         updateDependentRows();
-        formatButton.disabled = !(activeTab in sources) || Boolean(parse(sources[activeTab]).error);
+        formatButton.disabled = !(activeTab in sources) || isThemeJsonLocked() || Boolean(parse(sources[activeTab]).error);
         if (error) {
             showNotice("error", error);
         } else if (saveNotice) {
@@ -618,33 +628,32 @@
     }
 
     function renderPreview() {
+        if (!previewReady) return;
         const survey = parse(sources.survey);
         const theme = parse(sources.theme);
         if (!survey.json || !theme.json) return;
-        const model = new Survey.Model(survey.json);
-        model.readOnly = true;
-        if (Object.keys(theme.json).length > 0) {
-            model.applyTheme(theme.json);
-        }
         const focusName = previewFocusName;
         previewFocusName = null;
-        const focusQuestion = focusName ? model.getQuestionByName(focusName) : null;
-        if (focusQuestion) {
-            if (focusQuestion.page) model.currentPage = focusQuestion.page;
-            model.onAfterRenderQuestion.add((_, options) => {
-                if (options.question !== focusQuestion) return;
-                const scroller = previewElement.parentElement;
-                const offset = options.htmlElement.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-                scroller.scrollTo({ top: scroller.scrollTop + offset - 16, behavior: "smooth" });
-            });
+        previewElement.contentWindow.postMessage({
+            type: "surveyjs-preview-render",
+            json: survey.json,
+            theme: theme.json,
+            themeMode: checkboxValue(themeModeCheckbox),
+            focusName: focusName
+        }, previewOrigin);
+    }
+
+    function onPreviewMessage(event) {
+        if (event.source !== previewElement.contentWindow || event.origin !== previewOrigin) return;
+        if (event.data && event.data.type === "surveyjs-preview-ready") {
+            previewReady = true;
+            renderPreview();
         }
-        const container = element("div");
-        previewElement.replaceChildren(container);
-        SurveyUI.renderSurvey(model, container);
     }
 
     function onSourceChange(tab) {
         sources[tab] = models[tab].getValue(monaco.editor.EndOfLinePreference.LF);
+        if (tab === "theme") renderThemePreset();
         saveNotice = null;
         updateState();
         if (tab === "survey") {
@@ -660,6 +669,8 @@
         tabs.forEach((item) => item.classList.toggle("nav-tab-active", item.dataset.tab === tab));
         const isJsonTab = tab in sources;
         jsonPane.hidden = !isJsonTab;
+        themeModeElement.hidden = tab !== "theme";
+        updateThemeJsonLock();
         settingPanels.forEach((panel) => {
             panel.hidden = panel.dataset.panel !== tab;
         });
@@ -799,7 +810,7 @@
             }, event.origin);
         } else if (message.type === "save" && message.surveyId === config.id && isJsonObject(message.json)) {
             replaceSource("survey", message.json);
-            replaceSource("theme", isJsonObject(message.theme) ? message.theme : {});
+            if (isJsonObject(message.theme)) replaceSource("theme", message.theme);
             saveNotice = { type: "info", message: "Changes from the UI Builder are in the editor. Press Save to keep them." };
             updateState();
             renderPreview();
@@ -841,7 +852,62 @@
     uiBuilderButton.addEventListener("click", openUiBuilder);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
     testEmailButton.addEventListener("click", sendTestEmail);
+    let themePresets = null;
+
+    function loadThemePresets() {
+        if (!themePresets) {
+            themePresets = fetch(config.themesUrl).then((response) => response.json());
+        }
+        return themePresets;
+    }
+
+    function renderThemePreset() {
+        if (themeModeCheckbox.checked) return;
+        loadThemePresets().then((presets) => {
+            const current = sources.theme.trim();
+            themePresetSelect.value = Object.keys(presets).find((slug) => JSON.stringify(presets[slug], null, 2) === current) || "";
+        });
+    }
+
+    function applyThemePreset() {
+        const slug = themePresetSelect.value;
+        if (!slug) return;
+        loadThemePresets().then((presets) => {
+            replaceSource("theme", presets[slug]);
+            if (!models) {
+                renderPreview();
+            }
+            saveNotice = null;
+            updateState();
+        });
+    }
+
+    function updateThemePreset() {
+        themePresetSelect.disabled = themeModeCheckbox.checked;
+        renderThemePreset();
+    }
+
+    function isThemeJsonLocked() {
+        return activeTab === "theme" && themeModeCheckbox.checked;
+    }
+
+    function updateThemeJsonLock() {
+        const locked = isThemeJsonLocked();
+        jsonPane.classList.toggle("is-theme-json-locked", locked);
+        if (editor) editor.updateOptions({ readOnly: locked });
+    }
+    themeModeCheckbox.addEventListener("change", () => {
+        updateThemePreset();
+        updateThemeJsonLock();
+        saveNotice = null;
+        updateState();
+        renderPreview();
+    });
+    themePresetSelect.addEventListener("change", applyThemePreset);
+    updateThemePreset();
     window.addEventListener("message", onUiBuilderMessage);
+    window.addEventListener("message", onPreviewMessage);
+    previewElement.src = config.previewUrl;
     nameEditButton.addEventListener("click", () => {
         nameInput.value = saved.name;
         nameView.hidden = true;

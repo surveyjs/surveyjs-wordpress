@@ -33,6 +33,8 @@ class SurveyJS_Editor {
             'testEmailUrl' => add_query_arg( array( 'action' => 'SurveyJS_SendTestEmail' ), admin_url( 'admin-ajax.php' ) ),
             'saveNonce' => wp_create_nonce( 'surveyjs-save-survey' ),
             'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
+            'themesUrl' => SurveyJS_Themes::url(),
+            'previewUrl' => add_query_arg( 'surveyjs_preview', '1', home_url( '/' ) ),
             'uiBuilderUrl' => apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' ),
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
@@ -66,6 +68,19 @@ class SurveyJS_Editor {
                     <div class="wp-sjs-editor__pane-header">
                         <span class="description"><?php esc_html_e( 'Prefer a visual editor? Edit this form in the free online UI Builder.', 'surveyjs' ); ?></span>
                         <button type="button" class="button wp-sjs-editor__ui-builder" id="wp-sjs-ui-builder"><?php esc_html_e( 'Open in free UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
+                    </div>
+                    <div class="wp-sjs-editor__theme-mode" id="wp-sjs-theme-mode" hidden>
+                        <label for="wp-sjs-theme-mode-adaptive"><input type="checkbox" id="wp-sjs-theme-mode-adaptive" data-setting="themeMode" data-checked-value="adaptive" data-unchecked-value="surveyjs" /> <?php esc_html_e( 'Adaptive: use your site\'s theme styles', 'surveyjs' ); ?></label>
+                        <span class="wp-sjs-editor__theme-preset">
+                            <label for="wp-sjs-theme-preset"><?php esc_html_e( 'Theme', 'surveyjs' ); ?></label>
+                            <select id="wp-sjs-theme-preset">
+                                <option value=""><?php esc_html_e( 'Custom', 'surveyjs' ); ?></option>
+                                <?php foreach ( SurveyJS_Themes::labels() as $slug => $label ) : ?>
+                                    <option value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $label ); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </span>
+                        <p class="description"><?php esc_html_e( 'When Adaptive is on, the form takes the colors, fonts, buttons and fields of your site\'s theme, and the theme JSON below is not used. Turn it off to pick a ready-made theme or edit the JSON here or in the free UI Builder.', 'surveyjs' ); ?></p>
                     </div>
                     <div class="wp-sjs-editor__overlay">
                         <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>
@@ -192,7 +207,7 @@ class SurveyJS_Editor {
                     </div>
                 </div>
                 <div class="wp-sjs-editor__preview">
-                    <div id="wp-sjs-preview"></div>
+                    <iframe id="wp-sjs-preview" class="wp-sjs-editor__preview-frame" title="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>"></iframe>
                 </div>
             </div>
         </div>

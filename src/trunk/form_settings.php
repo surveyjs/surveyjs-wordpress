@@ -20,7 +20,12 @@ class SurveyJS_Form_Settings {
             'autoReplyMessage'      => '',
             'autoReplyHtml'         => false,
             'autoReplyAttachments'  => '',
+            'themeMode'             => 'adaptive',
         );
+    }
+
+    public static function theme_modes() {
+        return array( 'adaptive', 'surveyjs' );
     }
 
     public static function fallbacks() {
@@ -48,6 +53,10 @@ class SurveyJS_Form_Settings {
     public static function get( $survey ) {
         $stored = json_decode( (string) ( $survey->settings ?? '' ), true );
         $stored = is_array( $stored ) ? array_intersect_key( $stored, self::defaults() ) : array();
+        if ( ! isset( $stored['themeMode'] ) && ! empty( array_filter( SurveyJS_Client::decode_survey_json( $survey->theme ?? '' ) ) ) ) {
+            // Forms styled before the adaptive theme existed keep their SurveyJS theme.
+            $stored['themeMode'] = 'surveyjs';
+        }
         return array_merge( self::defaults(), $stored );
     }
 
@@ -69,6 +78,7 @@ class SurveyJS_Form_Settings {
             'autoReplyMessage'      => self::sanitize_message( $input['autoReplyMessage'], $input['autoReplyHtml'] ),
             'autoReplyHtml'         => ! empty( $input['autoReplyHtml'] ),
             'autoReplyAttachments'  => sanitize_text_field( $input['autoReplyAttachments'] ),
+            'themeMode'             => in_array( $input['themeMode'], self::theme_modes(), true ) ? $input['themeMode'] : 'adaptive',
         );
     }
 
