@@ -54,6 +54,11 @@ class SurveyJS_SurveyJS {
                 'surveys',
                 $surveys
             );
+            wp_localize_script(
+                $blockscriptname,
+                'surveyjsBlock',
+                array( 'editUrl' => add_query_arg( 'page', 'surveyjs_editor', admin_url( 'admin.php' ) ) )
+            );
         }
 
         register_block_type(

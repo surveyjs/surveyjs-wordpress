@@ -3,8 +3,10 @@ var registerBlockType = wp.blocks.registerBlockType;
 var SelectControl = wp.components.SelectControl;
 var Placeholder = wp.components.Placeholder;
 var InspectorControls = wp.blockEditor.InspectorControls;
+var ExternalLink = wp.components.ExternalLink;
 var blockIcon = "welcome-write-blog";
 var surveysArray = this.surveys;
+var editFormUrl = this.surveyjsBlock.editUrl;
 var surveys = {};
 
 for (var i = 0; i < surveysArray.length; i++) {
@@ -61,7 +63,12 @@ registerBlockType("sjs/gutenberg-block", {
         value: surveyid,
         options: options,
         onChange: onSurveyChange
-      })
+      }),
+      surveys[surveyid] && el(
+        "p",
+        {},
+        el(ExternalLink, { href: editFormUrl + "&id=" + encodeURIComponent(surveyid) }, "Edit this form")
+      )
     );
 
     return el(
