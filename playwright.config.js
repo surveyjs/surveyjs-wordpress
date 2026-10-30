@@ -13,6 +13,7 @@ module.exports = defineConfig({
     trace: "retain-on-failure"
   },
   projects: [
+    { name: "unit", testDir: "tests/unit" },
     { name: "setup", testMatch: /auth\.setup\.js/ },
     {
       name: "e2e",

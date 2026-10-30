@@ -2,7 +2,8 @@
   "name": "surveyjs-wordpress",
   "private": true,
   "scripts": {
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test --project=setup --project=e2e",
+    "test:unit": "playwright test --project=unit"
   },
   "devDependencies": {
     "@playwright/test": "1.48.2"
