@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SurveyJS_Welcome {
 
-    const PAGE = 'surveyjs-welcome';
+    const PAGE = 'surveyjs-getting-started';
     const REDIRECT_TRANSIENT = 'surveyjs_activation_redirect';
     const CHECKLIST_OPTION = 'surveyjs_checklist';
     const ENTRY_OPTION = 'surveyjs_received_entry';
@@ -26,7 +26,7 @@ class SurveyJS_Welcome {
         if ( isset( $_GET['activate-multi'] ) || is_network_admin() || ! current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             return;
         }
-        wp_safe_redirect( self::url() );
+        wp_safe_redirect( add_query_arg( 'welcome', 1, self::url() ) );
         exit;
     }
 
@@ -194,7 +194,7 @@ JS
         $cf7_forms = SurveyJS_CF7_Importer::forms();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Welcome to SurveyJS Forms', 'surveyjs' ); ?></h1>
+            <h1><?php empty( $_GET['welcome'] ) ? esc_html_e( 'Getting Started', 'surveyjs' ) : esc_html_e( 'Welcome to SurveyJS Forms', 'surveyjs' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></h1>
             <p class="about-description"><?php esc_html_e( 'Build contact forms, surveys and quizzes, add them to any page with a block or a shortcode, get an email on every submission and keep entries right in WordPress.', 'surveyjs' ); ?></p>
             <p>
                 <a href="<?php echo esc_url( self::add_form_url() ); ?>" class="button button-primary button-hero"><?php $has_forms ? esc_html_e( 'Create a new form', 'surveyjs' ) : esc_html_e( 'Create your first form', 'surveyjs' ); ?></a>
