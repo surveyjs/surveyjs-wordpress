@@ -7,6 +7,10 @@ class SurveyJS_Editor {
     function __construct() {
     }
 
+    public static function ui_builder_url() {
+        return apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' );
+    }
+
     public static function render() {
         $client = new SurveyJS_Client();
         $survey = $client->getSurvey( absint( $_GET['id'] ?? 0 ) );
@@ -35,7 +39,7 @@ class SurveyJS_Editor {
             'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
             'themesUrl' => SurveyJS_Themes::url(),
             'previewUrl' => add_query_arg( 'surveyjs_preview', '1', home_url( '/' ) ),
-            'uiBuilderUrl' => apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' ),
+            'uiBuilderUrl' => self::ui_builder_url(),
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         ?>

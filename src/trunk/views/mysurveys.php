@@ -84,6 +84,9 @@ class SurveyJS_MySurveys {
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e( 'Forms', 'surveyjs' ); ?></h1>
             <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
+            <?php if ( SurveyJS_CF7_Importer::forms() ) : ?>
+                <a href="<?php echo esc_url( SurveyJS_Import::url() ); ?>" class="page-title-action"><?php esc_html_e( 'Import from Contact Form 7', 'surveyjs' ); ?></a>
+            <?php endif; ?>
             <?php if ( '' !== $search ) : ?>
                 <span class="subtitle">
                     <?php
@@ -93,6 +96,8 @@ class SurveyJS_MySurveys {
                 </span>
             <?php endif; ?>
             <hr class="wp-header-end">
+
+            <?php SurveyJS_Welcome::render_compact(); ?>
 
             <?php if ( isset( $messages[ $message ] ) ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>

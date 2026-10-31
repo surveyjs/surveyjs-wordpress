@@ -67,7 +67,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     function wps_uninstall() {
 
     }
-    register_activation_hook( __FILE__, 'wps_install');
+    function wps_activate( $network_wide = false ) {
+        wps_install();
+        $bulk = isset( $_POST['checked'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $cli = defined( 'WP_CLI' ) && WP_CLI;
+        $rest = defined( 'REST_REQUEST' ) && REST_REQUEST;
+        if ( ! $network_wide && ! $bulk && ! $cli && ! $rest && ! wp_doing_ajax() && current_user_can( 'manage_options' ) ) {
+            set_transient( 'surveyjs_activation_redirect', get_current_user_id(), 30 );
+        }
+    }
+    register_activation_hook( __FILE__, 'wps_activate');
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
     include_once("service_client.php");
@@ -76,6 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("surveyjs_themes.php");
     include("uploaded_files.php");
     include("notification.php");
+    include("cf7_importer.php");
 
     include("ajax_handlers/insert_survey.php");
     new SurveyJS_InsertSurveyHandler();

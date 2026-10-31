@@ -931,6 +931,8 @@
     renderPreview();
     renderFieldTags();
     updateState();
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    if (!(requestedTab in sources) && Array.from(tabs).some((tab) => tab.dataset.tab === requestedTab)) switchTab(requestedTab);
 
     loadMonaco().then((loaded) => {
         monaco = loaded;

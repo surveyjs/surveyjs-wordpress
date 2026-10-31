@@ -7,6 +7,8 @@ if ( is_admin() ) {
     include( "views/mysurveys.php" );
     include( "views/editor.php" );
     include( "views/results.php" );
+    include( "views/import.php" );
+    include( "views/welcome.php" );
 }
 
 class SurveyJS_SurveyJS {
@@ -27,6 +29,10 @@ class SurveyJS_SurveyJS {
         add_action('template_redirect', array($this, 'render_preview_page'), -1);
 
         add_action('init', array($this, 'register_surveyjs_gutenberg_block'));
+
+        add_action('admin_init', array('SurveyJS_Welcome', 'maybe_redirect'));
+        add_action('wp_ajax_surveyjs_checklist', array('SurveyJS_Welcome', 'handle_checklist_action'));
+        add_action('admin_enqueue_scripts', array('SurveyJS_Welcome', 'enqueue_assets'));
     }
 
     public function register_surveyjs_gutenberg_block() {
@@ -158,23 +164,27 @@ class SurveyJS_SurveyJS {
         if ( ! $post ) {
             return array();
         }
+        return self::content_survey_ids($post->post_content);
+    }
+
+    public static function content_survey_ids($content) {
         $ids = array();
-        if ( preg_match_all('/' . get_shortcode_regex(array('surveyjs', 'Survey')) . '/', $post->post_content, $matches) ) {
+        if ( preg_match_all('/' . get_shortcode_regex(array('surveyjs', 'Survey')) . '/', $content, $matches) ) {
             foreach ( $matches[3] as $shortcodeAttrs ) {
                 $attrs = shortcode_parse_atts($shortcodeAttrs);
                 $ids[] = absint($attrs['id'] ?? 0);
             }
         }
-        $this->collect_block_survey_ids(parse_blocks($post->post_content), $ids);
+        self::collect_block_survey_ids(parse_blocks($content), $ids);
         return array_unique(array_filter($ids));
     }
 
-    private function collect_block_survey_ids($blocks, &$ids) {
+    private static function collect_block_survey_ids($blocks, &$ids) {
         foreach ( $blocks as $block ) {
             if ( 'sjs/gutenberg-block' === $block['blockName'] ) {
                 $ids[] = absint($block['attrs']['surveyid'] ?? 0);
             }
-            $this->collect_block_survey_ids($block['innerBlocks'], $ids);
+            self::collect_block_survey_ids($block['innerBlocks'], $ids);
         }
     }
 
@@ -234,9 +244,12 @@ class SurveyJS_SurveyJS {
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Forms', 'surveyjs' ), esc_html__( 'Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
+        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Welcome to SurveyJS Forms', 'surveyjs' ), esc_html__( 'Welcome', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
         $results_hook = add_submenu_page('', '', '', 'manage_options', 'surveyjs_results', array('SurveyJS_Results', 'render'));
         add_action( 'load-' . $results_hook, array( 'SurveyJS_Results', 'handle_actions' ) );
+        $import_hook = add_submenu_page('', '', '', 'manage_options', 'surveyjs_import', array('SurveyJS_Import', 'render'));
+        add_action( 'load-' . $import_hook, array( 'SurveyJS_Import', 'handle_actions' ) );
     }
   
     // function wps_mysurveys_page() {
