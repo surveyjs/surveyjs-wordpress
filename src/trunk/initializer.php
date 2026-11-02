@@ -293,6 +293,7 @@ class SurveyJS_SurveyJS {
             'uploadFilesUrl' => add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php')),
             'uploadFilesNonce' => wp_create_nonce('surveyjs-upload-files'),
             'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
+            'draft' => SurveyJS_Drafts::client_config($row),
         );
         if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['captcha'] = SurveyJS_Captcha::client_config();

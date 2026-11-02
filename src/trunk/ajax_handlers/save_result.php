@@ -52,6 +52,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             }
 
             add_option( 'surveyjs_received_entry', 1 );
+            SurveyJS_Drafts::delete( get_current_user_id(), $SurveyId );
 
             $data = json_decode( $Json, true );
             SurveyJS_Notification::send( $survey, $settings, $data );

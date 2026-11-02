@@ -6,6 +6,7 @@ class SurveyJS_Form_Settings {
     public static function defaults() {
         return array(
             'storeEntries'          => true,
+            'saveResume'            => false,
             'notificationEnabled'   => false,
             'notificationTo'        => '',
             'notificationFromName'  => '',
@@ -66,6 +67,7 @@ class SurveyJS_Form_Settings {
         $input = array_merge( self::defaults(), is_array( $input ) ? $input : array() );
         return array(
             'storeEntries'          => ! empty( $input['storeEntries'] ),
+            'saveResume'            => ! empty( $input['saveResume'] ),
             'notificationEnabled'   => ! empty( $input['notificationEnabled'] ),
             'notificationTo'        => sanitize_text_field( $input['notificationTo'] ),
             'notificationFromName'  => sanitize_text_field( $input['notificationFromName'] ),

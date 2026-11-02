@@ -26,6 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     function wps_uninstall() {
         SurveyJS_Uploaded_Files::unschedule_cleanup();
         delete_option( 'surveyjs_upload_guard_version' );
+        SurveyJS_Drafts::unschedule_cleanup();
     }
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
@@ -57,6 +58,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("wpforms_importer.php");
     include("ninja_forms_importer.php");
     include("fluent_forms_importer.php");
+
+    include("drafts.php");
+    new SurveyJS_Drafts();
 
     include("ajax_handlers/insert_survey.php");
     new SurveyJS_InsertSurveyHandler();

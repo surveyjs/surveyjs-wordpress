@@ -79,6 +79,7 @@ class SurveyJS_Editor {
                 <a href="#" class="nav-tab" data-tab="email"><?php esc_html_e( 'Email Notification', 'surveyjs' ); ?></a>
                 <a href="#" class="nav-tab" data-tab="entries"><?php esc_html_e( 'Entries', 'surveyjs' ); ?></a>
                 <a href="#" class="nav-tab" data-tab="spam"><?php esc_html_e( 'Spam Protection', 'surveyjs' ); ?></a>
+                <a href="#" class="nav-tab" data-tab="resume"><?php esc_html_e( 'Save & Resume', 'surveyjs' ); ?></a>
                 <button type="button" class="button button-primary wp-sjs-editor__save" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </nav>
 
@@ -160,6 +161,17 @@ class SurveyJS_Editor {
                                     </p>
                                 <?php endif; ?>
                                 <p class="description"><?php esc_html_e( 'A hidden honeypot field is always on and blocks simple spam bots.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="wp-sjs-editor__settings" data-panel="resume" hidden>
+                    <table class="form-table" role="presentation">
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Save & Resume', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="saveResume" /> <?php esc_html_e( 'Let respondents continue later', 'surveyjs' ); ?></label>
+                                <p class="description"><?php esc_html_e( 'Unfinished answers are saved as the respondent fills in the form and restored when they come back. Visitors\' answers are kept in their browser. Logged-in users\' answers are kept on your site, so they can continue on another device. Unfinished answers are deleted after 30 days or when the form is submitted.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
                     </table>

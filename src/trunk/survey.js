@@ -214,6 +214,10 @@
             options.callback("success");
         });
 
+        if (config.draft && window.SurveyJSDrafts) {
+            SurveyJSDrafts.attach(survey, config, container);
+        }
+
         SurveyUI.renderSurvey(survey, container);
     }
 
