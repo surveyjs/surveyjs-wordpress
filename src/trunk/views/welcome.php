@@ -191,7 +191,9 @@ JS
         $has_forms = (bool) $wpdb->get_var( "SELECT id FROM {$wpdb->prefix}sjs_my_surveys LIMIT 1" );
         $checklist = self::checklist();
         $dismissed = self::state()['dismissed'];
-        $cf7_forms = SurveyJS_CF7_Importer::forms();
+        $import_sources = array_filter( array_map( function ( $info ) {
+            return $info['importer']::forms();
+        }, SurveyJS_Import::sources() ) );
         ?>
         <div class="wrap">
             <h1><?php empty( $_GET['welcome'] ) ? esc_html_e( 'Getting Started', 'surveyjs' ) : esc_html_e( 'Welcome to SurveyJS Forms', 'surveyjs' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></h1>
@@ -204,12 +206,12 @@ JS
                 &nbsp;|&nbsp; <a href="<?php echo esc_url( SurveyJS_Editor::ui_builder_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'UI Builder', 'surveyjs' ); ?></a>
             </p>
 
-            <?php if ( $cf7_forms ) : ?>
+            <?php foreach ( $import_sources as $source => $source_forms ) : ?>
                 <div class="card wp-sjs-welcome-import">
-                    <h2><?php esc_html_e( 'Import from Contact Form 7', 'surveyjs' ); ?></h2>
-                    <?php SurveyJS_Import::render_form( $cf7_forms ); ?>
+                    <h2><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), SurveyJS_Import::sources()[ $source ]['title'] ) ); ?></h2>
+                    <?php SurveyJS_Import::render_form( $source, $source_forms ); ?>
                 </div>
-            <?php endif; ?>
+            <?php endforeach; ?>
 
             <p class="wp-sjs-checklist-hidden"<?php echo $dismissed ? '' : ' hidden'; ?>><?php esc_html_e( 'The getting-started checklist is hidden.', 'surveyjs' ); ?> <button type="button" class="button-link" data-sjs-checklist="show"><?php esc_html_e( 'Show checklist', 'surveyjs' ); ?></button></p>
             <?php self::render_checklist( $checklist, $dismissed ); ?>

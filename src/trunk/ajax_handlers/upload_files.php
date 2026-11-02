@@ -33,11 +33,11 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
             wp_send_json( array( 'error' => 'too_many_files' ), 400 );
         }
 
-        $allowed  = $this->allowed_extensions();
+        $allowed  = self::allowed_extensions();
         $max_size = $this->max_file_size();
         $result   = array();
 
-        $this->protect_upload_dir();
+        self::protect_upload_dir();
 
         foreach ( $_FILES as $uploadedfile ) {
             if ( ! is_array( $uploadedfile ) || ! isset( $uploadedfile['name'], $uploadedfile['tmp_name'] ) ) {
@@ -113,7 +113,7 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         return SurveyJS_Client::survey_has_file_question( SurveyJS_Client::decode_survey_json( $survey->json ) );
     }
 
-    private function allowed_extensions() {
+    public static function allowed_extensions() {
         $defaults = array(
             'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tif', 'tiff',
             'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
@@ -139,7 +139,7 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         return $size > 0 ? $size : $ceiling;
     }
 
-    private function protect_upload_dir() {
+    public static function protect_upload_dir() {
         $upload_dir = wp_upload_dir();
         if ( ! empty( $upload_dir['error'] ) ) {
             return;

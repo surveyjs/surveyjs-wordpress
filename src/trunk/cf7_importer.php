@@ -1,7 +1,13 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class SurveyJS_CF7_Importer {
+class SurveyJS_CF7_Importer extends SurveyJS_Importer {
+
+    const TITLE_MAX_LENGTH = 150;
+
+    public static function source() {
+        return 'cf7';
+    }
 
     public static function is_available() {
         return class_exists( 'WPCF7_ContactForm' );
@@ -18,27 +24,12 @@ class SurveyJS_CF7_Importer {
         return $forms;
     }
 
-    public static function import( $cf7_id ) {
-        global $wpdb;
+    protected static function convert_form( $cf7_id ) {
         $cf7 = self::is_available() ? wpcf7_contact_form( $cf7_id ) : null;
         if ( ! $cf7 ) {
             return new WP_Error( 'not_found', __( 'The Contact Form 7 form was not found.', 'surveyjs' ) );
         }
-        $converted = self::convert( $cf7 );
-        if ( empty( $converted['json']['elements'] ) ) {
-            return new WP_Error( 'no_fields', __( 'The form has no fields to import.', 'surveyjs' ) );
-        }
-        $wpdb->insert( $wpdb->prefix . 'sjs_my_surveys', array(
-            'name'     => sanitize_text_field( $cf7->title() ),
-            'json'     => wp_json_encode( $converted['json'] ),
-            'settings' => wp_json_encode( SurveyJS_Form_Settings::sanitize( $converted['settings'] ) ),
-        ) );
-        return array(
-            'id'      => $wpdb->insert_id,
-            'name'    => $cf7->title(),
-            'skipped' => $converted['skipped'],
-            'notes'   => $converted['notes'],
-        );
+        return array( 'name' => $cf7->title() ) + self::convert( $cf7 );
     }
 
     public static function convert( $cf7 ) {
@@ -46,8 +37,18 @@ class SurveyJS_CF7_Importer {
         $skipped = array();
         $notes = array();
         $form_html = (string) $cf7->prop( 'form' );
+        $messages = (array) $cf7->prop( 'messages' );
+        $tags = $cf7->scan_form_tags();
+        $segments = self::segments( $form_html, count( $tags ) );
+        $taken = array_filter( wp_list_pluck( $tags, 'name' ), 'strlen' );
 
-        foreach ( $cf7->scan_form_tags() as $tag ) {
+        foreach ( $tags as $index => $tag ) {
+            $text = $segments[ $index ] ?? '';
+            $title = self::label( $form_html, $tag );
+            if ( '' === $title && '' !== $tag->name && 'hidden' !== $tag->basetype ) {
+                list( $text, $title ) = self::title_line( $text );
+            }
+            self::add_html( $json, $text, $taken );
             if ( 'submit' === $tag->basetype ) {
                 if ( '' !== (string) reset( $tag->values ) ) {
                     $json['completeText'] = (string) reset( $tag->values );
@@ -57,26 +58,35 @@ class SurveyJS_CF7_Importer {
             if ( in_array( $tag->basetype, array( 'count', 'response' ), true ) ) {
                 continue;
             }
-            $question = self::question( $tag, self::label( $form_html, $tag ) );
+            $question = self::question( $tag, $title, $messages, $notes );
             if ( $question ) {
                 $json['elements'][] = $question;
             } else {
                 $skipped[] = sprintf( '%s (%s)', '' !== $tag->name ? $tag->name : $tag->type, $tag->basetype );
             }
         }
+        self::add_html( $json, $segments[ count( $tags ) ] ?? '', $taken );
 
-        $messages = (array) $cf7->prop( 'messages' );
         if ( ! empty( $messages['mail_sent_ok'] ) ) {
             $json['completedHtml'] = '<p>' . esc_html( $messages['mail_sent_ok'] ) . '</p>';
         }
 
         $names = wp_list_pluck( $json['elements'], 'name' );
         $settings = self::mail_settings( (array) $cf7->prop( 'mail' ), (array) $cf7->prop( 'mail_2' ), $names, $notes );
+        if ( $cf7->is_true( 'skip_mail' ) || $cf7->in_demo_mode() ) {
+            $settings['notificationEnabled'] = false;
+            $settings['autoReplyEnabled'] = false;
+            $notes[] = __( 'Emails are turned off because the form skips mail (skip_mail or demo_mode).', 'surveyjs' );
+        }
+        if ( $cf7->is_true( 'subscribers_only' ) ) {
+            $notes[] = __( 'The subscribers_only setting was not imported: the form is open to all visitors.', 'surveyjs' );
+        }
         return array( 'json' => $json, 'settings' => $settings, 'skipped' => $skipped, 'notes' => $notes );
     }
 
-    private static function question( $tag, $title ) {
-        $question = array( 'name' => $tag->name, 'title' => $title );
+    private static function question( $tag, $title, $messages, &$notes ) {
+        $label = '' !== $title ? $title : ucfirst( str_replace( array( '-', '_' ), ' ', $tag->name ) );
+        $question = array( 'name' => $tag->name, 'title' => $label );
         if ( $tag->is_required() ) {
             $question['isRequired'] = true;
         }
@@ -89,7 +99,6 @@ class SurveyJS_CF7_Importer {
             case 'url':
             case 'tel':
             case 'number':
-            case 'range':
             case 'date':
             case 'textarea':
                 $question['type'] = 'textarea' === $tag->basetype ? 'comment' : 'text';
@@ -102,35 +111,105 @@ class SurveyJS_CF7_Importer {
                 if ( $tag->get_maxlength_option() ) {
                     $question['maxLength'] = (int) $tag->get_maxlength_option();
                 }
-                foreach ( 'date' === $tag->basetype ? array( 'min', 'max' ) : array( 'min', 'max', 'step' ) as $option ) {
-                    $limit = 'date' === $tag->basetype ? $tag->get_date_option( $option ) : $tag->get_option( $option, 'signed_num', true );
-                    if ( false !== $limit ) {
-                        $question[ $option ] = 'date' === $tag->basetype ? $limit : (float) $limit;
+                if ( $tag->get_minlength_option() ) {
+                    $question['validators'] = array( array( 'type' => 'text', 'minLength' => (int) $tag->get_minlength_option() ) );
+                }
+                if ( 'textarea' === $tag->basetype && $tag->get_rows_option() ) {
+                    $question['rows'] = (int) $tag->get_rows_option();
+                }
+                $autocomplete = $tag->get_option( 'autocomplete', '[-0-9a-zA-Z]+', true );
+                if ( $autocomplete && 'textarea' !== $tag->basetype ) {
+                    $question['autocomplete'] = $autocomplete;
+                }
+                if ( 'number' === $tag->basetype ) {
+                    foreach ( array( 'min', 'max', 'step' ) as $option ) {
+                        $limit = $tag->get_option( $option, 'signed_num', true );
+                        if ( false !== $limit ) {
+                            $question[ $option ] = (float) $limit;
+                        }
+                    }
+                } elseif ( 'date' === $tag->basetype ) {
+                    foreach ( array( 'min', 'max' ) as $option ) {
+                        if ( false !== $tag->get_date_option( $option ) ) {
+                            $question[ $option ] = $tag->get_date_option( $option );
+                        }
                     }
                 }
+                return $question;
+
+            case 'range':
+                $question['type'] = 'slider';
+                foreach ( array( 'min', 'max', 'step' ) as $option ) {
+                    $limit = $tag->get_option( $option, 'signed_num', true );
+                    if ( false !== $limit ) {
+                        $question[ $option ] = (float) $limit;
+                    }
+                }
+                if ( is_numeric( $value ) && ! $is_placeholder ) {
+                    $question['defaultValue'] = (float) $value;
+                }
+                return $question;
+
+            case 'hidden':
+                $question['type'] = 'text';
+                $question['visible'] = false;
+                $question['clearIfInvisible'] = 'none';
+                if ( '' !== $value ) {
+                    $question['defaultValue'] = $value;
+                }
+                return $question;
+
+            case 'quiz':
+                $pairs = $tag->pipes instanceof WPCF7_Pipes ? $tag->pipes->to_array() : array();
+                if ( ! $pairs || '' === trim( (string) $pairs[0][1] ) ) {
+                    return null;
+                }
+                if ( count( $pairs ) > 1 ) {
+                    /* translators: %s: field name */
+                    $notes[] = sprintf( __( 'Only the first question of the quiz "%s" was imported.', 'surveyjs' ), $tag->name );
+                }
+                $question = array( 'type' => 'text', 'name' => $tag->name, 'title' => trim( (string) $pairs[0][0] ), 'isRequired' => true );
+                if ( '' !== $title ) {
+                    $question['description'] = $title;
+                }
+                $question['validators'] = array( array(
+                    'type'            => 'regex',
+                    'regex'           => '^\s*' . preg_quote( trim( (string) $pairs[0][1] ) ) . '\s*$',
+                    'caseInsensitive' => true,
+                    'text'            => ! empty( $messages['quiz_answer_not_correct'] ) ? $messages['quiz_answer_not_correct'] : __( 'The answer to the quiz is incorrect.', 'surveyjs' ),
+                ) );
                 return $question;
 
             case 'select':
             case 'checkbox':
             case 'radio':
-                $choices = array_values( array_map( 'strval', $tag->labels ) );
+                $labels = array_values( array_map( 'strval', $tag->labels ) );
+                $afters = $tag->pipes instanceof WPCF7_Pipes ? array_map( 'trim', $tag->pipes->collect_afters() ) : array();
+                $items = array();
+                foreach ( $labels as $index => $text ) {
+                    $item_value = count( $afters ) === count( $labels ) ? (string) $afters[ $index ] : $text;
+                    $items[ $index ] = $item_value === $text ? $text : array( 'value' => $item_value, 'text' => $text );
+                }
                 if ( 'select' === $tag->basetype ) {
                     $question['type'] = $tag->has_option( 'multiple' ) ? 'tagbox' : 'dropdown';
-                    if ( $tag->has_option( 'first_as_label' ) && $choices ) {
-                        $question['placeholder'] = array_shift( $choices );
+                    if ( $tag->has_option( 'first_as_label' ) && $items ) {
+                        $question['placeholder'] = $labels[0];
+                        unset( $items[0] );
                     }
                 } else {
                     $question['type'] = 'radio' === $tag->basetype || $tag->has_option( 'exclusive' ) ? 'radiogroup' : 'checkbox';
-                    if ( $tag->has_option( 'free_text' ) && $choices ) {
+                    if ( $tag->has_option( 'free_text' ) && $items ) {
                         $question['showOtherItem'] = true;
-                        $question['otherText'] = array_pop( $choices );
+                        $question['otherText'] = end( $labels );
+                        array_pop( $items );
                     }
                 }
-                $question['choices'] = $choices;
+                $question['choices'] = array_values( $items );
                 $defaults = array();
                 foreach ( explode( '_', (string) $tag->get_option( 'default', '[0-9_]+', true ) ) as $index ) {
-                    if ( isset( $tag->labels[ (int) $index - 1 ] ) && in_array( $tag->labels[ (int) $index - 1 ], $choices, true ) ) {
-                        $defaults[] = $tag->labels[ (int) $index - 1 ];
+                    if ( isset( $items[ (int) $index - 1 ] ) ) {
+                        $item = $items[ (int) $index - 1 ];
+                        $defaults[] = is_array( $item ) ? $item['value'] : $item;
                     }
                 }
                 if ( $defaults ) {
@@ -141,7 +220,7 @@ class SurveyJS_CF7_Importer {
             case 'acceptance':
                 $text = trim( wp_strip_all_tags( (string) $tag->content ) );
                 $question['type'] = 'checkbox';
-                $question['title'] = '' !== $text ? $text : $title;
+                $question['title'] = '' !== $text ? $text : $label;
                 $question['titleLocation'] = 'hidden';
                 $question['choices'] = array( array( 'value' => 'accepted', 'text' => $question['title'] ) );
                 if ( ! $tag->has_option( 'optional' ) ) {
@@ -176,7 +255,63 @@ class SurveyJS_CF7_Importer {
                 }
             }
         }
-        return ucfirst( str_replace( array( '-', '_' ), ' ', $tag->name ) );
+        return '';
+    }
+
+    private static function tag_regex() {
+        $types = implode( '|', array_map( function ( $type ) {
+            return preg_quote( $type, '/' );
+        }, WPCF7_FormTagsManager::get_instance()->collect_tag_types() ) );
+        $whitespaces = wpcf7_get_unicode_whitespaces();
+        return '/(\[?)\[(' . $types . ')(?:[' . $whitespaces . ']+(.*?))?(?:[' . $whitespaces . ']+(\/))?\](?:([^[]*?)\[\/\2\])?(\]?)/su';
+    }
+
+    private static function segments( $form_html, $count ) {
+        $regex = self::tag_regex();
+        $html = preg_replace_callback( '/<label\b[^>]*>(.*?)<\/label>/si', function ( $label ) use ( $regex ) {
+            return preg_match_all( $regex, $label[1], $tags ) ? implode( ' ', $tags[0] ) : $label[0];
+        }, $form_html );
+        preg_match_all( $regex, $html, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE );
+        $segments = array();
+        $offset = 0;
+        foreach ( $matches as $match ) {
+            if ( '[' === $match[1][0] && ']' === ( $match[6][0] ?? '' ) ) {
+                continue;
+            }
+            $segments[] = substr( $html, $offset, $match[0][1] - $offset );
+            $offset = $match[0][1] + strlen( $match[0][0] );
+        }
+        $segments[] = substr( $html, $offset );
+        return count( $segments ) === $count + 1 ? $segments : array();
+    }
+
+    private static function title_line( $html ) {
+        $lines = preg_split( '/(\r\n|\r|\n|<br\s*\/?>|<\/p>|<\/div>)/i', $html, -1, PREG_SPLIT_DELIM_CAPTURE );
+        for ( $i = count( $lines ) - 1; $i >= 0; $i -= 2 ) {
+            $text = preg_replace( '/\s+/', ' ', trim( wp_strip_all_tags( $lines[ $i ] ) ) );
+            if ( '' === $text ) {
+                continue;
+            }
+            if ( strlen( $text ) > self::TITLE_MAX_LENGTH ) {
+                break;
+            }
+            $lines[ $i ] = '';
+            return array( implode( '', $lines ), $text );
+        }
+        return array( $html, '' );
+    }
+
+    private static function add_html( &$json, $html, &$taken ) {
+        $html = trim( preg_replace( '/<p>\s*<\/p>/i', '', wp_kses_post( wpautop( force_balance_tags( $html ) ) ) ) );
+        if ( '' === trim( wp_strip_all_tags( $html ) ) && ! preg_match( '/<(img|hr|iframe)\b/i', $html ) ) {
+            return;
+        }
+        $name = 'html1';
+        for ( $i = 2; in_array( $name, $taken, true ); $i++ ) {
+            $name = 'html' . $i;
+        }
+        $taken[] = $name;
+        $json['elements'][] = array( 'type' => 'html', 'name' => $name, 'html' => $html );
     }
 
     private static function mail_settings( $mail, $mail_2, $names, &$notes ) {
@@ -229,7 +364,7 @@ class SurveyJS_CF7_Importer {
             '[_site_description]' => get_bloginfo( 'description' ),
         );
         $text = strtr( (string) $text, $special );
-        return preg_replace_callback( '/\[([\w-]+)\]/', function ( $match ) use ( $names, &$notes ) {
+        return preg_replace_callback( '/\[(?:_raw_)?([\w-]+)\]/', function ( $match ) use ( $names, &$notes ) {
             if ( in_array( $match[1], $names, true ) ) {
                 return '{field:' . $match[1] . '}';
             }

@@ -85,7 +85,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include("surveyjs_themes.php");
     include("uploaded_files.php");
     include("notification.php");
+    include("importer.php");
     include("cf7_importer.php");
+    include("wpforms_importer.php");
+    include("ninja_forms_importer.php");
+    include("fluent_forms_importer.php");
 
     include("ajax_handlers/insert_survey.php");
     new SurveyJS_InsertSurveyHandler();

@@ -32,6 +32,7 @@ class SurveyJS_SurveyJS {
 
         add_action('admin_init', array('SurveyJS_Welcome', 'maybe_redirect'));
         add_action('wp_ajax_surveyjs_checklist', array('SurveyJS_Welcome', 'handle_checklist_action'));
+        add_action('wp_ajax_surveyjs_import', array('SurveyJS_Import', 'handle_ajax'));
         add_action('admin_enqueue_scripts', array('SurveyJS_Welcome', 'enqueue_assets'));
     }
 

@@ -14,8 +14,10 @@ class SurveyJS_Notification {
         $data = is_array( $data ) ? $data : array();
         $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
         $text_tags = self::common_tags( $survey );
+        $value_tags = $text_tags;
         foreach ( $questions as $question ) {
             $text_tags[ '{field:' . $question['name'] . '}' ] = array_key_exists( $question['name'], $data ) ? SurveyJS_Survey_Values::display_value( $question, $data[ $question['name'] ] ) : '';
+            $value_tags[ '{field:' . $question['name'] . '}' ] = self::raw_value( $data[ $question['name'] ] ?? null );
         }
         $html_tags = array_map( 'esc_html', $text_tags );
         $text_tags['{all_fields}'] = implode( "\n", self::field_lines( $questions, $data ) );
@@ -26,7 +28,7 @@ class SurveyJS_Notification {
             return $html ? strtr( wpautop( $template ), $html_tags ) : strtr( $template, $text_tags );
         };
 
-        $to = self::recipients( $value( 'notificationTo' ) );
+        $to = self::recipients( strtr( SurveyJS_Form_Settings::value( $settings, 'notificationTo' ), $value_tags ) );
         $respondent_email = $data[ $settings['notificationReplyTo'] ] ?? '';
         $respondent_email = is_string( $respondent_email ) && is_email( $respondent_email ) ? $respondent_email : '';
         $from = self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) );
@@ -81,6 +83,13 @@ class SurveyJS_Notification {
             '{site_name}'   => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
             '{form_name}'   => $survey->name,
         );
+    }
+
+    private static function raw_value( $value ) {
+        if ( is_scalar( $value ) ) {
+            return (string) $value;
+        }
+        return is_array( $value ) ? implode( ', ', array_filter( $value, 'is_scalar' ) ) : '';
     }
 
     private static function recipients( $list ) {

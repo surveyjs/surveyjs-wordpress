@@ -56,6 +56,7 @@ class SurveyJS_MySurveys {
             foreach ( $ids as $id ) {
                 $wpdb->delete( $table_name, array( 'id' => $id ) );
             }
+            SurveyJS_Importer::forget( $ids );
             wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => count( $ids ) ), $list_url ) );
             exit;
         }
@@ -84,9 +85,11 @@ class SurveyJS_MySurveys {
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e( 'Forms', 'surveyjs' ); ?></h1>
             <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
-            <?php if ( SurveyJS_CF7_Importer::forms() ) : ?>
-                <a href="<?php echo esc_url( SurveyJS_Import::url() ); ?>" class="page-title-action"><?php esc_html_e( 'Import from Contact Form 7', 'surveyjs' ); ?></a>
-            <?php endif; ?>
+            <?php foreach ( SurveyJS_Import::sources() as $source => $info ) : ?>
+                <?php if ( $info['importer']::forms() ) : ?>
+                    <a href="<?php echo esc_url( SurveyJS_Import::url( $source ) ); ?>" class="page-title-action"><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), $info['title'] ) ); ?></a>
+                <?php endif; ?>
+            <?php endforeach; ?>
             <?php if ( '' !== $search ) : ?>
                 <span class="subtitle">
                     <?php
