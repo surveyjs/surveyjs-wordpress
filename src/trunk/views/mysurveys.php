@@ -11,8 +11,6 @@ class SurveyJS_MySurveys {
             return;
         }
         require_once __DIR__ . '/surveys_list_table.php';
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'sjs_my_surveys';
         $list_url = SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' );
 
         $action = sanitize_key( wp_unslash( $_REQUEST['action'] ?? '' ) );
@@ -23,17 +21,20 @@ class SurveyJS_MySurveys {
         if ( 'add' === $action ) {
             check_admin_referer( 'surveyjs-add-survey' );
             $name = 'New Survey';
-            $wpdb->insert( $table_name, array( 'name' => $name ) );
-            wp_safe_redirect( SurveyJS_Surveys_List_Table::page_url( 'surveyjs_editor', array( 'id' => $wpdb->insert_id, 'name' => $name ) ) );
+            $id = SurveyJS_Forms::create( array( 'name' => $name ) );
+            if ( ! $id ) {
+                wp_die( esc_html__( 'The form could not be created.', 'surveyjs' ) );
+            }
+            wp_safe_redirect( SurveyJS_Surveys_List_Table::page_url( 'surveyjs_editor', array( 'id' => $id, 'name' => $name ) ) );
             exit;
         }
 
         if ( 'clone' === $action ) {
             $id = absint( $_GET['id'] ?? 0 );
             check_admin_referer( 'surveyjs-clone-survey_' . $id );
-            $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", $id ) );
+            $row = SurveyJS_Forms::find( $id );
             if ( $row ) {
-                $wpdb->insert( $table_name, array(
+                SurveyJS_Forms::create( array(
                     'name' => sanitize_text_field( 'Copy of ' . $row->name ),
                     'json' => $row->json,
                     'theme' => $row->theme,
@@ -53,11 +54,8 @@ class SurveyJS_MySurveys {
                 check_admin_referer( 'surveyjs-delete-survey_' . $id );
                 $ids = array( $id );
             }
-            foreach ( $ids as $id ) {
-                $wpdb->delete( $table_name, array( 'id' => $id ) );
-            }
-            SurveyJS_Importer::forget( $ids );
-            wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => count( $ids ) ), $list_url ) );
+            $deleted = count( array_filter( array_map( array( 'SurveyJS_Forms', 'delete' ), $ids ) ) );
+            wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => $deleted ), $list_url ) );
             exit;
         }
 
@@ -106,7 +104,7 @@ class SurveyJS_MySurveys {
                 <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
             <?php endif; ?>
 
-            <form method="get">
+            <form method="get" id="wp-sjs-forms-list">
                 <input type="hidden" name="page" value="surveyjs-main-menu" />
                 <?php
                 $table->search_box( __( 'Search Forms', 'surveyjs' ), 'surveyjs-survey' );
@@ -114,6 +112,18 @@ class SurveyJS_MySurveys {
                 ?>
             </form>
         </div>
+        <script>
+            document.getElementById("wp-sjs-forms-list").addEventListener("submit", function (event) {
+                var button = event.submitter;
+                if (!button || !/^doaction2?$/.test(button.id)) {
+                    return;
+                }
+                var select = document.getElementById(button.id === "doaction2" ? "bulk-action-selector-bottom" : "bulk-action-selector-top");
+                if (select && select.value === "delete" && !window.confirm(<?php echo wp_json_encode( __( 'Delete the selected forms? All their entries and uploaded files will be deleted too. This cannot be undone.', 'surveyjs' ), JSON_HEX_TAG ); ?>)) {
+                    event.preventDefault();
+                }
+            });
+        </script>
         <?php
     }
 }

@@ -44,26 +44,26 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         global $wpdb;
 
         $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
-        $orderby_columns = array( 'name' => 's.name', 'results' => 'results' );
-        $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 's.id';
+        $orderby_columns = array( 'name' => 'p.post_title', 'results' => 'results' );
+        $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 'p.ID';
         $order = 'desc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'DESC' : 'ASC';
 
-        $where = '';
-        $args = array();
+        $where = "WHERE p.post_type = %s AND p.post_status = 'publish'";
+        $args = array( SurveyJS_Forms::POST_TYPE );
         if ( '' !== $search ) {
-            $where = 'WHERE s.name LIKE %s';
+            $where .= ' AND p.post_title LIKE %s';
             $args[] = '%' . $wpdb->esc_like( $search ) . '%';
         }
 
-        $count_sql = "SELECT COUNT(*) FROM {$wpdb->prefix}sjs_my_surveys s $where";
-        $total = (int) $wpdb->get_var( $args ? $wpdb->prepare( $count_sql, $args ) : $count_sql );
+        $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p $where", $args ) );
 
+        $entries = SurveyJS_Entries::table();
         $this->items = $wpdb->get_results( $wpdb->prepare(
-            "SELECT s.id, s.name, COUNT(r.id) AS results
-            FROM {$wpdb->prefix}sjs_my_surveys s
-            LEFT JOIN {$wpdb->prefix}sjs_results r ON r.surveyId = s.id
+            "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status <> 'spam' THEN 1 ELSE 0 END) AS results
+            FROM {$wpdb->posts} p
+            LEFT JOIN $entries r ON r.form_id = p.ID
             $where
-            GROUP BY s.id, s.name
+            GROUP BY p.ID, p.post_title
             ORDER BY $orderby $order
             LIMIT %d OFFSET %d",
             array_merge( $args, array( self::PER_PAGE, ( $this->get_pagenum() - 1 ) * self::PER_PAGE ) )
@@ -93,7 +93,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             'delete'  => sprintf(
                 '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>',
                 esc_url( $delete_url ),
-                esc_js( __( 'This action CANNOT be undone! Are you ABSOLUTELY sure?', 'surveyjs' ) ),
+                esc_js( self::delete_confirmation( (int) $item->entries ) ),
                 esc_html__( 'Delete', 'surveyjs' )
             ),
         );
@@ -103,6 +103,17 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             esc_url( $edit_url ),
             esc_html( $item->name ),
             $this->row_actions( $actions )
+        );
+    }
+
+    private static function delete_confirmation( $entries ) {
+        if ( ! $entries ) {
+            return __( 'Delete this form? This cannot be undone.', 'surveyjs' );
+        }
+        return sprintf(
+            /* translators: %s: number of entries */
+            _n( 'Delete this form and its %s entry? Files uploaded with the entry will be deleted too. This cannot be undone.', 'Delete this form and its %s entries? Files uploaded with these entries will be deleted too. This cannot be undone.', $entries, 'surveyjs' ),
+            number_format_i18n( $entries )
         );
     }
 

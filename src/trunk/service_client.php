@@ -8,17 +8,11 @@ class SurveyJS_Client {
     }
 
     public function getSurveys() {
-        global $wpdb;
-        return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys" );
+        return SurveyJS_Forms::names();
     }
 
     public function getSurvey( $id ) {
-        global $wpdb;
-        $id = absint( $id );
-        if ( ! $id ) {
-            return null;
-        }
-        return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", $id ) );
+        return SurveyJS_Forms::get( $id );
     }
 
     public static function decode_survey_json( $raw_json, $assoc = true ) {

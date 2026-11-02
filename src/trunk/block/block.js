@@ -7,14 +7,18 @@ var ExternalLink = wp.components.ExternalLink;
 var blockIcon = "welcome-write-blog";
 var surveysArray = this.surveys;
 var editFormUrl = this.surveyjsBlock.editUrl;
+var legacyIds = this.surveyjsBlock.legacyIds || {};
 var surveys = {};
 
 for (var i = 0; i < surveysArray.length; i++) {
   var survey = surveysArray[i];
   surveys[survey.id] = {
-    name: survey.name,
-    json: survey.json
+    name: survey.name
   };
+}
+
+function resolveSurveyId(surveyid) {
+  return surveys[surveyid] || !legacyIds[surveyid] ? surveyid : String(legacyIds[surveyid]);
 }
 
 function getShortcode(surveyid) {
@@ -31,7 +35,7 @@ registerBlockType("sjs/gutenberg-block", {
   edit: function(props) {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
-    var surveyid = attributes.surveyid;
+    var surveyid = resolveSurveyId(attributes.surveyid);
     var options = [
       {
         label: "Choose a form...",

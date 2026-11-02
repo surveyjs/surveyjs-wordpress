@@ -12,62 +12,23 @@ License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=Lic
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
-    define( 'SURVEYJS_DB_VERSION', '2' );
+    define( 'SURVEYJS_DB_VERSION', '3' );
 
     function wps_install() {
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        createMySurveysTable();
-        createResultsTable();
-        update_option( 'surveyjs_db_version', SURVEYJS_DB_VERSION );
+        SurveyJS_Install::install();
     }
 
     function wps_maybe_upgrade() {
-        if ( get_option( 'surveyjs_db_version' ) !== SURVEYJS_DB_VERSION ) {
-            wps_install();
-        }
+        SurveyJS_Install::maybe_upgrade();
     }
-    add_action( 'plugins_loaded', 'wps_maybe_upgrade' );
-
-    function createMySurveysTable() {
-        global $wpdb;
-        $charset_collate = $wpdb->get_charset_collate();
-        $table_name = $wpdb->prefix . 'sjs_my_surveys';
-
-        //var_dump( $table_name );
-
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            name text NOT NULL,
-            json LONGTEXT,
-            theme LONGTEXT,
-            settings LONGTEXT,
-            UNIQUE KEY id (id)
-        ) $charset_collate;";
-
-        dbDelta( $sql );
-    }
-
-    function createResultsTable() {
-        global $wpdb;
-        $charset_collate = $wpdb->get_charset_collate();
-        $table_name = $wpdb->prefix . 'sjs_results';
-
-        //var_dump( $table_name );
-
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            surveyId mediumint(9) NOT NULL,
-            json longtext,
-            UNIQUE KEY id (id)
-        ) $charset_collate;";
-
-        dbDelta( $sql );
-    }
+    add_action( 'init', 'wps_maybe_upgrade', 1 );
 
     function wps_uninstall() {
         SurveyJS_Uploaded_Files::unschedule_cleanup();
         delete_option( 'surveyjs_upload_guard_version' );
     }
+    register_deactivation_hook( __FILE__, 'wps_uninstall');
+
     function wps_activate( $network_wide = false ) {
         wps_install();
         $bulk = isset( $_POST['checked'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -78,9 +39,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         }
     }
     register_activation_hook( __FILE__, 'wps_activate');
-    register_deactivation_hook( __FILE__, 'wps_uninstall');
 
     include_once("service_client.php");
+    include_once( __DIR__ . "/forms.php" );
+    include_once( __DIR__ . "/entries.php" );
+    include_once( __DIR__ . "/db_install.php" );
+    include_once( __DIR__ . "/privacy.php" );
+    include_once( __DIR__ . "/admin_bar.php" );
     include("survey_values.php");
     include("form_settings.php");
     include("surveyjs_themes.php");
@@ -115,6 +80,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     add_action( SurveyJS_Uploaded_Files::CLEANUP_HOOK, array( 'SurveyJS_Uploaded_Files', 'cleanup' ) );
     add_action( 'admin_init', array( 'SurveyJS_UploadFiles', 'maybe_update_upload_dir_guards' ) );
+    SurveyJS_Forms::init();
+    SurveyJS_Entries::init();
+    SurveyJS_Privacy::init();
+    SurveyJS_Admin_Bar::init();
 
     include("initializer.php");
     new SurveyJS_SurveyJS();

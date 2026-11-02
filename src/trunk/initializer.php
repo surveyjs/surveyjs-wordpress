@@ -12,6 +12,10 @@ if ( is_admin() ) {
 }
 
 class SurveyJS_SurveyJS {
+    const BLOCK_SCRIPT = 'surveyjs-block-js';
+
+    public static $rendered_forms = array();
+
     public static $prefix = "sjs";
     public $plugin_version = "0.1.0";
 
@@ -29,10 +33,12 @@ class SurveyJS_SurveyJS {
         add_action('template_redirect', array($this, 'render_preview_page'), -1);
 
         add_action('init', array($this, 'register_surveyjs_gutenberg_block'));
+        add_action('enqueue_block_editor_assets', array($this, 'localize_block_editor'));
 
         add_action('admin_init', array('SurveyJS_Welcome', 'maybe_redirect'));
         add_action('wp_ajax_surveyjs_checklist', array('SurveyJS_Welcome', 'handle_checklist_action'));
         add_action('wp_ajax_surveyjs_import', array('SurveyJS_Import', 'handle_ajax'));
+        add_action('wp_ajax_surveyjs_entry_read', array('SurveyJS_Results', 'handle_mark_read'));
         add_action('admin_enqueue_scripts', array('SurveyJS_Welcome', 'enqueue_assets'));
     }
 
@@ -42,31 +48,15 @@ class SurveyJS_SurveyJS {
         }
 
         $blockname = 'sjs/gutenberg-block';
-        $blockscriptname = 'surveyjs-block-js';
+        $blockscriptname = self::BLOCK_SCRIPT;
 
-        $client = new SurveyJS_Client();
-        $surveys = $client->getSurveys();
-
-        if ( is_admin() ) {
-            wp_enqueue_script(
-                $blockscriptname,
-                plugins_url( 'block/block.js', __FILE__),
-                array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-block-editor' ),
-                self::asset_version('block/block.js'),
-                true
-            );
-
-            wp_localize_script(
-                $blockscriptname,
-                'surveys',
-                $surveys
-            );
-            wp_localize_script(
-                $blockscriptname,
-                'surveyjsBlock',
-                array( 'editUrl' => add_query_arg( 'page', 'surveyjs_editor', admin_url( 'admin.php' ) ) )
-            );
-        }
+        wp_register_script(
+            $blockscriptname,
+            plugins_url( 'block/block.js', __FILE__),
+            array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-block-editor' ),
+            self::asset_version('block/block.js'),
+            true
+        );
 
         register_block_type(
             $blockname,
@@ -85,6 +75,14 @@ class SurveyJS_SurveyJS {
                 'render_callback' => array( self::class, 'render_callback_shortcode' ),
             )
         );
+    }
+
+    public function localize_block_editor() {
+        wp_localize_script( self::BLOCK_SCRIPT, 'surveys', SurveyJS_Forms::names() );
+        wp_localize_script( self::BLOCK_SCRIPT, 'surveyjsBlock', array(
+            'editUrl'   => add_query_arg( 'page', 'surveyjs_editor', admin_url( 'admin.php' ) ),
+            'legacyIds' => (object) SurveyJS_Forms::legacy_map(),
+        ) );
     }
 
     private static function asset_version( $file ) {
@@ -268,12 +266,13 @@ class SurveyJS_SurveyJS {
     }
 
     function wps_process_shortcode($attrs) {
-        $id = absint($attrs["id"] ?? 0);
         $client = new SurveyJS_Client();
-        $row = $client->getSurvey($id);
+        $row = $client->getSurvey(absint($attrs["id"] ?? 0));
         if ( ! $row ) {
             return '';
         }
+        $id = $row->id;
+        self::$rendered_forms[ $id ] = $row->name;
 
         $json = SurveyJS_Client::decode_survey_json($row->json, false);
         $style = SurveyJS_Themes::resolve($row);

@@ -73,6 +73,17 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
         return self::is_available();
     }
 
+    protected static function entry_dates( $form_id, $entry_ids ) {
+        global $wpdb;
+        $in = implode( ', ', array_fill( 0, count( $entry_ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date_gmt FROM {$wpdb->posts} WHERE ID IN ( $in )", array_map( 'intval', $entry_ids ) ) );
+        $dates = array();
+        foreach ( $rows as $row ) {
+            $dates[ (int) $row->ID ] = self::gmt_date( $row->post_date_gmt );
+        }
+        return array_filter( $dates );
+    }
+
     protected static function entries( $form_id, $form ) {
         $questions = array_column( SurveyJS_Survey_Values::survey_questions( $form['json'] ), null, 'name' );
         $ids = get_posts( array(

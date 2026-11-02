@@ -33,6 +33,18 @@ abstract class SurveyJS_Importer {
         return false;
     }
 
+    protected static function entry_dates( $source_id, $entry_ids ) {
+        return array();
+    }
+
+    protected static function gmt_date( $date, $is_gmt = true ) {
+        $date = (string) $date;
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $date ) || 0 === strpos( $date, '0000' ) ) {
+            return '';
+        }
+        return $is_gmt ? $date : get_gmt_from_date( $date );
+    }
+
     public static function import( $source_id, $with_entries = false ) {
         return static::import_part( $source_id, $with_entries, 0, 0 );
     }
@@ -65,9 +77,8 @@ abstract class SurveyJS_Importer {
     }
 
     public static function imported_id( $source_id ) {
-        global $wpdb;
         $id = (int) ( self::map()[ static::source() . ':' . $source_id ]['id'] ?? 0 );
-        return $id && $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}sjs_my_surveys WHERE id = %d", $id ) ) ? $id : 0;
+        return $id && SurveyJS_Forms::find( $id ) ? $id : 0;
     }
 
     public static function forget( $survey_ids ) {
@@ -87,34 +98,36 @@ abstract class SurveyJS_Importer {
     }
 
     private static function save( $source_id, $form ) {
-        global $wpdb;
         if ( empty( $form['json']['elements'] ) && empty( $form['json']['pages'] ) ) {
             return new WP_Error( 'no_fields', __( 'The form has no fields to import.', 'surveyjs' ) );
         }
-        $table = $wpdb->prefix . 'sjs_my_surveys';
         $id = static::imported_id( $source_id );
+        $updated = (bool) $id;
         $settings = $form['settings'];
         if ( $id ) {
-            $current = SurveyJS_Form_Settings::get( $wpdb->get_row( $wpdb->prepare( "SELECT settings, theme FROM $table WHERE id = %d", $id ) ) );
+            $current = SurveyJS_Form_Settings::get( SurveyJS_Forms::find( $id ) );
             $settings += array_intersect_key( $current, array_flip( array( 'storeEntries', 'themeMode', 'transparentBackground' ) ) );
-            $wpdb->update( $table, array(
+            SurveyJS_Forms::update( $id, array(
                 'json'     => wp_json_encode( $form['json'] ),
                 'settings' => wp_json_encode( SurveyJS_Form_Settings::sanitize( $settings ) ),
-            ), array( 'id' => $id ) );
+            ) );
         } else {
-            $wpdb->insert( $table, array(
+            $id = SurveyJS_Forms::create( array(
                 'name'     => sanitize_text_field( $form['name'] ),
                 'json'     => wp_json_encode( $form['json'] ),
                 'settings' => wp_json_encode( SurveyJS_Form_Settings::sanitize( $settings ) ),
             ) );
+            if ( ! $id ) {
+                return new WP_Error( 'not_saved', __( 'The SurveyJS form could not be saved.', 'surveyjs' ) );
+            }
             $map = self::map();
-            $map[ static::source() . ':' . $source_id ] = array( 'id' => $wpdb->insert_id, 'entries' => array() );
+            $map[ static::source() . ':' . $source_id ] = array( 'id' => $id, 'entries' => array() );
             update_option( self::MAP_OPTION, $map, false );
         }
         return array(
-            'id'      => $id ? $id : $wpdb->insert_id,
+            'id'      => $id,
             'name'    => $form['name'],
-            'updated' => (bool) $id,
+            'updated' => $updated,
             'skipped' => $form['skipped'],
             'notes'   => array_values( array_unique( $form['notes'] ) ),
         );
@@ -122,12 +135,13 @@ abstract class SurveyJS_Importer {
 
     private static function save_entries( $survey_id, $source_id, $form, $entries ) {
         global $wpdb;
-        $table = $wpdb->prefix . 'sjs_results';
+        $table = SurveyJS_Entries::table();
         $key = static::source() . ':' . $source_id;
         $map = self::map();
         $imported = (array) ( $map[ $key ]['entries'] ?? array() );
         $files = (array) ( $map[ $key ]['files'] ?? array() );
-        $existing = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $table WHERE surveyId = %d", $survey_id ) ) );
+        $existing = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $table WHERE form_id = %d", $survey_id ) ) );
+        $dates = $entries ? static::entry_dates( $source_id, array_keys( $entries ) ) : array();
         $file_questions = array();
         if ( static::copies_entry_files() ) {
             foreach ( SurveyJS_Survey_Values::survey_questions( $form['json'] ) as $question ) {
@@ -144,12 +158,17 @@ abstract class SurveyJS_Importer {
             }
             $data = self::copy_entry_files( $data, $file_questions, $files, $counts );
             $json = wp_json_encode( self::sanitize_entry( $data ) );
+            $date = $dates[ $entry_id ] ?? '';
+            $date_field = '' !== $date ? array( 'created_at' => $date ) : array();
             if ( $result_id ) {
-                $wpdb->update( $table, array( 'json' => $json ), array( 'id' => $result_id ) );
+                $wpdb->update( $table, array( 'json' => $json ) + $date_field, array( 'id' => $result_id ) );
                 $counts['updated']++;
-            } elseif ( $wpdb->insert( $table, array( 'surveyId' => $survey_id, 'json' => $json ) ) ) {
-                $imported[ $entry_id ] = $wpdb->insert_id;
-                $counts['added']++;
+            } else {
+                $new_id = SurveyJS_Entries::insert( $survey_id, $json, array( 'status' => 'read' ) + $date_field );
+                if ( $new_id ) {
+                    $imported[ $entry_id ] = $new_id;
+                    $counts['added']++;
+                }
             }
         }
         $map[ $key ] = array( 'id' => $survey_id, 'entries' => $imported, 'files' => $files );

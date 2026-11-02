@@ -4,6 +4,13 @@ include_once( __DIR__ . "/../service_client.php");
 
 class SurveyJS_Results {
 
+    const STATUS_ACTIONS = array(
+        'read'   => 'read',
+        'unread' => 'unread',
+        'spam'   => 'spam',
+        'unspam' => 'read',
+    );
+
     function __construct() {
     }
 
@@ -22,8 +29,10 @@ class SurveyJS_Results {
         if ( ! $survey ) {
             return;
         }
-        global $wpdb;
-        $results_url = SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array( 'id' => $survey->id ) );
+        $results_url = SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array_filter( array(
+            'id'     => $survey->id,
+            'status' => SurveyJS_Results_List_Table::current_status(),
+        ) ) );
 
         $action = sanitize_key( wp_unslash( $_REQUEST['action'] ?? '' ) );
         if ( '' === $action || '-1' === $action ) {
@@ -39,15 +48,22 @@ class SurveyJS_Results {
                 check_admin_referer( 'surveyjs-delete-result_' . $id );
                 $ids = array( $id );
             }
-            $file_names = array();
-            foreach ( $ids as $id ) {
-                $json = $wpdb->get_var( $wpdb->prepare( "SELECT json FROM {$wpdb->prefix}sjs_results WHERE id = %d AND surveyId = %d", $id, $survey->id ) );
-                if ( null !== $json && $wpdb->delete( $wpdb->prefix . 'sjs_results', array( 'id' => $id, 'surveyId' => $survey->id ) ) ) {
-                    $file_names = array_merge( $file_names, SurveyJS_Uploaded_Files::referenced_names( SurveyJS_Client::decode_survey_json( $json ) ) );
-                }
+            $count = SurveyJS_Entries::delete( $survey, $ids );
+            wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => $count ), $results_url ) );
+            exit;
+        }
+
+        if ( isset( self::STATUS_ACTIONS[ $action ] ) ) {
+            if ( isset( $_REQUEST['result'] ) ) {
+                check_admin_referer( 'bulk-results' );
+                $ids = array_map( 'absint', (array) wp_unslash( $_REQUEST['result'] ) );
+            } else {
+                $id = absint( $_GET['result_id'] ?? 0 );
+                check_admin_referer( 'surveyjs-result-status_' . $id );
+                $ids = array( $id );
             }
-            SurveyJS_Uploaded_Files::delete_unreferenced( $file_names );
-            wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => count( $ids ) ), $results_url ) );
+            SurveyJS_Entries::set_status( $survey->id, $ids, self::STATUS_ACTIONS[ $action ] );
+            wp_safe_redirect( add_query_arg( array( 'message' => 'updated', 'count' => count( $ids ) ), $results_url ) );
             exit;
         }
 
@@ -63,19 +79,37 @@ class SurveyJS_Results {
         }
     }
 
+    public static function handle_mark_read() {
+        check_ajax_referer( 'surveyjs-entry-read' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( null, 403 );
+        }
+        $survey = SurveyJS_Forms::find( absint( $_POST['form'] ?? 0 ) );
+        if ( ! $survey ) {
+            wp_send_json_error( null, 404 );
+        }
+        global $wpdb;
+        $table = SurveyJS_Entries::table();
+        $wpdb->query( $wpdb->prepare( "UPDATE $table SET status = 'read' WHERE form_id = %d AND id = %d AND status = 'unread'", $survey->id, absint( $_POST['entry'] ?? 0 ) ) );
+        SurveyJS_Entries::flush_counts();
+        wp_send_json_success();
+    }
+
     private static function export_csv( $survey ) {
         global $wpdb;
         $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json FROM {$wpdb->prefix}sjs_results WHERE surveyId = %d ORDER BY id", $survey->id ) );
+        $table = SurveyJS_Entries::table();
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json, status, created_at FROM $table WHERE form_id = %d AND status <> 'spam' ORDER BY created_at, id", $survey->id ) );
+        $statuses = SurveyJS_Entries::statuses();
 
         header( 'Content-Type: text/csv; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $survey->name . '-results.csv' ) . '"' );
         $output = fopen( 'php://output', 'w' );
         fwrite( $output, "\xEF\xBB\xBF" );
-        fputcsv( $output, array_merge( array( 'ID' ), array_map( array( 'SurveyJS_Survey_Values', 'question_title' ), $questions ) ) );
+        fputcsv( $output, array_merge( array( 'ID', __( 'Date', 'surveyjs' ), __( 'Status', 'surveyjs' ) ), array_map( array( 'SurveyJS_Survey_Values', 'question_title' ), $questions ) ) );
         foreach ( $rows as $row ) {
             $data = SurveyJS_Client::decode_survey_json( $row->json );
-            $line = array( $row->id );
+            $line = array( $row->id, SurveyJS_Entries::format_date( $row->created_at ), $statuses[ $row->status ] ?? $row->status );
             foreach ( $questions as $question ) {
                 $value = is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null;
                 $links = SurveyJS_Uploaded_Files::links( $value );
@@ -98,13 +132,22 @@ class SurveyJS_Results {
 
         $message = sanitize_key( $_GET['message'] ?? '' );
         $count = absint( $_GET['count'] ?? 0 );
+        $messages = array(
+            /* translators: %s: number of deleted results */
+            'deleted' => sprintf( _n( '%s result deleted.', '%s results deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
+            /* translators: %s: number of updated results */
+            'updated' => sprintf( _n( '%s result updated.', '%s results updated.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
+        );
         $export_url = wp_nonce_url(
             SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array( 'id' => $survey->id, 'action' => 'export' ) ),
             'surveyjs-export-results_' . $survey->id
         );
         $view_data = array(
-            'survey'  => empty( $json ) ? new stdClass() : SurveyJS_Client::decode_survey_json( $survey->json, false ),
-            'results' => $table->get_items_data(),
+            'survey'    => empty( $json ) ? new stdClass() : SurveyJS_Client::decode_survey_json( $survey->json, false ),
+            'results'   => $table->get_items_data(),
+            'formId'    => (int) $survey->id,
+            'readNonce' => wp_create_nonce( 'surveyjs-entry-read' ),
+            'readLabel' => SurveyJS_Entries::statuses()['read'],
         );
         ?>
         <div class="wrap">
@@ -118,18 +161,15 @@ class SurveyJS_Results {
             <hr class="wp-header-end">
             <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Forms', 'surveyjs' ); ?></a></p>
 
-            <?php if ( 'deleted' === $message ) : ?>
-                <div class="notice notice-success is-dismissible"><p>
-                    <?php
-                    /* translators: %s: number of deleted results */
-                    echo esc_html( sprintf( _n( '%s result deleted.', '%s results deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ) );
-                    ?>
-                </p></div>
+            <?php if ( isset( $messages[ $message ] ) ) : ?>
+                <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
             <?php endif; ?>
 
+            <?php $table->views(); ?>
             <form method="get">
                 <input type="hidden" name="page" value="surveyjs_results" />
                 <input type="hidden" name="id" value="<?php echo esc_attr( $survey->id ); ?>" />
+                <input type="hidden" name="status" value="<?php echo esc_attr( SurveyJS_Results_List_Table::current_status() ); ?>" />
                 <?php
                 $table->search_box( __( 'Search Results', 'surveyjs' ), 'surveyjs-result' );
                 $table->display();
@@ -137,16 +177,34 @@ class SurveyJS_Results {
             </form>
             <div id="wp-sjs-result-popup"></div>
         </div>
+        <style>.wp-sjs-entry-unread td, .wp-sjs-entry-unread th { font-weight: 600; }</style>
         <script type="application/json" id="wp-sjs-results-data"><?php echo wp_json_encode( $view_data, JSON_HEX_TAG | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
         <script>
             (function () {
                 var viewData = JSON.parse(document.getElementById("wp-sjs-results-data").textContent);
+                function markRead(link) {
+                    var row = link.closest("tr");
+                    if (!row || !row.classList.contains("wp-sjs-entry-unread")) {
+                        return;
+                    }
+                    row.classList.remove("wp-sjs-entry-unread");
+                    var status = row.querySelector(".column-status");
+                    if (status) {
+                        status.textContent = viewData.readLabel;
+                    }
+                    fetch(window.ajaxurl, {
+                        method: "POST",
+                        credentials: "same-origin",
+                        body: new URLSearchParams({ action: "surveyjs_entry_read", form: viewData.formId, entry: link.dataset.resultId, _ajax_nonce: viewData.readNonce })
+                    });
+                }
                 document.addEventListener("click", function (event) {
                     var link = event.target.closest(".wp-sjs-view-result");
                     if (!link) {
                         return;
                     }
                     event.preventDefault();
+                    markRead(link);
                     var survey = new Survey.Model(viewData.survey);
                     survey.data = viewData.results[link.dataset.resultId];
                     survey.readOnly = true;

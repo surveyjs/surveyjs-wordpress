@@ -55,7 +55,7 @@ if ( 'create' === $command ) {
     }
     echo wp_json_encode( array( 'formId' => $form_id, 'files' => $files ) );
 } elseif ( 'results' === $command ) {
-    $rows = $wpdb->get_col( $wpdb->prepare( "SELECT json FROM {$wpdb->prefix}sjs_results WHERE surveyId = %d ORDER BY id", (int) $argv[2] ) );
+    $rows = $wpdb->get_col( $wpdb->prepare( "SELECT json FROM {$wpdb->prefix}sjs_results WHERE form_id = %d ORDER BY id", (int) $argv[2] ) );
     $stored = glob( $uploads['basedir'] . '/surveyjs/*.txt' );
     echo wp_json_encode( array( 'entries' => array_map( 'json_decode', $rows ), 'storedFiles' => count( $stored ? $stored : array() ) ) );
 } elseif ( 'originals' === $command ) {

@@ -35,30 +35,21 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 return;
             }
             $settings = SurveyJS_Form_Settings::get( $survey );
-            $TableName = 'sjs_results';
 
+            $entry_id = 0;
             if ( $settings['storeEntries'] ) {
-                if (function_exists('surveyjs_save_result'))
-                {
-                    do_action('wp_surveyjs_save_result', $SurveyId, $Json, $TableName);
-                } else {
-                    global $wpdb;
-                    $table_name = $wpdb->prefix . $TableName;
-
-                    $wpdb->insert(
-                        $table_name,
-                        array(
-                         'surveyId' => $SurveyId,
-                         'json' => $Json
-                        )
-                    );
-                }
+                $entry_id = SurveyJS_Entries::insert( $survey->id, $Json, array(
+                    'user_id' => get_current_user_id(),
+                    'ip'      => SurveyJS_Entries::client_ip(),
+                ) );
             }
 
             add_option( 'surveyjs_received_entry', 1 );
 
             $data = json_decode( $Json, true );
             SurveyJS_Notification::send( $survey, $settings, $data );
+
+            do_action( 'wp_surveyjs_save_result', $survey->id, $Json, 'sjs_results', $entry_id );
 
             if ( ! $settings['storeEntries'] && is_array( $data ) ) {
                 $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
@@ -98,13 +89,4 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     }
 }
 
-/**
- * Custom Save Survey Result function
- * file functions.php
- */
-/*function surveyjs_save_result($SurveyId=null, $Json=null, $TableName=null) {
-	do stuff
-}
-add_action( 'wp_surveyjs_save_result', 'surveyjs_save_result', 10, 3 );*/
-
-?>
+?>

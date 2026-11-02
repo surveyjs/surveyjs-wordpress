@@ -19,6 +19,11 @@ class SurveyJS_SettingsPage {
 		return "";
 	}
 
+	public static function option( $key ) {
+		$settings = (array) get_option( 'surveyjs-settings' );
+		return ! empty( $settings[ $key ] );
+	}
+
     public function init() {
 		register_setting( 'surveyjs-settings-group', 'surveyjs-settings', array(
 			'type'              => 'array',
@@ -27,6 +32,18 @@ class SurveyJS_SettingsPage {
 
 		add_settings_section( 'sjs-license-key-section', esc_html__( 'Set License Key', 'surveyjs' ), array($this, 'sjs_license_key_section'), 'surveyjs-settings-page' );
 		add_settings_field( 'license_key', esc_html__( 'License Key', 'surveyjs' ), array($this, 'set_license_key_render'), 'surveyjs-settings-page', 'sjs-license-key-section' );
+
+		add_settings_section( 'sjs-data-section', esc_html__( 'Entries and Data', 'surveyjs' ), '__return_false', 'surveyjs-settings-page' );
+		add_settings_field( 'store_ip', esc_html__( 'IP addresses', 'surveyjs' ), array( $this, 'render_checkbox' ), 'surveyjs-settings-page', 'sjs-data-section', array(
+			'key'         => 'store_ip',
+			'label'       => __( 'Store the IP address of the person who submits a form', 'surveyjs' ),
+			'description' => __( 'An IP address is personal data. Leave this off unless you need it and your privacy policy mentions it.', 'surveyjs' ),
+		) );
+		add_settings_field( 'uninstall_data', esc_html__( 'Uninstall', 'surveyjs' ), array( $this, 'render_checkbox' ), 'surveyjs-settings-page', 'sjs-data-section', array(
+			'key'         => 'uninstall_data',
+			'label'       => __( 'Delete all forms, entries, uploaded files and settings when the plugin is deleted', 'surveyjs' ),
+			'description' => __( 'Leave this off to keep your data if you reinstall the plugin later.', 'surveyjs' ),
+		) );
     }
 
 	public function sanitize_settings( $input ) {
@@ -34,7 +51,20 @@ class SurveyJS_SettingsPage {
 		if ( isset( $input['license_key'] ) ) {
 			$sanitized['license_key'] = sanitize_text_field( $input['license_key'] );
 		}
+		$sanitized['store_ip'] = ! empty( $input['store_ip'] );
+		$sanitized['uninstall_data'] = ! empty( $input['uninstall_data'] );
 		return $sanitized;
+	}
+
+	public function render_checkbox( $args ) {
+		$name = 'surveyjs-settings[' . $args['key'] . ']';
+		?>
+		<label for="<?php echo esc_attr( $name ); ?>">
+			<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( self::option( $args['key'] ) ); ?> />
+			<?php echo esc_html( $args['label'] ); ?>
+		</label>
+		<p class="description"><?php echo esc_html( $args['description'] ); ?></p>
+		<?php
 	}
 
 	public function sjs_license_key_section() {

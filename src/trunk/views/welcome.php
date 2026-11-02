@@ -78,8 +78,7 @@ JS
     }
 
     public static function steps() {
-        global $wpdb;
-        $forms = $wpdb->get_results( "SELECT id, settings, theme FROM {$wpdb->prefix}sjs_my_surveys ORDER BY id DESC" );
+        $forms = SurveyJS_Forms::all();
         $form_ids = array_map( 'intval', wp_list_pluck( $forms, 'id' ) );
         $latest_id = $form_ids ? $form_ids[0] : 0;
         $placement = self::find_placement( $form_ids );
@@ -92,7 +91,7 @@ JS
             }
         }
 
-        $entry = get_option( self::ENTRY_OPTION ) || $wpdb->get_var( "SELECT id FROM {$wpdb->prefix}sjs_results LIMIT 1" );
+        $entry = get_option( self::ENTRY_OPTION ) || SurveyJS_Entries::exists();
         $editor_url = $latest_id ? add_query_arg( array( 'page' => 'surveyjs_editor', 'id' => $latest_id ), admin_url( 'admin.php' ) ) : self::add_form_url();
         $entries_url = $latest_id ? add_query_arg( array( 'page' => 'surveyjs_results', 'id' => $latest_id ), admin_url( 'admin.php' ) ) : self::add_form_url();
         $placement_url = $placement && is_post_type_viewable( get_post_type( $placement ) ) ? get_permalink( $placement ) : '';
@@ -139,7 +138,7 @@ JS
         }
         $posts = $wpdb->get_results( "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_status = 'publish' AND ( post_content LIKE '%wp:sjs/gutenberg-block%' OR post_content LIKE '%[survey%' ) ORDER BY ID DESC LIMIT 50" );
         foreach ( $posts as $post ) {
-            if ( array_intersect( SurveyJS_SurveyJS::content_survey_ids( $post->post_content ), $form_ids ) ) {
+            if ( array_intersect( array_map( array( 'SurveyJS_Forms', 'resolve_id' ), SurveyJS_SurveyJS::content_survey_ids( $post->post_content ) ), $form_ids ) ) {
                 return (int) $post->ID;
             }
         }
@@ -187,8 +186,7 @@ JS
     }
 
     public static function render() {
-        global $wpdb;
-        $has_forms = (bool) $wpdb->get_var( "SELECT id FROM {$wpdb->prefix}sjs_my_surveys LIMIT 1" );
+        $has_forms = SurveyJS_Forms::exists();
         $checklist = self::checklist();
         $dismissed = self::state()['dismissed'];
         $import_sources = array_filter( array_map( function ( $info ) {

@@ -51,6 +51,18 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         return true;
     }
 
+    // WPForms keeps the entry date in UTC.
+    protected static function entry_dates( $wpforms_id, $entry_ids ) {
+        global $wpdb;
+        $in = implode( ', ', array_fill( 0, count( $entry_ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT entry_id, date FROM {$wpdb->prefix}wpforms_entries WHERE entry_id IN ( $in )", array_map( 'intval', $entry_ids ) ) );
+        $dates = array();
+        foreach ( $rows as $row ) {
+            $dates[ (int) $row->entry_id ] = self::gmt_date( $row->date );
+        }
+        return array_filter( $dates );
+    }
+
     protected static function entries( $wpforms_id, $form ) {
         return static::entries_page( $wpforms_id, $form, 0, 0 )['entries'];
     }

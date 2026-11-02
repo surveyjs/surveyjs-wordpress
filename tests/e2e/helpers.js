@@ -57,6 +57,7 @@ async function deleteSurveys(page, search) {
   }
   await page.check("#cb-select-all-1");
   await page.selectOption("#bulk-action-selector-top", "delete");
+  page.once("dialog", dialog => dialog.accept());
   await page.click("#doaction");
   await expect(page.locator(".notice-success")).toContainText("deleted");
 }
