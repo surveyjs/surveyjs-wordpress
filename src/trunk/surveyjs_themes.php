@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SurveyJS_Themes {
 
+    const DEFAULT_PRESET = 'default-light-panelless';
+
     public static function url() {
         return plugins_url( 'themes/surveyjs-themes.json', __FILE__ );
     }
@@ -26,11 +28,17 @@ class SurveyJS_Themes {
         return $labels;
     }
 
+    public static function decode( $raw_theme ) {
+        $theme = SurveyJS_Client::decode_survey_json( $raw_theme, false );
+        return empty( (array) $theme ) ? self::presets()[ self::DEFAULT_PRESET ] : $theme;
+    }
+
     public static function resolve( $survey ) {
-        $theme = SurveyJS_Client::decode_survey_json( $survey->theme, false );
+        $settings = SurveyJS_Form_Settings::get( $survey );
         return array(
-            'mode'  => SurveyJS_Form_Settings::get( $survey )['themeMode'],
-            'theme' => empty( $theme ) ? null : $theme,
+            'mode'  => $settings['themeMode'],
+            'theme' => self::decode( $survey->theme ),
+            'transparentBackground' => $settings['transparentBackground'],
         );
     }
 }

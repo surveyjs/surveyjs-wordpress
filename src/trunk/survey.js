@@ -1,4 +1,12 @@
 (function () {
+    function withTransparentBackground(theme) {
+        const cssVariables = Object.assign({}, theme && theme.cssVariables, {
+            "--sjs2-color-utility-body": "transparent",
+            "--sjs2-color-utility-surface-survey": "transparent"
+        });
+        return Object.assign({}, theme, { cssVariables: cssVariables });
+    }
+
     function initSurvey(configElement) {
         if (configElement.dataset.initialized) {
             return;
@@ -15,6 +23,8 @@
         if (config.themeMode === "adaptive" && window.SurveyWordPress) {
             container.classList.add("wp-sjs-adaptive");
             SurveyWordPress.applyWordPressStyles(container);
+        } else if (config.transparentBackground) {
+            survey.applyTheme(withTransparentBackground(config.theme));
         } else if (config.theme) {
             survey.applyTheme(config.theme);
         }

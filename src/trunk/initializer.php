@@ -283,6 +283,7 @@ class SurveyJS_SurveyJS {
             'json' => empty($json) ? new stdClass() : $json,
             'theme' => $style['theme'],
             'themeMode' => $style['mode'],
+            'transparentBackground' => $style['transparentBackground'],
             'saveResultUrl' => add_query_arg(array('action' => 'SurveyJS_SaveResult'), admin_url('admin-ajax.php')),
             'saveResultNonce' => wp_create_nonce('surveyjs-save-result'),
             'uploadFilesUrl' => add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php')),

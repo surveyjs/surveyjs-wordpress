@@ -24,6 +24,8 @@
      --sjs-wp-input-border                           input border
      --sjs-wp-font-family, --sjs-wp-font-size, --sjs-wp-line-height
      --sjs-wp-radius, --sjs-wp-button-radius
+     --sjs-wp-button-padding-vertical, --sjs-wp-button-padding-horizontal
+     --sjs-wp-button-font-size, --sjs-wp-button-font-weight, --sjs-wp-button-line-height
      --sjs-wp-error */
 .wp-sjs-adaptive .sjs-theme-overrides {
   --sjs2-color-project-brand-600: var(--sjs-wp-primary, var(--ast-global-color-0, var(--global-palette1, var(--e-global-color-accent, var(--wp--preset--color--primary, var(--wp--preset--color--contrast, #19b394))))));
@@ -61,6 +63,12 @@
   --sjs2-radius-form: var(--sjs-wp-radius, 4px);
   --sjs2-radius-form-item: min(var(--sjs2-radius-form), 4px);
   --sjs2-radius-component-action: var(--sjs-wp-button-radius, var(--sjs2-radius-form));
+  --sjs2-layout-component-action-large-box-padding-vertical: var(--sjs-wp-button-padding-vertical, var(--sjs2-spacing-x200));
+  --sjs2-layout-component-action-large-box-padding-horizontal: var(--sjs-wp-button-padding-horizontal, calc(var(--sjs2-spacing-x200) * 2));
+  --sjs2-layout-component-action-large-label-padding-horizontal: 0px;
+  --sjs2-typography-font-size-component-action-large-content: var(--sjs-wp-button-font-size, var(--sjs2-typography-font-size-default));
+  --sjs2-typography-font-weight-component-action-large-content: var(--sjs-wp-button-font-weight, var(--sjs2-typography-font-weight-strong));
+  --sjs2-typography-line-height-component-action-large-content: var(--sjs-wp-button-line-height, var(--sjs2-typography-line-height-default));
   --sjs2-radius-component-drop: var(--sjs2-radius-form);
   --sjs2-radius-component-panel: var(--sjs2-radius-form);
 

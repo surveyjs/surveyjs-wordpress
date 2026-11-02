@@ -1,6 +1,7 @@
 (function () {
     const LINT_DEBOUNCE_MS = 300;
     const PREVIEW_DEBOUNCE_MS = 400;
+    const COPIED_LABEL_MS = 2000;
 
     const config = JSON.parse(document.getElementById("wp-sjs-editor-config").textContent);
     const nameInput = document.getElementById("wp-sjs-survey-name");
@@ -25,7 +26,16 @@
     const settingInputs = document.querySelectorAll(".wp-sjs-editor [data-setting]");
     const themeModeElement = document.getElementById("wp-sjs-theme-mode");
     const themeModeCheckbox = document.getElementById("wp-sjs-theme-mode-adaptive");
+    const transparentBackgroundCheckbox = document.getElementById("wp-sjs-transparent-background");
     const themePresetSelect = document.getElementById("wp-sjs-theme-preset");
+    const aiPromptButton = document.getElementById("wp-sjs-ai-prompt");
+    const aiPasteButton = document.getElementById("wp-sjs-ai-paste");
+    const aiConvertButton = document.getElementById("wp-sjs-ai-convert");
+    const aiForm = document.getElementById("wp-sjs-ai-form");
+    const aiAnswerInput = document.getElementById("wp-sjs-ai-answer");
+    const aiApplyButton = document.getElementById("wp-sjs-ai-apply");
+    const aiCancelButton = document.getElementById("wp-sjs-ai-cancel");
+    const aiNotice = document.getElementById("wp-sjs-ai-notice");
     const testEmailButton = document.getElementById("wp-sjs-send-test-email");
     const testEmailResult = document.getElementById("wp-sjs-test-email-result");
     const REPLY_TO_QUESTION ={ type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
@@ -74,6 +84,10 @@
     let saveNotice = null;
     let previewFocusName = null;
     let previewReady = false;
+    let siteData = null;
+    let adaptiveTheme = null;
+    let themeTokens = null;
+    let contrastCheckPending = false;
 
     nameText.textContent = config.name;
     settingInputs.forEach((input) => {
@@ -639,15 +653,25 @@
             json: survey.json,
             theme: theme.json,
             themeMode: checkboxValue(themeModeCheckbox),
+            transparentBackground: transparentBackgroundCheckbox.checked,
+            checkContrast: contrastCheckPending,
             focusName: focusName
         }, previewOrigin);
+        contrastCheckPending = false;
     }
 
     function onPreviewMessage(event) {
         if (event.source !== previewElement.contentWindow || event.origin !== previewOrigin) return;
         if (event.data && event.data.type === "surveyjs-preview-ready") {
             previewReady = true;
+            siteData = event.data.site || null;
+            adaptiveTheme = event.data.adaptiveTheme || null;
+            aiPromptButton.disabled = !siteData;
+            updateThemePreset();
             renderPreview();
+        } else if (event.data && event.data.type === "surveyjs-preview-contrast" && event.data.issues.length > 0) {
+            const issues = event.data.issues.map((issue) => issue.element + " " + issue.ratio + ":1");
+            aiMessage("warning", "Some text may be hard to read (contrast below 4.5:1):", issues, true);
         }
     }
 
@@ -862,7 +886,6 @@
     }
 
     function renderThemePreset() {
-        if (themeModeCheckbox.checked) return;
         loadThemePresets().then((presets) => {
             const current = sources.theme.trim();
             themePresetSelect.value = Object.keys(presets).find((slug) => JSON.stringify(presets[slug], null, 2) === current) || "";
@@ -884,6 +907,8 @@
 
     function updateThemePreset() {
         themePresetSelect.disabled = themeModeCheckbox.checked;
+        transparentBackgroundCheckbox.disabled = themeModeCheckbox.checked;
+        aiConvertButton.disabled = !themeModeCheckbox.checked || !adaptiveTheme;
         renderThemePreset();
     }
 
@@ -896,9 +921,285 @@
         jsonPane.classList.toggle("is-theme-json-locked", locked);
         if (editor) editor.updateOptions({ readOnly: locked });
     }
+    const THEME_KEYS = ["themeName", "colorPalette", "isPanelless", "backgroundImage", "backgroundImageFit", "backgroundImageAttachment", "backgroundOpacity", "header", "headerView", "cssVariables"];
+    const UNSAFE_VALUE = /[;{}<>]|javascript:/i;
+    const PROMPT_TOKENS = [
+        ["--sjs2-color-project-brand-600", "accent: Complete/Next button background, checked radio/checkbox, selected rating, focused field border"],
+        ["--sjs2-color-project-brand-700", "accent on hover/press (usually a bit darker than the accent)"],
+        ["--sjs2-color-fg-brand-on-primary", "text on the accent background (button label)"],
+        ["--sjs2-color-fg-brand-primary", "accent used as text: Previous/secondary buttons, links"],
+        ["--sjs2-color-utility-body", "background of the whole form area (use the page background)"],
+        ["--sjs2-color-utility-surface-survey", "tint painted over that background (default #edf9f7); \"transparent\" shows the page background"],
+        ["--sjs2-color-bg-basic-primary", "question cards, dropdown popups"],
+        ["--sjs2-color-bg-basic-secondary", "text inputs, dropdowns, checkbox boxes"],
+        ["--sjs2-color-fg-basic-primary", "main text: titles, question titles, input values"],
+        ["--sjs2-color-fg-basic-secondary", "muted text: descriptions, placeholders"],
+        ["--sjs2-color-border-basic-secondary", "separators and light borders"],
+        ["--sjs2-color-component-formbox-default-border", "border of text inputs and dropdowns"],
+        ["--sjs2-color-component-formbox-hovered-border", "the same border on hover"],
+        ["--sjs2-color-component-checkbox-false-default-border", "border of an unchecked checkbox"],
+        ["--sjs2-color-component-radio-false-default-border", "border of an unchecked radio button"],
+        ["--sjs2-color-utility-a11y", "focus ring (usually the accent at about 25% opacity)"],
+        ["--sjs2-palette-red-600", "errors and required marks"],
+        ["--sjs2-typography-font-family-text", "font of all text (CSS font stack)"],
+        ["--sjs2-typography-font-size-default", "body text size (default 16px)"],
+        ["--sjs2-typography-line-height-default", "body line height (default 24px)"],
+        ["--sjs2-typography-font-family-component-survey-header-title", "form title font"],
+        ["--sjs2-typography-font-size-component-survey-header-title", "form title size (default 28px)"],
+        ["--sjs2-typography-font-weight-component-survey-header-title", "form title weight (default 600)"],
+        ["--sjs2-typography-font-weight-component-question-title", "question title weight (default 600): take it from the site's form label"],
+        ["--sjs2-typography-font-weight-component-action-large-content", "Complete/Next button label weight (default 600)"],
+        ["--sjs2-typography-font-size-component-action-large-content", "Complete/Next button label size"],
+        ["--sjs2-typography-line-height-component-action-large-content", "Complete/Next button label line height"],
+        ["--sjs2-layout-component-action-large-box-padding-vertical", "Complete/Next button top/bottom padding"],
+        ["--sjs2-layout-component-action-large-box-padding-horizontal", "Complete/Next button left/right padding"],
+        ["--sjs2-layout-component-action-large-label-padding-horizontal", "extra left/right padding around the button label (default 16px, added to the button padding)"],
+        ["--sjs2-radius-form", "corner radius of inputs (default 8px)"],
+        ["--sjs2-radius-component-action", "corner radius of buttons"],
+        ["--sjs2-radius-component-panel", "corner radius of question cards"],
+        ["--sjs2-layout-component-survey-box-padding-top", "space above the form"],
+        ["--sjs2-layout-component-survey-box-padding-bottom", "space below the form"],
+        ["--sjs2-layout-component-survey-box-gap-vertical", "space between the form title block, the questions and the buttons"],
+        ["--sjs2-layout-component-survey-header-padding-horizontal", "left/right padding of the form header"],
+        ["--sjs2-layout-component-survey-title-padding-horizontal", "left/right padding of the form title"],
+        ["--sjs2-layout-component-survey-description-padding-horizontal", "left/right padding of the form description"],
+        ["--sjs2-layout-component-survey-footer-padding-horizontal", "left/right padding of the button row"],
+        ["--sjs2-layout-component-page-content-area-padding-horizontal", "left/right padding of the questions area"],
+        ["--sjs2-layout-component-page-content-area-gap-vertical", "space between questions"],
+        ["--sjs2-layout-component-page-content-area-gap-horizontal", "space between questions placed in one row"],
+        ["--sjs2-layout-component-question-box-gap-vertical", "space between a question title and its input"],
+        ["--sjs2-layout-component-question-header-gap-vertical", "space between a question title and its description"]
+    ];
+
+    function aiMessage(type, message, codes, append) {
+        if (!append) aiNotice.replaceChildren();
+        if (!message) return;
+        const notice = element("div", "notice notice-" + type + " inline");
+        const paragraph = element("p", "", message);
+        (codes || []).forEach((code, index) => paragraph.append(index ? ", " : " ", element("code", "", code)));
+        notice.append(paragraph);
+        aiNotice.append(notice);
+    }
+
+    function describeForm() {
+        const json = parse(sources.survey).json || {};
+        const questionTypes = {};
+        const walk = (elements) => (Array.isArray(elements) ? elements : []).forEach((item) => {
+            if (!item || typeof item !== "object") return;
+            if (item.type) questionTypes[item.type] = (questionTypes[item.type] || 0) + 1;
+            walk(item.elements);
+            walk(item.templateElements);
+        });
+        const pages = Array.isArray(json.pages) ? json.pages : [json];
+        pages.forEach((page) => walk(page && page.elements));
+        return { title: json.title, description: json.description, pages: pages.length, questionTypes: questionTypes };
+    }
+
+    function describeSite() {
+        const text = siteData.text || {};
+        const withoutText = (style) => Object.fromEntries(Object.entries(style || {}).filter(([name, value]) => name !== "fontFamily" || text.fontFamily !== value));
+        return {
+            pageBackground: siteData.pageBackground,
+            text: text,
+            h1: withoutText(siteData.h1),
+            h2: withoutText(siteData.h2),
+            h3: withoutText(siteData.h3),
+            paragraph: siteData.paragraph,
+            label: withoutText(siteData.label),
+            link: siteData.link,
+            button: withoutText(siteData.button),
+            textInput: withoutText(siteData.input),
+            palette: siteData.palette
+        };
+    }
+
+    function buildPrompt() {
+        return [
+            "Create a theme for a SurveyJS form so that it looks like a native part of the WordPress site described below. The theme is a JSON object of SurveyJS design tokens (CSS custom properties).",
+            "",
+            "Answer with ONE JSON object only, without explanations:",
+            "{\"themeName\": \"custom\", \"colorPalette\": \"light\" or \"dark\", \"isPanelless\": true or false, \"cssVariables\": {\"<token>\": \"<CSS value>\"}}",
+            "",
+            "Rules:",
+            "- Use only the tokens listed below. Any other key is discarded.",
+            "- Values are plain CSS values: colors as #hex or rgb()/rgba(), lengths in px or rem, fonts as a CSS font stack, weights as numbers. You may reference another listed token with var(--sjs2-...) or use color-mix(). No url(), no semicolons.",
+            "- Take the colors, fonts, sizes and corner radii from the site data: the accent from the site's button, text and headings from text/h1-h3, fields from textInput (Arial 13.33px with an inset border means the site leaves fields unstyled: style them like the rest of the site). Use palette entries only when the computed styles do not answer the question.",
+            "- Keep text contrast at least 4.5:1, including the text on the accent. If the accent is too light to be used as text on the page background, use the body text color for --sjs2-color-fg-brand-primary.",
+            "- Spacing: forms on WordPress pages sit flush with the content edge, so set all horizontal paddings to 0px. Take the space between questions and above/below the form from paragraph margins, and the space between a question title and its input from label.marginBottom (at least 0.25rem). Use px or rem.",
+            "- Buttons: make the Complete/Next button the same size as the site's button. Copy its padding into the button padding tokens, set the label padding to 0px, and take the label size, weight and line height from the button.",
+            "- isPanelless true puts questions directly on the page (closest to plain WordPress forms); false shows every question in a card.",
+            "- Set only the tokens you need. Tokens you omit keep the SurveyJS defaults: teal accent #19b394, Open Sans 16px, 8px corners, light green form background #edf9f7.",
+            "",
+            "Tokens:",
+            ...PROMPT_TOKENS.map(([name, description]) => name + ": " + description),
+            "",
+            "Site data (computed styles" + (siteData.theme ? " of the WordPress theme \"" + siteData.theme + "\"" : "") + "):",
+            JSON.stringify(describeSite()),
+            "",
+            "Form:",
+            JSON.stringify(describeForm())
+        ].join("\n");
+    }
+
+    function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+        }
+        const area = element("textarea");
+        area.value = text;
+        area.setAttribute("readonly", "");
+        area.style.cssText = "position:fixed;top:0;left:-9999px;";
+        document.body.append(area);
+        area.select();
+        const copied = document.execCommand("copy");
+        area.remove();
+        return copied ? Promise.resolve() : Promise.reject(new Error("The browser blocked the clipboard."));
+    }
+
+    const aiPromptLabel = aiPromptButton.textContent;
+    let aiPromptTimer = null;
+
+    function showCopied() {
+        aiPromptButton.textContent = "Copied!";
+        clearTimeout(aiPromptTimer);
+        aiPromptTimer = setTimeout(() => { aiPromptButton.textContent = aiPromptLabel; }, COPIED_LABEL_MS);
+    }
+
+    function copyPrompt() {
+        const prompt = buildPrompt();
+        copyText(prompt)
+            .then(() => {
+                showCopied();
+                aiMessage("info", "Prompt copied (" + prompt.length + " characters). Paste it into your AI chat, then paste the answer below and press Apply theme.");
+                toggleAiForm(true);
+            })
+            .catch((error) => aiMessage("error", "The prompt was not copied: " + error.message));
+    }
+
+    function toggleAiForm(open) {
+        aiForm.hidden = !open;
+        aiPasteButton.setAttribute("aria-expanded", String(open));
+        if (open) aiAnswerInput.focus();
+    }
+
+    function loadThemeTokens() {
+        if (!themeTokens) {
+            themeTokens = fetch(config.surveyCssUrl)
+                .then((response) => response.ok ? response.text() : Promise.reject(new Error(response.statusText)))
+                .then((css) => new Set(css.match(/--sjs2-[\w-]+/g)));
+        }
+        return themeTokens;
+    }
+
+    function legacyTokens(names) {
+        if (names.length === 0) return new Set();
+        const probe = {};
+        names.forEach((name) => { probe[name] = "16px"; });
+        const model = new Survey.Model({});
+        model.applyTheme({ cssVariables: probe });
+        return new Set(names.filter((name) => !(name in model.cssVariables)));
+    }
+
+    function parseAnswer(text) {
+        const direct = parse(text.trim());
+        if (direct.json) return direct;
+        const unfenced = text.replace(/```[a-z]*/gi, "");
+        const start = unfenced.indexOf("{");
+        const end = unfenced.lastIndexOf("}");
+        return start >= 0 && end > start ? parse(unfenced.slice(start, end + 1)) : direct;
+    }
+
+    function sanitizeTheme(json, tokens) {
+        const source = Object.keys(json).length > 0 && Object.keys(json).every((key) => key.startsWith("--")) ? { cssVariables: json } : json;
+        const theme = {};
+        const dropped = [];
+        Object.keys(source).forEach((key) => {
+            if (THEME_KEYS.includes(key) && key !== "cssVariables") theme[key] = source[key];
+            else if (key !== "cssVariables") dropped.push(key);
+        });
+        const variables = isJsonObject(source.cssVariables) ? source.cssVariables : {};
+        const names = Object.keys(variables);
+        const legacy = legacyTokens(names.filter((name) => name.startsWith("--sjs-")));
+        theme.cssVariables = {};
+        names.forEach((name) => {
+            const value = variables[name];
+            const validValue = typeof value === "number" || (typeof value === "string" && value.trim() !== "" && !UNSAFE_VALUE.test(value));
+            if ((tokens.has(name) || legacy.has(name)) && validValue) {
+                theme.cssVariables[name] = typeof value === "string" ? value.trim() : value;
+            } else {
+                dropped.push(validValue ? name : name + " (invalid value)");
+            }
+        });
+        return { theme: theme, dropped: dropped };
+    }
+
+    function useTheme(theme) {
+        replaceSource("theme", theme);
+        if (themeModeCheckbox.checked) {
+            themeModeCheckbox.checked = false;
+            updateThemePreset();
+            updateThemeJsonLock();
+        }
+        clearTimeout(previewTimer);
+        saveNotice = null;
+        updateState();
+        renderPreview();
+    }
+
+    function applyAiAnswer() {
+        const parsed = parseAnswer(aiAnswerInput.value);
+        if (!parsed.json) {
+            aiMessage("error", "The AI answer is not valid JSON: " + parsed.error);
+            return;
+        }
+        loadThemeTokens()
+            .then((tokens) => {
+                const result = sanitizeTheme(parsed.json, tokens);
+                const count = Object.keys(result.theme.cssVariables).length;
+                if (count === 0) {
+                    aiMessage("error", "The AI answer has no known SurveyJS tokens, so the theme was not changed.", result.dropped);
+                    return;
+                }
+                contrastCheckPending = true;
+                useTheme(result.theme);
+                toggleAiForm(false);
+                aiAnswerInput.value = "";
+                const applied = "Theme applied with " + plural(count, "token", "tokens") + ". Adaptive is off. Press Save to keep it.";
+                if (result.dropped.length > 0) {
+                    aiMessage("warning", applied + " Dropped " + plural(result.dropped.length, "key", "keys") + " that SurveyJS themes do not support:", result.dropped);
+                } else {
+                    aiMessage("success", applied);
+                }
+            })
+            .catch((error) => aiMessage("error", "The token list could not be loaded: " + error.message));
+    }
+
+    function isDarkColor(color) {
+        const channels = (/rgba?\(([^)]+)\)/.exec(color || "") || [])[1];
+        if (!channels) return false;
+        const [r, g, b] = channels.split(/[\s,/]+/).map(parseFloat);
+        return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
+    }
+
+    function convertAdaptive() {
+        const background = adaptiveTheme["--sjs2-color-utility-body"];
+        useTheme({ themeName: "default", colorPalette: isDarkColor(background) ? "dark" : "light", isPanelless: true, cssVariables: Object.assign({}, adaptiveTheme) });
+        aiMessage("success", "The Adaptive look is now in the theme JSON (" + plural(Object.keys(adaptiveTheme).length, "token", "tokens") + "). Adaptive is off. Edit the JSON or press Save to keep it.");
+    }
+
+    aiPromptButton.addEventListener("click", copyPrompt);
+    aiPasteButton.addEventListener("click", () => toggleAiForm(aiForm.hidden));
+    aiCancelButton.addEventListener("click", () => toggleAiForm(false));
+    aiApplyButton.addEventListener("click", applyAiAnswer);
+    aiConvertButton.addEventListener("click", convertAdaptive);
     themeModeCheckbox.addEventListener("change", () => {
         updateThemePreset();
         updateThemeJsonLock();
+        saveNotice = null;
+        updateState();
+        renderPreview();
+    });
+    transparentBackgroundCheckbox.addEventListener("change", () => {
         saveNotice = null;
         updateState();
         renderPreview();

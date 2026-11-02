@@ -1,5 +1,7 @@
 (function () {
     const probeCss = "position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none;";
+    // A browser-default button has about 6px of side padding; anything smaller means the theme does not style buttons.
+    const MIN_STYLED_BUTTON_PADDING = 8;
 
     function parseColor(color) {
         const match = /^rgba?\(([^)]+)\)$/.exec(color || "");
@@ -72,6 +74,13 @@
                 set("--sjs-wp-primary-foreground", buttonStyle.color, isVisibleColor(buttonStyle.color));
             }
             set("--sjs-wp-button-radius", buttonStyle.borderTopLeftRadius);
+            if (parseFloat(buttonStyle.paddingLeft) >= MIN_STYLED_BUTTON_PADDING) {
+                set("--sjs-wp-button-padding-vertical", buttonStyle.paddingTop);
+                set("--sjs-wp-button-padding-horizontal", buttonStyle.paddingLeft);
+                set("--sjs-wp-button-font-size", buttonStyle.fontSize);
+                set("--sjs-wp-button-font-weight", buttonStyle.fontWeight);
+                set("--sjs-wp-button-line-height", buttonStyle.lineHeight, buttonStyle.lineHeight !== "normal");
+            }
 
             const inputStyle = getComputedStyle(input);
             set("--sjs-wp-input-border", inputStyle.borderTopColor, hasBorder(inputStyle) && isVisibleColor(inputStyle.borderTopColor));

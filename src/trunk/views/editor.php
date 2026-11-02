@@ -19,7 +19,6 @@ class SurveyJS_Editor {
         }
 
         $json = SurveyJS_Client::decode_survey_json( $survey->json, false );
-        $theme = SurveyJS_Client::decode_survey_json( $survey->theme, false );
         $settings = SurveyJS_Form_Settings::get( $survey );
         foreach ( SurveyJS_Form_Settings::fallbacks() as $key => $fallback ) {
             if ( '' === trim( (string) $settings[ $key ] ) ) {
@@ -30,7 +29,7 @@ class SurveyJS_Editor {
             'id'        => (int) $survey->id,
             'name'      => $survey->name,
             'json'      => empty( $json ) ? new stdClass() : $json,
-            'theme'     => empty( $theme ) ? new stdClass() : $theme,
+            'theme'     => SurveyJS_Themes::decode( $survey->theme ),
             'settings'  => $settings,
             'settingPlaceholders' => SurveyJS_Form_Settings::fallbacks(),
             'saveUrl'   => add_query_arg( array( 'action' => 'SurveyJS_SaveSurvey' ), admin_url( 'admin-ajax.php' ) ),
@@ -38,6 +37,7 @@ class SurveyJS_Editor {
             'saveNonce' => wp_create_nonce( 'surveyjs-save-survey' ),
             'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
             'themesUrl' => SurveyJS_Themes::url(),
+            'surveyCssUrl' => plugins_url( '../libs/library/survey-core.min.css', __FILE__ ),
             'previewUrl' => add_query_arg( 'surveyjs_preview', '1', home_url( '/' ) ),
             'uiBuilderUrl' => self::ui_builder_url(),
         );
@@ -75,6 +75,8 @@ class SurveyJS_Editor {
                     </div>
                     <div class="wp-sjs-editor__theme-mode" id="wp-sjs-theme-mode" hidden>
                         <label for="wp-sjs-theme-mode-adaptive"><input type="checkbox" id="wp-sjs-theme-mode-adaptive" data-setting="themeMode" data-checked-value="adaptive" data-unchecked-value="surveyjs" /> <?php esc_html_e( 'Adaptive: use your site\'s theme styles', 'surveyjs' ); ?></label>
+                        <button type="button" class="button" id="wp-sjs-ai-convert" disabled><?php esc_html_e( 'Customize Adaptive theme', 'surveyjs' ); ?></button>
+                        <p class="description"><?php esc_html_e( 'When Adaptive is on, the form takes the colors, fonts, buttons and fields of your site\'s theme, and the theme JSON below is not used. Turn it off to pick a ready-made theme or edit the JSON here or in the free UI Builder. Customize Adaptive theme copies the Adaptive look into the theme JSON so you can edit it.', 'surveyjs' ); ?></p>
                         <span class="wp-sjs-editor__theme-preset">
                             <label for="wp-sjs-theme-preset"><?php esc_html_e( 'Theme', 'surveyjs' ); ?></label>
                             <select id="wp-sjs-theme-preset">
@@ -84,7 +86,22 @@ class SurveyJS_Editor {
                                 <?php endforeach; ?>
                             </select>
                         </span>
-                        <p class="description"><?php esc_html_e( 'When Adaptive is on, the form takes the colors, fonts, buttons and fields of your site\'s theme, and the theme JSON below is not used. Turn it off to pick a ready-made theme or edit the JSON here or in the free UI Builder.', 'surveyjs' ); ?></p>
+                        <label for="wp-sjs-transparent-background"><input type="checkbox" id="wp-sjs-transparent-background" data-setting="transparentBackground" /> <?php esc_html_e( 'Transparent form background', 'surveyjs' ); ?></label>
+                        <p class="description"><?php esc_html_e( 'Transparent form background shows the page behind the form instead of the theme\'s background color. Turn it on if the form looks like a colored box on your page.', 'surveyjs' ); ?></p>
+                        <div class="wp-sjs-editor__ai-theme">
+                            <button type="button" class="button" id="wp-sjs-ai-prompt" disabled><?php esc_html_e( 'Copy prompt for AI', 'surveyjs' ); ?></button>
+                            <button type="button" class="button" id="wp-sjs-ai-paste" aria-expanded="false" aria-controls="wp-sjs-ai-form"><?php esc_html_e( 'Paste theme from AI', 'surveyjs' ); ?></button>
+                            <p class="description"><?php esc_html_e( 'Match your site with your own AI assistant: copy the prompt with your site\'s colors, fonts, buttons and fields, paste it into the AI chat, then paste the theme JSON it returns. The plugin sends nothing to any AI service.','surveyjs' ); ?></p>
+                            <div class="wp-sjs-editor__ai-form" id="wp-sjs-ai-form" hidden>
+                                <label for="wp-sjs-ai-answer" class="screen-reader-text"><?php esc_html_e( 'AI answer', 'surveyjs' ); ?></label>
+                                <textarea id="wp-sjs-ai-answer" class="large-text code" rows="6" placeholder="<?php esc_attr_e( 'Paste the AI answer with the theme JSON here', 'surveyjs' ); ?>"></textarea>
+                                <span class="wp-sjs-editor__ai-actions">
+                                    <button type="button" class="button button-primary" id="wp-sjs-ai-apply"><?php esc_html_e( 'Apply theme', 'surveyjs' ); ?></button>
+                                    <button type="button" class="button-link" id="wp-sjs-ai-cancel"><?php esc_html_e( 'Cancel', 'surveyjs' ); ?></button>
+                                </span>
+                            </div>
+                            <div id="wp-sjs-ai-notice" aria-live="polite"></div>
+                        </div>
                     </div>
                     <div class="wp-sjs-editor__overlay">
                         <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>
@@ -211,6 +228,7 @@ class SurveyJS_Editor {
                     </div>
                 </div>
                 <div class="wp-sjs-editor__preview">
+                    <p class="description wp-sjs-editor__preview-note"><?php esc_html_e( 'Depending on your site\'s theme, the form on a real page may look slightly different from this preview.', 'surveyjs' ); ?></p>
                     <iframe id="wp-sjs-preview" class="wp-sjs-editor__preview-frame" title="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>"></iframe>
                 </div>
             </div>

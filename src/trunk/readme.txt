@@ -6,7 +6,7 @@ Tested up to: 7.1
 Stable tag: 2.5.6
 Requires PHP: 8.2
 
-Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries stored in WordPress — free.
+Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, file uploads, entries and AI themes that match your site — free.
 
 == Description ==
 
@@ -27,7 +27,8 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 
 = Form builder =
 * Describe your form in JSON with validation hints, formatting and a live preview.
-* Style the form on the Theme tab.
+* **Adaptive theme**: by default the form takes the colors, fonts, buttons and fields of your site's theme.
+* **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme that matches your site. The plugin checks the theme and warns about hard-to-read text.
 * Prefer a visual editor? Open the form in the **free online SurveyJS UI Builder** with drag & drop, a logic editor and a theme editor. When you save there, the form comes back to WordPress. Optional: the plugin works fully without it (see External services below).
 
 = Flexible Configuration Options =
@@ -65,7 +66,11 @@ In addition to offering a wide variety of question elements, SurveyJS enables yo
 Show or hide questions, skip pages and change texts based on the answers. For example, you can set the [visibility of the next question](https://surveyjs.io/form-library/examples/conditional-logic-and-branching-in-surveys/) based on a given answer, or [customize the text of the Thank you page](https://surveyjs.io/form-library/examples/nps-question/) based on how the respondent answered your questions.
 
 = Styling =
-Start from one of the [predefined themes](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles#add-surveyjs-themes-to-your-application) and adjust colors, fonts and layout on the Theme tab with a live preview. The predefined themes prioritize accessibility: dark mode and a contrast theme are particularly suited for individuals with visual impairments.
+By default, forms use the **Adaptive theme**: they take the colors, fonts, buttons and fields of your WordPress theme and look like a native part of your site.
+
+Want a SurveyJS theme in your site's style? Use **AI themes**: click **Copy prompt for AI** on the Theme tab, paste the prompt into the AI assistant you already use, and paste its answer back. The prompt contains your site's colors, fonts, buttons and fields and the list of SurveyJS design tokens. The plugin keeps only valid tokens, shows the result in the live preview right away and warns if text contrast is too low. The plugin itself never sends anything to an AI service.
+
+Or start from one of the [predefined themes](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles#add-surveyjs-themes-to-your-application) and adjust colors, fonts and layout on the Theme tab with a live preview. The predefined themes prioritize accessibility: dark mode and a contrast theme are particularly suited for individuals with visual impairments.
 
 Please also refer to the collection of demos specially designed for various real-life use cases: [View Featured Demos](https://surveyjs.io/form-library/examples/overview).
 

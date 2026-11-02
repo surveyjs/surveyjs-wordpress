@@ -21,6 +21,7 @@ class SurveyJS_Form_Settings {
             'autoReplyHtml'         => false,
             'autoReplyAttachments'  => '',
             'themeMode'             => 'adaptive',
+            'transparentBackground' => false,
         );
     }
 
@@ -79,6 +80,7 @@ class SurveyJS_Form_Settings {
             'autoReplyHtml'         => ! empty( $input['autoReplyHtml'] ),
             'autoReplyAttachments'  => sanitize_text_field( $input['autoReplyAttachments'] ),
             'themeMode'             => in_array( $input['themeMode'], self::theme_modes(), true ) ? $input['themeMode'] : 'adaptive',
+            'transparentBackground' => ! empty( $input['transparentBackground'] ),
         );
     }
 
