@@ -18,7 +18,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             }
             $SurveyId = absint( wp_unslash( $_POST['SurveyId'] ?? 0 ) );
             $raw_json = wp_unslash( $_POST['Json'] ?? '' );
-            $Json = $this->sanitize_result_json( $raw_json );
+            $Json = self::sanitize_result_json( $raw_json );
             if ( null === $Json ) {
                 wp_send_json_error(
                     array(
@@ -45,10 +45,14 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
 
             $entry_id = 0;
             if ( $settings['storeEntries'] ) {
-                $entry_id = SurveyJS_Entries::insert( $survey->id, $Json, array(
+                $entry_args = array(
                     'user_id' => get_current_user_id(),
                     'ip'      => SurveyJS_Entries::client_ip(),
-                ) );
+                );
+                $entry_id = SurveyJS_Entries::complete_partial( $survey->id, absint( wp_unslash( $_POST['PartialId'] ?? 0 ) ), (string) wp_unslash( $_POST['PartialToken'] ?? '' ), $Json, $entry_args );
+                if ( ! $entry_id ) {
+                    $entry_id = SurveyJS_Entries::insert( $survey->id, $Json, $entry_args );
+                }
             }
 
             add_option( 'surveyjs_received_entry', 1 );
@@ -66,7 +70,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
         }
     }
 
-    private function sanitize_result_json( $raw_json ) {
+    public static function sanitize_result_json( $raw_json ) {
         if ( ! is_string( $raw_json ) || '' === trim( $raw_json ) ) {
             return null;
         }
@@ -76,15 +80,15 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             return null;
         }
 
-        $sanitized = $this->sanitize_json_value( $decoded );
+        $sanitized = self::sanitize_json_value( $decoded );
         return wp_json_encode( $sanitized );
     }
 
-    private function sanitize_json_value( $value ) {
+    private static function sanitize_json_value( $value ) {
         if ( is_array( $value ) ) {
             $sanitized = array();
             foreach ( $value as $key => $item ) {
-                $sanitized[ $key ] = $this->sanitize_json_value( $item );
+                $sanitized[ $key ] = self::sanitize_json_value( $item );
             }
             return $sanitized;
         }

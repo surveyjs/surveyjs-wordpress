@@ -37,6 +37,10 @@ abstract class SurveyJS_Importer {
         return array();
     }
 
+    protected static function partial_entry_ids( $source_id, $entry_ids ) {
+        return array();
+    }
+
     protected static function gmt_date( $date, $is_gmt = true ) {
         $date = (string) $date;
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $date ) || 0 === strpos( $date, '0000' ) ) {
@@ -142,6 +146,7 @@ abstract class SurveyJS_Importer {
         $files = (array) ( $map[ $key ]['files'] ?? array() );
         $existing = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $table WHERE form_id = %d", $survey_id ) ) );
         $dates = $entries ? static::entry_dates( $source_id, array_keys( $entries ) ) : array();
+        $partial = $entries ? array_map( 'intval', static::partial_entry_ids( $source_id, array_keys( $entries ) ) ) : array();
         $file_questions = array();
         if ( static::copies_entry_files() ) {
             foreach ( SurveyJS_Survey_Values::survey_questions( $form['json'] ) as $question ) {
@@ -160,11 +165,15 @@ abstract class SurveyJS_Importer {
             $json = wp_json_encode( self::sanitize_entry( $data ) );
             $date = $dates[ $entry_id ] ?? '';
             $date_field = '' !== $date ? array( 'created_at' => $date ) : array();
+            $is_partial = in_array( (int) $entry_id, $partial, true );
             if ( $result_id ) {
                 $wpdb->update( $table, array( 'json' => $json ) + $date_field, array( 'id' => $result_id ) );
+                if ( ! $is_partial ) {
+                    SurveyJS_Entries::mark_finished( $result_id );
+                }
                 $counts['updated']++;
             } else {
-                $new_id = SurveyJS_Entries::insert( $survey_id, $json, array( 'status' => 'read' ) + $date_field );
+                $new_id = SurveyJS_Entries::insert( $survey_id, $json, array( 'status' => $is_partial ? SurveyJS_Entries::PARTIAL : 'read' ) + $date_field );
                 if ( $new_id ) {
                     $imported[ $entry_id ] = $new_id;
                     $counts['added']++;

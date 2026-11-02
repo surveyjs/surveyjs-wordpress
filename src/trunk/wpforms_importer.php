@@ -5,7 +5,8 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
 
     const FIELD_TAGS = array( 'field_id', 'field_value_id', 'field_html_id' );
 
-    const SKIPPED_ENTRY_STATUSES = array( 'spam', 'trash', 'partial', 'abandoned' );
+    const SKIPPED_ENTRY_STATUSES = array( 'spam', 'trash' );
+    const PARTIAL_ENTRY_STATUSES = array( 'partial', 'abandoned' );
 
     public static function source() {
         return 'wpforms';
@@ -51,16 +52,29 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         return true;
     }
 
-    // WPForms keeps the entry date in UTC.
+    // WPForms keeps the entry date in UTC. A partial entry is dated by its last save, like partial entries saved by this plugin.
     protected static function entry_dates( $wpforms_id, $entry_ids ) {
-        global $wpdb;
-        $in = implode( ', ', array_fill( 0, count( $entry_ids ), '%d' ) );
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT entry_id, date FROM {$wpdb->prefix}wpforms_entries WHERE entry_id IN ( $in )", array_map( 'intval', $entry_ids ) ) );
         $dates = array();
-        foreach ( $rows as $row ) {
-            $dates[ (int) $row->entry_id ] = self::gmt_date( $row->date );
+        foreach ( self::entry_rows( $entry_ids ) as $row ) {
+            $dates[ (int) $row->entry_id ] = self::gmt_date( in_array( $row->status, self::PARTIAL_ENTRY_STATUSES, true ) ? $row->date_modified : $row->date );
         }
         return array_filter( $dates );
+    }
+
+    protected static function partial_entry_ids( $wpforms_id, $entry_ids ) {
+        $ids = array();
+        foreach ( self::entry_rows( $entry_ids ) as $row ) {
+            if ( in_array( $row->status, self::PARTIAL_ENTRY_STATUSES, true ) ) {
+                $ids[] = (int) $row->entry_id;
+            }
+        }
+        return $ids;
+    }
+
+    private static function entry_rows( $entry_ids ) {
+        global $wpdb;
+        $in = implode( ', ', array_fill( 0, count( $entry_ids ), '%d' ) );
+        return $wpdb->get_results( $wpdb->prepare( "SELECT entry_id, status, date, date_modified FROM {$wpdb->prefix}wpforms_entries WHERE entry_id IN ( $in )", array_map( 'intval', $entry_ids ) ) );
     }
 
     protected static function entries( $wpforms_id, $form ) {
@@ -70,10 +84,13 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
     protected static function entries_page( $wpforms_id, $form, $offset, $limit ) {
         global $wpdb;
         $questions = array_column( SurveyJS_Survey_Values::survey_questions( $form['json'] ), null, 'name' );
-        $statuses = implode( ', ', array_fill( 0, count( self::SKIPPED_ENTRY_STATUSES ), '%s' ) );
+        $skipped = implode( ', ', array_fill( 0, count( self::SKIPPED_ENTRY_STATUSES ), '%s' ) );
+        $partial = implode( ', ', array_fill( 0, count( self::PARTIAL_ENTRY_STATUSES ), '%s' ) );
+        $max_age = SurveyJS_Entries::partial_max_age();
+        // Partial entries older than the cleanup age would be deleted by the next cleanup, so they are not imported.
         $where = $wpdb->prepare(
-            "FROM {$wpdb->prefix}wpforms_entries WHERE form_id = %d AND status NOT IN ( $statuses )",
-            array_merge( array( $wpforms_id ), self::SKIPPED_ENTRY_STATUSES )
+            "FROM {$wpdb->prefix}wpforms_entries WHERE form_id = %d AND status NOT IN ( $skipped ) AND ( status NOT IN ( $partial ) OR date_modified >= %s )",
+            array_merge( array( $wpforms_id ), self::SKIPPED_ENTRY_STATUSES, self::PARTIAL_ENTRY_STATUSES, array( $max_age > 0 ? gmdate( 'Y-m-d H:i:s', time() - $max_age ) : '0000-00-00 00:00:00' ) )
         );
         $rows = $wpdb->get_results( "SELECT entry_id, fields $where ORDER BY entry_id" . ( $limit ? $wpdb->prepare( ' LIMIT %d, %d', $offset, $limit ) : '' ) );
         $entries = array();

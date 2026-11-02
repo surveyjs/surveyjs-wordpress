@@ -17,7 +17,8 @@ class SurveyJS_Admin_Bar {
             return;
         }
         wp_add_inline_style( 'admin-bar', '#wpadminbar #wp-admin-bar-surveyjs .ab-icon:before{content:"\f175";top:2px}'
-            . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count{display:inline-block;box-sizing:border-box;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#d63638;color:#fff;font-size:11px;line-height:18px;text-align:center;vertical-align:middle}' );
+            . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count{display:inline-block;box-sizing:border-box;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#d63638;color:#fff;font-size:11px;line-height:18px;text-align:center;vertical-align:middle}'
+            . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count--expiring{background:#dba617;color:#1d2327}' );
     }
 
     private static function admin_url( $page, $args = array() ) {
@@ -40,10 +41,18 @@ class SurveyJS_Admin_Bar {
             $label = sprintf( _n( '%s unread entry', '%s unread entries', $total, 'surveyjs' ), number_format_i18n( $total ) );
             $title .= '<span class="wp-sjs-ab-count" aria-hidden="true">' . esc_html( number_format_i18n( $total ) ) . '</span><span class="screen-reader-text">' . esc_html( $label ) . '</span>';
         }
+        $expiring = SurveyJS_Entries::partial_deleted_soon_by_form();
+        $expiring_total = array_sum( $expiring );
+        $expiring_url = 1 === count( $expiring ) ? self::admin_url( 'surveyjs_results', array( 'id' => key( $expiring ), 'status' => SurveyJS_Entries::PARTIAL ) ) : $forms_url;
+        if ( $expiring_total ) {
+            /* translators: %s: number of partial entries */
+            $expiring_label = sprintf( _n( '%s partial entry will be deleted soon', '%s partial entries will be deleted soon', $expiring_total, 'surveyjs' ), number_format_i18n( $expiring_total ) );
+            $title .= '<span class="wp-sjs-ab-count wp-sjs-ab-count--expiring" aria-hidden="true">' . esc_html( number_format_i18n( $expiring_total ) ) . '</span><span class="screen-reader-text">' . esc_html( $expiring_label ) . '</span>';
+        }
         $admin_bar->add_node( array(
             'id'    => self::NODE,
             'title' => $title,
-            'href'  => $total ? $unread_url : $forms_url,
+            'href'  => $total ? $unread_url : ( $expiring_total ? $expiring_url : $forms_url ),
         ) );
 
         if ( $total ) {
@@ -52,6 +61,14 @@ class SurveyJS_Admin_Bar {
                 'id'     => self::NODE . '-unread',
                 'title'  => esc_html( $label ),
                 'href'   => $unread_url,
+            ) );
+        }
+        if ( $expiring_total ) {
+            $admin_bar->add_node( array(
+                'parent' => self::NODE,
+                'id'     => self::NODE . '-expiring',
+                'title'  => esc_html( $expiring_label ),
+                'href'   => $expiring_url,
             ) );
         }
         $admin_bar->add_node( array(

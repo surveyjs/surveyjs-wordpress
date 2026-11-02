@@ -12,7 +12,7 @@ License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=Lic
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
-    define( 'SURVEYJS_DB_VERSION', '3' );
+    define( 'SURVEYJS_DB_VERSION', '4' );
 
     function wps_install() {
         SurveyJS_Install::install();
@@ -27,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         SurveyJS_Uploaded_Files::unschedule_cleanup();
         delete_option( 'surveyjs_upload_guard_version' );
         SurveyJS_Drafts::unschedule_cleanup();
+        SurveyJS_Entries::unschedule_partial_cleanup();
     }
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
@@ -70,6 +71,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     include("ajax_handlers/save_result.php");
     new SurveyJS_SaveResult();
+
+    include("ajax_handlers/save_partial_result.php");
+    new SurveyJS_SavePartialResult();
 
     include("ajax_handlers/send_test_email.php");
     new SurveyJS_SendTestEmail();

@@ -100,6 +100,9 @@ class SurveyJS_Privacy {
             array( 'name' => __( 'Form', 'surveyjs' ), 'value' => $form ? $form->name : __( '(deleted form)', 'surveyjs' ) ),
             array( 'name' => __( 'Date', 'surveyjs' ), 'value' => SurveyJS_Entries::format_date( $row->created_at ) ),
         );
+        if ( SurveyJS_Entries::PARTIAL === $row->status ) {
+            $data[] = array( 'name' => __( 'Status', 'surveyjs' ), 'value' => __( 'Not submitted', 'surveyjs' ) );
+        }
         if ( '' !== (string) $row->ip ) {
             $data[] = array( 'name' => __( 'IP address', 'surveyjs' ), 'value' => $row->ip );
         }

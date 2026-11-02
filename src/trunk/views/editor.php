@@ -138,6 +138,13 @@ class SurveyJS_Editor {
                             <th scope="row"><?php esc_html_e( 'Store entries', 'surveyjs' ); ?></th>
                             <td><label><input type="checkbox" data-setting="storeEntries" /> <?php esc_html_e( 'Save submitted entries in the database', 'surveyjs' ); ?></label></td>
                         </tr>
+                        <tr data-enabled-by="storeEntries">
+                            <th scope="row"><?php esc_html_e( 'Partial entries', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="savePartialEntries" /> <?php esc_html_e( 'Save partial entries', 'surveyjs' ); ?></label>
+                                <p class="description"><?php esc_html_e( 'Answers are saved on your site each time the respondent goes to the next page, so you see entries of people who started the form but did not submit it. They are listed under Partial in the entries and become a regular entry when the form is submitted. Unfinished entries are deleted after 30 days unless you click Keep on them. Mention this in your privacy policy. Works only when Store entries is on.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
                     </table>
                 </div>
                 <div class="wp-sjs-editor__settings" data-panel="spam" hidden>

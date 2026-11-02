@@ -9,6 +9,8 @@ class SurveyJS_Results {
         'unread' => 'unread',
         'spam'   => 'spam',
         'unspam' => 'read',
+        'keep'   => 'partial',
+        'unkeep' => 'partial',
     );
 
     function __construct() {
@@ -67,7 +69,13 @@ class SurveyJS_Results {
                 check_admin_referer( 'surveyjs-result-status_' . $id );
                 $ids = array( $id );
             }
-            SurveyJS_Entries::set_status( $survey->id, $ids, self::STATUS_ACTIONS[ $action ] );
+            if ( 'unspam' === $action ) {
+                SurveyJS_Entries::unspam( $survey->id, $ids );
+            } elseif ( 'keep' === $action || 'unkeep' === $action ) {
+                SurveyJS_Entries::set_kept( $survey->id, $ids, 'keep' === $action );
+            } else {
+                SurveyJS_Entries::set_status( $survey->id, $ids, self::STATUS_ACTIONS[ $action ] );
+            }
             wp_safe_redirect( add_query_arg( array( 'message' => 'updated', 'count' => count( $ids ) ), $results_url ) );
             exit;
         }
@@ -104,17 +112,19 @@ class SurveyJS_Results {
         global $wpdb;
         $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
         $table = SurveyJS_Entries::table();
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json, status, created_at FROM $table WHERE form_id = %d AND status <> 'spam' ORDER BY created_at, id", $survey->id ) );
-        $statuses = SurveyJS_Entries::statuses();
+        $partial = SurveyJS_Entries::PARTIAL === SurveyJS_Results_List_Table::current_status();
+        $where = $partial ? "status = 'partial'" : "status NOT IN ( 'spam', 'partial' )";
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json, status, created_at, last_page FROM $table WHERE form_id = %d AND $where ORDER BY created_at, id", $survey->id ) );
+        $file_name = $partial ? $survey->name . '-partial-results.csv' : $survey->name . '-results.csv';
 
         header( 'Content-Type: text/csv; charset=utf-8' );
-        header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $survey->name . '-results.csv' ) . '"' );
+        header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $file_name ) . '"' );
         $output = fopen( 'php://output', 'w' );
         fwrite( $output, "\xEF\xBB\xBF" );
         fputcsv( $output, array_merge( array( 'ID', __( 'Date', 'surveyjs' ), __( 'Status', 'surveyjs' ) ), array_map( array( 'SurveyJS_Survey_Values', 'question_title' ), $questions ) ) );
         foreach ( $rows as $row ) {
             $data = SurveyJS_Client::decode_survey_json( $row->json );
-            $line = array( $row->id, SurveyJS_Entries::format_date( $row->created_at ), $statuses[ $row->status ] ?? $row->status );
+            $line = array( $row->id, SurveyJS_Entries::format_date( $row->created_at ), SurveyJS_Entries::status_label( $row->status, (int) $row->last_page ) );
             foreach ( $questions as $question ) {
                 $value = is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null;
                 $links = SurveyJS_Uploaded_Files::links( $value );
@@ -144,7 +154,11 @@ class SurveyJS_Results {
             'updated' => sprintf( _n( '%s result updated.', '%s results updated.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
         );
         $export_url = wp_nonce_url(
-            SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array( 'id' => $survey->id, 'action' => 'export' ) ),
+            SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array_filter( array(
+                'id'     => $survey->id,
+                'action' => 'export',
+                'status' => SurveyJS_Entries::PARTIAL === SurveyJS_Results_List_Table::current_status() ? SurveyJS_Entries::PARTIAL : '',
+            ) ) ),
             'surveyjs-export-results_' . $survey->id
         );
         $view_data = array(
@@ -170,6 +184,22 @@ class SurveyJS_Results {
                 <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
             <?php endif; ?>
 
+            <?php $expiring = SurveyJS_Entries::count_partial_deleted_soon( $survey->id ); ?>
+            <?php if ( $expiring ) : ?>
+                <div class="notice notice-warning">
+                    <p>
+                        <?php
+                        /* translators: %s: number of partial entries */
+                        echo esc_html( sprintf( _n( '%s partial entry will be deleted within 5 days.', '%s partial entries will be deleted within 5 days.', $expiring, 'surveyjs' ), number_format_i18n( $expiring ) ) );
+                        ?>
+                        <?php esc_html_e( 'Click Keep on the ones you need.', 'surveyjs' ); ?>
+                        <?php if ( SurveyJS_Entries::PARTIAL !== SurveyJS_Results_List_Table::current_status() ) : ?>
+                            <a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array( 'id' => $survey->id, 'status' => SurveyJS_Entries::PARTIAL ) ) ); ?>"><?php esc_html_e( 'View partial entries', 'surveyjs' ); ?></a>
+                        <?php endif; ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+
             <?php $table->views(); ?>
             <form method="get" id="wp-sjs-results-list">
                 <input type="hidden" name="page" value="surveyjs_results" />
@@ -182,7 +212,7 @@ class SurveyJS_Results {
             </form>
             <div id="wp-sjs-result-popup"></div>
         </div>
-        <style>.wp-sjs-entry-unread td, .wp-sjs-entry-unread th { font-weight: 600; }</style>
+        <style>.wp-sjs-entry-unread td, .wp-sjs-entry-unread th { font-weight: 600; } .wp-sjs-entry-expiring { color: #b32d2e; }</style>
         <script>
             document.getElementById("wp-sjs-results-list").addEventListener("submit", function (event) {
                 var button = event.submitter;

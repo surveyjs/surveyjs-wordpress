@@ -80,6 +80,13 @@ class SurveyJS_Drafts {
             'currentPageNo' => absint( wp_unslash( $_POST['CurrentPageNo'] ?? 0 ) ),
             'savedAt'       => time(),
         );
+        $partial = json_decode( (string) wp_unslash( $_POST['Partial'] ?? '' ) );
+        if ( $partial instanceof stdClass && isset( $partial->id, $partial->token ) && is_string( $partial->token ) ) {
+            $draft['partial'] = array(
+                'id'    => absint( $partial->id ),
+                'token' => preg_replace( '/[^a-f0-9]/', '', $partial->token ),
+            );
+        }
         update_user_option( get_current_user_id(), self::META_PREFIX . absint( $survey->id ), wp_slash( wp_json_encode( $draft ) ) );
 
         if ( ! wp_next_scheduled( self::CLEANUP_HOOK ) ) {

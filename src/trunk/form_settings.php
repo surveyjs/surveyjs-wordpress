@@ -7,6 +7,7 @@ class SurveyJS_Form_Settings {
         return array(
             'storeEntries'          => true,
             'saveResume'            => false,
+            'savePartialEntries'    => false,
             'notificationEnabled'   => false,
             'notificationTo'        => '',
             'notificationFromName'  => '',
@@ -68,6 +69,7 @@ class SurveyJS_Form_Settings {
         return array(
             'storeEntries'          => ! empty( $input['storeEntries'] ),
             'saveResume'            => ! empty( $input['saveResume'] ),
+            'savePartialEntries'    => ! empty( $input['savePartialEntries'] ),
             'notificationEnabled'   => ! empty( $input['notificationEnabled'] ),
             'notificationTo'        => sanitize_text_field( $input['notificationTo'] ),
             'notificationFromName'  => sanitize_text_field( $input['notificationFromName'] ),

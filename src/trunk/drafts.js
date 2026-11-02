@@ -45,7 +45,7 @@
                 return options.saved;
             },
             save(draft, leavingPage) {
-                const fields = { Data: JSON.stringify(draft.data), CurrentPageNo: draft.currentPageNo };
+                const fields = { Data: JSON.stringify(draft.data), CurrentPageNo: draft.currentPageNo, Partial: JSON.stringify(draft.partial || null) };
                 if (leavingPage) {
                     send("SurveyJS_SaveDraft", fields, true);
                 } else {
@@ -58,7 +58,7 @@
         };
     }
 
-    function attach(survey, config, container) {
+    function attach(survey, config, container, partial) {
         const options = config.draft;
         const store = options.storageKey ? browserStore(options.storageKey) : serverStore(options, config.id);
         const saved = store.load();
@@ -77,7 +77,7 @@
                 return;
             }
             stored = true;
-            store.save({ data: data, currentPageNo: survey.currentPageNo, savedAt: Math.floor(Date.now() / 1000) }, leavingPage);
+            store.save({ data: data, currentPageNo: survey.currentPageNo, savedAt: Math.floor(Date.now() / 1000), partial: partial ? partial.get() : null }, leavingPage);
         }
 
         function removeDraft() {
@@ -135,6 +135,9 @@
             if (saved.currentPageNo < survey.visiblePages.length) {
                 survey.currentPageNo = saved.currentPageNo;
             }
+            if (partial && saved.partial) {
+                partial.set(saved.partial);
+            }
             touched = true;
             stored = true;
             showNotice();
@@ -143,6 +146,13 @@
         }
 
         survey.onValueChanged.add(scheduleSave);
+        if (partial) {
+            partial.onChange(() => {
+                if (touched) {
+                    scheduleSave();
+                }
+            });
+        }
         survey.onCurrentPageChanged.add(() => {
             if (touched) {
                 scheduleSave();

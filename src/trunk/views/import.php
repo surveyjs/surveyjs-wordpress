@@ -187,7 +187,7 @@ class SurveyJS_Import {
             <?php if ( $importer::entries_available() ) : ?>
                 <p>
                     <label><input type="checkbox" name="entries" value="1" /> <?php esc_html_e( 'Import entries', 'surveyjs' ); ?></label><br>
-                    <span class="description"><?php esc_html_e( 'Importing again updates the entries imported before and adds new ones, without duplicates. Spam, trashed and partial entries are skipped.', 'surveyjs' ); ?></span>
+                    <span class="description"><?php esc_html_e( 'Importing again updates the entries imported before and adds new ones, without duplicates. Spam and trashed entries are skipped. Partial and abandoned entries are imported as Partial, except those last saved more than 30 days ago.', 'surveyjs' ); ?></span>
                 </p>
             <?php else : ?>
                 <p class="description"><?php echo esc_html( $info['no_entries'] ); ?></p>

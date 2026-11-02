@@ -295,6 +295,12 @@ class SurveyJS_SurveyJS {
             'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
             'draft' => SurveyJS_Drafts::client_config($row),
         );
+        if ( SurveyJS_Entries::partial_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
+            $config['partial'] = array(
+                'url'        => add_query_arg( array( 'action' => 'SurveyJS_SavePartialResult' ), admin_url( 'admin-ajax.php' ) ),
+                'storageKey' => 'surveyjs-partial:' . home_url() . ':' . absint( $id ),
+            );
+        }
         if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['captcha'] = SurveyJS_Captcha::client_config();
         }

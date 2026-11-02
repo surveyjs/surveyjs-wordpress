@@ -54,7 +54,9 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
         $counts = $this->counts;
         $views = array( '' => array( __( 'All', 'surveyjs' ), $counts['unread'] + $counts['read'] ) );
         foreach ( SurveyJS_Entries::statuses() as $status => $label ) {
-            $views[ $status ] = array( $label, $counts[ $status ] );
+            if ( SurveyJS_Entries::PARTIAL !== $status || $counts[ $status ] || $current === $status ) {
+                $views[ $status ] = array( $label, $counts[ $status ] );
+            }
         }
         $links = array();
         foreach ( $views as $status => $view ) {
@@ -71,13 +73,22 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
     }
 
     protected function get_bulk_actions() {
-        $actions = 'spam' === self::current_status()
-            ? array( 'unspam' => __( 'Not Spam', 'surveyjs' ) )
-            : array(
+        $status = self::current_status();
+        if ( 'spam' === $status ) {
+            $actions = array( 'unspam' => __( 'Not Spam', 'surveyjs' ) );
+        } elseif ( SurveyJS_Entries::PARTIAL === $status ) {
+            $actions = array(
+                'keep'   => __( 'Keep', 'surveyjs' ),
+                'unkeep' => __( 'Stop Keeping', 'surveyjs' ),
+                'spam'   => __( 'Mark as Spam', 'surveyjs' ),
+            );
+        } else {
+            $actions = array(
                 'read'   => __( 'Mark as Read', 'surveyjs' ),
                 'unread' => __( 'Mark as Unread', 'surveyjs' ),
                 'spam'   => __( 'Mark as Spam', 'surveyjs' ),
             );
+        }
         return $actions + array( 'delete' => __( 'Delete', 'surveyjs' ) );
     }
 
@@ -100,7 +111,7 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
             $where .= ' AND status = %s';
             $args[] = $status;
         } else {
-            $where .= " AND status <> 'spam'";
+            $where .= " AND status NOT IN ( 'spam', 'partial' )";
         }
         if ( '' !== $search ) {
             $where .= ' AND json LIKE %s';
@@ -110,7 +121,7 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
         $table = SurveyJS_Entries::table();
         $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table $where", $args ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, json, status, user_id, ip, created_at FROM $table $where ORDER BY $orderby LIMIT %d OFFSET %d",
+            "SELECT id, json, status, user_id, ip, created_at, last_page, kept, token_hash IS NOT NULL AS unfinished FROM $table $where ORDER BY $orderby LIMIT %d OFFSET %d",
             array_merge( $args, array( self::PER_PAGE, ( $this->get_pagenum() - 1 ) * self::PER_PAGE ) )
         ) );
 
@@ -122,6 +133,9 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
                 'user_id'    => (int) $row->user_id,
                 'ip'         => (string) $row->ip,
                 'created_at' => $row->created_at,
+                'last_page'  => (int) $row->last_page,
+                'kept'       => (bool) $row->kept,
+                'unfinished' => (bool) $row->unfinished,
                 'data'       => is_array( $data ) ? $data : array(),
             );
         }, $rows );
@@ -153,6 +167,11 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
         );
         if ( 'spam' === $item->status ) {
             $status_actions = array( 'unspam' => __( 'Not Spam', 'surveyjs' ) );
+        } elseif ( SurveyJS_Entries::PARTIAL === $item->status ) {
+            $status_actions = $item->kept
+                ? array( 'unkeep' => __( 'Stop Keeping', 'surveyjs' ) )
+                : array( 'keep' => __( 'Keep', 'surveyjs' ) );
+            $status_actions['spam'] = __( 'Spam', 'surveyjs' );
         } else {
             $status_actions = 'unread' === $item->status
                 ? array( 'read' => __( 'Mark as Read', 'surveyjs' ) )
@@ -178,7 +197,20 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
     }
 
     protected function column_status( $item ) {
-        return esc_html( SurveyJS_Entries::statuses()[ $item->status ] ?? $item->status );
+        $label = esc_html( SurveyJS_Entries::status_label( $item->status, $item->last_page ) );
+        if ( SurveyJS_Entries::PARTIAL !== $item->status || ! $item->unfinished ) {
+            return $label;
+        }
+        if ( $item->kept ) {
+            return $label . '<br><span class="description">' . esc_html__( 'Kept', 'surveyjs' ) . '</span>';
+        }
+        $deletion_time = SurveyJS_Entries::partial_deletion_time( $item->created_at, $item->kept );
+        if ( ! SurveyJS_Entries::partial_deletion_soon( $deletion_time ) ) {
+            return $label;
+        }
+        /* translators: %s: date when the partial entry will be deleted */
+        $text = sprintf( __( 'Will be deleted on %s', 'surveyjs' ), wp_date( get_option( 'date_format' ), $deletion_time ) );
+        return $label . '<br><span class="wp-sjs-entry-expiring">' . esc_html( $text ) . '</span>';
     }
 
     protected function column_submitter( $item ) {

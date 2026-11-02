@@ -57,6 +57,59 @@
         if (html !== text) options.html = html;
     }
 
+    function createPartialEntry(config, honeypot) {
+        const options = config.partial;
+        const listeners = [];
+        let queue = Promise.resolve();
+        let ref = null;
+
+        function set(value) {
+            ref = value && value.id && value.token ? { id: value.id, token: value.token } : null;
+            try {
+                if (ref) {
+                    sessionStorage.setItem(options.storageKey, JSON.stringify(ref));
+                } else {
+                    sessionStorage.removeItem(options.storageKey);
+                }
+            } catch (error) {
+                console.error("Error: ", error);
+            }
+            if (ref) listeners.forEach((listener) => listener(ref));
+        }
+
+        function fields() {
+            return ref ? { PartialId: ref.id, PartialToken: ref.token } : {};
+        }
+
+        try {
+            const stored = JSON.parse(sessionStorage.getItem(options.storageKey));
+            ref = stored && stored.id && stored.token ? stored : null;
+        } catch (error) {
+            ref = null;
+        }
+
+        return {
+            get: () => ref,
+            set: set,
+            fields: fields,
+            onChange: (listener) => listeners.push(listener),
+            idle: () => queue,
+            clear: () => set(null),
+            send(data, page) {
+                queue = queue
+                    .then(() => fetch(options.url, {
+                        method: "POST",
+                        body: new URLSearchParams(Object.assign({ SurveyId: config.id, Json: JSON.stringify(data), Page: page, Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, fields()))
+                    }))
+                    .then((response) => response.ok ? response.json() : null)
+                    .then((result) => {
+                        if (result && result.data && result.data.token) set(result.data);
+                    })
+                    .catch((error) => console.error("Error: ", error));
+            }
+        };
+    }
+
     function withTransparentBackground(theme) {
         const cssVariables = Object.assign({}, theme && theme.cssVariables, {
             "--sjs2-color-utility-body": "transparent",
@@ -89,11 +142,22 @@
         }
         window["survey" + config.id] = survey;
 
+        const partial = config.partial ? createPartialEntry(config, honeypot) : null;
+        if (partial) {
+            survey.partialSendEnabled = true;
+            survey.onPartialSend.add((sender) => partial.send(sender.data, sender.currentPageNo + 2));
+        }
+
         function saveResult(data, fields) {
-            return fetch(config.saveResultUrl, {
-                method: "POST",
-                body: new URLSearchParams(Object.assign({ SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, fields))
-            });
+            return (partial ? partial.idle() : Promise.resolve())
+                .then(() => fetch(config.saveResultUrl, {
+                    method: "POST",
+                    body: new URLSearchParams(Object.assign({ SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, partial ? partial.fields() : {}, fields))
+                }))
+                .then((response) => {
+                    if (response.ok && partial) partial.clear();
+                    return response;
+                });
         }
 
         const captcha = config.captcha ? createCaptcha(config.captcha, container) : null;
@@ -215,7 +279,7 @@
         });
 
         if (config.draft && window.SurveyJSDrafts) {
-            SurveyJSDrafts.attach(survey, config, container);
+            SurveyJSDrafts.attach(survey, config, container, partial);
         }
 
         SurveyUI.renderSurvey(survey, container);

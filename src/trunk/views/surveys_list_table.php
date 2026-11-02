@@ -59,7 +59,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
         $entries = SurveyJS_Entries::table();
         $this->items = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status <> 'spam' THEN 1 ELSE 0 END) AS results
+            "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results
             FROM {$wpdb->posts} p
             LEFT JOIN $entries r ON r.form_id = p.ID
             $where
@@ -119,7 +119,14 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
     protected function column_results( $item ) {
         $results_url = self::page_url( 'surveyjs_results', array( 'id' => $item->id, 'name' => $item->name ) );
-        return sprintf( '<a href="%s">%d</a>', esc_url( $results_url ), $item->results );
+        $html = sprintf( '<a href="%s">%d</a>', esc_url( $results_url ), $item->results );
+        $expiring = SurveyJS_Entries::count_partial_deleted_soon( $item->id );
+        if ( $expiring ) {
+            /* translators: %s: number of partial entries */
+            $text = sprintf( _n( '%s partial entry will be deleted soon', '%s partial entries will be deleted soon', $expiring, 'surveyjs' ), number_format_i18n( $expiring ) );
+            $html .= sprintf( '<br><a href="%s" style="color:#b32d2e">%s</a>', esc_url( self::page_url( 'surveyjs_results', array( 'id' => $item->id, 'status' => SurveyJS_Entries::PARTIAL ) ) ), esc_html( $text ) );
+        }
+        return $html;
     }
 
     public static function page_url( $page, $args = array() ) {
