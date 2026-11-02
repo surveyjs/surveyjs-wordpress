@@ -40,6 +40,12 @@
                 .catch(() => options.showSaveError());
         });
 
+        const previewUrls = {};
+        // Uploaded files are not public: the preview shows them through the signed link returned by the upload.
+        survey.onDownloadFile.add((_, options) => {
+            options.callback("success", previewUrls[options.content] || options.content);
+        });
+
         survey.onUploadFiles.add((_, options) => {
             const formData = new FormData();
             options.files.forEach((file) => {
@@ -54,11 +60,16 @@
             })
                 .then((response) => response.json())
                 .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
                     options.callback(
                         options.files.map((file) => {
+                            const uploaded = data[file.name];
+                            previewUrls[uploaded.url] = uploaded.preview;
                             return {
                                 file: file,
-                                content: data[file.name]
+                                content: uploaded.url
                             };
                         })
                     );

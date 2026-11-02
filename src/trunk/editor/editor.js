@@ -12,6 +12,8 @@
     const nameSaveButton = document.getElementById("wp-sjs-name-save");
     const nameCancelButton = document.getElementById("wp-sjs-name-cancel");
     const formatButton = document.getElementById("wp-sjs-format");
+    const insertImageButton = document.getElementById("wp-sjs-insert-image");
+    const setLogoButton = document.getElementById("wp-sjs-set-logo");
     const saveButton = document.getElementById("wp-sjs-save");
     const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
     const uiBuilderOrigin = new URL(config.uiBuilderUrl).origin;
@@ -463,6 +465,9 @@
         uiBuilderButton.disabled = Boolean(error);
         updateDependentRows();
         formatButton.disabled = !(activeTab in sources) || isThemeJsonLocked() || Boolean(parse(sources[activeTab]).error);
+        insertImageButton.disabled = !editor || !(activeTab in sources) || isThemeJsonLocked() || !hasMediaLibrary();
+        setLogoButton.hidden = activeTab !== "survey";
+        setLogoButton.disabled = !editor || Boolean(parse(sources.survey).error) || !hasMediaLibrary();
         if (error) {
             showNotice("error", error);
         } else if (saveNotice) {
@@ -717,6 +722,47 @@
         }
     }
 
+    function hasMediaLibrary() {
+        return Boolean(window.wp && window.wp.media);
+    }
+
+    function chooseImage(button, onSelect) {
+        const frame = window.wp.media({
+            title: button.dataset.frameTitle,
+            button: { text: button.dataset.frameButton },
+            library: { type: "image" },
+            multiple: false
+        });
+        frame.on("select", () => {
+            const attachment = frame.state().get("selection").first().toJSON();
+            if (attachment.url) onSelect(attachment.url);
+        });
+        frame.open();
+    }
+
+    function insertImage() {
+        const tab = activeTab;
+        const selection = editor.getSelection();
+        chooseImage(insertImageButton, (url) => {
+            if (activeTab !== tab) switchTab(tab);
+            const line = models[tab].getLineContent(selection.startLineNumber);
+            const insideQuotes = selection.isEmpty() && line.charAt(selection.startColumn - 2) === "\"" && line.charAt(selection.startColumn - 1) === "\"";
+            const text = insideQuotes ? JSON.stringify(url).slice(1, -1) : JSON.stringify(url);
+            editor.executeEdits("insert-image", [{ range: selection, text: text, forceMoveMarkers: true }]);
+            editor.pushUndoStop();
+            editor.focus();
+        });
+    }
+
+    function setLogo() {
+        chooseImage(setLogoButton, (url) => {
+            const parsed = parse(sources.survey);
+            if (!parsed.json) return;
+            parsed.json.logo = url;
+            replaceSource("survey", parsed.json);
+        });
+    }
+
     function save() {
         const survey = parse(sources.survey);
         const theme = parse(sources.theme);
@@ -872,6 +918,8 @@
         updateState();
     })));
     formatButton.addEventListener("click", format);
+    insertImageButton.addEventListener("click", insertImage);
+    setLogoButton.addEventListener("click", setLogo);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));

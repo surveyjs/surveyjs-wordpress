@@ -102,13 +102,18 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
 
     protected function column_default( $item, $column_name ) {
         $question = $this->questions[ (int) substr( $column_name, strlen( 'question_' ) ) ];
-        return esc_html( SurveyJS_Survey_Values::display_value( $question, $item->data[ $question['name'] ] ?? null ) );
+        $value = $item->data[ $question['name'] ] ?? null;
+        $links = SurveyJS_Uploaded_Files::links( $value );
+        if ( $links ) {
+            return SurveyJS_Uploaded_Files::links_html( $links );
+        }
+        return esc_html( SurveyJS_Survey_Values::display_value( $question, $value ) );
     }
 
     public function get_items_data() {
         $data = array();
         foreach ( $this->items as $item ) {
-            $data[ $item->id ] = (object) $item->data;
+            $data[ $item->id ] = (object) SurveyJS_Uploaded_Files::with_admin_urls( $item->data );
         }
         return $data;
     }

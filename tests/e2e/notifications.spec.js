@@ -147,7 +147,7 @@ test.describe("email notification", () => {
     const fileChooser = page.waitForEvent("filechooser");
     await page.locator(".wp-sjs-survey .sd-file__choose-btn").first().click();
     await (await fileChooser).setFiles({ name: "report.txt", mimeType: "text/plain", buffer: Buffer.from("E2E attachment") });
-    const fileUrl = (await (await uploaded).json())["report.txt"];
+    const fileUrl = (await (await uploaded).json())["report.txt"].url;
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Complete" }).click();
     expect((await saved).ok()).toBe(true);

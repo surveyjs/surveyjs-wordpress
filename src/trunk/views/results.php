@@ -39,9 +39,14 @@ class SurveyJS_Results {
                 check_admin_referer( 'surveyjs-delete-result_' . $id );
                 $ids = array( $id );
             }
+            $file_names = array();
             foreach ( $ids as $id ) {
-                $wpdb->delete( $wpdb->prefix . 'sjs_results', array( 'id' => $id, 'surveyId' => $survey->id ) );
+                $json = $wpdb->get_var( $wpdb->prepare( "SELECT json FROM {$wpdb->prefix}sjs_results WHERE id = %d AND surveyId = %d", $id, $survey->id ) );
+                if ( null !== $json && $wpdb->delete( $wpdb->prefix . 'sjs_results', array( 'id' => $id, 'surveyId' => $survey->id ) ) ) {
+                    $file_names = array_merge( $file_names, SurveyJS_Uploaded_Files::referenced_names( SurveyJS_Client::decode_survey_json( $json ) ) );
+                }
             }
+            SurveyJS_Uploaded_Files::delete_unreferenced( $file_names );
             wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => count( $ids ) ), $results_url ) );
             exit;
         }
@@ -72,7 +77,9 @@ class SurveyJS_Results {
             $data = SurveyJS_Client::decode_survey_json( $row->json );
             $line = array( $row->id );
             foreach ( $questions as $question ) {
-                $line[] = SurveyJS_Survey_Values::display_value( $question, is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null );
+                $value = is_array( $data ) ? ( $data[ $question['name'] ] ?? null ) : null;
+                $links = SurveyJS_Uploaded_Files::links( $value );
+                $line[] = $links ? SurveyJS_Uploaded_Files::links_text( $links ) : SurveyJS_Survey_Values::display_value( $question, $value );
             }
             fputcsv( $output, $line );
         }

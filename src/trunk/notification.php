@@ -13,38 +13,60 @@ class SurveyJS_Notification {
 
         $data = is_array( $data ) ? $data : array();
         $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
-        $text_tags = self::common_tags( $survey );
-        $value_tags = $text_tags;
+        $value_tags = self::common_tags( $survey );
         foreach ( $questions as $question ) {
-            $text_tags[ '{field:' . $question['name'] . '}' ] = array_key_exists( $question['name'], $data ) ? SurveyJS_Survey_Values::display_value( $question, $data[ $question['name'] ] ) : '';
             $value_tags[ '{field:' . $question['name'] . '}' ] = self::raw_value( $data[ $question['name'] ] ?? null );
         }
-        $html_tags = array_map( 'esc_html', $text_tags );
-        $text_tags['{all_fields}'] = implode( "\n", self::field_lines( $questions, $data ) );
-        $html_tags['{all_fields}'] = implode( "<br>\n", array_map( 'esc_html', self::field_lines( $questions, $data ) ) );
+        $respondent_tags = self::field_tags( $survey, $questions, $data, false );
+        // Without stored entries the files are deleted right after sending, so a link would be dead.
+        $owner_tags = empty( $settings['storeEntries'] ) ? $respondent_tags : self::field_tags( $survey, $questions, $data, true );
 
-        $value = function ( $key, $html = false ) use ( $settings, $text_tags, $html_tags ) {
+        $value = function ( $key, $tags, $html = false ) use ( $settings ) {
             $template = SurveyJS_Form_Settings::value( $settings, $key );
-            return $html ? strtr( wpautop( $template ), $html_tags ) : strtr( $template, $text_tags );
+            return $html ? strtr( wpautop( $template ), $tags['html'] ) : strtr( $template, $tags['text'] );
         };
 
         $to = self::recipients( strtr( SurveyJS_Form_Settings::value( $settings, 'notificationTo' ), $value_tags ) );
         $respondent_email = $data[ $settings['notificationReplyTo'] ] ?? '';
         $respondent_email = is_string( $respondent_email ) && is_email( $respondent_email ) ? $respondent_email : '';
-        $from = self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) );
+        $from = self::from( $value( 'notificationFromName', $respondent_tags ), $value( 'notificationFromEmail', $respondent_tags ) );
 
         $notify = ! empty( $settings['notificationEnabled'] ) && ! empty( $to );
         if ( $notify ) {
             $html = ! empty( $settings['notificationHtml'] );
             $headers = self::headers( $from, $respondent_email, $html );
-            wp_mail( $to, $value( 'notificationSubject' ), $value( 'notificationMessage', $html ), $headers, self::attachments( $settings['notificationAttachments'], $data ) );
+            wp_mail( $to, $value( 'notificationSubject', $respondent_tags ), $value( 'notificationMessage', $owner_tags, $html ), $headers, self::attachments( $settings['notificationAttachments'], $data ) );
         }
 
         if ( ! empty( $settings['autoReplyEnabled'] ) && $respondent_email ) {
             $html = ! empty( $settings['autoReplyHtml'] );
             $headers = self::headers( $from, $notify ? implode( ', ', $to ) : get_option( 'admin_email' ), $html );
-            wp_mail( $respondent_email, $value( 'autoReplySubject' ), $value( 'autoReplyMessage', $html ), $headers, self::attachments( $settings['autoReplyAttachments'], $data ) );
+            wp_mail( $respondent_email, $value( 'autoReplySubject', $respondent_tags ), $value( 'autoReplyMessage', $respondent_tags, $html ), $headers, self::attachments( $settings['autoReplyAttachments'], $data ) );
         }
+    }
+
+    private static function field_tags( $survey, $questions, $data, $file_links ) {
+        $text_tags = self::common_tags( $survey );
+        $html_tags = array_map( 'esc_html', $text_tags );
+        $text_lines = array();
+        $html_lines = array();
+        foreach ( $questions as $question ) {
+            $tag = '{field:' . $question['name'] . '}';
+            $text_tags[ $tag ] = '';
+            $html_tags[ $tag ] = '';
+            if ( ! array_key_exists( $question['name'], $data ) ) {
+                continue;
+            }
+            $links = $file_links ? SurveyJS_Uploaded_Files::links( $data[ $question['name'] ] ) : array();
+            $text_tags[ $tag ] = $links ? SurveyJS_Uploaded_Files::links_text( $links ) : SurveyJS_Survey_Values::display_value( $question, $data[ $question['name'] ] );
+            $html_tags[ $tag ] = $links ? SurveyJS_Uploaded_Files::links_html( $links ) : esc_html( $text_tags[ $tag ] );
+            $title = SurveyJS_Survey_Values::question_title( $question );
+            $text_lines[] = $title . ': ' . $text_tags[ $tag ];
+            $html_lines[] = esc_html( $title ) . ': ' . $html_tags[ $tag ];
+        }
+        $text_tags['{all_fields}'] = implode( "\n", $text_lines );
+        $html_tags['{all_fields}'] = implode( "<br>\n", $html_lines );
+        return array( 'text' => $text_tags, 'html' => $html_tags );
     }
 
     public static function send_test( $survey, $settings ) {
@@ -123,15 +145,5 @@ class SurveyJS_Notification {
             $headers[] = 'Content-Type: text/html; charset=UTF-8';
         }
         return $headers;
-    }
-
-    private static function field_lines( $questions, $data ) {
-        $lines = array();
-        foreach ( $questions as $question ) {
-            if ( array_key_exists( $question['name'], $data ) ) {
-                $lines[] = SurveyJS_Survey_Values::question_title( $question ) . ': ' . SurveyJS_Survey_Values::display_value( $question, $data[ $question['name'] ] );
-            }
-        }
-        return $lines;
     }
 }

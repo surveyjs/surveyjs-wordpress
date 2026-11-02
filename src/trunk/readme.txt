@@ -23,10 +23,12 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 = Entries =
 * Submitted entries are stored in WordPress; you can turn this off for any form.
 * Entries table with a column per question, entry view and CSV export.
-* Files uploaded by respondents are stored on your site.
+* Files uploaded by respondents are stored on your site and are not public: only administrators can open them from the entries table, the entry view and the CSV export. The email notification to the site owner attaches the files and links to them; the links open only for logged-in administrators. The auto-reply to the respondent lists only the file names.
+* Files are deleted together with their entry. Files uploaded to forms that were never submitted are deleted automatically after a day.
 
 = Form builder =
 * Describe your form in JSON with validation hints, formatting and a live preview.
+* Add a logo and images to the form from the WordPress Media Library.
 * **Adaptive theme**: by default the form takes the colors, fonts, buttons and fields of your site's theme.
 * **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme that matches your site. The plugin checks the theme and warns about hard-to-read text.
 * Prefer a visual editor? Open the form in the **free online SurveyJS UI Builder** with drag & drop, a logic editor and a theme editor. When you save there, the form comes back to WordPress. Optional: the plugin works fully without it (see External services below).
@@ -104,6 +106,14 @@ SurveyJS plugin is free. It works on [self-hosted](https://wordpress.com/go/webs
 3. Inside your admin area, go to Plugins > Add New Plugin.
 4. Click Upload Plugin and then click Install now.
 5. Once installed, activate the plugin.
+
+**Protect uploaded files on Nginx**
+
+Files that respondents upload are saved to `wp-content/uploads/surveyjs/`. On Apache the plugin blocks direct access to this folder with an `.htaccess` file. Nginx does not read `.htaccess`, so add this rule to the `server` block of your site and reload Nginx:
+
+`location ^~ /wp-content/uploads/surveyjs/ { deny all; }`
+
+Administrators still open the files through the plugin, so links in the entries, the CSV export and emails keep working.
 
 == Release Notes ==
 Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-notes) to keep yourself informed about our latest enhancements and new features introduced every week.

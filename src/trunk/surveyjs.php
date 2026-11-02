@@ -65,7 +65,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     }
 
     function wps_uninstall() {
-
+        SurveyJS_Uploaded_Files::unschedule_cleanup();
+        delete_option( 'surveyjs_upload_guard_version' );
     }
     function wps_activate( $network_wide = false ) {
         wps_install();
@@ -108,6 +109,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     include("ajax_handlers/delete_file.php");
     new SurveyJS_DeleteFile();
+
+    include("ajax_handlers/download_file.php");
+    new SurveyJS_DownloadFile();
+
+    add_action( SurveyJS_Uploaded_Files::CLEANUP_HOOK, array( 'SurveyJS_Uploaded_Files', 'cleanup' ) );
+    add_action( 'admin_init', array( 'SurveyJS_UploadFiles', 'maybe_update_upload_dir_guards' ) );
 
     include("initializer.php");
     new SurveyJS_SurveyJS();

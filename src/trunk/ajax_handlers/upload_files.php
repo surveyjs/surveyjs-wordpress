@@ -9,8 +9,10 @@ if ( ! function_exists( 'wp_handle_upload' ) ) {
 
 class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
 
-    const SUBDIR    = '/surveyjs';
-    const MAX_FILES = 20;
+    const SUBDIR           = '/surveyjs';
+    const MAX_FILES        = 20;
+    const PREVIEW_LIFETIME = DAY_IN_SECONDS;
+    const GUARD_VERSION    = '2';
 
     function __construct() {
         parent::__construct("SurveyJS_UploadFiles", true);
@@ -71,7 +73,7 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
                 wp_send_json( array( 'error' => 'file_type_mismatch' ), 400 );
             }
 
-            $uploadedfile['name'] = uniqid( (string) wp_rand(), true ) . '.' . $ext;
+            $uploadedfile['name'] = strtolower( wp_generate_password( 32, false ) ) . '.' . $ext;
 
             add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
             $movefile = wp_handle_upload( $uploadedfile, array( 'test_form' => false ) );
@@ -81,7 +83,11 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
                 wp_send_json( array( 'error' => 'upload_failed' ), 400 );
             }
 
-            $result[ $originalname ] = $movefile['url'];
+            $file = array( 'name' => $originalname, 'content' => $movefile['url'] );
+            $result[ $originalname ] = array(
+                'url'     => $movefile['url'],
+                'preview' => SurveyJS_Uploaded_Files::signed_url( $file, self::PREVIEW_LIFETIME ),
+            );
         }
 
         wp_send_json( $result );
@@ -150,18 +156,21 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
             return;
         }
 
+        SurveyJS_Uploaded_Files::schedule_cleanup();
+
         $guards = array(
-            '.htaccess' => "<Files *>\n    SetHandler none\n    SetHandler default-handler\n    Options -ExecCGI\n    RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps\n    RemoveType .php .phtml\n    php_flag engine off\n</Files>\n",
+            '.htaccess' => "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n<Files *>\n    SetHandler none\n    SetHandler default-handler\n    Options -ExecCGI\n    RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps\n    RemoveType .php .phtml\n    php_flag engine off\n</Files>\n",
             'index.php' => "<?php\n// Silence is golden.\n",
         );
 
-        $missing = false;
-        foreach ( $guards as $name => $unused ) {
-            if ( ! file_exists( $dir . '/' . $name ) ) {
-                $missing = true;
+        $outdated = array();
+        foreach ( $guards as $name => $contents ) {
+            $path = $dir . '/' . $name;
+            if ( ! file_exists( $path ) || ( '.htaccess' === $name && file_get_contents( $path ) !== $contents ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+                $outdated[ $path ] = $contents;
             }
         }
-        if ( ! $missing ) {
+        if ( ! $outdated ) {
             return;
         }
 
@@ -173,12 +182,20 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         }
 
         global $wp_filesystem;
-        foreach ( $guards as $name => $contents ) {
-            $path = $dir . '/' . $name;
-            if ( ! $wp_filesystem->exists( $path ) ) {
-                $wp_filesystem->put_contents( $path, $contents, FS_CHMOD_FILE );
-            }
+        foreach ( $outdated as $path => $contents ) {
+            $wp_filesystem->put_contents( $path, $contents, FS_CHMOD_FILE );
         }
+    }
+
+    public static function maybe_update_upload_dir_guards() {
+        if ( self::GUARD_VERSION === get_option( 'surveyjs_upload_guard_version' ) ) {
+            return;
+        }
+        $upload_dir = wp_upload_dir( null, false );
+        if ( empty( $upload_dir['error'] ) && is_dir( $upload_dir['basedir'] . self::SUBDIR ) ) {
+            self::protect_upload_dir();
+        }
+        update_option( 'surveyjs_upload_guard_version', self::GUARD_VERSION );
     }
 }
 

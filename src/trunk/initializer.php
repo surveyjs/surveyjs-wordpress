@@ -107,6 +107,7 @@ class SurveyJS_SurveyJS {
         wp_enqueue_style('wps-adm--survey-core.min.css', plugins_url('libs/library/survey-core.min.css', __FILE__));
 
         if ( 'surveyjs_editor' === $page ) {
+            wp_enqueue_media();
             wp_enqueue_script('wps-adm--survey.linter.min.js', plugins_url('libs/library/survey.linter.min.js', __FILE__), array('wps-adm--survey.core.min.js'));
             wp_enqueue_script('wps-adm--editor.js', plugins_url('editor/editor.js', __FILE__), array('wps-adm--survey-js-ui.min.js', 'wps-adm--survey.linter.min.js'), self::asset_version('editor/editor.js'), true);
             wp_enqueue_style('wps-adm--editor.css', plugins_url('editor/editor.css', __FILE__), array('dashicons'), self::asset_version('editor/editor.css'));

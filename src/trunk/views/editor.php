@@ -103,6 +103,11 @@ class SurveyJS_Editor {
                             <div id="wp-sjs-ai-notice" aria-live="polite"></div>
                         </div>
                     </div>
+                    <div class="wp-sjs-editor__media">
+                        <button type="button" class="button" id="wp-sjs-insert-image" data-frame-title="<?php esc_attr_e( 'Insert image', 'surveyjs' ); ?>" data-frame-button="<?php esc_attr_e( 'Insert image URL', 'surveyjs' ); ?>" disabled><span class="dashicons dashicons-format-image" aria-hidden="true"></span><?php esc_html_e( 'Insert image', 'surveyjs' ); ?></button>
+                        <button type="button" class="button" id="wp-sjs-set-logo" data-frame-title="<?php esc_attr_e( 'Form logo', 'surveyjs' ); ?>" data-frame-button="<?php esc_attr_e( 'Use as logo', 'surveyjs' ); ?>" disabled><?php esc_html_e( 'Set logo', 'surveyjs' ); ?></button>
+                        <span class="description"><?php esc_html_e( 'Pick or upload an image in the Media Library. Insert image puts its URL at the cursor, for example into "imageLink" of an Image question or an Image Picker choice. Set logo shows it in the form header. These images are public.', 'surveyjs' ); ?></span>
+                    </div>
                     <div class="wp-sjs-editor__overlay">
                         <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>
                     </div>
