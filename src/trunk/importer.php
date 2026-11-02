@@ -106,7 +106,7 @@ abstract class SurveyJS_Importer {
         $settings = $form['settings'];
         if ( $id ) {
             $current = SurveyJS_Form_Settings::get( SurveyJS_Forms::find( $id ) );
-            $settings += array_intersect_key( $current, array_flip( array( 'storeEntries', 'themeMode', 'transparentBackground' ) ) );
+            $settings += array_intersect_key( $current, array_flip( array( 'storeEntries', 'themeMode', 'transparentBackground', 'captchaEnabled' ) ) );
             SurveyJS_Forms::update( $id, array(
                 'json'     => wp_json_encode( $form['json'] ),
                 'settings' => wp_json_encode( SurveyJS_Form_Settings::sanitize( $settings ) ),

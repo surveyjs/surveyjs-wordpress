@@ -221,14 +221,29 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
             $json['completeText'] = self::text( $settings['submit_text'] );
         }
         self::confirmation( (array) ( $settings['confirmations'] ?? array() ), $title, $refs, $json, $notes );
+        $form_settings = self::notification_settings( $settings, $refs, $notes );
+        $source_captcha = ! empty( $settings['recaptcha'] ) ? self::captcha() : '';
+        if ( '' !== $source_captcha ) {
+            SurveyJS_Captcha::import( $form_settings, $notes, $source_captcha );
+        }
 
         return array(
             'json'     => $json,
-            'settings' => self::notification_settings( $settings, $refs, $notes ),
+            'settings' => $form_settings,
             'skipped'  => $skipped,
             'notes'    => $notes,
             'refs'     => $refs,
         );
+    }
+
+    private static function captcha() {
+        $provider = function_exists( 'wpforms_setting' ) ? wpforms_setting( 'captcha-provider', 'recaptcha' ) : 'recaptcha';
+        $labels = array(
+            'recaptcha' => 'Google reCAPTCHA',
+            'turnstile' => 'Cloudflare Turnstile',
+            'hcaptcha'  => 'hCaptcha',
+        );
+        return $labels[ $provider ] ?? '';
     }
 
     private static function elements( $field, &$taken, &$refs, &$notes ) {

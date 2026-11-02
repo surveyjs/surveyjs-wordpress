@@ -74,6 +74,57 @@
     display: none;
 }
 
+.wp-sjs-editor__images {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+    gap: 4px;
+    margin: 4px 0 0;
+}
+
+.wp-sjs-editor__images[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__image {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.wp-sjs-editor__image img {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border: 1px solid #dcdcde;
+}
+
+.wp-sjs-editor__image-name {
+    flex: 0 1 auto;
+    max-width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wp-sjs-editor__image input {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12px;
+}
+
+.wp-sjs-editor__image-remove {
+    flex: none;
+    color: #646970;
+}
+
+.wp-sjs-editor__image-remove:hover,
+.wp-sjs-editor__image-remove:focus {
+    color: #d63638;
+}
+
 .wp-sjs-editor__pane.is-theme-json-locked .wp-sjs-editor__monaco {
     opacity: 0.5;
 }

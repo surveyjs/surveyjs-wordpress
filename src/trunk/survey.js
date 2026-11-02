@@ -1,4 +1,62 @@
 (function () {
+    const CAPTCHA_LOAD_TIMEOUT_MS = 20000;
+
+    function captchaApi(name) {
+        const started = Date.now();
+        return new Promise((resolve, reject) => {
+            (function check() {
+                if (window[name]) {
+                    resolve(window[name]);
+                } else if (Date.now() - started > CAPTCHA_LOAD_TIMEOUT_MS) {
+                    reject();
+                } else {
+                    setTimeout(check, 100);
+                }
+            })();
+        });
+    }
+
+    function createCaptcha(captcha, container) {
+        if (captcha.type === "recaptcha_v3") {
+            return {
+                show: () => {},
+                reset: () => {},
+                token: () => captchaApi("grecaptcha").then((api) => new Promise((resolve, reject) => {
+                    api.ready(() => api.execute(captcha.siteKey, { action: captcha.action }).then(resolve, reject));
+                }))
+            };
+        }
+        const element = document.createElement("div");
+        element.className = "wp-sjs-captcha";
+        element.hidden = true;
+        container.after(element);
+        const apiName = captcha.type === "turnstile" ? "turnstile" : "grecaptcha";
+        let widget = null;
+        // Rendered on first show: Turnstile may fail its challenge in a hidden element, and a token solved on an earlier page could expire.
+        const renderWidget = () => captchaApi(apiName).then((api) => new Promise((resolve) => {
+            const render = () => resolve({ api: api, id: api.render(element, { sitekey: captcha.siteKey }) });
+            if (apiName === "grecaptcha") {
+                api.ready(render);
+            } else {
+                render();
+            }
+        }));
+        return {
+            show: (visible) => {
+                element.hidden = !visible;
+                if (visible && !widget) widget = renderWidget();
+            },
+            reset: () => widget && widget.then((rendered) => rendered.api.reset(rendered.id), () => {}),
+            token: () => widget ? widget.then((rendered) => rendered.api.getResponse(rendered.id) || "") : Promise.resolve("")
+        };
+    }
+
+    function renderMarkdownLinks(_, options) {
+        const text = options.text.replace(/[&<>"']/g, (char) => "&#" + char.charCodeAt(0) + ";");
+        const html = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s()]+)\)/g, "<a href=\"$2\" target=\"_blank\" rel=\"noopener\">$1</a>");
+        if (html !== text) options.html = html;
+    }
+
     function withTransparentBackground(theme) {
         const cssVariables = Object.assign({}, theme && theme.cssVariables, {
             "--sjs2-color-utility-body": "transparent",
@@ -15,6 +73,7 @@
         const config = JSON.parse(configElement.textContent);
         const honeypot = configElement.parentElement.querySelector(".wp-sjs-hp input");
         const survey = new Survey.Model(config.json);
+        survey.onTextMarkdown.add(renderMarkdownLinks);
         // SurveyJS keeps files as base64 in the answer by default; upload them so they can be attached to emails.
         survey.getAllQuestions().filter((question) => question.getType() === "file").forEach((question) => {
             question.storeDataAsText = false;
@@ -30,12 +89,56 @@
         }
         window["survey" + config.id] = survey;
 
-        survey.onComplete.add((sender, options) => {
-            options.showSaveInProgress();
-            fetch(config.saveResultUrl, {
+        function saveResult(data, fields) {
+            return fetch(config.saveResultUrl, {
                 method: "POST",
-                body: new URLSearchParams({ SurveyId: config.id, Json: JSON.stringify(sender.data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce })
-            })
+                body: new URLSearchParams(Object.assign({ SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, fields))
+            });
+        }
+
+        const captcha = config.captcha ? createCaptcha(config.captcha, container) : null;
+        if (captcha) {
+            const messages = config.captcha.messages;
+            let saved = false;
+            const updateCaptcha = () => captcha.show(survey.isCompleteButtonVisible);
+            survey.registerFunctionOnPropertyValueChanged("isCompleteButtonVisible", updateCaptcha);
+            survey.onCurrentPageChanged.add(updateCaptcha);
+            survey.onComplete.add(updateCaptcha);
+            // Saving happens before completion so that a rejected CAPTCHA leaves the respondent on the form with the answers.
+            survey.onCompleting.add((sender, options) => {
+                if (saved) return;
+                return captcha.token()
+                    .then((token) => {
+                        if (!token) return Promise.reject(messages.required);
+                        sender.notify(sender.getLocalizationString("savingData"), "saving");
+                        return saveResult(sender.data, { CaptchaToken: token });
+                    })
+                    .then((response) => {
+                        if (response.ok) {
+                            saved = true;
+                            return;
+                        }
+                        return response.json().then(
+                            (result) => Promise.reject((result && result.data && result.data.message) || messages.failed),
+                            () => Promise.reject(messages.failed)
+                        );
+                    })
+                    .catch((error) => {
+                        options.allow = false;
+                        options.message = typeof error === "string" ? error : messages.failed;
+                        captcha.reset();
+                    });
+            });
+            updateCaptcha();
+        }
+
+        survey.onComplete.add((sender, options) => {
+            if (captcha) {
+                options.showSaveSuccess();
+                return;
+            }
+            options.showSaveInProgress();
+            saveResult(sender.data, {})
                 .then((response) => response.ok ? options.showSaveSuccess() : response.text().then((text) => options.showSaveError(text)))
                 .catch(() => options.showSaveError());
         });

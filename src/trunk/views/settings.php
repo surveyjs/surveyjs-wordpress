@@ -44,16 +44,69 @@ class SurveyJS_SettingsPage {
 			'label'       => __( 'Delete all forms, entries, uploaded files and settings when the plugin is deleted', 'surveyjs' ),
 			'description' => __( 'Leave this off to keep your data if you reinstall the plugin later.', 'surveyjs' ),
 		) );
+		add_settings_section( 'sjs-captcha-section', esc_html__( 'CAPTCHA', 'surveyjs' ), array( $this, 'captcha_section' ), 'surveyjs-settings-page' );
+		add_settings_field( 'captcha_type', esc_html__( 'Type', 'surveyjs' ), array( $this, 'captcha_type_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-type' ) );
+		add_settings_field( 'captcha_site_key', esc_html__( 'Site Key', 'surveyjs' ), array( $this, 'captcha_site_key_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-site-key' ) );
+		add_settings_field( 'captcha_secret_key', esc_html__( 'Secret Key', 'surveyjs' ), array( $this, 'captcha_secret_key_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-secret-key' ) );
+		add_settings_field( 'captcha_threshold', esc_html__( 'Score Threshold', 'surveyjs' ), array( $this, 'captcha_threshold_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-threshold' ) );
     }
 
 	public function sanitize_settings( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$current = (array) get_option( 'surveyjs-settings' );
 		$sanitized = array();
 		if ( isset( $input['license_key'] ) ) {
 			$sanitized['license_key'] = sanitize_text_field( $input['license_key'] );
 		}
 		$sanitized['store_ip'] = ! empty( $input['store_ip'] );
 		$sanitized['uninstall_data'] = ! empty( $input['uninstall_data'] );
+		$type = sanitize_key( $input['captcha_type'] ?? ( $current['captcha_type'] ?? 'none' ) );
+		$sanitized['captcha_type'] = array_key_exists( $type, SurveyJS_Captcha::types() ) ? $type : 'none';
+		$sanitized['captcha_site_key'] = sanitize_text_field( $input['captcha_site_key'] ?? ( $current['captcha_site_key'] ?? '' ) );
+		$secret = sanitize_text_field( $input['captcha_secret_key'] ?? '' );
+		$sanitized['captcha_secret_key'] = '' !== $secret ? $secret : sanitize_text_field( $current['captcha_secret_key'] ?? '' );
+		$sanitized['captcha_threshold'] = SurveyJS_Captcha::sanitize_threshold( $input['captcha_threshold'] ?? ( $current['captcha_threshold'] ?? SurveyJS_Captcha::DEFAULT_THRESHOLD ) );
 		return $sanitized;
+	}
+
+	public function captcha_section() {
+		echo '<p>' . esc_html__( 'Protect forms from spam bots. Choose a service, paste the keys from its admin console, then turn on CAPTCHA for a form on its Spam Protection tab.', 'surveyjs' ) . '</p>';
+		echo '<p>' . wp_kses(
+			sprintf(
+				/* translators: 1: Google reCAPTCHA admin console URL, 2: Cloudflare Turnstile dashboard URL */
+				__( 'Get the keys in the <a href="%1$s" target="_blank" rel="noopener noreferrer">Google reCAPTCHA admin console</a> or the <a href="%2$s" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile dashboard</a>. reCAPTCHA v2 and v3 use different keys.', 'surveyjs' ),
+				'https://www.google.com/recaptcha/admin',
+				'https://dash.cloudflare.com/?to=/:account/turnstile'
+			),
+			array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
+		) . '</p>';
+	}
+
+	public function captcha_type_render() {
+		$type = SurveyJS_Captcha::settings()['type'];
+		echo "<select name='surveyjs-settings[captcha_type]' id='sjs-captcha-type'>";
+		foreach ( SurveyJS_Captcha::types() as $value => $label ) {
+			echo "<option value='" . esc_attr( $value ) . "'" . selected( $type, $value, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+	}
+
+	public function captcha_site_key_render() {
+		echo "<input type='text' name='surveyjs-settings[captcha_site_key]' id='sjs-captcha-site-key' value='" . esc_attr( SurveyJS_Captcha::settings()['siteKey'] ) . "' autocomplete='off' style='width: 350px;'/>";
+	}
+
+	public function captcha_secret_key_render() {
+		$secret = SurveyJS_Captcha::settings()['secretKey'];
+		$placeholder = '' !== $secret ? str_repeat( '•', 8 ) . substr( $secret, -4 ) : '';
+		echo "<input type='password' name='surveyjs-settings[captcha_secret_key]' id='sjs-captcha-secret-key' value='' placeholder='" . esc_attr( $placeholder ) . "' autocomplete='new-password' style='width: 350px;'/>";
+		if ( '' !== $secret ) {
+			echo '<p class="description">' . esc_html__( 'The secret key is saved. Leave the field empty to keep it, or paste a new key to replace it.', 'surveyjs' ) . '</p>';
+		}
+	}
+
+	public function captcha_threshold_render() {
+		echo "<input type='number' name='surveyjs-settings[captcha_threshold]' id='sjs-captcha-threshold' value='" . esc_attr( SurveyJS_Captcha::settings()['threshold'] ) . "' min='0' max='1' step='0.1' style='width: 80px;'/>";
+		echo '<p class="description">' . esc_html__( 'reCAPTCHA v3 only. Each submission gets a score from 0.0 (bot) to 1.0 (human); submissions below this score are rejected. Default: 0.5.', 'surveyjs' ) . '</p>';
 	}
 
 	public function render_checkbox( $args ) {
@@ -77,6 +130,7 @@ class SurveyJS_SettingsPage {
 
 	public function set_license_key_render() {
 		$settings = (array) get_option( 'surveyjs-settings' );
+		$license_key = '';
 
 		if (isset($settings['license_key']))
 		{

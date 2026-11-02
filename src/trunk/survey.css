@@ -6,6 +6,12 @@
     overflow: hidden;
 }
 
+.wp-sjs-captcha:not([hidden]) {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+}
+
 .wp-sjs-survey:empty {
     min-height: 400px;
 }

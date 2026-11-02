@@ -18,13 +18,20 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 * **Auto-reply** to the respondent.
 * **Tags** in the subject and message: all answers at once or the answer to a single question.
 * **HTML emails**, **file attachments** and a **test email** button.
-* **Spam protection** with a hidden honeypot field.
+* **Spam protection** with a hidden honeypot field and optional **CAPTCHA**: Google reCAPTCHA v2 (checkbox), reCAPTCHA v3 (invisible) or Cloudflare Turnstile.
 
 = Entries =
 * Submitted entries are stored in WordPress; you can turn this off for any form.
 * Entries table with a column per question, entry view and CSV export.
+
+= Privacy and GDPR =
+* **GDPR agreement**: turn on the **GDPR agreement** checkbox in the form editor to add a required consent checkbox to the end of the form; turn it off to remove it. Its text links to your site's Privacy Policy page (Settings > Privacy); without a published Privacy Policy page the text has no link. The form is not submitted until the respondent checks it. Entries, the CSV export and emails show the consent text the respondent accepted.
+* **Personal data export and erasure**: entries work with the WordPress tools Tools > Export Personal Data and Tools > Erase Personal Data. An entry belongs to a person when one of its answers is their email address or when they submitted it while logged in. The eraser deletes these entries together with their uploaded files.
+* **IP addresses** are not stored by default. Turn on SurveyJS Forms > Settings > IP addresses only if you need them and your privacy policy mentions it.
 * Files uploaded by respondents are stored on your site and are not public: only administrators can open them from the entries table, the entry view and the CSV export. The email notification to the site owner attaches the files and links to them; the links open only for logged-in administrators. The auto-reply to the respondent lists only the file names.
-* Files are deleted together with their entry. Files uploaded to forms that were never submitted are deleted automatically after a day.
+* Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old.
+* **Uninstall**: by default, deleting the plugin keeps your forms, entries and files. Turn on SurveyJS Forms > Settings > Uninstall to delete all forms, entries, uploaded files and settings when the plugin is deleted.
+* Form answers stay on your site and are sent only in the emails you set up. The optional CAPTCHA services and the free online UI Builder never receive form answers (see External services below).
 
 = Form builder =
 * Describe your form in JSON with validation hints, formatting and a live preview.
@@ -87,6 +94,20 @@ The plugin connects to this service only when you click **Open in free UI Builde
 The plugin works without this service: you can create and edit forms in the built-in JSON editor.
 
 This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
+
+= Google reCAPTCHA =
+The plugin can protect forms from spam with Google reCAPTCHA v2 (checkbox) or reCAPTCHA v3 (invisible). It is off by default and is used only when you choose reCAPTCHA in SurveyJS Forms > Settings, enter your keys, and turn on CAPTCHA for a form.
+
+On pages with such a form, the visitor's browser loads the reCAPTCHA script from google.com. Google receives the visitor's IP address, browser and device data, and the visitor's interaction with the page and the widget. When the form is submitted, your site sends the reCAPTCHA token and your secret key to [https://www.google.com/recaptcha/api/siteverify](https://www.google.com/recaptcha/api/siteverify) to check that the respondent is not a bot. Form answers are never sent to Google.
+
+This service is provided by Google LLC: [Terms of Service](https://policies.google.com/terms), [Privacy Policy](https://policies.google.com/privacy).
+
+= Cloudflare Turnstile =
+The plugin can protect forms from spam with Cloudflare Turnstile. It is off by default and is used only when you choose Turnstile in SurveyJS Forms > Settings, enter your keys, and turn on CAPTCHA for a form.
+
+On pages with such a form, the visitor's browser loads the Turnstile script from challenges.cloudflare.com. Cloudflare receives the visitor's IP address, browser and device data, and the results of the browser challenge. When the form is submitted, your site sends the Turnstile token and your secret key to [https://challenges.cloudflare.com/turnstile/v0/siteverify](https://challenges.cloudflare.com/turnstile/v0/siteverify) to check that the respondent is not a bot. Form answers are never sent to Cloudflare.
+
+This service is provided by Cloudflare, Inc.: [Terms of Use](https://www.cloudflare.com/website-terms/), [Turnstile Privacy Addendum](https://www.cloudflare.com/turnstile-privacy-policy/), [Privacy Policy](https://www.cloudflare.com/privacypolicy/).
 
 == Installation ==
 

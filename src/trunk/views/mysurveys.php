@@ -46,6 +46,10 @@ class SurveyJS_MySurveys {
         }
 
         if ( 'delete' === $action ) {
+            if ( ! isset( $_REQUEST['survey'] ) && ! isset( $_GET['id'] ) ) {
+                wp_safe_redirect( $list_url );
+                exit;
+            }
             if ( isset( $_REQUEST['survey'] ) ) {
                 check_admin_referer( 'bulk-surveys' );
                 $ids = array_map( 'absint', (array) wp_unslash( $_REQUEST['survey'] ) );

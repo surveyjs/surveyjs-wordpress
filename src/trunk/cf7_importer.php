@@ -55,7 +55,7 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
                 }
                 continue;
             }
-            if ( in_array( $tag->basetype, array( 'count', 'response' ), true ) ) {
+            if ( in_array( $tag->basetype, array( 'count', 'response', 'recaptcha', 'turnstile' ), true ) ) {
                 continue;
             }
             $question = self::question( $tag, $title, $messages, $notes );
@@ -78,10 +78,24 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             $settings['autoReplyEnabled'] = false;
             $notes[] = __( 'Emails are turned off because the form skips mail (skip_mail or demo_mode).', 'surveyjs' );
         }
+        $source_captcha = self::captcha();
+        if ( $source_captcha ) {
+            SurveyJS_Captcha::import( $settings, $notes, $source_captcha );
+        }
         if ( $cf7->is_true( 'subscribers_only' ) ) {
             $notes[] = __( 'The subscribers_only setting was not imported: the form is open to all visitors.', 'surveyjs' );
         }
         return array( 'json' => $json, 'settings' => $settings, 'skipped' => $skipped, 'notes' => $notes );
+    }
+
+    private static function captcha() {
+        if ( class_exists( 'WPCF7_Turnstile' ) && WPCF7_Turnstile::get_instance()->is_active() ) {
+            return 'Cloudflare Turnstile';
+        }
+        if ( class_exists( 'WPCF7_RECAPTCHA' ) && WPCF7_RECAPTCHA::get_instance()->is_active() ) {
+            return 'Google reCAPTCHA';
+        }
+        return '';
     }
 
     private static function question( $tag, $title, $messages, &$notes ) {

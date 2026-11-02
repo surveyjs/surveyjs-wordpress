@@ -59,7 +59,7 @@ class SurveyJS_Notification {
             }
             $links = $file_links ? SurveyJS_Uploaded_Files::links( $data[ $question['name'] ] ) : array();
             $text_tags[ $tag ] = $links ? SurveyJS_Uploaded_Files::links_text( $links ) : SurveyJS_Survey_Values::display_value( $question, $data[ $question['name'] ] );
-            $html_tags[ $tag ] = $links ? SurveyJS_Uploaded_Files::links_html( $links ) : esc_html( $text_tags[ $tag ] );
+            $html_tags[ $tag ] = $links ? SurveyJS_Uploaded_Files::links_html( $links ) : SurveyJS_Survey_Values::display_html( $question, $data[ $question['name'] ] );
             $title = SurveyJS_Survey_Values::question_title( $question );
             $text_lines[] = $title . ': ' . $text_tags[ $tag ];
             $html_lines[] = esc_html( $title ) . ': ' . $html_tags[ $tag ];

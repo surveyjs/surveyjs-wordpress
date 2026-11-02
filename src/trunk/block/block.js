@@ -1,6 +1,6 @@
 var el = wp.element.createElement;
 var registerBlockType = wp.blocks.registerBlockType;
-var SelectControl = wp.components.SelectControl;
+var ComboboxControl = wp.components.ComboboxControl;
 var Placeholder = wp.components.Placeholder;
 var InspectorControls = wp.blockEditor.InspectorControls;
 var ExternalLink = wp.components.ExternalLink;
@@ -16,6 +16,13 @@ for (var i = 0; i < surveysArray.length; i++) {
     name: survey.name
   };
 }
+
+var options = surveysArray.map(function(survey) {
+  return {
+    label: survey.name,
+    value: String(survey.id)
+  };
+});
 
 function resolveSurveyId(surveyid) {
   return surveys[surveyid] || !legacyIds[surveyid] ? surveyid : String(legacyIds[surveyid]);
@@ -36,24 +43,23 @@ registerBlockType("sjs/gutenberg-block", {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
     var surveyid = resolveSurveyId(attributes.surveyid);
-    var options = [
-      {
-        label: "Choose a form...",
-        value: "none"
-      }
-    ];
-
-    surveysArray.forEach(function(survey) {
-      options.push({
-        label: survey.name,
-        value: survey.id
-      });
-    });
+    var selected = surveys[surveyid] ? String(surveyid) : null;
 
     function onSurveyChange(value) {
       setAttributes({
-        surveyid: value,
-        shortcode: value === "none" ? "" : getShortcode(value)
+        surveyid: value || "none",
+        shortcode: value ? getShortcode(value) : ""
+      });
+    }
+
+    function formSelector(label) {
+      return el(ComboboxControl, {
+        label: label,
+        placeholder: "Search forms...",
+        value: selected,
+        options: options,
+        onChange: onSurveyChange,
+        __nextHasNoMarginBottom: true
       });
     }
 
@@ -62,28 +68,18 @@ registerBlockType("sjs/gutenberg-block", {
       {},
       el("h4", {}, "Embed a form on your site"),
       el("hr"),
-      el(SelectControl, {
-        label: "Choose form to insert",
-        value: surveyid,
-        options: options,
-        onChange: onSurveyChange
-      }),
-      surveys[surveyid] && el(
+      formSelector("Choose form to insert"),
+      selected && el(
         "p",
         {},
-        el(ExternalLink, { href: editFormUrl + "&id=" + encodeURIComponent(surveyid) }, "Edit this form")
+        el(ExternalLink, { href: editFormUrl + "&id=" + encodeURIComponent(selected) }, "Edit this form")
       )
     );
 
     return el(
       Placeholder,
       { icon: blockIcon, label: "SurveyJS", instructions: "Choose form to insert" },
-      el(SelectControl, {
-        value: surveys[surveyid] ? surveyid : "none",
-        options: options,
-        onChange: onSurveyChange,
-        __nextHasNoMarginBottom: true
-      }),
+      formSelector(),
       inspectorControl
     );
   },

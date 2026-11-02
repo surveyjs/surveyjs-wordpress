@@ -11,6 +11,18 @@ class SurveyJS_Editor {
         return apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' );
     }
 
+    private static function gdpr_agreement() {
+        $privacy_url = get_privacy_policy_url();
+        $privacy = $privacy_url
+            ? '[' . __( 'Privacy Policy', 'surveyjs' ) . '](' . esc_url_raw( $privacy_url ) . ')'
+            : __( 'Privacy Policy', 'surveyjs' );
+        return array(
+            'title' => __( 'GDPR agreement', 'surveyjs' ),
+            /* translators: %s: "Privacy Policy", linked to the site's privacy policy page when there is one. */
+            'text'  => sprintf( __( 'I consent to having this website store my submitted information so they can respond to my inquiry. See our %s.', 'surveyjs' ), $privacy ),
+        );
+    }
+
     public static function render() {
         $client = new SurveyJS_Client();
         $survey = $client->getSurvey( absint( $_GET['id'] ?? 0 ) );
@@ -40,8 +52,10 @@ class SurveyJS_Editor {
             'surveyCssUrl' => plugins_url( '../libs/library/survey-core.min.css', __FILE__ ),
             'previewUrl' => add_query_arg( 'surveyjs_preview', '1', home_url( '/' ) ),
             'uiBuilderUrl' => self::ui_builder_url(),
+            'gdpr'      => self::gdpr_agreement(),
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
+        $captcha_configured = SurveyJS_Captcha::is_configured();
         ?>
         <div class="wrap wp-sjs-editor">
             <hr class="wp-header-end">
@@ -64,6 +78,7 @@ class SurveyJS_Editor {
                 <a href="#" class="nav-tab" data-tab="theme"><?php esc_html_e( 'Theme', 'surveyjs' ); ?></a>
                 <a href="#" class="nav-tab" data-tab="email"><?php esc_html_e( 'Email Notification', 'surveyjs' ); ?></a>
                 <a href="#" class="nav-tab" data-tab="entries"><?php esc_html_e( 'Entries', 'surveyjs' ); ?></a>
+                <a href="#" class="nav-tab" data-tab="spam"><?php esc_html_e( 'Spam Protection', 'surveyjs' ); ?></a>
                 <button type="button" class="button button-primary wp-sjs-editor__save" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </nav>
 
@@ -106,7 +121,9 @@ class SurveyJS_Editor {
                     <div class="wp-sjs-editor__media">
                         <button type="button" class="button" id="wp-sjs-insert-image" data-frame-title="<?php esc_attr_e( 'Insert image', 'surveyjs' ); ?>" data-frame-button="<?php esc_attr_e( 'Insert image URL', 'surveyjs' ); ?>" disabled><span class="dashicons dashicons-format-image" aria-hidden="true"></span><?php esc_html_e( 'Insert image', 'surveyjs' ); ?></button>
                         <button type="button" class="button" id="wp-sjs-set-logo" data-frame-title="<?php esc_attr_e( 'Form logo', 'surveyjs' ); ?>" data-frame-button="<?php esc_attr_e( 'Use as logo', 'surveyjs' ); ?>" disabled><?php esc_html_e( 'Set logo', 'surveyjs' ); ?></button>
-                        <span class="description"><?php esc_html_e( 'Pick or upload an image in the Media Library. Insert image puts its URL at the cursor, for example into "imageLink" of an Image question or an Image Picker choice. Set logo shows it in the form header. These images are public.', 'surveyjs' ); ?></span>
+                        <label class="wp-sjs-editor__gdpr" id="wp-sjs-gdpr-agreement-label" for="wp-sjs-gdpr-agreement" title="<?php esc_attr_e( 'Adds a required consent checkbox with a link to your Privacy Policy page at the end of the form. Uncheck to remove it.', 'surveyjs' ); ?>"><input type="checkbox" id="wp-sjs-gdpr-agreement" /> <?php esc_html_e( 'GDPR agreement', 'surveyjs' ); ?></label>
+                        <span class="description"><?php esc_html_e( 'Pick or upload images in the Media Library. Insert image lists them below with their URLs to copy, for example into "imageLink" of an Image question or an Image Picker choice. Set logo shows an image in the form header. These images are public.', 'surveyjs' ); ?></span>
+                        <ul class="wp-sjs-editor__images" id="wp-sjs-image-list" aria-label="<?php esc_attr_e( 'Chosen images', 'surveyjs' ); ?>" data-url-label="<?php esc_attr_e( 'Image URL', 'surveyjs' ); ?>" data-copy-label="<?php esc_attr_e( 'Copy', 'surveyjs' ); ?>" data-copied-label="<?php esc_attr_e( 'Copied!', 'surveyjs' ); ?>" data-remove-label="<?php esc_attr_e( 'Remove from the list', 'surveyjs' ); ?>" hidden></ul>
                     </div>
                     <div class="wp-sjs-editor__overlay">
                         <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>
@@ -119,6 +136,31 @@ class SurveyJS_Editor {
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Store entries', 'surveyjs' ); ?></th>
                             <td><label><input type="checkbox" data-setting="storeEntries" /> <?php esc_html_e( 'Save submitted entries in the database', 'surveyjs' ); ?></label></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="wp-sjs-editor__settings" data-panel="spam" hidden>
+                    <table class="form-table" role="presentation">
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'CAPTCHA', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="captchaEnabled" <?php disabled( ! $captcha_configured ); ?> /> <?php esc_html_e( 'Enable CAPTCHA', 'surveyjs' ); ?></label>
+                                <?php if ( $captcha_configured ) : ?>
+                                    <p class="description">
+                                        <?php
+                                        /* translators: %s: CAPTCHA type, for example "Cloudflare Turnstile" */
+                                        echo esc_html( sprintf( __( 'Respondents pass %s before the form is submitted. The service and keys are set in Settings.', 'surveyjs' ), SurveyJS_Captcha::type_label() ) );
+                                        ?>
+                                        <a href="<?php echo esc_url( SurveyJS_Captcha::settings_url() ); ?>"><?php esc_html_e( 'CAPTCHA settings', 'surveyjs' ); ?></a>
+                                    </p>
+                                <?php else : ?>
+                                    <p class="description">
+                                        <?php esc_html_e( 'To turn on CAPTCHA, first choose the CAPTCHA type and enter its keys in Settings.', 'surveyjs' ); ?>
+                                        <a href="<?php echo esc_url( SurveyJS_Captcha::settings_url() ); ?>"><?php esc_html_e( 'Set up CAPTCHA', 'surveyjs' ); ?></a>
+                                    </p>
+                                <?php endif; ?>
+                                <p class="description"><?php esc_html_e( 'A hidden honeypot field is always on and blocks simple spam bots.', 'surveyjs' ); ?></p>
+                            </td>
                         </tr>
                     </table>
                 </div>

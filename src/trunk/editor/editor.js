@@ -14,6 +14,10 @@
     const formatButton = document.getElementById("wp-sjs-format");
     const insertImageButton = document.getElementById("wp-sjs-insert-image");
     const setLogoButton = document.getElementById("wp-sjs-set-logo");
+    const gdprLabel = document.getElementById("wp-sjs-gdpr-agreement-label");
+    const gdprCheckbox = document.getElementById("wp-sjs-gdpr-agreement");
+    const GDPR_NAME = "gdpr_agreement";
+    const imageList = document.getElementById("wp-sjs-image-list");
     const saveButton = document.getElementById("wp-sjs-save");
     const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
     const uiBuilderOrigin = new URL(config.uiBuilderUrl).origin;
@@ -214,12 +218,16 @@
         for (let index = 2; names.has(name); index++) {
             name = picker.baseName + index;
         }
+        appendElement(json, Object.assign({ name: name }, picker.template));
+        return name;
+    }
+
+    function appendElement(json, item) {
         const container = Array.isArray(json.pages) && json.pages.length > 0 ? json.pages[json.pages.length - 1] : json;
         if (!Array.isArray(container.elements)) {
             container.elements = [];
         }
-        container.elements.push(Object.assign({ name: name }, picker.template));
-        return name;
+        container.elements.push(item);
     }
 
     function removeAddedQuestions(node, picker) {
@@ -465,9 +473,13 @@
         uiBuilderButton.disabled = Boolean(error);
         updateDependentRows();
         formatButton.disabled = !(activeTab in sources) || isThemeJsonLocked() || Boolean(parse(sources[activeTab]).error);
-        insertImageButton.disabled = !editor || !(activeTab in sources) || isThemeJsonLocked() || !hasMediaLibrary();
+        insertImageButton.disabled = !hasMediaLibrary();
         setLogoButton.hidden = activeTab !== "survey";
         setLogoButton.disabled = !editor || Boolean(parse(sources.survey).error) || !hasMediaLibrary();
+        const survey = parse(sources.survey);
+        gdprLabel.hidden = activeTab !== "survey";
+        gdprCheckbox.disabled = Boolean(survey.error);
+        if (survey.json) gdprCheckbox.checked = hasGdprAgreement(survey.json);
         if (error) {
             showNotice("error", error);
         } else if (saveNotice) {
@@ -726,41 +738,124 @@
         return Boolean(window.wp && window.wp.media);
     }
 
-    function chooseImage(button, onSelect) {
+    function chooseImages(button, multiple, onSelect) {
         const frame = window.wp.media({
             title: button.dataset.frameTitle,
             button: { text: button.dataset.frameButton },
             library: { type: "image" },
-            multiple: false
+            multiple: multiple
         });
         frame.on("select", () => {
-            const attachment = frame.state().get("selection").first().toJSON();
-            if (attachment.url) onSelect(attachment.url);
+            const attachments = frame.state().get("selection").toJSON().filter((attachment) => attachment.url);
+            if (attachments.length > 0) onSelect(attachments);
         });
         frame.open();
     }
 
+    function imageListItem(attachment) {
+        const labels = imageList.dataset;
+        const item = element("li", "wp-sjs-editor__image");
+        item.dataset.url = attachment.url;
+        const thumbnail = element("img");
+        thumbnail.src = attachment.sizes?.thumbnail?.url || attachment.url;
+        thumbnail.alt = "";
+        const fileName = attachment.filename || attachment.url.split("/").pop();
+        const nameElement = element("span", "wp-sjs-editor__image-name", fileName);
+        nameElement.title = fileName;
+        const urlInput = element("input", "code");
+        urlInput.type = "text";
+        urlInput.readOnly = true;
+        urlInput.value = attachment.url;
+        urlInput.setAttribute("aria-label", labels.urlLabel + ": " + fileName);
+        urlInput.addEventListener("focus", () => urlInput.select());
+        const copyButton = element("button", "button button-small", labels.copyLabel);
+        copyButton.type = "button";
+        copyButton.addEventListener("click", () => {
+            copyText(attachment.url)
+                .then(() => showCopied(copyButton, labels.copiedLabel))
+                .catch(() => urlInput.select());
+        });
+        const removeButton = element("button", "button-link wp-sjs-editor__image-remove");
+        removeButton.type = "button";
+        removeButton.setAttribute("aria-label", labels.removeLabel + ": " + fileName);
+        const removeIcon = element("span", "dashicons dashicons-no-alt");
+        removeIcon.setAttribute("aria-hidden", "true");
+        removeButton.append(removeIcon);
+        removeButton.addEventListener("click", () => {
+            item.remove();
+            imageList.hidden = imageList.children.length === 0;
+            insertImageButton.focus();
+        });
+        item.append(thumbnail, nameElement, urlInput, copyButton, removeButton);
+        return item;
+    }
+
     function insertImage() {
-        const tab = activeTab;
-        const selection = editor.getSelection();
-        chooseImage(insertImageButton, (url) => {
-            if (activeTab !== tab) switchTab(tab);
-            const line = models[tab].getLineContent(selection.startLineNumber);
-            const insideQuotes = selection.isEmpty() && line.charAt(selection.startColumn - 2) === "\"" && line.charAt(selection.startColumn - 1) === "\"";
-            const text = insideQuotes ? JSON.stringify(url).slice(1, -1) : JSON.stringify(url);
-            editor.executeEdits("insert-image", [{ range: selection, text: text, forceMoveMarkers: true }]);
-            editor.pushUndoStop();
-            editor.focus();
+        chooseImages(insertImageButton, true, (attachments) => {
+            const listed = new Set(Array.from(imageList.children, (item) => item.dataset.url));
+            attachments.filter((attachment) => !listed.has(attachment.url)).forEach((attachment) => {
+                listed.add(attachment.url);
+                imageList.append(imageListItem(attachment));
+            });
+            imageList.hidden = imageList.children.length === 0;
         });
     }
 
     function setLogo() {
-        chooseImage(setLogoButton, (url) => {
+        chooseImages(setLogoButton, false, (attachments) => {
             const parsed = parse(sources.survey);
             if (!parsed.json) return;
-            parsed.json.logo = url;
+            parsed.json.logo = attachments[0].url;
             replaceSource("survey", parsed.json);
         });
+    }
+
+    function elementLists(node, lists = []) {
+        if (Array.isArray(node)) {
+            node.forEach((item) => elementLists(item, lists));
+        } else if (isJsonObject(node)) {
+            ["elements", "templateElements"].forEach((key) => {
+                if (Array.isArray(node[key])) lists.push(node[key]);
+            });
+            Object.values(node).forEach((item) => elementLists(item, lists));
+        }
+        return lists;
+    }
+
+    function isGdprAgreement(item) {
+        return isJsonObject(item) && item.name === GDPR_NAME;
+    }
+
+    function hasGdprAgreement(json) {
+        return elementLists(json).some((list) => list.some(isGdprAgreement));
+    }
+
+    function toggleGdprAgreement() {
+        const json = parse(sources.survey).json;
+        if (!json) return;
+        const add = gdprCheckbox.checked;
+        if (add === hasGdprAgreement(json)) return;
+        if (add) {
+            appendElement(json, { name: GDPR_NAME, type: "checkbox", title: config.gdpr.title, titleLocation: "hidden", isRequired: true, choices: [{ value: "accepted", text: config.gdpr.text }] });
+            previewFocusName = GDPR_NAME;
+        } else {
+            elementLists(json).forEach((list) => {
+                for (let index = list.length - 1; index >= 0; index--) {
+                    if (isGdprAgreement(list[index])) list.splice(index, 1);
+                }
+            });
+        }
+        replaceSource("survey", json);
+        if (!models) {
+            renderPreview();
+            runLint();
+        }
+        renderAllPickerOptions();
+        renderFieldTags();
+        saveNotice = add
+            ? { type: "info", message: "The GDPR agreement was added at the end of the form. Press Save to keep it." }
+            : { type: "info", message: "The GDPR agreement was removed from the form. Press Save to keep the change." };
+        updateState();
     }
 
     function save() {
@@ -920,6 +1015,7 @@
     formatButton.addEventListener("click", format);
     insertImageButton.addEventListener("click", insertImage);
     setLogoButton.addEventListener("click", setLogo);
+    gdprCheckbox.addEventListener("change", toggleGdprAgreement);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
@@ -1104,20 +1200,20 @@
         return copied ? Promise.resolve() : Promise.reject(new Error("The browser blocked the clipboard."));
     }
 
-    const aiPromptLabel = aiPromptButton.textContent;
-    let aiPromptTimer = null;
+    const copiedTimers = new Map();
 
-    function showCopied() {
-        aiPromptButton.textContent = "Copied!";
-        clearTimeout(aiPromptTimer);
-        aiPromptTimer = setTimeout(() => { aiPromptButton.textContent = aiPromptLabel; }, COPIED_LABEL_MS);
+    function showCopied(button, copiedLabel = "Copied!") {
+        button.dataset.label ||= button.textContent;
+        button.textContent = copiedLabel;
+        clearTimeout(copiedTimers.get(button));
+        copiedTimers.set(button, setTimeout(() => { button.textContent = button.dataset.label; }, COPIED_LABEL_MS));
     }
 
     function copyPrompt() {
         const prompt = buildPrompt();
         copyText(prompt)
             .then(() => {
-                showCopied();
+                showCopied(aiPromptButton);
                 aiMessage("info", "Prompt copied (" + prompt.length + " characters). Paste it into your AI chat, then paste the answer below and press Apply theme.");
                 toggleAiForm(true);
             })

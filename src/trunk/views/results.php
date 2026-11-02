@@ -39,6 +39,11 @@ class SurveyJS_Results {
             $action = sanitize_key( wp_unslash( $_REQUEST['action2'] ?? '' ) );
         }
 
+        if ( ( 'delete' === $action || isset( self::STATUS_ACTIONS[ $action ] ) ) && ! isset( $_REQUEST['result'] ) && ! isset( $_GET['result_id'] ) ) {
+            wp_safe_redirect( $results_url );
+            exit;
+        }
+
         if ( 'delete' === $action ) {
             if ( isset( $_REQUEST['result'] ) ) {
                 check_admin_referer( 'bulk-results' );
@@ -166,7 +171,7 @@ class SurveyJS_Results {
             <?php endif; ?>
 
             <?php $table->views(); ?>
-            <form method="get">
+            <form method="get" id="wp-sjs-results-list">
                 <input type="hidden" name="page" value="surveyjs_results" />
                 <input type="hidden" name="id" value="<?php echo esc_attr( $survey->id ); ?>" />
                 <input type="hidden" name="status" value="<?php echo esc_attr( SurveyJS_Results_List_Table::current_status() ); ?>" />
@@ -178,10 +183,31 @@ class SurveyJS_Results {
             <div id="wp-sjs-result-popup"></div>
         </div>
         <style>.wp-sjs-entry-unread td, .wp-sjs-entry-unread th { font-weight: 600; }</style>
+        <script>
+            document.getElementById("wp-sjs-results-list").addEventListener("submit", function (event) {
+                var button = event.submitter;
+                if (!button || !/^doaction2?$/.test(button.id)) {
+                    return;
+                }
+                var select = document.getElementById(button.id === "doaction2" ? "bulk-action-selector-bottom" : "bulk-action-selector-top");
+                if (select && select.value === "delete" && !window.confirm(<?php echo wp_json_encode( __( 'Delete the selected entries? Files uploaded with them will be deleted too. This cannot be undone.', 'surveyjs' ), JSON_HEX_TAG ); ?>)) {
+                    event.preventDefault();
+                }
+            });
+        </script>
         <script type="application/json" id="wp-sjs-results-data"><?php echo wp_json_encode( $view_data, JSON_HEX_TAG | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
         <script>
             (function () {
                 var viewData = JSON.parse(document.getElementById("wp-sjs-results-data").textContent);
+                function renderMarkdownLinks(_, options) {
+                    var text = options.text.replace(/[&<>"']/g, function (char) {
+                        return "&#" + char.charCodeAt(0) + ";";
+                    });
+                    var html = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s()]+)\)/g, "<a href=\"$2\" target=\"_blank\" rel=\"noopener\">$1</a>");
+                    if (html !== text) {
+                        options.html = html;
+                    }
+                }
                 function markRead(link) {
                     var row = link.closest("tr");
                     if (!row || !row.classList.contains("wp-sjs-entry-unread")) {
@@ -206,6 +232,7 @@ class SurveyJS_Results {
                     event.preventDefault();
                     markRead(link);
                     var survey = new Survey.Model(viewData.survey);
+                    survey.onTextMarkdown.add(renderMarkdownLinks);
                     survey.data = viewData.results[link.dataset.resultId];
                     survey.readOnly = true;
                     var popupContainer = document.createElement("div");

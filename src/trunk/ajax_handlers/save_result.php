@@ -35,6 +35,13 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 return;
             }
             $settings = SurveyJS_Form_Settings::get( $survey );
+            if ( SurveyJS_Captcha::is_enabled( $settings ) ) {
+                $captcha = SurveyJS_Captcha::verify( wp_unslash( $_POST['CaptchaToken'] ?? '' ) );
+                if ( is_wp_error( $captcha ) ) {
+                    wp_send_json_error( array( 'message' => $captcha->get_error_message() ), 403 );
+                    return;
+                }
+            }
 
             $entry_id = 0;
             if ( $settings['storeEntries'] ) {
@@ -89,4 +96,4 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
     }
 }
 
-?>
+?>

@@ -22,6 +22,7 @@ class SurveyJS_Form_Settings {
             'autoReplyAttachments'  => '',
             'themeMode'             => 'adaptive',
             'transparentBackground' => false,
+            'captchaEnabled'        => false,
         );
     }
 
@@ -81,6 +82,7 @@ class SurveyJS_Form_Settings {
             'autoReplyAttachments'  => sanitize_text_field( $input['autoReplyAttachments'] ),
             'themeMode'             => in_array( $input['themeMode'], self::theme_modes(), true ) ? $input['themeMode'] : 'adaptive',
             'transparentBackground' => ! empty( $input['transparentBackground'] ),
+            'captchaEnabled'        => ! empty( $input['captchaEnabled'] ),
         );
     }
 

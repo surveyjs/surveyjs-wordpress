@@ -203,6 +203,9 @@ class SurveyJS_SurveyJS {
         if ( isset($json->locale) && is_string($json->locale) ) {
             $locales[] = strtolower($json->locale);
         }
+        if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
+            SurveyJS_Captcha::enqueue_script();
+        }
         $this->collect_survey_locales($json, $locales);
         foreach ( array_unique($locales) as $locale ) {
             $file = 'libs/library/i18n/' . $locale . '.min.js';
@@ -291,6 +294,9 @@ class SurveyJS_SurveyJS {
             'uploadFilesNonce' => wp_create_nonce('surveyjs-upload-files'),
             'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
         );
+        if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
+            $config['captcha'] = SurveyJS_Captcha::client_config();
+        }
 
         ob_start();
         ?>

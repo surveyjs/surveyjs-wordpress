@@ -71,4 +71,52 @@ test.describe("uploaded files", () => {
     const json = JSON.parse(await page.evaluate(() => monaco.editor.getModels()[0].getValue()));
     expect(json.logo).toMatch(/\/wp-content\/uploads\/.*e2e-logo.*\.png$/);
   });
+
+  test("lists Media Library images to copy without changing the JSON", async ({ page, context, baseURL }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: new URL(baseURL).origin });
+    name = uniqueName("E2E images");
+    await createSurvey(page, name);
+    const editorValue = () => page.evaluate(() => monaco.editor.getModels()[0].getValue());
+    const before = await editorValue();
+    const insertImage = page.getByRole("button", { name: "Insert image" });
+    const list = page.locator("#wp-sjs-image-list");
+    await expect(list).toBeHidden();
+
+    const chooseImages = async (files) => {
+      await insertImage.click();
+      const modal = page.locator(".media-modal:visible");
+      await expect(modal).toBeVisible();
+      await modal.locator("input[type=file]").setInputFiles(files.map(file => ({ name: file, mimeType: "image/png", buffer: PNG })));
+      await expect(modal.locator("li.attachment.selected")).toHaveCount(files.length);
+      await modal.locator(".media-button-select").click();
+      await expect(modal).toBeHidden();
+    };
+
+    await chooseImages(["e2e-image-a.png", "e2e-image-b.png"]);
+    const items = list.locator("li");
+    await expect(items).toHaveCount(2);
+    await expect(items.first().locator("img")).toBeVisible();
+    await expect(items.first().locator("input")).toHaveValue(/\/wp-content\/uploads\/.*e2e-image-a.*\.png$/);
+    expect(await editorValue()).toBe(before);
+
+    const url = await items.first().locator("input").inputValue();
+    await items.first().getByRole("button", { name: "Copy" }).click();
+    await expect(items.first().getByRole("button", { name: "Copied!" })).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(url);
+
+    await insertImage.click();
+    const modal = page.locator(".media-modal:visible");
+    await modal.locator("li.attachment", { has: page.locator("img[src*='e2e-image-a']") }).first().click();
+    await modal.locator(".media-button-select").click();
+    await expect(items).toHaveCount(2);
+
+    await items.first().getByRole("button", { name: /Remove from the list/ }).click();
+    await expect(items).toHaveCount(1);
+    await expect(items.first().locator("input")).toHaveValue(/e2e-image-b/);
+
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
+    await expect(insertImage).toBeEnabled();
+    await expect(items).toHaveCount(1);
+    expect(await editorValue()).toBe(before);
+  });
 });
