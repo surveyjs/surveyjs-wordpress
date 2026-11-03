@@ -66,8 +66,8 @@ test.describe("import from WPForms", () => {
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
     await expect(page.locator(".monaco-editor")).toBeVisible();
     const json = JSON.parse(await page.evaluate(() => window.monaco.editor.getEditors()[0].getModel().getValue()));
-    expect(json.elements.map(element => element.name)).toEqual(["name", "email", "comment_or_message"]);
-    expect(json.elements[0].elements.map(element => element.name)).toEqual(["name_first", "name_last"]);
+    expect(json.elements.map(element => element.name)).toEqual(["name_first", "name_last", "email", "comment_or_message"]);
+    expect(json.elements[1].startWithNewLine).toBe(false);
     expect(json.completedHtml).toContain("Thanks for contacting us!");
 
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" }).click();
@@ -117,7 +117,7 @@ test.describe("import from WPForms", () => {
     expect(Number(new URL(page.url()).searchParams.get("id"))).toBe(surveyId);
     await expect(page.locator(".monaco-editor")).toBeVisible();
     const json = JSON.parse(await page.evaluate(() => window.monaco.editor.getEditors()[0].getModel().getValue()));
-    expect(json.elements.map(element => element.name)).toEqual(["name", "email", "comment_or_message"]);
+    expect(json.elements.map(element => element.name)).toEqual(["name_first", "name_last", "email", "comment_or_message"]);
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list tr")).toHaveCount(1);

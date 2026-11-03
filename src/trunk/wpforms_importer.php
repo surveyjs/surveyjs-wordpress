@@ -431,7 +431,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
                 if ( 'first-middle-last' !== $format ) {
                     unset( $parts['middle'] );
                 }
-                return array( self::panel( $field, $parts, $base, $common, ' ', $taken, $refs, $notes ) );
+                return self::parts( $field, $parts, $base, $common, ' ', $taken, $refs, $notes );
 
             case 'address':
                 $parts = array(
@@ -450,7 +450,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
                 if ( 'us' === ( $field['scheme'] ?? $field['format'] ?? 'us' ) ) {
                     unset( $parts['country'] );
                 }
-                return array( self::panel( $field, $parts, $base, $common, ', ', $taken, $refs, $notes ) );
+                return self::parts( $field, $parts, $base, $common, ', ', $taken, $refs, $notes );
 
             case 'html':
                 return $html( (string) ( $field['code'] ?? '' ) );
@@ -471,33 +471,27 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         return null;
     }
 
-    private static function panel( $field, $parts, $base, $common, $separator, &$taken, &$refs, &$notes ) {
-        $panel = array( 'type' => 'panel', 'name' => self::unique_name( $base, $taken ) );
-        if ( 'hidden' !== ( $common['titleLocation'] ?? '' ) ) {
-            $panel['title'] = $common['title'];
-        }
-        if ( isset( $common['description'] ) ) {
-            $panel['description'] = $common['description'];
-        }
-        $panel['elements'] = array();
+    private static function parts( $field, $parts, $base, $common, $separator, &$taken, &$refs, &$notes ) {
+        $prefix = self::unique_name( $base, $taken );
+        $questions = array();
         $names = array();
         foreach ( $parts as $part => list( $title, $required ) ) {
-            $question = array( 'type' => 'text', 'name' => self::unique_name( $panel['name'] . '_' . $part, $taken ), 'title' => $title );
-            if ( ! empty( $field['sublabel_hide'] ) ) {
-                $question['titleLocation'] = 'hidden';
+            $question = array( 'type' => 'text', 'name' => self::unique_name( $prefix . '_' . $part, $taken ), 'title' => $title );
+            if ( ! $questions && isset( $common['description'] ) ) {
+                $question['description'] = $common['description'];
             }
             if ( $required && ! empty( $common['isRequired'] ) ) {
                 $question['isRequired'] = true;
             }
-            if ( $panel['elements'] && ! in_array( $part, array( 'address2', 'city', 'postal' ), true ) ) {
+            if ( $questions && ! in_array( $part, array( 'address2', 'city', 'postal' ), true ) ) {
                 $question['startWithNewLine'] = false;
             }
             $question += self::placeholder_default( $field, $part . '_placeholder', $part . '_default', $common['title'], $notes );
-            $panel['elements'][] = $question;
+            $questions[] = $question;
             $names[ $part ] = $question['name'];
         }
         $refs[ (string) ( $field['id'] ?? '' ) ] = array( 'parts' => $names, 'separator' => $separator, 'email' => false );
-        return $panel;
+        return $questions;
     }
 
     private static function choices( $field, $label, &$notes ) {

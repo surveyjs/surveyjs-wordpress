@@ -364,7 +364,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
 
             case 'input_name':
             case 'address':
-                return array( $this->panel( $field, $title, $common ) );
+                return $this->parts( $field, $title, $common );
 
             case 'custom_html':
                 return $html( (string) ( $settings['html_codes'] ?? '' ) );
@@ -502,7 +502,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
         return $result;
     }
 
-    private function panel( $field, $title, $common ) {
+    private function parts( $field, $title, $common ) {
         $type = (string) $field['element'];
         $parts = 'address' === $type ? self::ADDRESS_PARTS : self::NAME_PARTS;
         $sub_fields = (array) ( $field['fields'] ?? array() );
@@ -510,30 +510,26 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             $order = array_column( array_filter( (array) ( $field['settings']['field_order'] ?? array() ), 'is_array' ), 'value' );
             $sub_fields = array_merge( array_intersect_key( array_flip( $order ), $sub_fields ), $sub_fields );
         }
-        $label = self::text( $field['settings']['label'] ?? '' );
-        $panel = array( 'type' => 'panel', 'name' => $this->unique_name( $title ) );
-        if ( '' !== $label && 'hidden' !== ( $common['titleLocation'] ?? '' ) ) {
-            $panel['title'] = $label;
-        }
-        if ( isset( $common['description'] ) ) {
-            $panel['description'] = $common['description'];
-        }
-        $panel['elements'] = array();
+        $prefix = $this->unique_name( $title );
+        $questions = array();
         $names = array();
         foreach ( $sub_fields as $key => $sub ) {
             if ( ! isset( $parts[ $key ] ) || ! is_array( $sub ) || ( isset( $sub['settings']['visible'] ) && ! $sub['settings']['visible'] ) ) {
                 continue;
             }
             $sub_label = self::text( $sub['settings']['label'] ?? '' );
-            $question = array( 'type' => 'country' === $key ? 'dropdown' : 'text', 'name' => $this->unique_name( $panel['name'] . '_' . $parts[ $key ] ), 'title' => '' !== $sub_label ? $sub_label : ucfirst( str_replace( '_', ' ', $key ) ) );
+            $question = array( 'type' => 'country' === $key ? 'dropdown' : 'text', 'name' => $this->unique_name( $prefix . '_' . $parts[ $key ] ), 'title' => '' !== $sub_label ? $sub_label : ucfirst( str_replace( '_', ' ', $key ) ) );
             if ( '' === $sub_label || 'hide_label' === ( $sub['settings']['label_placement'] ?? '' ) ) {
                 $question['titleLocation'] = 'hidden';
             }
             if ( '' !== self::text( $sub['settings']['help_message'] ?? '' ) ) {
                 $question['description'] = self::text( $sub['settings']['help_message'] );
             }
+            if ( ! $questions && ! isset( $question['description'] ) && isset( $common['description'] ) ) {
+                $question['description'] = $common['description'];
+            }
             $question += self::required( (array) ( $sub['settings'] ?? array() ) );
-            if ( $panel['elements'] && ( 'input_name' === $type || in_array( $key, array( 'state', 'country' ), true ) ) ) {
+            if ( $questions && ( 'input_name' === $type || in_array( $key, array( 'state', 'country' ), true ) ) ) {
                 $question['startWithNewLine'] = false;
             }
             if ( 'country' === $key ) {
@@ -541,13 +537,13 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             } else {
                 $question += $this->placeholder_default( (array) ( $sub['attributes'] ?? array() ), $question['title'] );
             }
-            $panel['elements'][] = $question;
+            $questions[] = $question;
             $this->titles[ $question['name'] ] = $question['title'];
             $names[ $key ] = $question['name'];
+            $this->condition( $question['name'], $field );
         }
-        $this->condition( $panel['name'], $field );
         $this->ref( (string) ( $field['attributes']['name'] ?? '' ), $names, 'text', array( 'separator' => 'address' === $type ? ', ' : ' ' ) );
-        return $panel;
+        return $questions;
     }
 
     private function repeater( $field, $question, $input ) {

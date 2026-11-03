@@ -182,9 +182,9 @@ test.describe("import from Fluent Forms", () => {
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
     const json = await editorJson(page);
     expect(json.pages.map(p => p.title)).toEqual(["Your details", "Event options"]);
-    expect(json.pages[0].elements.map(e => e.name)).toEqual(["name", "email", "company"]);
-    expect(json.pages[0].elements[0].elements.map(e => e.name)).toEqual(["name_first", "name_last"]);
-    expect(json.pages[0].elements[2].startWithNewLine).toBe(false);
+    expect(json.pages[0].elements.map(e => e.name)).toEqual(["name_first", "name_last", "email", "company"]);
+    expect(json.pages[0].elements[1].startWithNewLine).toBe(false);
+    expect(json.pages[0].elements[3].startWithNewLine).toBe(false);
     expect(json.pages[1].elements.map(e => [e.name, e.type])).toEqual([["ticket_type", "radiogroup"], ["student_id", "text"], ["sessions", "checkbox"], ["excitement", "rating"]]);
     expect(json.pages[1].elements[1].visibleIf).toBe("{ticket_type} = 'student'");
     expect(json).toMatchObject({ completeText: "Register", pageNextText: "Continue", pagePrevText: "Back", showProgressBar: true });
