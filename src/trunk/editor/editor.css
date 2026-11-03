@@ -64,11 +64,12 @@
     gap: 4px;
 }
 
-.wp-sjs-editor__media .dashicons {
+.wp-core-ui .wp-sjs-editor__media .button .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
     line-height: 16px;
+    vertical-align: middle;
 }
 
 .wp-sjs-editor__media .button[hidden] {
