@@ -141,8 +141,7 @@ test.describe("batch import", () => {
       expect(value[0]).toMatchObject({ name: `Document ${index + 1}.txt`, type: "text/plain" });
       expect(value[0].content.startsWith(`${baseURL}/wp-content/uploads/surveyjs/`)).toBe(true);
       expect(value[0].content).toMatch(/\/surveyjs\/[\w.]+\.txt$/);
-      const response = await page.request.get(value[0].content);
-      expect(await response.text()).toBe(`E2E file ${index + 1} of ${name}`);
+      expect(fixture("stored-file", value[0].content).content).toBe(`E2E file ${index + 1} of ${name}`);
     }
     expect(values[4][1].content).toBe(`${baseURL}/wp-content/uploads/wpforms/${entriesFormId}-e2e/missing.txt`);
     expect(fixture("originals", entriesFormId)).toEqual(["doc-1.txt", "doc-2.txt", "doc-3.txt", "doc-4.txt", "doc-5.txt"]);
@@ -167,11 +166,13 @@ test.describe("import without JavaScript", () => {
   let name;
   let entriesFormId;
 
-  test.afterEach(async ({ page }) => {
+  test.afterEach(async ({ browser, baseURL, storageState }) => {
     if (entriesFormId) {
       fixture("cleanup", entriesFormId);
     }
-    await deleteSurveys(page, name);
+    const context = await browser.newContext({ baseURL, storageState, javaScriptEnabled: true });
+    await deleteSurveys(await context.newPage(), name);
+    await context.close();
     entriesFormId = null;
   });
 

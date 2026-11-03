@@ -21,7 +21,7 @@ test.describe("JSON editor", () => {
     await page.reload();
     await expect(page.locator(".monaco-editor")).toBeVisible();
     expect(await editorValue(page)).toContain("e2e_question");
-    await expect(page.locator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
+    await expect(page.frameLocator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     expect(await editorValue(page)).toContain("e2e-theme");
   });
@@ -72,7 +72,7 @@ test.describe("JSON editor", () => {
     await expect(preview.getByText("I consent")).toBeVisible();
     const privacyLink = question.choices[0].text.match(/\[Privacy Policy\]\(([^)]+)\)/);
     if (privacyLink) {
-      await expect(preview.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", privacyLink[1]);
+      await expect(preview.locator("a", { hasText: "Privacy Policy" })).toHaveAttribute("href", privacyLink[1]);
     } else {
       await expect(preview.getByText("See our Privacy Policy.")).toBeVisible();
     }
@@ -105,12 +105,14 @@ test.describe("JSON editor", () => {
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${id}`);
     await expect(page.locator(".monaco-editor")).toBeVisible();
     let warned = false;
-    page.on("dialog", dialog => {
+    const onDialog = dialog => {
       warned = true;
       dialog.accept();
-    });
+    };
+    page.on("dialog", onDialog);
     await page.getByRole("link", { name: "Back" }).click();
     await expect(page).toHaveURL(/page=surveyjs-main-menu/);
+    page.off("dialog", onDialog);
     expect(warned).toBe(false);
   });
 });

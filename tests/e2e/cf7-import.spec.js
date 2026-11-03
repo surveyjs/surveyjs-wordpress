@@ -148,7 +148,7 @@ test.describe("import from Contact Form 7", () => {
 
   test("the Getting Started page offers the Contact Form 7 import", async ({ page }) => {
     await page.goto("/wp-admin/admin.php?page=surveyjs-getting-started");
-    const card = page.locator(".wp-sjs-welcome-import");
+    const card = page.locator(".wp-sjs-welcome-import", { has: page.getByRole("heading", { name: "Import from Contact Form 7" }) });
     test.skip(!(await card.count()), "Contact Form 7 has no forms");
     await expect(card.getByRole("heading", { name: "Import from Contact Form 7" })).toBeVisible();
     await expect(card.getByText("Importing a form again updates the SurveyJS form")).toBeVisible();

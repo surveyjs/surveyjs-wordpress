@@ -1,5 +1,17 @@
+const fs = require("fs");
+const path = require("path");
+const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, createSurvey, saveSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, createSurvey, saveSurvey, deleteSurveys } = require("./helpers");
+
+const WP_CONTAINER = process.env.WP_CONTAINER;
+
+function storageFixture(...args) {
+  execFileSync("docker", ["exec", "-i", WP_CONTAINER, "php", "--", ...args.map(String)], {
+    input: fs.readFileSync(path.join(__dirname, "fixtures/storage.php")),
+    stdio: ["pipe", "pipe", "ignore"]
+  });
+}
 
 const PARTIAL_JSON = {
   pages: [
@@ -128,7 +140,7 @@ test.describe("partial entries", () => {
     await context.close();
 
     await page.goto(resultsUrl(surveyId, "partial"));
-    await expect(page.locator("#bulk-action-selector-top option")).toHaveText(["Bulk actions", "Mark as Spam", "Delete"]);
+    await expect(page.locator("#bulk-action-selector-top option")).toHaveText(["Bulk actions", "Keep", "Stop Keeping", "Mark as Spam", "Delete"]);
     const row = page.locator("#the-list tr", { hasText: "Spammy" });
     await row.hover();
     await row.getByRole("link", { name: "Spam", exact: true }).click();
@@ -140,5 +152,36 @@ test.describe("partial entries", () => {
     await spamRow.getByRole("link", { name: "Not Spam", exact: true }).click();
     await page.goto(resultsUrl(surveyId, "partial"));
     await expect(page.locator("#the-list tr", { hasText: "Spammy" })).toHaveCount(1);
+  });
+
+  test("flags a partial entry before it is deleted and keeps it on request", async ({ page, browser }) => {
+    test.skip(!WP_CONTAINER, "Set WP_CONTAINER to the WordPress container name to age a partial entry");
+    const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    const visitor = await context.newPage();
+    await visitor.goto(postLink);
+    await visitor.getByLabel("Your name").fill("Forgetful");
+    const saved = visitor.waitForResponse(isPartialSave);
+    await visitor.getByRole("button", { name: "Next" }).click();
+    const entryId = (await (await saved).json()).data.id;
+    await context.close();
+
+    storageFixture("age-entry", entryId, 27);
+    await page.goto(listUrl(name));
+    await expect(page.locator("#wp-admin-bar-surveyjs-expiring")).toHaveText(/^[\d,.\s]+ partial entr(y|ies) will be deleted soon$/);
+    await expect(page.locator("#the-list tr", { hasText: name })).toContainText("1 partial entry will be deleted soon");
+
+    await page.goto(resultsUrl(surveyId, "partial"));
+    await expect(page.locator(".notice-warning", { hasText: "will be deleted within 5 days" })).toContainText("1 partial entry will be deleted within 5 days.");
+    const row = page.locator("#the-list tr", { hasText: "Forgetful" });
+    await expect(row.locator(".column-status")).toContainText("Will be deleted on");
+    await row.hover();
+    await row.getByRole("link", { name: "Keep", exact: true }).click();
+    await expect(row.locator(".column-status")).toContainText("Kept");
+    await expect(row.locator(".column-status")).not.toContainText("Will be deleted on");
+    await expect(page.locator(".notice-warning", { hasText: "will be deleted within 5 days" })).toHaveCount(0);
+
+    await row.hover();
+    await row.getByRole("link", { name: "Stop Keeping", exact: true }).click();
+    await expect(row.locator(".column-status")).toContainText("Will be deleted on");
   });
 });

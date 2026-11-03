@@ -26,4 +26,8 @@ if ( 'legacy' === $command ) {
 } elseif ( 'entries' === $command ) {
     $table = SurveyJS_Entries::table();
     echo wp_json_encode( array( 'count' => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE form_id = %d", (int) $argv[2] ) ) ) );
+} elseif ( 'age-entry' === $command ) {
+    $wpdb->update( SurveyJS_Entries::table(), array( 'created_at' => gmdate( 'Y-m-d H:i:s', time() - (int) $argv[3] * DAY_IN_SECONDS ) ), array( 'id' => (int) $argv[2] ) );
+    SurveyJS_Entries::flush_counts();
+    echo '{}';
 }

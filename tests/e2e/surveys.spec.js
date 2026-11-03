@@ -34,7 +34,7 @@ test.describe("survey list", () => {
     await expect(page.locator("#the-list .row-title")).toHaveText([name, `Copy of ${name}`]);
 
     await page.locator("#the-list .row-title", { hasText: `Copy of ${name}` }).click();
-    await expect(page.locator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
+    await expect(page.frameLocator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     expect(await page.evaluate(() => window.monaco.editor.getEditors()[0].getValue())).toContain("e2e-theme");
   });

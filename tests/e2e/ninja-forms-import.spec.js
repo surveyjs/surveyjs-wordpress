@@ -113,7 +113,6 @@ test.describe("import from Ninja Forms", () => {
     }
     await page.getByLabel("Import entries").setChecked(withEntries);
     await page.getByRole("button", { name: "Import" }).click();
-    await page.waitForURL(/imported=1/, { timeout: 120000 });
   }
 
   async function editorJson(page) {

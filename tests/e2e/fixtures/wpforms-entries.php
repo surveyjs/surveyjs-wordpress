@@ -75,4 +75,7 @@ if ( 'create' === $command ) {
         wp_delete_file( $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $url, PHP_URL_PATH ) ) );
     }
     echo '{}';
+} elseif ( 'stored-file' === $command ) {
+    $path = $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $argv[2], PHP_URL_PATH ) );
+    echo wp_json_encode( array( 'content' => is_file( $path ) ? file_get_contents( $path ) : null ) );
 }

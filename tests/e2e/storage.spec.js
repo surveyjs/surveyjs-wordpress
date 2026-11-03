@@ -82,7 +82,7 @@ async function expectCounts(page, counts) {
 }
 
 async function unreadTotal(page) {
-  const bubble = page.locator("#wp-admin-bar-surveyjs .wp-sjs-ab-count");
+  const bubble = page.locator("#wp-admin-bar-surveyjs .wp-sjs-ab-count:not(.wp-sjs-ab-count--expiring)");
   return (await bubble.count()) ? Number((await bubble.textContent()).replace(/\D/g, "")) : 0;
 }
 
@@ -90,7 +90,7 @@ async function setStoreIp(page, checked) {
   await page.goto(SETTINGS_URL);
   await page.getByLabel(STORE_IP_LABEL).setChecked(checked);
   await page.getByRole("button", { name: "Save Changes" }).click();
-  await expect(page).toHaveURL(/settings-updated=true/);
+  await expect(page.getByText("Successfully updated!")).toBeVisible();
   await expect(page.getByLabel(STORE_IP_LABEL)).toBeChecked({ checked });
 }
 
@@ -352,7 +352,7 @@ test.describe("entry storage", () => {
     await page.goto(FORMS_URL);
     await expect(page.locator("#wp-admin-bar-surveyjs > .ab-item .ab-label")).toHaveText("SurveyJS Forms");
     expect(await unreadTotal(page)).toBe(before + 1);
-    await expect(page.locator("#wp-admin-bar-surveyjs > .ab-item .screen-reader-text")).toHaveText(/^[\d,.\s]+ unread entr(y|ies)$/);
+    await expect(page.locator("#wp-admin-bar-surveyjs > .ab-item .screen-reader-text").first()).toHaveText(/^[\d,.\s]+ unread entr(y|ies)$/);
     await expect(page.locator("#wp-admin-bar-surveyjs-unread")).toHaveText(/^[\d,.\s]+ unread entr(y|ies)$/);
     await expect(page.locator("#wp-admin-bar-surveyjs-forms a")).toHaveAttribute("href", /page=surveyjs-main-menu/);
     await expect(editItem).toHaveCount(0);

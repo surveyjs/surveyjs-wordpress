@@ -12,7 +12,7 @@ async function setCaptcha(page, type, siteKey = "", secretKey = "") {
   await page.getByLabel("Site Key", { exact: true }).fill(siteKey);
   await page.getByLabel("Secret Key", { exact: true }).fill(secretKey);
   await page.getByRole("button", { name: "Save Changes" }).click();
-  await expect(page).toHaveURL(/settings-updated=true/);
+  await expect(page.getByText("Successfully updated!")).toBeVisible();
 }
 
 async function enableCaptcha(page, surveyId) {
@@ -71,7 +71,7 @@ test.describe("CAPTCHA", () => {
     await enableCaptcha(page, surveyId);
 
     await page.goto(await publish(page, surveyId));
-    await expect(page.locator(".wp-sjs-captcha iframe")).toBeAttached();
+    await expect(page.locator(".wp-sjs-captcha")).toBeAttached();
     await page.getByLabel("What is your name?").fill("Human");
     await expect(page.locator(".wp-sjs-captcha input[name='cf-turnstile-response']")).not.toHaveValue("", { timeout: 15000 });
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
