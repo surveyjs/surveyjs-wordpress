@@ -44,8 +44,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 12px;
-    padding: 8px 12px;
+    gap: 16px 12px;
+    padding: 32px 12px;
     border-bottom: 1px solid #c3c4c7;
 }
 
@@ -53,8 +53,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 8px;
-    padding: 8px 12px;
+    gap: 16px 8px;
+    padding: 32px 12px;
     border-bottom: 1px solid #c3c4c7;
 }
 
@@ -68,6 +68,7 @@
     font-size: 16px;
     width: 16px;
     height: 16px;
+    line-height: 16px;
 }
 
 .wp-sjs-editor__media .button[hidden] {
@@ -142,7 +143,7 @@
 
 .wp-sjs-editor__theme-mode .description {
     flex-basis: 100%;
-    margin: 0;
+    margin: 0 0 24px;
 }
 
 .wp-sjs-editor__ai-theme {
@@ -150,9 +151,13 @@
     flex-wrap: wrap;
     align-items: center;
     flex-basis: 100%;
-    gap: 8px;
-    padding-top: 8px;
+    gap: 16px 8px;
+    padding-top: 32px;
     border-top: 1px solid #dcdcde;
+}
+
+.wp-sjs-editor__ai-theme .description {
+    margin-bottom: 0;
 }
 
 .wp-sjs-editor__ai-form {

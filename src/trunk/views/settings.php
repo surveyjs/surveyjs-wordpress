@@ -105,8 +105,16 @@ class SurveyJS_SettingsPage {
 	}
 
 	public function captcha_threshold_render() {
-		echo "<input type='number' name='surveyjs-settings[captcha_threshold]' id='sjs-captcha-threshold' value='" . esc_attr( SurveyJS_Captcha::settings()['threshold'] ) . "' min='0' max='1' step='0.1' style='width: 80px;'/>";
+		$settings = SurveyJS_Captcha::settings();
+		echo "<input type='number' name='surveyjs-settings[captcha_threshold]' id='sjs-captcha-threshold' value='" . esc_attr( $settings['threshold'] ) . "' min='0' max='1' step='0.1' style='width: 80px;'" . disabled( 'recaptcha_v3' !== $settings['type'], true, false ) . '/>';
 		echo '<p class="description">' . esc_html__( 'reCAPTCHA v3 only. Each submission gets a score from 0.0 (bot) to 1.0 (human); submissions below this score are rejected. Default: 0.5.', 'surveyjs' ) . '</p>';
+		?>
+		<script>
+			document.getElementById("sjs-captcha-type").addEventListener("change", function () {
+				document.getElementById("sjs-captcha-threshold").disabled = this.value !== "recaptcha_v3";
+			});
+		</script>
+		<?php
 	}
 
 	public function render_checkbox( $args ) {
