@@ -243,7 +243,7 @@ class SurveyJS_SurveyJS {
     function wps_add_menu() {
         $hook = add_menu_page( 'Forms', 'SurveyJS Forms', 'manage_options', 'surveyjs-main-menu', array(
                         "SurveyJS_MySurveys", 'render'
-                        ), plugins_url('images/logo_20х20.png', __FILE__));
+                        ), plugins_url('images/logo_20х20.png', __FILE__), '30.5' );
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Forms', 'surveyjs' ), esc_html__( 'Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
