@@ -27,6 +27,7 @@ if ( 'create' === $command ) {
         'fields'   => array(
             1 => array( 'id' => 1, 'type' => 'text', 'label' => 'Name' ),
             2 => array( 'id' => 2, 'type' => 'file-upload', 'label' => 'Documents', 'max_file_number' => '2' ),
+            3 => array( 'id' => 3, 'type' => 'gdpr-checkbox', 'label' => 'GDPR Agreement', 'required' => '1', 'choices' => array( 1 => array( 'label' => 'I consent to data storage.' ) ) ),
         ),
         'settings' => array( 'form_title' => $title ),
     );
@@ -50,6 +51,7 @@ if ( 'create' === $command ) {
         $fields = array(
             1 => array( 'name' => 'Name', 'value' => "Person $i", 'id' => 1, 'type' => 'text' ),
             2 => array( 'name' => 'Documents', 'value' => implode( "\n", wp_list_pluck( $raw, 'value' ) ), 'value_raw' => $raw, 'id' => 2, 'type' => 'file-upload' ),
+            3 => array( 'name' => 'GDPR Agreement', 'value' => 'I consent to data storage.', 'id' => 3, 'type' => 'gdpr-checkbox' ),
         );
         $wpdb->insert( $table, array( 'form_id' => $form_id, 'status' => '', 'fields' => wp_json_encode( $fields ), 'meta' => '{}', 'date' => current_time( 'mysql' ), 'date_modified' => current_time( 'mysql' ) ) );
     }
@@ -57,7 +59,7 @@ if ( 'create' === $command ) {
 } elseif ( 'results' === $command ) {
     $rows = $wpdb->get_col( $wpdb->prepare( "SELECT json FROM {$wpdb->prefix}sjs_results WHERE form_id = %d ORDER BY id", (int) $argv[2] ) );
     $stored = glob( $uploads['basedir'] . '/surveyjs/*.txt' );
-    echo wp_json_encode( array( 'entries' => array_map( 'json_decode', $rows ), 'storedFiles' => count( $stored ? $stored : array() ) ) );
+    echo wp_json_encode( array( 'survey' => json_decode( (string) get_post_field( 'post_content', (int) $argv[2] ) ), 'entries' => array_map( 'json_decode', $rows ), 'storedFiles' => count( $stored ? $stored : array() ) ) );
 } elseif ( 'originals' === $command ) {
     $files = glob( $uploads['basedir'] . '/wpforms/' . (int) $argv[2] . '-e2e/*' );
     echo wp_json_encode( array_map( 'basename', $files ? $files : array() ) );

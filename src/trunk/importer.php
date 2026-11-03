@@ -257,6 +257,20 @@ abstract class SurveyJS_Importer {
         return is_string( $value ) ? sanitize_textarea_field( $value ) : $value;
     }
 
+    // A required boolean also accepts false (checked, then unchecked), so the validator demands true.
+    protected static function agreement( $question, $message = '' ) {
+        unset( $question['titleLocation'] );
+        $question = array( 'type' => 'boolean', 'displayMode' => 'checkbox' ) + $question;
+        if ( ! empty( $question['isRequired'] ) ) {
+            $question['validators'] = array( array(
+                'type'       => 'expression',
+                'expression' => '{' . $question['name'] . '} = true',
+                'text'       => '' !== $message ? $message : __( 'Please give your consent to submit the form.', 'surveyjs' ),
+            ) );
+        }
+        return $question;
+    }
+
     protected static function entry_value( $question, $value ) {
         $values = array_values( array_filter( array_map( 'trim', array_map( 'strval', array_filter( (array) $value, 'is_scalar' ) ) ), 'strlen' ) );
         $name = $question['name'];
@@ -264,14 +278,14 @@ abstract class SurveyJS_Importer {
         if ( ! $values ) {
             return array();
         }
+        if ( 'boolean' === $type ) {
+            return array( $name => true );
+        }
         if ( in_array( $type, array( 'checkbox', 'radiogroup', 'dropdown', 'tagbox', 'imagepicker' ), true ) ) {
             $choices = array();
             foreach ( (array) ( $question['choices'] ?? array() ) as $choice ) {
                 $choice_value = (string) ( is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice );
                 $choices[ $choice_value ] = (string) ( is_array( $choice ) ? ( $choice['text'] ?? $choice_value ) : $choice );
-            }
-            if ( array( 'accepted' ) === array_map( 'strval', array_keys( $choices ) ) ) {
-                return array( $name => array( 'accepted' ) );
             }
             $selected = array();
             $other = array();

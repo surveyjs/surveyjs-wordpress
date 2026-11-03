@@ -134,6 +134,15 @@ test.describe("batch import", () => {
     const surveyId = Number(new URL(await line.getByRole("link", { name: "Edit" }).getAttribute("href"), baseURL).searchParams.get("id"));
     const first = fixture("results", surveyId);
     expect(first.entries).toHaveLength(5);
+    expect(first.survey.elements[2]).toEqual({
+      type: "boolean",
+      displayMode: "checkbox",
+      name: "gdpr_agreement",
+      title: "I consent to data storage.",
+      isRequired: true,
+      validators: [{ type: "expression", expression: "{gdpr_agreement} = true", text: "Please give your consent to submit the form." }]
+    });
+    expect(first.entries.map(entry => entry.gdpr_agreement)).toEqual([true, true, true, true, true]);
     const values = first.entries.map(entry => entry.documents);
     const copiedFiles = values.flat().map(file => file.content).filter(url => url.includes("/uploads/surveyjs/"));
     expect(copiedFiles).toHaveLength(5);

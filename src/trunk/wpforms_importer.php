@@ -365,10 +365,10 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
                 $choices = (array) ( $field['choices'] ?? array() );
                 $choice = reset( $choices );
                 $text = is_array( $choice ) ? self::text( $choice['label'] ?? '' ) : '';
-                $element = $question( 'checkbox', array(
+                $element = self::agreement( $question( 'boolean', array(
+                    'title'      => '' !== $text ? $text : $label,
                     'isRequired' => true,
-                    'choices'    => array( array( 'value' => 'accepted', 'text' => '' !== $text ? $text : $label ) ),
-                ) );
+                ) ) );
                 $refs[ $id ] = array( 'parts' => array( 'value' => $element['name'] ), 'separator' => '', 'email' => false );
                 return array( $element );
 

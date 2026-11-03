@@ -61,7 +61,12 @@ const FORM_FIELDS = {
       conditional_logics: { type: "all", status: true, conditions: [{ field: "ticket_type", value: "student", operator: "=" }] }
     }, { type: "text" }),
     field("input_checkbox", "sessions", { label: "Sessions", advanced_options: options({ keynote: "Keynote", workshop: "Workshop" }) }, { type: "checkbox", value: [] }),
-    { ...field("ratings", "excitement", { label: "Excitement", show_text: "no" }, { value: 0 }), options: { 1: "Nice", 2: "Good", 3: "Very Good", 4: "Awesome", 5: "Amazing" } }
+    { ...field("ratings", "excitement", { label: "Excitement", show_text: "no" }, { value: 0 }), options: { 1: "Nice", 2: "Good", 3: "Very Good", 4: "Awesome", 5: "Amazing" } },
+    field("terms_and_condition", "terms", { admin_field_label: "Terms", tnc_html: "I accept the event rules.", has_checkbox: true, validation_rules: rules(true) }, { type: "checkbox", value: false }),
+    field("input_text", "badge_name", {
+      label: "Badge name",
+      conditional_logics: { type: "all", status: true, conditions: [{ field: "terms", value: "on", operator: "=" }] }
+    }, { type: "text" })
   ],
   submitButton: { element: "button", attributes: { type: "submit", class: "" }, settings: { button_ui: { type: "default", text: "Register", img_url: "" } } },
   stepsWrapper: {
@@ -112,7 +117,7 @@ test.describe("import from Fluent Forms", () => {
         form_id: fluentId,
         data: new URLSearchParams([
           ["names[first_name]", "Ann"], ["names[last_name]", "Lee"], ["email", "ann@example.com"],
-          ["ticket_type", "student"], ["student_id", "S-42"], ["sessions[]", "keynote"], ["sessions[]", "workshop"], ["excitement", "4"]
+          ["ticket_type", "student"], ["student_id", "S-42"], ["sessions[]", "keynote"], ["sessions[]", "workshop"], ["excitement", "4"], ["terms", "on"], ["badge_name", "Annie"]
         ]).toString()
       }
     });
@@ -185,7 +190,16 @@ test.describe("import from Fluent Forms", () => {
     expect(json.pages[0].elements.map(e => e.name)).toEqual(["name_first", "name_last", "email", "company"]);
     expect(json.pages[0].elements[1].startWithNewLine).toBe(false);
     expect(json.pages[0].elements[3].startWithNewLine).toBe(false);
-    expect(json.pages[1].elements.map(e => [e.name, e.type])).toEqual([["ticket_type", "radiogroup"], ["student_id", "text"], ["sessions", "checkbox"], ["excitement", "rating"]]);
+    expect(json.pages[1].elements.map(e => [e.name, e.type])).toEqual([["ticket_type", "radiogroup"], ["student_id", "text"], ["sessions", "checkbox"], ["excitement", "rating"], ["terms", "boolean"], ["badge_name", "text"]]);
+    expect(json.pages[1].elements[4]).toEqual({
+      type: "boolean",
+      displayMode: "checkbox",
+      name: "terms",
+      title: "I accept the event rules.",
+      isRequired: true,
+      validators: [{ type: "expression", expression: "{terms} = true", text: "Please give your consent to submit the form." }]
+    });
+    expect(json.pages[1].elements[5].visibleIf).toBe("{terms} = true");
     expect(json.pages[1].elements[1].visibleIf).toBe("{ticket_type} = 'student'");
     expect(json).toMatchObject({ completeText: "Register", pageNextText: "Continue", pagePrevText: "Back", showProgressBar: true });
     expect(json.completedHtml).toContain("Thanks, {name_first}!");
@@ -197,6 +211,7 @@ test.describe("import from Fluent Forms", () => {
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
     await expect(page.locator("#the-list tr", { hasText: "ann@example.com" })).toBeVisible();
+    await expect(page.locator("#the-list td[data-colname=\"I accept the event rules.\"]")).toHaveText("Yes");
 
     const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
@@ -212,6 +227,9 @@ test.describe("import from Fluent Forms", () => {
     await expect(page.getByLabel("Student ID")).toBeHidden();
     await page.getByText("Student", { exact: true }).click();
     await page.getByLabel("Student ID").fill("S-7");
+    await expect(page.getByLabel("Badge name")).toBeHidden();
+    await page.getByText("I accept the event rules.").click();
+    await page.getByLabel("Badge name").fill("Janie");
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Register" }).click();
     expect((await saved).ok()).toBe(true);
@@ -243,7 +261,7 @@ test.describe("import from Fluent Forms", () => {
     await expect(result).toContainText("Entries: 0 added, 1 updated.");
     await result.getByRole("link", { name: "Edit" }).click();
     expect(Number(new URL(page.url()).searchParams.get("id"))).toBe(surveyId);
-    expect((await editorJson(page)).pages[1].elements.map(e => e.name)).toEqual(["ticket_type", "student_id", "sessions", "excitement"]);
+    expect((await editorJson(page)).pages[1].elements.map(e => e.name)).toEqual(["ticket_type", "student_id", "sessions", "excitement", "terms", "badge_name"]);
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
     await expect(page.locator("#the-list tr", { hasText: "ann@example.com" })).toHaveCount(1);

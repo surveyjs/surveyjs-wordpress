@@ -126,8 +126,10 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
         switch ( $ref['type'] ) {
             case 'checkbox':
                 $checked = is_scalar( $value ) ? trim( (string) $value ) : '';
-                $unchecked = array( '', '0', 'unchecked', strtolower( $ref['unchecked_value'] ) );
-                return in_array( strtolower( $checked ), $unchecked, true ) ? array() : array( $name => array( 'accepted' ) );
+                if ( '' === $checked ) {
+                    return array();
+                }
+                return array( $name => ! in_array( strtolower( $checked ), array( '0', 'unchecked', strtolower( $ref['unchecked_value'] ) ), true ) );
 
             case 'date':
                 $date = self::entry_date( $value, $ref );
@@ -490,14 +492,11 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
                 return $ref( $question( 'dropdown', self::choices( $field ) ) );
 
             case 'checkbox':
-                $props = array(
-                    'titleLocation' => 'hidden',
-                    'choices'       => array( array( 'value' => 'accepted', 'text' => $label ) ),
-                );
+                $props = array();
                 if ( 'checked' === ( $field['checkbox_default_value'] ?? '' ) ) {
-                    $props['defaultValue'] = array( 'accepted' );
+                    $props['defaultValue'] = true;
                 }
-                return $ref( $question( 'checkbox', $props ), array( 'unchecked_value' => (string) ( $field['unchecked_value'] ?? '' ) ) );
+                return $ref( self::agreement( $question( 'boolean', $props ) ), array( 'unchecked_value' => (string) ( $field['unchecked_value'] ?? '' ) ) );
 
             case 'starrating':
                 $props = array( 'rateType' => 'stars', 'rateMax' => max( 2, (int) ( $field['number_of_stars'] ?? 5 ) ) );
@@ -729,7 +728,7 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
         if ( 'checkbox' === $ref['type'] ) {
             $checked = in_array( strtolower( $value ), array( 'checked', '1', 'on', 'true' ), true );
             if ( in_array( $comparator, array( 'equal', 'notequal' ), true ) ) {
-                return $name . ( $checked === ( 'equal' === $comparator ) ? ' notempty' : ' empty' );
+                return $name . ( $checked === ( 'equal' === $comparator ) ? ' = true' : ' <> true' );
             }
             return '';
         }

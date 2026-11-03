@@ -138,6 +138,7 @@ test.describe("import from Ninja Forms", () => {
     await expect(page.locator("#the-list tr")).toHaveCount(1);
     await expect(page.locator("#the-list")).toContainText("Jane");
     await expect(page.locator("#the-list")).toContainText("Survey Creator");
+    await expect(page.locator("#the-list td.column-question_5")).toHaveText("Yes");
 
     await page.goto(editUrl);
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
@@ -146,7 +147,7 @@ test.describe("import from Ninja Forms", () => {
     expect(json.elements[1].startWithNewLine).toBe(false);
     expect(json.elements[3]).toMatchObject({ type: "dropdown", placeholder: "- Select -", choices: [{ value: "support", text: "Support" }, { value: "billing", text: "Billing" }] });
     expect(json.elements[4].type).toBe("checkbox");
-    expect(json.elements[5].choices).toEqual([{ value: "accepted", text: "Subscribe to the newsletter" }]);
+    expect(json.elements[5]).toEqual({ type: "boolean", displayMode: "checkbox", name: "subscribe_to_the_newsletter", title: "Subscribe to the newsletter" });
     expect(json.elements[6]).toMatchObject({ type: "comment", maxLength: 200 });
     expect(json.completeText).toBe("Send");
     expect(json.completedHtml).toBe("<p>Thanks, {first_name}!</p>");

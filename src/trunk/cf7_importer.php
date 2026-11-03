@@ -233,14 +233,14 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
 
             case 'acceptance':
                 $text = trim( wp_strip_all_tags( (string) $tag->content ) );
-                $question['type'] = 'checkbox';
                 $question['title'] = '' !== $text ? $text : $label;
-                $question['titleLocation'] = 'hidden';
-                $question['choices'] = array( array( 'value' => 'accepted', 'text' => $question['title'] ) );
                 if ( ! $tag->has_option( 'optional' ) ) {
                     $question['isRequired'] = true;
                 }
-                return $question;
+                if ( $tag->has_option( 'default:on' ) ) {
+                    $question['defaultValue'] = true;
+                }
+                return self::agreement( $question, (string) ( $messages['accept_terms'] ?? '' ) );
 
             case 'file':
                 $question['type'] = 'file';

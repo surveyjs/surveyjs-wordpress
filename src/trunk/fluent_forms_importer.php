@@ -425,7 +425,8 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
                     $this->notes[] = sprintf( __( 'The links in the agreement text of "%s" were imported as plain text.', 'surveyjs' ), $title );
                 }
                 $text = self::text( $markup );
-                $element = $question( 'checkbox', array( 'choices' => array( array( 'value' => 'accepted', 'text' => '' !== $text ? $text : $title ) ) ) );
+                $element = $question( 'boolean', array( 'title' => '' !== $text ? $text : $title ) );
+                $element = self::agreement( $element, $element['requiredErrorText'] ?? '' );
                 $this->ref( $input, array( 'value' => $element['name'] ), 'agreement' );
                 return array( $element );
 
@@ -858,7 +859,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
         $operator = (string) $rule['operator'];
         $value = is_scalar( $rule['value'] ?? '' ) ? (string) ( $rule['value'] ?? '' ) : '';
         if ( 'agreement' === $ref['kind'] && in_array( $operator, array( '=', '!=' ), true ) ) {
-            return $name . ( ( '=' === $operator ) === ( '' !== $value ) ? ' notempty' : ' empty' );
+            return $name . ( ( '=' === $operator ) === ( '' !== $value ) ? ' = true' : ' <> true' );
         }
         if ( '' === $value && in_array( $operator, array( '=', '!=' ), true ) ) {
             return $name . ( '=' === $operator ? ' empty' : ' notempty' );

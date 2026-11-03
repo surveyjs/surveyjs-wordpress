@@ -9,6 +9,7 @@ const FORM = `<h3>Before you start</h3>
 <label> Message [textarea message 40x4] </label>
 [hidden source "e2e"]
 <p>[quiz robot "2+2=?|4"]</p>
+<p>[acceptance terms default:on] I accept the terms. [/acceptance]</p>
 [submit "Send"]`;
 
 async function findMail(request, subject) {
@@ -73,7 +74,7 @@ test.describe("import from Contact Form 7", () => {
           recipient: "[recipient]",
           subject: `${name} from [your-name]`,
           sender: "[_site_title] <[_site_admin_email]>",
-          body: "Topic: [_raw_recipient]\nMessage: [message]",
+          body: "Topic: [_raw_recipient]\nMessage: [message]\nTerms: [terms]",
           additional_headers: "",
           attachments: "",
           use_html: false,
@@ -90,7 +91,7 @@ test.describe("import from Contact Form 7", () => {
     await result.getByRole("link", { name: "Edit" }).click();
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
     const json = await editorJson(page);
-    expect(json.elements.map(element => element.type)).toEqual(["html", "text", "dropdown", "comment", "text", "text"]);
+    expect(json.elements.map(element => element.type)).toEqual(["html", "text", "dropdown", "comment", "text", "text", "boolean"]);
     expect(json.elements[0].html).toContain("Before you start");
     expect(json.elements[1].validators).toEqual([{ type: "text", minLength: 2 }]);
     expect(json.elements[2].choices).toEqual([
@@ -100,6 +101,15 @@ test.describe("import from Contact Form 7", () => {
     expect(json.elements[3].rows).toBe(4);
     expect(json.elements[4]).toMatchObject({ name: "source", visible: false, defaultValue: "e2e" });
     expect(json.elements[5]).toMatchObject({ name: "robot", title: "2+2=?", isRequired: true });
+    expect(json.elements[6]).toEqual({
+      type: "boolean",
+      displayMode: "checkbox",
+      name: "terms",
+      title: "I accept the terms.",
+      isRequired: true,
+      defaultValue: true,
+      validators: [{ type: "expression", expression: "{terms} = true", text: expect.any(String) }]
+    });
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
     const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
@@ -116,12 +126,14 @@ test.describe("import from Contact Form 7", () => {
     await page.getByRole("button", { name: "Send" }).click();
     await expect(page.getByText("The answer to the quiz is incorrect.")).toBeVisible();
     await page.getByLabel("2+2=?").fill("4");
+    await expect(page.getByRole("checkbox", { name: "I accept the terms." })).toBeChecked();
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Send" }).click();
     expect((await saved).ok()).toBe(true);
     const mail = await findMail(page.request, `${name} from Jane`);
     expect(mail.To.map(to => to.Address)).toEqual(["sales@example.com"]);
     expect(mail.Text).toContain("Topic: Sales");
+    expect(mail.Text).toContain("Terms: Yes");
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}`);
     await setEditorJson(page, { elements: [{ type: "text", name: "edited" }] });
@@ -139,7 +151,7 @@ test.describe("import from Contact Form 7", () => {
     await result.getByRole("link", { name: "Edit" }).click();
     expect(Number(new URL(page.url()).searchParams.get("id"))).toBe(surveyId);
     const reimported = await editorJson(page);
-    expect(reimported.elements.map(element => element.name)).toEqual(["html1", "your-name", "recipient", "message", "source", "robot"]);
+    expect(reimported.elements.map(element => element.name)).toEqual(["html1", "your-name", "recipient", "message", "source", "robot", "terms"]);
     expect(reimported.elements[1].title).toBe("Full name");
 
     await page.goto(listUrl(name));
