@@ -16,6 +16,20 @@
     min-height: 400px;
 }
 
+/* Themes such as Twenty Twenty-One draw their own box for every input[type="checkbox"] and "radio",
+   which outranks survey-core's single-class rule and shows the native control next to SurveyJS's one. */
+.wp-sjs-survey .sd-visuallyhidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    opacity: 0;
+}
+
 /* Same control reset as themes/wordpress.css, for forms with a SurveyJS theme: the site theme styles
    input[type="text"] and button too, and its rules outrank the single-class survey-core ones. */
 .wp-sjs-survey .sjs-theme-overrides .sd-formbox__input,
