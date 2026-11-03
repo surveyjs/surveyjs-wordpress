@@ -126,6 +126,17 @@
   background-color: transparent;
 }
 
+/* With zero horizontal paddings the controls touch .sv-scroll__scroller, whose overflow clips their
+   focus rings; the padding gives the rings room and the negative margin keeps the survey aligned. */
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides {
+  width: calc(100% + 8px);
+  margin-inline: -4px;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sv-scroll__container {
+  padding-inline: 4px;
+}
+
 /* Themes style every input and button on the page (input[type="text"], button, [type="button"], :hover),
    which outranks the single-class survey-core rules, so the survey's own controls get them back here. */
 .wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input,
