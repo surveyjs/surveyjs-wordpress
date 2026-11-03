@@ -65,12 +65,12 @@ test.describe("JSON editor", () => {
     await gdpr.check();
     expect(await pageElements()).toEqual([["q1"], ["q2", "gdpr_agreement"]]);
     const question = JSON.parse(await editorValue(page)).pages[1].elements[1];
-    expect(question).toMatchObject({ type: "checkbox", isRequired: true, titleLocation: "hidden", choices: [{ value: "accepted" }] });
-    expect(question.choices[0].text).toContain("I consent");
+    expect(question).toMatchObject({ type: "boolean", displayMode: "checkbox", isRequired: true, validators: [{ type: "expression", expression: "{gdpr_agreement} = true" }] });
+    expect(question.title).toContain("I consent");
     await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Press Save to keep it");
     const preview = page.frameLocator("#wp-sjs-preview");
     await expect(preview.getByText("I consent")).toBeVisible();
-    const privacyLink = question.choices[0].text.match(/\[Privacy Policy\]\(([^)]+)\)/);
+    const privacyLink = question.title.match(/\[Privacy Policy\]\(([^)]+)\)/);
     if (privacyLink) {
       await expect(preview.locator("a", { hasText: "Privacy Policy" })).toHaveAttribute("href", privacyLink[1]);
     } else {

@@ -836,7 +836,8 @@
         const add = gdprCheckbox.checked;
         if (add === hasGdprAgreement(json)) return;
         if (add) {
-            appendElement(json, { name: GDPR_NAME, type: "checkbox", title: config.gdpr.title, titleLocation: "hidden", isRequired: true, choices: [{ value: "accepted", text: config.gdpr.text }] });
+            // A required boolean also accepts false (checked, then unchecked), so the validator demands true.
+            appendElement(json, { name: GDPR_NAME, type: "boolean", displayMode: "checkbox", title: config.gdpr.text, isRequired: true, validators: [{ type: "expression", expression: `{${GDPR_NAME}} = true`, text: config.gdpr.error }] });
             previewFocusName = GDPR_NAME;
         } else {
             elementLists(json).forEach((list) => {

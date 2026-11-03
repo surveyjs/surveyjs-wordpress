@@ -17,9 +17,9 @@ class SurveyJS_Editor {
             ? '[' . __( 'Privacy Policy', 'surveyjs' ) . '](' . esc_url_raw( $privacy_url ) . ')'
             : __( 'Privacy Policy', 'surveyjs' );
         return array(
-            'title' => __( 'GDPR agreement', 'surveyjs' ),
             /* translators: %s: "Privacy Policy", linked to the site's privacy policy page when there is one. */
             'text'  => sprintf( __( 'I consent to having this website store my submitted information so they can respond to my inquiry. See our %s.', 'surveyjs' ), $privacy ),
+            'error' => __( 'Please give your consent to submit the form.', 'surveyjs' ),
         );
     }
 
@@ -162,10 +162,12 @@ class SurveyJS_Editor {
                                         <a href="<?php echo esc_url( SurveyJS_Captcha::settings_url() ); ?>"><?php esc_html_e( 'CAPTCHA settings', 'surveyjs' ); ?></a>
                                     </p>
                                 <?php else : ?>
-                                    <p class="description">
-                                        <?php esc_html_e( 'To turn on CAPTCHA, first choose the CAPTCHA type and enter its keys in Settings.', 'surveyjs' ); ?>
-                                        <a href="<?php echo esc_url( SurveyJS_Captcha::settings_url() ); ?>"><?php esc_html_e( 'Set up CAPTCHA', 'surveyjs' ); ?></a>
-                                    </p>
+                                    <div class="notice notice-info inline">
+                                        <p>
+                                            <?php esc_html_e( 'CAPTCHA is not set up yet, so it cannot be turned on. Choose the CAPTCHA type and enter its keys in Settings, then come back here.', 'surveyjs' ); ?>
+                                            <a href="<?php echo esc_url( SurveyJS_Captcha::settings_url() ); ?>"><?php esc_html_e( 'Set up CAPTCHA in Settings', 'surveyjs' ); ?></a>
+                                        </p>
+                                    </div>
                                 <?php endif; ?>
                                 <p class="description"><?php esc_html_e( 'A hidden honeypot field is always on and blocks simple spam bots.', 'surveyjs' ); ?></p>
                             </td>
