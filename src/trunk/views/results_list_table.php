@@ -89,7 +89,7 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
                 'spam'   => __( 'Mark as Spam', 'surveyjs' ),
             );
         }
-        return $actions + array( 'delete' => __( 'Delete', 'surveyjs' ) );
+        return apply_filters( 'surveyjs_entries_bulk_actions', $actions + array( 'delete' => __( 'Delete', 'surveyjs' ) ), $status, $this->survey_id );
     }
 
     public function no_items() {
@@ -188,6 +188,7 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
             esc_js( __( 'This action CANNOT be undone! Are you ABSOLUTELY sure?', 'surveyjs' ) ),
             esc_html__( 'Delete', 'surveyjs' )
         );
+        $actions = apply_filters( 'surveyjs_entry_row_actions', $actions, $item, $this->survey_id );
         return sprintf( '<strong>#%d</strong>%s', $item->id, $this->row_actions( $actions ) );
     }
 

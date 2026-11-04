@@ -16,11 +16,14 @@ function surveyjs_uninstall_site() {
     $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}sjs_results, {$wpdb->prefix}sjs_my_surveys" );
 
     $wpdb->query( $wpdb->prepare(
-        "DELETE FROM {$wpdb->options} WHERE option_name = %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
+        "DELETE FROM {$wpdb->options} WHERE ( option_name = %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s ) AND option_name NOT LIKE %s AND option_name NOT LIKE %s AND option_name NOT LIKE %s",
         'surveyjs-settings',
         $wpdb->esc_like( 'surveyjs_' ) . '%',
         $wpdb->esc_like( '_transient_surveyjs_' ) . '%',
-        $wpdb->esc_like( '_transient_timeout_surveyjs_' ) . '%'
+        $wpdb->esc_like( '_transient_timeout_surveyjs_' ) . '%',
+        $wpdb->esc_like( 'surveyjs_pro_' ) . '%',
+        $wpdb->esc_like( '_transient_surveyjs_pro_' ) . '%',
+        $wpdb->esc_like( '_transient_timeout_surveyjs_pro_' ) . '%'
     ) );
     wp_cache_delete( 'alloptions', 'options' );
     wp_cache_delete( 'notoptions', 'options' );

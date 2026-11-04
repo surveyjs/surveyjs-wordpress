@@ -26,9 +26,10 @@
     const lintElement = document.getElementById("wp-sjs-lint");
     const previewElement = document.getElementById("wp-sjs-preview");
     const previewOrigin = new URL(config.previewUrl).origin;
+    const rootElement = document.querySelector(".wp-sjs-editor");
     const tabs = document.querySelectorAll(".wp-sjs-editor__tabs .nav-tab");
     const jsonPane = document.getElementById("wp-sjs-json-pane");
-    const settingPanels = document.querySelectorAll(".wp-sjs-editor__settings[data-panel]");
+    const settingPanels = document.querySelectorAll(".wp-sjs-editor [data-panel]");
     const settingInputs = document.querySelectorAll(".wp-sjs-editor [data-setting]");
     const themeModeElement = document.getElementById("wp-sjs-theme-mode");
     const themeModeCheckbox = document.getElementById("wp-sjs-theme-mode-adaptive");
@@ -707,6 +708,7 @@
 
     function switchTab(tab) {
         activeTab = tab;
+        rootElement.dataset.activeTab = tab;
         tabs.forEach((item) => item.classList.toggle("nav-tab-active", item.dataset.tab === tab));
         const isJsonTab = tab in sources;
         jsonPane.hidden = !isJsonTab;
@@ -719,12 +721,26 @@
             renderAllPickerOptions();
             renderFieldTags();
             updateState();
-            return;
+        } else {
+            editor.setModel(models[tab]);
+            fitHeight();
+            renderMarkers();
+            updateState();
         }
-        editor.setModel(models[tab]);
-        fitHeight();
-        renderMarkers();
-        updateState();
+        document.dispatchEvent(new CustomEvent("surveyjs:editor-tab", { detail: { tab: tab } }));
+    }
+
+    function setSource(tab, json) {
+        if (!isJsonObject(json)) return false;
+        replaceSource(tab, json);
+        if (!models) {
+            if (tab === "theme") renderThemePreset();
+            saveNotice = null;
+            updateState();
+            renderPreview();
+            runLint();
+        }
+        return true;
     }
 
     function format() {
@@ -884,6 +900,7 @@
                 saveNotice = issueCount > 0
                     ? { type: "warning", message: "Form saved with " + plural(issueCount, "issue", "issues") + "." }
                     : { type: "success", message: "Form saved." };
+                document.dispatchEvent(new CustomEvent("surveyjs:editor-saved", { detail: { id: config.id, json: survey.json, theme: theme.json, settings: settings } }));
             })
             .catch((error) => {
                 saveNotice = { type: "error", message: "Save failed: " + error.message };
@@ -1377,8 +1394,26 @@
     renderPreview();
     renderFieldTags();
     updateState();
+    const tabNames = Array.from(tabs, (tab) => tab.dataset.tab);
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
-    if (!(requestedTab in sources) && Array.from(tabs).some((tab) => tab.dataset.tab === requestedTab)) switchTab(requestedTab);
+    const initialTab = tabNames.includes(requestedTab) && !(requestedTab in sources) ? requestedTab : tabNames[0];
+    if (initialTab && !(initialTab in sources)) switchTab(initialTab);
+
+    window.surveyjsEditor = {
+        config: config,
+        getSurvey: () => parse(sources.survey).json || null,
+        setSurvey: (json) => setSource("survey", json),
+        getTheme: () => parse(sources.theme).json || null,
+        setTheme: (json) => setSource("theme", json),
+        getSettings: readSettings,
+        getActiveTab: () => activeTab,
+        switchTab: (tab) => {
+            if (tabNames.includes(tab) && (editor || !(tab in sources))) switchTab(tab);
+        },
+        isDirty: isDirty,
+        save: save
+    };
+    document.dispatchEvent(new CustomEvent("surveyjs:editor-ready", { detail: window.surveyjsEditor }));
 
     loadMonaco().then((loaded) => {
         monaco = loaded;
@@ -1423,5 +1458,6 @@
         });
         renderMarkers();
         updateState();
+        if (initialTab === "theme" && activeTab === "survey") switchTab("theme");
     });
 })();

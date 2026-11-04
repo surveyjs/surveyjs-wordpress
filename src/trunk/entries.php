@@ -344,6 +344,66 @@ class SurveyJS_Entries {
         return $deleted;
     }
 
+    public static function query( $form_id, $args = array() ) {
+        global $wpdb;
+        $args = array_merge( array(
+            'status' => array( 'unread', 'read' ),
+            'ids'    => array(),
+            'after'  => '',
+            'before' => '',
+            'order'  => 'DESC',
+            'limit'  => 0,
+            'offset' => 0,
+        ), $args );
+        $statuses = array_values( array_intersect( (array) $args['status'], self::STATUSES ) );
+        if ( ! $statuses ) {
+            return array();
+        }
+        $where = 'form_id = %d AND status IN ( ' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ' )';
+        $values = array_merge( array( (int) $form_id ), $statuses );
+        $ids = array_filter( array_map( 'absint', (array) $args['ids'] ) );
+        if ( $ids ) {
+            $where .= ' AND id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )';
+            $values = array_merge( $values, $ids );
+        }
+        foreach ( array( 'after' => '>=', 'before' => '<' ) as $key => $operator ) {
+            if ( '' !== (string) $args[ $key ] ) {
+                $where .= " AND created_at $operator %s";
+                $values[] = (string) $args[ $key ];
+            }
+        }
+        $order = 'ASC' === strtoupper( (string) $args['order'] ) ? 'ASC' : 'DESC';
+        $limit = '';
+        if ( absint( $args['limit'] ) ) {
+            $limit = ' LIMIT %d OFFSET %d';
+            $values[] = absint( $args['limit'] );
+            $values[] = absint( $args['offset'] );
+        }
+        $table = self::table();
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, form_id, json, status, user_id, ip, created_at, last_page, kept FROM $table WHERE $where ORDER BY created_at $order, id $order$limit", $values ) );
+        return array_map( array( __CLASS__, 'entry' ), $rows );
+    }
+
+    public static function find_entry( $form_id, $id ) {
+        $entries = self::query( $form_id, array( 'ids' => array( $id ), 'status' => self::STATUSES ) );
+        return $entries ? $entries[0] : null;
+    }
+
+    private static function entry( $row ) {
+        $data = SurveyJS_Client::decode_survey_json( $row->json );
+        return (object) array(
+            'id'         => (int) $row->id,
+            'form_id'    => (int) $row->form_id,
+            'status'     => $row->status,
+            'user_id'    => (int) $row->user_id,
+            'ip'         => (string) $row->ip,
+            'created_at' => $row->created_at,
+            'last_page'  => (int) $row->last_page,
+            'kept'       => (bool) $row->kept,
+            'data'       => is_array( $data ) ? $data : array(),
+        );
+    }
+
     public static function counts( $form_id ) {
         global $wpdb;
         $table = self::table();

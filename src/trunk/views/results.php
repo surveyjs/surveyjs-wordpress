@@ -86,6 +86,14 @@ class SurveyJS_Results {
             exit;
         }
 
+        if ( '' !== $action && isset( $_REQUEST['result'] ) && has_action( 'surveyjs_entries_bulk_action_' . $action ) ) {
+            check_admin_referer( 'bulk-results' );
+            $ids = array_filter( array_map( 'absint', (array) wp_unslash( $_REQUEST['result'] ) ) );
+            do_action( 'surveyjs_entries_bulk_action_' . $action, $ids, $survey, $results_url );
+            wp_safe_redirect( add_query_arg( array( 'message' => 'updated', 'count' => count( $ids ) ), $results_url ) );
+            exit;
+        }
+
         if ( ! empty( $_GET['_wp_http_referer'] ) ) {
             wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
             exit;
@@ -135,10 +143,73 @@ class SurveyJS_Results {
         fclose( $output );
     }
 
+    public static function views( $survey ) {
+        $views = apply_filters( 'surveyjs_results_views', array( 'entries' => __( 'Entries', 'surveyjs' ) ), $survey );
+        return is_array( $views ) && $views ? $views : array( 'entries' => __( 'Entries', 'surveyjs' ) );
+    }
+
+    public static function current_view( $survey ) {
+        $views = self::views( $survey );
+        $view = sanitize_key( wp_unslash( $_GET['view'] ?? '' ) );
+        return isset( $views[ $view ] ) ? $view : (string) array_key_first( $views );
+    }
+
+    public static function view_url( $survey, $view ) {
+        return SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array_filter( array(
+            'id'   => $survey->id,
+            'view' => array_key_first( self::views( $survey ) ) === $view ? '' : $view,
+        ) ) );
+    }
+
+    private static function export_url( $survey ) {
+        return wp_nonce_url(
+            SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array_filter( array(
+                'id'     => $survey->id,
+                'action' => 'export',
+                'status' => SurveyJS_Entries::PARTIAL === SurveyJS_Results_List_Table::current_status() ? SurveyJS_Entries::PARTIAL : '',
+            ) ) ),
+            'surveyjs-export-results_' . $survey->id
+        );
+    }
+
+    private static function render_header( $survey, $current_view ) {
+        $views = self::views( $survey );
+        ?>
+        <h1 class="wp-heading-inline">
+            <?php
+            /* translators: %s: form name */
+            printf( esc_html__( '%s: Results', 'surveyjs' ), esc_html( $survey->name ) );
+            ?>
+        </h1>
+        <a href="<?php echo esc_url( self::export_url( $survey ) ); ?>" class="page-title-action"><?php esc_html_e( 'Export CSV', 'surveyjs' ); ?></a>
+        <?php do_action( 'surveyjs_results_title_actions', $survey, $current_view ); ?>
+        <hr class="wp-header-end">
+        <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Forms', 'surveyjs' ); ?></a></p>
+        <?php if ( count( $views ) > 1 ) : ?>
+            <nav class="nav-tab-wrapper wp-sjs-results__views">
+                <?php foreach ( $views as $view => $label ) : ?>
+                    <a href="<?php echo esc_url( self::view_url( $survey, $view ) ); ?>" class="nav-tab<?php echo $view === $current_view ? ' nav-tab-active' : ''; ?>"<?php echo $view === $current_view ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $label ); ?></a>
+                <?php endforeach; ?>
+            </nav>
+        <?php endif; ?>
+        <?php
+    }
+
     public static function render() {
         $survey = self::load_survey();
         if ( ! $survey ) {
             wp_die( esc_html__( 'Form not found.', 'surveyjs' ) );
+        }
+
+        $current_view = self::current_view( $survey );
+        if ( 'entries' !== $current_view ) {
+            ?>
+            <div class="wrap">
+                <?php self::render_header( $survey, $current_view ); ?>
+                <?php do_action( 'surveyjs_render_results_view', $current_view, $survey ); ?>
+            </div>
+            <?php
+            return;
         }
 
         $json = SurveyJS_Client::decode_survey_json( $survey->json );
@@ -153,14 +224,6 @@ class SurveyJS_Results {
             /* translators: %s: number of updated results */
             'updated' => sprintf( _n( '%s result updated.', '%s results updated.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
         );
-        $export_url = wp_nonce_url(
-            SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array_filter( array(
-                'id'     => $survey->id,
-                'action' => 'export',
-                'status' => SurveyJS_Entries::PARTIAL === SurveyJS_Results_List_Table::current_status() ? SurveyJS_Entries::PARTIAL : '',
-            ) ) ),
-            'surveyjs-export-results_' . $survey->id
-        );
         $view_data = array(
             'survey'    => empty( $json ) ? new stdClass() : SurveyJS_Client::decode_survey_json( $survey->json, false ),
             'results'   => $table->get_items_data(),
@@ -170,15 +233,7 @@ class SurveyJS_Results {
         );
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline">
-                <?php
-                /* translators: %s: form name */
-                printf( esc_html__( '%s: Results', 'surveyjs' ), esc_html( $survey->name ) );
-                ?>
-            </h1>
-            <a href="<?php echo esc_url( $export_url ); ?>" class="page-title-action"><?php esc_html_e( 'Export CSV', 'surveyjs' ); ?></a>
-            <hr class="wp-header-end">
-            <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Forms', 'surveyjs' ); ?></a></p>
+            <?php self::render_header( $survey, $current_view ); ?>
 
             <?php if ( isset( $messages[ $message ] ) ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>

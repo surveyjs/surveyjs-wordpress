@@ -11,6 +11,19 @@ class SurveyJS_Editor {
         return apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' );
     }
 
+    public static function tabs( $survey ) {
+        $tabs = array(
+            'survey'  => __( 'Config', 'surveyjs' ),
+            'theme'   => __( 'Theme', 'surveyjs' ),
+            'email'   => __( 'Email Notification', 'surveyjs' ),
+            'entries' => __( 'Entries', 'surveyjs' ),
+            'spam'    => __( 'Spam Protection', 'surveyjs' ),
+            'resume'  => __( 'Save & Resume', 'surveyjs' ),
+        );
+        $tabs = apply_filters( 'surveyjs_editor_tabs', $tabs, $survey );
+        return is_array( $tabs ) ? array_filter( array_map( 'strval', $tabs ), 'strlen' ) : array();
+    }
+
     private static function gdpr_agreement() {
         $privacy_url = get_privacy_policy_url();
         $privacy = $privacy_url
@@ -56,8 +69,10 @@ class SurveyJS_Editor {
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $captcha_configured = SurveyJS_Captcha::is_configured();
+        $tabs = self::tabs( $survey );
+        $first_tab = (string) array_key_first( $tabs );
         ?>
-        <div class="wrap wp-sjs-editor">
+        <div class="wrap wp-sjs-editor" data-active-tab="<?php echo esc_attr( $first_tab ); ?>">
             <hr class="wp-header-end">
             <div class="wp-sjs-editor__header">
                 <a href="<?php echo esc_url( $list_url ); ?>" class="button"><?php esc_html_e( 'Back', 'surveyjs' ); ?></a>
@@ -74,12 +89,9 @@ class SurveyJS_Editor {
             <div id="wp-sjs-editor-notice"></div>
 
             <nav class="nav-tab-wrapper wp-sjs-editor__tabs">
-                <a href="#" class="nav-tab nav-tab-active" data-tab="survey"><?php esc_html_e( 'Config', 'surveyjs' ); ?></a>
-                <a href="#" class="nav-tab" data-tab="theme"><?php esc_html_e( 'Theme', 'surveyjs' ); ?></a>
-                <a href="#" class="nav-tab" data-tab="email"><?php esc_html_e( 'Email Notification', 'surveyjs' ); ?></a>
-                <a href="#" class="nav-tab" data-tab="entries"><?php esc_html_e( 'Entries', 'surveyjs' ); ?></a>
-                <a href="#" class="nav-tab" data-tab="spam"><?php esc_html_e( 'Spam Protection', 'surveyjs' ); ?></a>
-                <a href="#" class="nav-tab" data-tab="resume"><?php esc_html_e( 'Save & Resume', 'surveyjs' ); ?></a>
+                <?php foreach ( $tabs as $tab => $label ) : ?>
+                    <a href="#" class="nav-tab<?php echo $tab === $first_tab ? ' nav-tab-active' : ''; ?>" data-tab="<?php echo esc_attr( $tab ); ?>"><?php echo esc_html( $label ); ?></a>
+                <?php endforeach; ?>
                 <button type="button" class="button button-primary wp-sjs-editor__save" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </nav>
 
@@ -295,6 +307,7 @@ class SurveyJS_Editor {
                         </table>
                     </div>
                 </div>
+                <?php do_action( 'surveyjs_render_editor', $survey ); ?>
                 <div class="wp-sjs-editor__preview">
                     <p class="description wp-sjs-editor__preview-note"><?php esc_html_e( 'Depending on your site\'s theme, the form on a real page may look slightly different from this preview.', 'surveyjs' ); ?></p>
                     <iframe id="wp-sjs-preview" class="wp-sjs-editor__preview-frame" title="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>"></iframe>

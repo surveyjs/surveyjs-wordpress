@@ -97,6 +97,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
                 esc_html__( 'Delete', 'surveyjs' )
             ),
         );
+        $actions = apply_filters( 'surveyjs_form_row_actions', $actions, $item );
 
         return sprintf(
             '<strong><a class="row-title" href="%s">%s</a></strong>%s',

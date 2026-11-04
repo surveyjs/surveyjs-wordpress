@@ -4,6 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class SurveyJS_Form_Settings {
 
     public static function defaults() {
+        return apply_filters( 'surveyjs_form_settings_defaults', self::base_defaults() );
+    }
+
+    public static function base_defaults() {
         return array(
             'storeEntries'          => true,
             'saveResume'            => false,
@@ -54,9 +58,13 @@ class SurveyJS_Form_Settings {
         return '' !== $value ? $value : ( self::fallbacks()[ $key ] ?? '' );
     }
 
-    public static function get( $survey ) {
+    private static function stored( $survey ) {
         $stored = json_decode( (string) ( $survey->settings ?? '' ), true );
-        $stored = is_array( $stored ) ? array_intersect_key( $stored, self::defaults() ) : array();
+        return is_array( $stored ) ? $stored : array();
+    }
+
+    public static function get( $survey ) {
+        $stored = array_intersect_key( self::stored( $survey ), self::defaults() );
         if ( ! isset( $stored['themeMode'] ) && ! empty( array_filter( SurveyJS_Client::decode_survey_json( $survey->theme ?? '' ) ) ) ) {
             // Forms styled before the adaptive theme existed keep their SurveyJS theme.
             $stored['themeMode'] = 'surveyjs';
@@ -64,8 +72,16 @@ class SurveyJS_Form_Settings {
         return array_merge( self::defaults(), $stored );
     }
 
-    public static function sanitize( $input ) {
+    // Pass $survey when the result replaces its stored settings: keys no plugin declares right now
+    // (e.g. Pro's while Pro is inactive) are kept instead of being dropped.
+    public static function sanitize( $input, $survey = null ) {
         $input = array_merge( self::defaults(), is_array( $input ) ? $input : array() );
+        $sanitized = apply_filters( 'surveyjs_form_settings_sanitize', self::sanitize_base( $input ), $input );
+        $sanitized = array_intersect_key( is_array( $sanitized ) ? $sanitized : array(), self::defaults() );
+        return $survey ? $sanitized + array_diff_key( self::stored( $survey ), self::defaults() ) : $sanitized;
+    }
+
+    private static function sanitize_base( $input ) {
         return array(
             'storeEntries'          => ! empty( $input['storeEntries'] ),
             'saveResume'            => ! empty( $input['saveResume'] ),

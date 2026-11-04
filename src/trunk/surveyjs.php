@@ -14,6 +14,7 @@ License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=Lic
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
+    define( 'SURVEYJS_VERSION', '2.5.6' );
     define( 'SURVEYJS_DB_VERSION', '4' );
 
     function wps_install() {

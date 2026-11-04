@@ -3,20 +3,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SurveyJS_SettingsPage {
 
+    const PAGE = 'surveyjs-settings-page';
+    const OPTION_GROUP = 'surveyjs-settings-group';
+
     function __construct() {
         $this->add_hooks();
     }
 
     private function add_hooks() {
         add_action( "admin_init", array( $this, 'init' ) );
-	}
-
-	public static function get_license_key() {
-		$settings = (array) get_option( 'surveyjs-settings' );
-		if ( isset( $settings['license_key'] ) ) {
-			return $settings['license_key'];
-		}
-		return "";
 	}
 
 	public static function option( $key ) {
@@ -29,9 +24,6 @@ class SurveyJS_SettingsPage {
 			'type'              => 'array',
 			'sanitize_callback' => array( $this, 'sanitize_settings' ),
 		) );
-
-		add_settings_section( 'sjs-license-key-section', esc_html__( 'Set License Key', 'surveyjs' ), array($this, 'sjs_license_key_section'), 'surveyjs-settings-page' );
-		add_settings_field( 'license_key', esc_html__( 'License Key', 'surveyjs' ), array($this, 'set_license_key_render'), 'surveyjs-settings-page', 'sjs-license-key-section' );
 
 		add_settings_section( 'sjs-data-section', esc_html__( 'Entries and Data', 'surveyjs' ), '__return_false', 'surveyjs-settings-page' );
 		add_settings_field( 'store_ip', esc_html__( 'IP addresses', 'surveyjs' ), array( $this, 'render_checkbox' ), 'surveyjs-settings-page', 'sjs-data-section', array(
@@ -49,14 +41,16 @@ class SurveyJS_SettingsPage {
 		add_settings_field( 'captcha_site_key', esc_html__( 'Site Key', 'surveyjs' ), array( $this, 'captcha_site_key_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-site-key' ) );
 		add_settings_field( 'captcha_secret_key', esc_html__( 'Secret Key', 'surveyjs' ), array( $this, 'captcha_secret_key_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-secret-key' ) );
 		add_settings_field( 'captcha_threshold', esc_html__( 'Score Threshold', 'surveyjs' ), array( $this, 'captcha_threshold_render' ), 'surveyjs-settings-page', 'sjs-captcha-section', array( 'label_for' => 'sjs-captcha-threshold' ) );
+
+		do_action( 'surveyjs_register_settings', self::PAGE, self::OPTION_GROUP );
     }
 
 	public function sanitize_settings( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		$current = (array) get_option( 'surveyjs-settings' );
 		$sanitized = array();
-		if ( isset( $input['license_key'] ) ) {
-			$sanitized['license_key'] = sanitize_text_field( $input['license_key'] );
+		if ( isset( $current['license_key'] ) ) {
+			$sanitized['license_key'] = sanitize_text_field( $current['license_key'] );
 		}
 		$sanitized['store_ip'] = ! empty( $input['store_ip'] );
 		$sanitized['uninstall_data'] = ! empty( $input['uninstall_data'] );
@@ -128,35 +122,15 @@ class SurveyJS_SettingsPage {
 		<?php
 	}
 
-	public function sjs_license_key_section() {
-		esc_html_e( 'setting your license key', 'surveyjs' );
-		if ( isset( $_GET["settings-updated"] ) && sanitize_text_field($_GET["settings-updated"]) ) {
-			flush_rewrite_rules( true );
-			echo "<div style='color: #179d82;'>" . esc_html__( 'Successfully updated!', 'surveyjs' ) . "</div>";
-		}
-	}
 
-	public function set_license_key_render() {
-		$settings = (array) get_option( 'surveyjs-settings' );
-		$license_key = '';
-
-		if (isset($settings['license_key']))
-		{
-			$license_key = esc_attr( $settings['license_key'] );
-		}
-		$value = '';
-		if ($license_key )
-		{
-			echo "<input type='text' placeholder='put the license key here...' name='surveyjs-settings[license_key]' id='surveyjs-settings[license_key]' value='" . esc_attr( $license_key ) . "' style='width: 350px;'/>";
-		} else {
-			echo "<input type='text' placeholder='put the license key here...' name='surveyjs-settings[license_key]' id='surveyjs-settings[license_key]' style='width: 350px;'/>";
-		}
-	}
 
 	public static function surveyjs_render_settings() {
 		?>
 		<div class="wrap">
             <h2><?php esc_html_e( 'SurveyJS Settings', 'surveyjs' ); ?></h2>
+            <?php if ( ! empty( $_GET['settings-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+                <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Successfully updated!', 'surveyjs' ); ?></p></div>
+            <?php endif; ?>
             <form action="options.php" method="POST">
                 <?php settings_fields( 'surveyjs-settings-group' ); ?>
                 <?php do_settings_sections( 'surveyjs-settings-page' ); ?>
