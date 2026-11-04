@@ -208,6 +208,11 @@
     line-height: 16px;
 }
 
+.wp-sjs-editor__pane-header .wp-sjs-editor__pro-link {
+    flex-basis: 100%;
+    text-align: right;
+}
+
 .wp-sjs-editor__columns {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

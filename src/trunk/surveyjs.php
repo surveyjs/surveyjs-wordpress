@@ -51,6 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include_once( __DIR__ . "/db_install.php" );
     include_once( __DIR__ . "/privacy.php" );
     include_once( __DIR__ . "/admin_bar.php" );
+    include_once( __DIR__ . "/upsell.php" );
     include("survey_values.php");
     include("form_settings.php");
     include("surveyjs_themes.php");
@@ -96,6 +97,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     SurveyJS_Entries::init();
     SurveyJS_Privacy::init();
     SurveyJS_Admin_Bar::init();
+    SurveyJS_Upsell::init();
 
     include("initializer.php");
     new SurveyJS_SurveyJS();

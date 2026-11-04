@@ -100,6 +100,7 @@ class SurveyJS_Editor {
                     <div class="wp-sjs-editor__pane-header">
                         <span class="description"><?php esc_html_e( 'Prefer a visual editor? Edit this form in the free online UI Builder.', 'surveyjs' ); ?></span>
                         <button type="button" class="button wp-sjs-editor__ui-builder" id="wp-sjs-ui-builder"><?php esc_html_e( 'Open in free UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
+                        <?php SurveyJS_Upsell::render_editor_link(); ?>
                     </div>
                     <div class="wp-sjs-editor__theme-mode" id="wp-sjs-theme-mode" hidden>
                         <label for="wp-sjs-theme-mode-adaptive"><input type="checkbox" id="wp-sjs-theme-mode-adaptive" data-setting="themeMode" data-checked-value="adaptive" data-unchecked-value="surveyjs" /> <?php esc_html_e( 'Adaptive: use your site\'s theme styles', 'surveyjs' ); ?></label>
