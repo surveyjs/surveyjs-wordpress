@@ -63,7 +63,8 @@ class SurveyJS_Editor {
             'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
             'themesUrl' => SurveyJS_Themes::url(),
             'surveyCssUrl' => plugins_url( '../libs/library/survey-core.min.css', __FILE__ ),
-            'previewUrl' => add_query_arg( 'surveyjs_preview', '1', home_url( '/' ) ),
+            'previewUrl' => add_query_arg( 'surveyjs_preview', '1', SurveyJS_SurveyJS::full_preview_url() ?: home_url( '/' ) ),
+            'fullPreviewUrl' => SurveyJS_SurveyJS::full_preview_url(),
             'uiBuilderUrl' => self::ui_builder_url(),
             'gdpr'      => self::gdpr_agreement(),
         );
@@ -92,6 +93,7 @@ class SurveyJS_Editor {
                 <?php foreach ( $tabs as $tab => $label ) : ?>
                     <a href="#" class="nav-tab<?php echo $tab === $first_tab ? ' nav-tab-active' : ''; ?>" data-tab="<?php echo esc_attr( $tab ); ?>"><?php echo esc_html( $label ); ?></a>
                 <?php endforeach; ?>
+                <button type="button" class="button wp-sjs-editor__full-preview" id="wp-sjs-full-preview" aria-controls="wp-sjs-preview-panel" aria-expanded="false"><span class="dashicons dashicons-visibility" aria-hidden="true"></span><?php esc_html_e( 'Open full preview', 'surveyjs' ); ?></button>
                 <button type="button" class="button button-primary wp-sjs-editor__save" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </nav>
 
@@ -309,9 +311,13 @@ class SurveyJS_Editor {
                     </div>
                 </div>
                 <?php do_action( 'surveyjs_render_editor', $survey ); ?>
-                <div class="wp-sjs-editor__preview">
-                    <p class="description wp-sjs-editor__preview-note"><?php esc_html_e( 'Depending on your site\'s theme, the form on a real page may look slightly different from this preview.', 'surveyjs' ); ?></p>
+                <div class="wp-sjs-editor__preview" id="wp-sjs-preview-panel">
+                    <div class="wp-sjs-editor__preview-bar">
+                        <p class="description wp-sjs-editor__preview-note"><?php esc_html_e( 'Depending on your site\'s theme, the form on a real page may look slightly different from this preview.', 'surveyjs' ); ?></p>
+                        <button type="button" class="button wp-sjs-editor__preview-close" id="wp-sjs-preview-close" hidden><span class="dashicons dashicons-no-alt" aria-hidden="true"></span><?php esc_html_e( 'Close preview', 'surveyjs' ); ?></button>
+                    </div>
                     <iframe id="wp-sjs-preview" class="wp-sjs-editor__preview-frame" title="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>"></iframe>
+                    <iframe id="wp-sjs-full-preview-frame" class="wp-sjs-editor__preview-frame wp-sjs-editor__preview-frame--full" title="<?php esc_attr_e( 'Form preview on a page of your site', 'surveyjs' ); ?>"></iframe>
                 </div>
             </div>
         </div>

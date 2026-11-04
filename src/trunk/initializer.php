@@ -15,6 +15,7 @@ class SurveyJS_SurveyJS {
     const BLOCK_SCRIPT = 'surveyjs-block-js';
     const MENU_SLUG = 'surveyjs-main-menu';
     const CAPABILITY = 'manage_options';
+    const FULL_PREVIEW_PAGE_OPTION = 'surveyjs_full_preview_page_id';
     const CORE_SCRIPT = 'wps-front--survey.core.min.js';
     const UI_SCRIPT = 'wps-front--survey-js-ui.min.js';
     const CORE_STYLE = 'wps-front--survey-core.min.css';
@@ -39,6 +40,8 @@ class SurveyJS_SurveyJS {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         // Before _wp_admin_bar_init (priority 0) so the admin bar stays off in the preview.
         add_action('template_redirect', array($this, 'render_preview_page'), -1);
+        add_action('template_redirect', array($this, 'prepare_full_preview_page'), -1);
+        add_action('pre_get_posts', array($this, 'hide_full_preview_page'));
 
         add_action('init', array($this, 'register_surveyjs_gutenberg_block'));
         add_action('enqueue_block_editor_assets', array($this, 'localize_block_editor'));
@@ -143,6 +146,75 @@ class SurveyJS_SurveyJS {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_preview_assets' ) );
         include plugin_dir_path( __FILE__ ) . 'views/preview.php';
         exit;
+    }
+
+    // The full preview needs a real page so the theme renders it with its own page template, header and footer.
+    // Forms are not posts, so a private page, seen only by admins, stands in for the page the form will be placed on.
+    public static function full_preview_page_id() {
+        $page_id = (int) get_option( self::FULL_PREVIEW_PAGE_OPTION );
+        $page = $page_id ? get_post( $page_id ) : null;
+        if ( $page && 'page' === $page->post_type && 'private' === $page->post_status ) {
+            return $page_id;
+        }
+        $page_id = wp_insert_post( array(
+            'post_type'      => 'page',
+            'post_status'    => 'private',
+            'post_title'     => __( 'Form Preview', 'surveyjs' ),
+            'post_content'   => '',
+            'comment_status' => 'closed',
+            'ping_status'    => 'closed',
+        ) );
+        if ( ! $page_id || is_wp_error( $page_id ) ) {
+            return 0;
+        }
+        update_option( self::FULL_PREVIEW_PAGE_OPTION, $page_id, false );
+        return $page_id;
+    }
+
+    public static function full_preview_url() {
+        $page_id = self::full_preview_page_id();
+        return $page_id ? get_permalink( $page_id ) : '';
+    }
+
+    private static function is_full_preview_page() {
+        $page_id = (int) get_option( self::FULL_PREVIEW_PAGE_OPTION );
+        return $page_id && is_page( $page_id );
+    }
+
+    public function prepare_full_preview_page() {
+        if ( ! self::is_full_preview_page() ) {
+            return;
+        }
+        if ( ! current_user_can( self::CAPABILITY ) ) {
+            wp_die( esc_html__( 'Sorry, you are not allowed to preview forms.', 'surveyjs' ), 403 );
+        }
+        nocache_headers();
+        show_admin_bar( false );
+        add_filter( 'wp_robots', 'wp_robots_no_robots' );
+        add_filter( 'private_title_format', array( $this, 'full_preview_title_format' ) );
+        add_filter( 'the_content', array( $this, 'full_preview_content' ), PHP_INT_MAX );
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_preview_assets' ) );
+    }
+
+    public function full_preview_title_format() {
+        return '%s';
+    }
+
+    public function full_preview_content( $content ) {
+        if ( ! in_the_loop() || ! is_main_query() ) {
+            return $content;
+        }
+        return '<div class="wp-sjs-plugin"><div class="wp-sjs-survey" id="wp-sjs-preview-survey"></div></div>';
+    }
+
+    public function hide_full_preview_page( $query ) {
+        if ( ! is_admin() || ! $query->is_main_query() || 'page' !== $query->get( 'post_type' ) ) {
+            return;
+        }
+        $page_id = (int) get_option( self::FULL_PREVIEW_PAGE_OPTION );
+        if ( $page_id ) {
+            $query->set( 'post__not_in', array_merge( (array) $query->get( 'post__not_in' ), array( $page_id ) ) );
+        }
     }
 
     public function enqueue_preview_assets() {

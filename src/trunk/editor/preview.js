@@ -5,6 +5,7 @@
     const adapterTokenSelector = ".wp-sjs-adaptive .sjs-theme-overrides";
     const corePalette = /^--wp--preset--color--(black|white|cyan-bluish-gray|pale-pink|vivid-red|luminous-vivid-orange|luminous-vivid-amber|light-green-cyan|vivid-green-cyan|pale-cyan-blue|vivid-cyan-blue|vivid-purple|[\w-]*(global-color|palette)[\w-]*)$/;
     const siteVariable = /var\(--(sjs-wp-|ast-|global-palette|e-global-|wp--preset--)|inherit|currentColor/;
+    const SCROLL_OFFSET = 16;
     let lastMessage = null;
 
     function renderMarkdownLinks(_, options) {
@@ -44,7 +45,7 @@
             if (focusQuestion.page) model.currentPage = focusQuestion.page;
             model.onAfterRenderQuestion.add((_, options) => {
                 if (options.question !== focusQuestion) return;
-                const top = options.htmlElement.getBoundingClientRect().top + window.scrollY - 16;
+                const top = options.htmlElement.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
                 window.scrollTo({ top: top, behavior: "smooth" });
             });
         }
@@ -232,6 +233,20 @@
             render(event.data);
         }
     });
+
+    // The theme's header and footer are only a backdrop here: following their links or forms would navigate the preview frame away.
+    document.addEventListener("click", (event) => {
+        const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+        if (link && !container.contains(link) && !link.getAttribute("href").startsWith("#")) event.preventDefault();
+    }, true);
+    document.addEventListener("submit", (event) => {
+        if (!container.contains(event.target)) event.preventDefault();
+    }, true);
+    // Captured before a dropdown or menu handles Escape, so Escape that closes one does not also close the full preview.
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || document.querySelector("[aria-expanded=\"true\"]")) return;
+        window.parent.postMessage({ type: "surveyjs-preview-escape" }, editorOrigin);
+    }, true);
 
     window.parent.postMessage({ type: "surveyjs-preview-ready", site: siteData(), adaptiveTheme: adaptiveTheme() }, editorOrigin);
 })();

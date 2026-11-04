@@ -3,6 +3,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit;
 
 function surveyjs_uninstall_site() {
     global $wpdb;
+    $preview_page_id = (int) get_option( 'surveyjs_full_preview_page_id' );
+    if ( $preview_page_id ) {
+        wp_delete_post( $preview_page_id, true );
+        delete_option( 'surveyjs_full_preview_page_id' );
+    }
     $settings = (array) get_option( 'surveyjs-settings' );
     if ( empty( $settings['uninstall_data'] ) ) {
         return;

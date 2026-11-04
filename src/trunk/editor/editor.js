@@ -25,7 +25,10 @@
     const monacoElement = document.getElementById("wp-sjs-monaco");
     const lintElement = document.getElementById("wp-sjs-lint");
     const previewElement = document.getElementById("wp-sjs-preview");
+    const fullPreviewElement = document.getElementById("wp-sjs-full-preview-frame");
     const previewOrigin = new URL(config.previewUrl).origin;
+    const fullPreviewButton = document.getElementById("wp-sjs-full-preview");
+    const previewCloseButton = document.getElementById("wp-sjs-preview-close");
     const rootElement = document.querySelector(".wp-sjs-editor");
     const tabs = document.querySelectorAll(".wp-sjs-editor__tabs .nav-tab");
     const jsonPane = document.getElementById("wp-sjs-json-pane");
@@ -91,6 +94,9 @@
     let saveNotice = null;
     let previewFocusName = null;
     let previewReady = false;
+    let fullPreviewReady = false;
+    let fullPreviewOpen = false;
+    let fullPreviewReturnFocus = null;
     let siteData = null;
     let adaptiveTheme = null;
     let themeTokens = null;
@@ -660,27 +666,37 @@
     }
 
     function renderPreview() {
-        if (!previewReady) return;
+        if (!previewReady && !fullPreviewReady) return;
         const survey = parse(sources.survey);
         const theme = parse(sources.theme);
         if (!survey.json || !theme.json) return;
         const focusName = previewFocusName;
         previewFocusName = null;
-        previewElement.contentWindow.postMessage({
+        const message = {
             type: "surveyjs-preview-render",
             json: survey.json,
             theme: theme.json,
             themeMode: checkboxValue(themeModeCheckbox),
             transparentBackground: transparentBackgroundCheckbox.checked,
-            checkContrast: contrastCheckPending,
+            checkContrast: false,
             focusName: focusName
-        }, previewOrigin);
-        contrastCheckPending = false;
+        };
+        if (fullPreviewReady) fullPreviewElement.contentWindow.postMessage(message, previewOrigin);
+        if (previewReady) {
+            previewElement.contentWindow.postMessage(Object.assign({}, message, { checkContrast: contrastCheckPending }), previewOrigin);
+            contrastCheckPending = false;
+        }
     }
 
     function onPreviewMessage(event) {
-        if (event.source !== previewElement.contentWindow || event.origin !== previewOrigin) return;
-        if (event.data && event.data.type === "surveyjs-preview-ready") {
+        if (event.origin !== previewOrigin) return;
+        const fromFullPreview = event.source === fullPreviewElement.contentWindow;
+        if (!fromFullPreview && event.source !== previewElement.contentWindow) return;
+        if (fromFullPreview && event.data && event.data.type === "surveyjs-preview-ready") {
+            fullPreviewReady = true;
+            rootElement.classList.remove("wp-sjs-editor--preview-loading");
+            renderPreview();
+        } else if (event.data && event.data.type === "surveyjs-preview-ready") {
             previewReady = true;
             siteData = event.data.site || null;
             adaptiveTheme = event.data.adaptiveTheme || null;
@@ -690,6 +706,30 @@
         } else if (event.data && event.data.type === "surveyjs-preview-contrast" && event.data.issues.length > 0) {
             const issues = event.data.issues.map((issue) => issue.element + " " + issue.ratio + ":1");
             aiMessage("warning", "Some text may be hard to read (contrast below 4.5:1):", issues, true);
+        } else if (event.data && event.data.type === "surveyjs-preview-escape") {
+            setFullPreview(false);
+        }
+    }
+
+    function setFullPreview(open) {
+        if (open === fullPreviewOpen) return;
+        fullPreviewOpen = open;
+        if (open) fullPreviewReturnFocus = document.activeElement;
+        rootElement.classList.toggle("wp-sjs-editor--full-preview", open);
+        document.body.classList.toggle("wp-sjs-editor-full-preview-open", open);
+        fullPreviewButton.setAttribute("aria-expanded", String(open));
+        previewCloseButton.hidden = !open;
+        document.dispatchEvent(new CustomEvent("surveyjs:editor-full-preview", { detail: { open: open } }));
+        if (open && !fullPreviewElement.getAttribute("src")) {
+            rootElement.classList.add("wp-sjs-editor--preview-loading");
+            fullPreviewElement.src = config.fullPreviewUrl;
+        }
+        if (open) {
+            previewCloseButton.focus();
+        } else {
+            const returnFocus = fullPreviewReturnFocus && fullPreviewReturnFocus.isConnected && fullPreviewReturnFocus !== document.body ? fullPreviewReturnFocus : fullPreviewButton;
+            fullPreviewReturnFocus = null;
+            returnFocus.focus();
         }
     }
 
@@ -1371,6 +1411,12 @@
     window.addEventListener("message", onUiBuilderMessage);
     window.addEventListener("message", onPreviewMessage);
     previewElement.src = config.previewUrl;
+    fullPreviewButton.hidden = !config.fullPreviewUrl;
+    fullPreviewButton.addEventListener("click", () => setFullPreview(true));
+    previewCloseButton.addEventListener("click", () => setFullPreview(false));
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && fullPreviewOpen) setFullPreview(false);
+    });
     nameEditButton.addEventListener("click", () => {
         nameInput.value = saved.name;
         nameView.hidden = true;
@@ -1411,7 +1457,8 @@
             if (tabNames.includes(tab) && (editor || !(tab in sources))) switchTab(tab);
         },
         isDirty: isDirty,
-        save: save
+        save: save,
+        isFullPreviewOpen: () => fullPreviewOpen
     };
     document.dispatchEvent(new CustomEvent("surveyjs:editor-ready", { detail: window.surveyjsEditor }));
 

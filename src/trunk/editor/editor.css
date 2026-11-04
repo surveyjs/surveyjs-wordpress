@@ -30,6 +30,25 @@
     margin: 0 0 4px auto;
 }
 
+.wp-sjs-editor__tabs .wp-sjs-editor__full-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 8px 4px auto;
+}
+
+.wp-sjs-editor__tabs .wp-sjs-editor__full-preview ~ .wp-sjs-editor__save {
+    margin-left: 0;
+}
+
+.wp-sjs-editor__full-preview .dashicons,
+.wp-sjs-editor__preview-close .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
 .wp-sjs-editor__pane-header {
     display: flex;
     flex-wrap: wrap;
@@ -276,11 +295,45 @@
     background: #fff;
 }
 
-.wp-sjs-editor__preview-note {
-    margin: 0;
+.wp-sjs-editor__preview-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px 12px;
     padding: 8px 12px;
     border-bottom: 1px solid #c3c4c7;
     background: #f6f7f7;
+}
+
+.wp-sjs-editor__preview-note {
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+.wp-sjs-editor__preview-close {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+}
+
+.wp-sjs-editor__preview-close[hidden] {
+    display: none;
+}
+
+/* Above the admin bar (99999) and SurveyJS popups (2000). The extra classes outrank rules that hide the preview
+   on some tabs, such as those of SurveyJS Pro, which load later. */
+.wp-sjs-editor.wp-sjs-editor--full-preview .wp-sjs-editor__columns > .wp-sjs-editor__preview {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    width: auto;
+    height: auto;
+    border: 0;
+}
+
+body.wp-sjs-editor-full-preview-open {
+    overflow: hidden;
 }
 
 .wp-sjs-editor__preview-frame {
@@ -474,4 +527,17 @@
 
 .wp-sjs-lint-line-highlight {
     background: rgba(34, 113, 177, 0.12);
+}
+
+.wp-sjs-editor__preview-frame--full,
+.wp-sjs-editor--full-preview #wp-sjs-preview {
+    display: none;
+}
+
+.wp-sjs-editor--full-preview .wp-sjs-editor__preview-frame--full {
+    display: block;
+}
+
+.wp-sjs-editor--preview-loading .wp-sjs-editor__preview-frame--full {
+    visibility: hidden;
 }
