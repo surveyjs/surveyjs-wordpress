@@ -15,7 +15,7 @@ class SurveyJS_Upsell {
         if ( ! self::enabled() ) {
             return;
         }
-        wp_add_inline_style( 'admin-menu', '#adminmenu .wp-submenu a.wp-sjs-upgrade-pro,#adminmenu .wp-submenu a.wp-sjs-upgrade-pro:hover,#adminmenu .wp-submenu a.wp-sjs-upgrade-pro:focus{background:#00a32a;color:#fff}' );
+        wp_add_inline_style( 'admin-menu', '#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:hover,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:focus{background:#00a32a;color:#fff}' );
     }
 
     public static function enabled() {
@@ -37,7 +37,7 @@ class SurveyJS_Upsell {
             return;
         }
         // A full URL as the slug makes WordPress print it as the menu link href instead of an admin.php?page= link.
-        add_submenu_page( $parent_slug, esc_html__( 'Upgrade to Pro', 'surveyjs' ), esc_html__( 'Upgrade to Pro', 'surveyjs' ), $capability, esc_url( self::url( 'admin-menu' ) ) );
+        add_submenu_page( $parent_slug, esc_html__( 'Get Pro – Free', 'surveyjs' ), esc_html__( 'Get Pro – Free', 'surveyjs' ), $capability, esc_url( self::url( 'admin-menu' ) ) );
         global $submenu;
         if ( ! empty( $submenu[ $parent_slug ] ) ) {
             end( $submenu[ $parent_slug ] );
@@ -52,7 +52,7 @@ class SurveyJS_Upsell {
         $admin_bar->add_node( array(
             'parent' => SurveyJS_Admin_Bar::NODE,
             'id'     => SurveyJS_Admin_Bar::NODE . '-upgrade',
-            'title'  => esc_html__( 'Upgrade to Pro', 'surveyjs' ),
+            'title'  => esc_html__( 'Get Pro – Free', 'surveyjs' ),
             'href'   => self::url( 'admin-bar' ),
             'meta'   => array( 'target' => '_blank', 'rel' => 'noopener' ),
         ) );
