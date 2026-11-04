@@ -104,10 +104,14 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
         $order = 'asc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'ASC' : 'DESC';
         $orderby = 'id' === sanitize_key( $_REQUEST['orderby'] ?? '' ) ? "id $order" : "created_at $order, id $order";
         $status = self::current_status();
+        $entry = absint( $_REQUEST['entry'] ?? 0 );
 
         $where = 'WHERE form_id = %d';
         $args = array( $this->survey_id );
-        if ( '' !== $status ) {
+        if ( $entry ) {
+            $where .= ' AND id = %d';
+            $args[] = $entry;
+        } elseif ( '' !== $status ) {
             $where .= ' AND status = %s';
             $args[] = $status;
         } else {

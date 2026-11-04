@@ -330,6 +330,11 @@ class SurveyJS_Results {
                         }
                     });
                 });
+                var entryId = parseInt(new URLSearchParams(window.location.search).get("entry"), 10);
+                var entryLink = entryId ? document.querySelector(".wp-sjs-view-result[data-result-id=\"" + entryId + "\"]") : null;
+                if (entryLink) {
+                    entryLink.click();
+                }
             })();
         </script>
         <?php
