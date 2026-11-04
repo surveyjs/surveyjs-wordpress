@@ -18,7 +18,8 @@ class SurveyJS_Admin_Bar {
         }
         wp_add_inline_style( 'admin-bar', '#wpadminbar #wp-admin-bar-surveyjs .ab-icon:before{content:"\f175";top:2px}'
             . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count{display:inline-block;box-sizing:border-box;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#d63638;color:#fff;font-size:11px;line-height:18px;text-align:center;vertical-align:middle}'
-            . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count--expiring{background:#dba617;color:#1d2327}' );
+            . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count--expiring{background:#dba617;color:#1d2327}'
+            . '#wpadminbar #wp-admin-bar-surveyjs-upgrade>.ab-item,#wpadminbar #wp-admin-bar-surveyjs-upgrade>.ab-item:focus,#wpadminbar #wp-admin-bar-surveyjs-upgrade:hover>.ab-item{background:#00a32a;color:#fff}' );
     }
 
     private static function admin_url( $page, $args = array() ) {
