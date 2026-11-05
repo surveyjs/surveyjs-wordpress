@@ -110,6 +110,29 @@
         };
     }
 
+    function dispatch(name, detail) {
+        document.dispatchEvent(new CustomEvent("surveyjs:" + name, { detail: detail }));
+    }
+
+    function extraSubmitFields(detail) {
+        const fields = {};
+        const pending = [];
+        dispatch("before-submit", Object.assign({}, detail, {
+            fields: fields,
+            waitUntil: (promise) => pending.push(Promise.resolve(promise).then(
+                (extra) => extra && typeof extra === "object" && Object.assign(fields, extra),
+                (error) => console.error("Error: ", error)
+            ))
+        }));
+        return Promise.all(pending).then(() => fields);
+    }
+
+    function requestBody(fields) {
+        const body = Object.values(fields).some((value) => value instanceof Blob) ? new FormData() : new URLSearchParams();
+        Object.entries(fields).forEach(([key, value]) => body.append(key, value));
+        return body;
+    }
+
     function withTransparentBackground(theme) {
         const cssVariables = Object.assign({}, theme && theme.cssVariables, {
             "--sjs2-color-utility-body": "transparent",
@@ -149,13 +172,20 @@
         }
 
         function saveResult(data, fields) {
+            const detail = { id: config.id, survey: survey, config: config, container: container, data: data };
             return (partial ? partial.idle() : Promise.resolve())
-                .then(() => fetch(config.saveResultUrl, {
+                .then(() => extraSubmitFields(detail))
+                .then((extra) => fetch(config.saveResultUrl, {
                     method: "POST",
-                    body: new URLSearchParams(Object.assign({ SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, partial ? partial.fields() : {}, fields))
+                    body: requestBody(Object.assign(extra, { SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, partial ? partial.fields() : {}, fields))
                 }))
                 .then((response) => {
-                    if (response.ok && partial) partial.clear();
+                    if (response.ok) {
+                        if (partial) partial.clear();
+                        response.clone().json()
+                            .then((result) => result && result.success ? result.data : null, () => null)
+                            .then((result) => dispatch("submitted", Object.assign({ response: result }, detail)));
+                    }
                     return response;
                 });
         }

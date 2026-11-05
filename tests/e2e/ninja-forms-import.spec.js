@@ -152,7 +152,7 @@ test.describe("import from Ninja Forms", () => {
     expect(json.completeText).toBe("Send");
     expect(json.completedHtml).toBe("<p>Thanks, {first_name}!</p>");
 
-    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true }).click();
     await expect(page.getByLabel("Send an email when the form is submitted")).toBeChecked();
     await expect(page.getByLabel("Send To")).toHaveValue("{admin_email}");
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");

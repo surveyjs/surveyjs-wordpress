@@ -280,6 +280,7 @@ class SurveyJS_SurveyJS {
 
     private function enqueue_frontend_assets($row) {
         $json = SurveyJS_Client::decode_survey_json($row->json, false);
+        $settings = SurveyJS_Form_Settings::get( $row );
         wp_enqueue_style('wps-survey-override-css');
         wp_enqueue_style('wps-front--survey-core.min.css');
         $surveyScript = wp_scripts()->query('wps-front--survey.js');
@@ -293,7 +294,7 @@ class SurveyJS_SurveyJS {
         if ( isset($json->locale) && is_string($json->locale) ) {
             $locales[] = strtolower($json->locale);
         }
-        if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
+        if ( SurveyJS_Captcha::is_enabled( $settings ) ) {
             SurveyJS_Captcha::enqueue_script();
         }
         $this->collect_survey_locales($json, $locales);
@@ -309,6 +310,8 @@ class SurveyJS_SurveyJS {
             }
         }
         wp_enqueue_script('wps-front--survey.js');
+
+        do_action( 'surveyjs_enqueue_form_assets', $row, $settings );
     }
 
     private function collect_survey_locales($node, &$locales) {
@@ -397,6 +400,7 @@ class SurveyJS_SurveyJS {
         if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['captcha'] = SurveyJS_Captcha::client_config();
         }
+        $config = apply_filters( 'surveyjs_form_client_config', $config, $row, SurveyJS_Form_Settings::get( $row ) );
 
         ob_start();
         ?>

@@ -17,7 +17,7 @@ Working draft of what the Base plugin does. Source for the future `readme.txt` a
 - Tabs:
   - **Config** — survey JSON in a code editor with validation (linter), Format button and live preview.
   - **Theme** — theme JSON, same editor and preview.
-  - **Email Notification** — see [Email](#email).
+  - **Email** — see [Email](#email).
   - **Entries** — "Save submitted entries in the database" (on by default).
 - **Open in free UI Builder** — opens the survey in the free online visual builder on surveyjs.io; the edited JSON comes back to the editor. The plugin works without it.
 

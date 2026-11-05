@@ -6,6 +6,7 @@ class SurveyJS_Uploaded_Files {
     const CAPABILITY      = 'manage_options';
     const CLEANUP_HOOK    = 'surveyjs_cleanup_uploads';
     const CLEANUP_BATCH   = 500;
+    const DELETE_HOOK     = 'surveyjs_delete_sent_files';
     const DOWNLOAD_ACTION = 'SurveyJS_DownloadFile';
     const INLINE_TYPES    = array( 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'pdf' );
 
@@ -185,6 +186,14 @@ class SurveyJS_Uploaded_Files {
         }
     }
 
+    // Mail plugins that queue emails read the attachments later, so files of unsaved entries outlive the request.
+    public static function delete_later( $paths ) {
+        $names = array_values( array_filter( array_map( 'wp_basename', (array) $paths ), array( self::class, 'is_valid_name' ) ) );
+        if ( $names ) {
+            wp_schedule_single_event( time() + DAY_IN_SECONDS, self::DELETE_HOOK, array( $names ) );
+        }
+    }
+
     public static function schedule_cleanup() {
         if ( ! wp_next_scheduled( self::CLEANUP_HOOK ) ) {
             wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::CLEANUP_HOOK );
@@ -193,6 +202,7 @@ class SurveyJS_Uploaded_Files {
 
     public static function unschedule_cleanup() {
         wp_clear_scheduled_hook( self::CLEANUP_HOOK );
+        wp_unschedule_hook( self::DELETE_HOOK );
     }
 
     public static function cleanup() {

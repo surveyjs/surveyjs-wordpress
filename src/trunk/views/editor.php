@@ -15,7 +15,7 @@ class SurveyJS_Editor {
         $tabs = array(
             'survey'  => __( 'Config', 'surveyjs' ),
             'theme'   => __( 'Theme', 'surveyjs' ),
-            'email'   => __( 'Email Notification', 'surveyjs' ),
+            'email'   => __( 'Email', 'surveyjs' ),
             'entries' => __( 'Entries', 'surveyjs' ),
             'spam'    => __( 'Spam Protection', 'surveyjs' ),
             'resume'  => __( 'Save & Resume', 'surveyjs' ),
@@ -268,6 +268,7 @@ class SurveyJS_Editor {
                                 </div>
                             </td>
                         </tr>
+                        <?php do_action( 'surveyjs_editor_email_rows', 'notification', $survey ); ?>
                     </table>
                     <div role="group" aria-labelledby="wp-sjs-auto-reply-title">
                         <h2 class="title" id="wp-sjs-auto-reply-title"><?php esc_html_e( 'Auto-reply', 'surveyjs' ); ?></h2>
@@ -307,8 +308,10 @@ class SurveyJS_Editor {
                                     </div>
                                 </td>
                             </tr>
+                            <?php do_action( 'surveyjs_editor_email_rows', 'auto_reply', $survey ); ?>
                         </table>
                     </div>
+                    <?php do_action( 'surveyjs_editor_email_rows', 'end', $survey ); ?>
                 </div>
                 <?php do_action( 'surveyjs_render_editor', $survey ); ?>
                 <div class="wp-sjs-editor__preview" id="wp-sjs-preview-panel">

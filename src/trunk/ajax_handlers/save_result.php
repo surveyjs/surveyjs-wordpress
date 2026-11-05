@@ -59,13 +59,18 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             SurveyJS_Drafts::delete( get_current_user_id(), $SurveyId );
 
             $data = json_decode( $Json, true );
-            SurveyJS_Notification::send( $survey, $settings, $data );
+            SurveyJS_Notification::send( $survey, $settings, $data, $entry_id );
 
             do_action( 'wp_surveyjs_save_result', $survey->id, $Json, 'sjs_results', $entry_id );
 
             if ( ! $settings['storeEntries'] && is_array( $data ) ) {
                 $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
-                array_map( 'wp_delete_file', SurveyJS_Uploaded_Files::entry_paths( $questions, $data ) );
+                SurveyJS_Uploaded_Files::delete_later( SurveyJS_Uploaded_Files::entry_paths( $questions, $data ) );
+            }
+
+            $response = apply_filters( 'surveyjs_save_result_response', array(), $survey, $entry_id, is_array( $data ) ? $data : array() );
+            if ( ! empty( $response ) && is_array( $response ) ) {
+                wp_send_json_success( $response );
             }
         }
     }

@@ -36,7 +36,7 @@ test.describe("email notification", () => {
   test("adds and removes the Reply-To question with the checkbox", async ({ page }) => {
     name = uniqueName("E2E reply-to");
     await createSurvey(page, name);
-    const settingsTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" });
+    const settingsTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true });
     const addQuestion = page.getByLabel("Add a Reply-To question (email) to the form");
     const replyTo = page.getByLabel("Reply-To", { exact: true });
     const editorJson = async () => JSON.parse(await page.evaluate(() => window.monaco.editor.getEditors()[0].getModel().getValue()));
@@ -67,7 +67,7 @@ test.describe("email notification", () => {
     const autoReplySubject = `E2E auto-reply ${Date.now()}`;
     const surveyId = await createSurvey(page, name, CONTACT_JSON);
 
-    const emailTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" });
+    const emailTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true });
     const entriesTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Entries" });
     const notificationSubject = page.locator("#wp-sjs-notification-subject");
     const autoReply = page.getByRole("group", { name: "Auto-reply" });
@@ -128,7 +128,7 @@ test.describe("email notification", () => {
 
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Entries" }).click();
     await page.getByLabel("Save submitted entries in the database").uncheck();
-    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true }).click();
     await page.getByLabel("Send an email when the form is submitted").check();
     await page.getByLabel("Send To").fill("owner@example.com");
     await page.locator("#wp-sjs-notification-subject").fill(subject);

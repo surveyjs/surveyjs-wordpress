@@ -204,7 +204,7 @@ test.describe("import from Fluent Forms", () => {
     expect(json).toMatchObject({ completeText: "Register", pageNextText: "Continue", pagePrevText: "Back", showProgressBar: true });
     expect(json.completedHtml).toContain("Thanks, {name_first}!");
 
-    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true }).click();
     await expect(page.getByLabel("Send an email when the form is submitted")).toBeChecked();
     await expect(page.getByLabel("Send To")).toHaveValue("{admin_email}");
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");

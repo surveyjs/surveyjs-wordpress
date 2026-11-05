@@ -363,7 +363,7 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             if ( $recipient && empty( $settings['notificationReplyTo'] ) ) {
                 $settings['notificationReplyTo'] = $recipient;
             } elseif ( $recipient !== ( $settings['notificationReplyTo'] ?? '' ) ) {
-                $notes[] = __( 'The auto-reply is sent to the Reply-To field; check it on the Email Notification tab.', 'surveyjs' );
+                $notes[] = __( 'The auto-reply is sent to the Reply-To field; check it on the Email tab.', 'surveyjs' );
             }
         }
         $notes = array_values( array_unique( $notes ) );

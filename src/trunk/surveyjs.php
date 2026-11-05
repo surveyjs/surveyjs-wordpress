@@ -92,6 +92,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     new SurveyJS_DownloadFile();
 
     add_action( SurveyJS_Uploaded_Files::CLEANUP_HOOK, array( 'SurveyJS_Uploaded_Files', 'cleanup' ) );
+    add_action( SurveyJS_Uploaded_Files::DELETE_HOOK, array( 'SurveyJS_Uploaded_Files', 'delete_unreferenced' ) );
     add_action( 'admin_init', array( 'SurveyJS_UploadFiles', 'maybe_update_upload_dir_guards' ) );
     SurveyJS_Forms::init();
     SurveyJS_Entries::init();

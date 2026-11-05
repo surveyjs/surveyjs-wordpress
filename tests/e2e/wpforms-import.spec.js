@@ -70,7 +70,7 @@ test.describe("import from WPForms", () => {
     expect(json.elements[1].startWithNewLine).toBe(false);
     expect(json.completedHtml).toContain("Thanks for contacting us!");
 
-    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email Notification" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true }).click();
     await expect(page.getByLabel("Send an email when the form is submitted")).toBeChecked();
     await expect(page.getByLabel("Send To")).toHaveValue("{admin_email}");
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");

@@ -6,7 +6,7 @@ class SurveyJS_Notification {
     // Gmail and Outlook reject emails over ~25 MB, and base64 encoding adds ~33%.
     const MAX_ATTACHMENTS_SIZE = 18 * MB_IN_BYTES;
 
-    public static function send( $survey, $settings, $data ) {
+    public static function send( $survey, $settings, $data, $entry_id = 0 ) {
         if ( empty( $settings['notificationEnabled'] ) && empty( $settings['autoReplyEnabled'] ) ) {
             return;
         }
@@ -18,8 +18,13 @@ class SurveyJS_Notification {
             $value_tags[ '{field:' . $question['name'] . '}' ] = self::raw_value( $data[ $question['name'] ] ?? null );
         }
         $respondent_tags = self::field_tags( $survey, $questions, $data, false );
-        // Without stored entries the files are deleted right after sending, so a link would be dead.
+        // Without stored entries the files are deleted a day after sending, so a link would soon be dead.
         $owner_tags = empty( $settings['storeEntries'] ) ? $respondent_tags : self::field_tags( $survey, $questions, $data, true );
+        $respondent_tags = apply_filters( 'surveyjs_notification_tags', $respondent_tags, 'respondent', $survey, $data, (int) $entry_id );
+        $owner_tags = apply_filters( 'surveyjs_notification_tags', $owner_tags, 'owner', $survey, $data, (int) $entry_id );
+        $attachments = function ( $key, $recipient ) use ( $settings, $data, $survey, $entry_id ) {
+            return apply_filters( 'surveyjs_notification_attachments', self::attachments( $settings[ $key ], $data ), $recipient, $survey, $settings, $data, (int) $entry_id );
+        };
 
         $value = function ( $key, $tags, $html = false ) use ( $settings ) {
             $template = SurveyJS_Form_Settings::value( $settings, $key );
@@ -35,13 +40,13 @@ class SurveyJS_Notification {
         if ( $notify ) {
             $html = ! empty( $settings['notificationHtml'] );
             $headers = self::headers( $from, $respondent_email, $html );
-            wp_mail( $to, $value( 'notificationSubject', $respondent_tags ), $value( 'notificationMessage', $owner_tags, $html ), $headers, self::attachments( $settings['notificationAttachments'], $data ) );
+            wp_mail( $to, $value( 'notificationSubject', $respondent_tags ), $value( 'notificationMessage', $owner_tags, $html ), $headers, $attachments( 'notificationAttachments', 'owner' ) );
         }
 
         if ( ! empty( $settings['autoReplyEnabled'] ) && $respondent_email ) {
             $html = ! empty( $settings['autoReplyHtml'] );
             $headers = self::headers( $from, $notify ? implode( ', ', $to ) : get_option( 'admin_email' ), $html );
-            wp_mail( $respondent_email, $value( 'autoReplySubject', $respondent_tags ), $value( 'autoReplyMessage', $respondent_tags, $html ), $headers, self::attachments( $settings['autoReplyAttachments'], $data ) );
+            wp_mail( $respondent_email, $value( 'autoReplySubject', $respondent_tags ), $value( 'autoReplyMessage', $respondent_tags, $html ), $headers, $attachments( 'autoReplyAttachments', 'respondent' ) );
         }
     }
 
