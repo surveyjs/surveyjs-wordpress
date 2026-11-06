@@ -1,0 +1,201 @@
+/* WordPress -> SurveyJS adapter: the survey takes the look of the WordPress site it is embedded in.
+
+   In the plugin every selector is scoped to .wp-sjs-adaptive: survey-core puts .sjs-theme-overrides on
+   every survey root, and a form with a SurveyJS theme on the same page must stay untouched.
+
+   Load order (always after the base style sheet), and no model.applyTheme(...):
+     import "survey-core/survey-core.css";
+     import "survey-core/themes/adapters/wordpress.css";
+
+   WordPress has no common component library, so every slot resolves in this order:
+     1. --sjs-wp-*            set by the runtime style probe or by the site owner
+     2. popular theme palettes: Astra (--ast-global-color-*), Kadence (--global-palette*),
+        Elementor (--e-global-color-*)
+     3. theme.json presets (--wp--preset--color--primary / base / contrast); block themes such as
+        Twenty Twenty-Four/Five style buttons with "contrast" on "base", which is why "contrast"
+        is the primary fallback
+     4. the surrounding text (inherit / currentColor), then a literal
+
+   Public slots:
+     --sjs-wp-primary, --sjs-wp-primary-foreground   button background / text
+     --sjs-wp-primary-text                           accent used as text, set when the button color is too light for text
+     --sjs-wp-foreground                             body text
+     --sjs-wp-surface                                input and popup background
+     --sjs-wp-input-border                           input border
+     --sjs-wp-font-family, --sjs-wp-font-size, --sjs-wp-line-height
+     --sjs-wp-radius, --sjs-wp-button-radius
+     --sjs-wp-button-padding-vertical, --sjs-wp-button-padding-horizontal
+     --sjs-wp-button-font-size, --sjs-wp-button-font-weight, --sjs-wp-button-line-height
+     --sjs-wp-error */
+.wp-sjs-adaptive .sjs-theme-overrides {
+  --sjs2-color-project-brand-600: var(--sjs-wp-primary, var(--ast-global-color-0, var(--global-palette1, var(--e-global-color-accent, var(--wp--preset--color--primary, var(--wp--preset--color--contrast, #19b394))))));
+  --sjs2-color-project-brand-700: color-mix(in srgb, var(--sjs2-color-project-brand-600) 85%, var(--sjs2-color-fg-basic-primary));
+  --sjs2-color-fg-brand-on-primary: var(--sjs-wp-primary-foreground, var(--global-palette9, var(--wp--preset--color--base, #fff)));
+  --sjs2-color-fg-brand-primary: var(--sjs-wp-primary-text, var(--sjs2-color-project-brand-600));
+
+  --sjs2-typography-font-family-text: var(--sjs-wp-font-family, inherit);
+  --sjs2-typography-font-size-default: var(--sjs-wp-font-size, 1rem);
+  --sjs2-typography-line-height-default: var(--sjs-wp-line-height, 1.5);
+  --sjs2-typography-font-size-small: calc(var(--sjs2-typography-font-size-default) * 0.875);
+  --sjs2-typography-font-size-component-question-description: var(--sjs2-typography-font-size-small);
+
+  --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-color-bg-basic-primary: var(--sjs-wp-surface, var(--ast-global-color-5, var(--global-palette9, var(--wp--preset--color--base, #fff))));
+  --sjs2-color-bg-basic-secondary: var(--sjs2-color-bg-basic-primary);
+  --sjs2-color-utility-sheet: var(--sjs2-color-bg-basic-primary);
+
+  --sjs2-color-fg-basic-primary: var(--sjs-wp-foreground, currentColor);
+  --sjs2-color-fg-basic-secondary: color-mix(in srgb, var(--sjs2-color-fg-basic-primary) 65%, transparent);
+  --sjs2-color-fg-basic-tertiary: var(--sjs2-color-fg-basic-secondary);
+
+  --sjs2-color-border-basic-secondary: color-mix(in srgb, var(--sjs2-color-fg-basic-primary) 20%, transparent);
+  --sjs2-color-component-formbox-default-border: var(--sjs-wp-input-border, color-mix(in srgb, var(--sjs2-color-fg-basic-primary) 35%, transparent));
+  --sjs2-color-component-formbox-hovered-border: color-mix(in srgb, var(--sjs2-color-component-formbox-default-border) 60%, var(--sjs2-color-fg-basic-primary));
+  --sjs2-color-border-brand-primary: var(--sjs2-color-project-brand-600);
+  --sjs2-color-utility-a11y: color-mix(in srgb, var(--sjs2-color-project-brand-600) 25%, transparent);
+
+  --sjs2-color-component-radio-false-default-border: var(--sjs2-color-component-formbox-default-border);
+  --sjs2-color-component-radio-false-hovered-border: var(--sjs2-color-component-formbox-hovered-border);
+  --sjs2-color-component-checkbox-false-default-border: var(--sjs2-color-component-formbox-default-border);
+  --sjs2-color-component-checkbox-false-hovered-border: var(--sjs2-color-component-formbox-hovered-border);
+  --sjs2-color-component-boolean-default-border: var(--sjs2-color-component-formbox-default-border);
+
+  --sjs2-radius-form: var(--sjs-wp-radius, 4px);
+  --sjs2-radius-form-item: min(var(--sjs2-radius-form), 4px);
+  --sjs2-radius-component-action: var(--sjs-wp-button-radius, var(--sjs2-radius-form));
+  --sjs2-layout-component-action-large-box-padding-vertical: var(--sjs-wp-button-padding-vertical, var(--sjs2-spacing-x200));
+  --sjs2-layout-component-action-large-box-padding-horizontal: var(--sjs-wp-button-padding-horizontal, calc(var(--sjs2-spacing-x200) * 2));
+  --sjs2-layout-component-action-large-label-padding-horizontal: 0px;
+  --sjs2-typography-font-size-component-action-large-content: var(--sjs-wp-button-font-size, var(--sjs2-typography-font-size-default));
+  --sjs2-typography-font-weight-component-action-large-content: var(--sjs-wp-button-font-weight, var(--sjs2-typography-font-weight-strong));
+  --sjs2-typography-line-height-component-action-large-content: var(--sjs-wp-button-line-height, var(--sjs2-typography-line-height-default));
+  --sjs2-radius-component-drop: var(--sjs2-radius-form);
+  --sjs2-radius-component-panel: var(--sjs2-radius-form);
+
+  --sjs2-layout-component-question-header-gap-vertical: 0.125rem;
+  --sjs2-layout-component-question-box-gap-vertical: 0.5rem;
+  --sjs2-layout-component-survey-box-padding-top: 0px;
+  --sjs2-layout-component-survey-box-padding-bottom: 0px;
+  --sjs2-layout-component-page-content-area-padding-horizontal: 0px;
+  --sjs2-layout-component-survey-header-padding-horizontal: 0px;
+  --sjs2-layout-component-survey-title-padding-horizontal: 0px;
+  --sjs2-layout-component-survey-description-padding-horizontal: 0px;
+  --sjs2-layout-component-survey-footer-padding-horizontal: 0px;
+  --sjs2-layout-component-survey-box-gap-vertical: 1.5rem;
+  --sjs2-layout-component-page-box-gap-vertical: 1.5rem;
+  --sjs2-layout-component-page-content-area-gap-vertical: 1.5rem;
+  --sjs2-layout-component-page-content-area-gap-horizontal: 1rem;
+  --sjs2-layout-component-panel-content-area-gap-vertical: 1.5rem;
+  --sjs2-layout-component-panel-content-area-gap-horizontal: 1rem;
+
+  --sjs2-color-component-panel-default-bg: transparent;
+  --sjs2-color-component-panel-default-separator: var(--sjs2-color-border-basic-secondary);
+
+  --sjs2-color-component-panel-simple-default-bg: transparent;
+  --sjs2-color-component-panel-simple-default-border: transparent;
+  --sjs2-radius-component-panel-simple: 0px;
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-simple-content-area-padding-top: 0px;
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: 0px;
+
+  --sjs2-layout-component-matrix-box-padding-top: 0px;
+  --sjs2-layout-component-matrix-box-padding-bottom: 0px;
+  --sjs2-layout-component-matrix-cell-left-padding-left: 0px;
+  --sjs2-layout-component-matrix-cell-right-padding-right: 0px;
+  --sjs2-layout-component-matrix-header-cell-left-padding-left: 0px;
+  --sjs2-layout-component-matrix-header-cell-right-padding-right: 0px;
+
+  --sjs2-color-utility-shadow-trigger-default: transparent;
+
+  --sjs2-palette-red-600: var(--sjs-wp-error, #cc1818);
+  --sjs2-palette-red-700: color-mix(in srgb, var(--sjs2-palette-red-600) 85%, #000);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-question--table.sd-question--with-frame,
+.wp-sjs-adaptive .sjs-theme-overrides .sd-composite.sd-question--with-frame {
+  --sd-question-container-background: transparent;
+  --sd-question-container-box-shadow: none;
+  --sd-question-container-border-radius: 0px;
+  --sd-question-header-padding-inline: 0px;
+  --sd-question-header-border-bottom: none;
+}
+
+/* .sd-root-modern paints --sjs2-color-utility-body under the survey; that token also backs sticky
+   matrix cells, so the root background is cleared here instead of making the token transparent. */
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides {
+  background-color: transparent;
+}
+
+/* With zero horizontal paddings the controls touch .sv-scroll__scroller, whose overflow clips their
+   focus rings; the padding gives the rings room and the negative margin keeps the survey aligned. */
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides {
+  width: calc(100% + 8px);
+  margin-inline: -4px;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sv-scroll__container {
+  padding-inline: 4px;
+}
+
+/* Themes style every input and button on the page (input[type="text"], button, [type="button"], :hover),
+   which outranks the single-class survey-core rules, so the survey's own controls get them back here. */
+.wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input,
+.wp-sjs-adaptive .sjs-theme-overrides .sd-dropdown__filter-string-input {
+  height: auto;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  background: none;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input {
+  min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
+  padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+  color: var(--sjs2-color-component-input-default-value);
+  font-family: var(--sjs2-typography-font-family-component-input-content), inherit;
+  font-size: var(--sjs2-typography-font-size-component-input-content);
+  font-weight: var(--sjs2-typography-font-weight-component-input-content);
+  line-height: var(--sjs2-typography-line-height-component-input-content);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-dropdown__filter-string-input {
+  padding: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: var(--sd-action-padding);
+  border: none;
+  border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action));
+  box-shadow: none;
+  background: var(--sd-action-background);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action--border {
+  box-shadow: var(--sd-action-boxshadow);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
+  background: var(--sd-action-hover-background);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
+  box-shadow: var(--sd-action-hover-box-shadow);
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sv-header--mobile {
+  padding-top: calc(var(--sjs2-layout-component-survey-header-padding-top) + var(--sjs2-layout-component-survey-box-padding-top));
+  padding-inline: var(--sjs2-layout-component-survey-header-padding-horizontal);
+}

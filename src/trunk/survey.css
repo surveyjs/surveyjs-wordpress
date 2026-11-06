@@ -1,36 +1,117 @@
-.wp-sjs-plugin {
-    margin: 10px;
+.wp-sjs-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
 }
 
-.wp-sjs-plugin label {
-    font-weight: initial;
-    color: #6d7072;
+.wp-sjs-captcha:not([hidden]) {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
 }
 
-.wp-sjs-plugin h5 {
-    letter-spacing: initial;
+.wp-sjs-survey:empty {
+    min-height: 400px;
+}
+
+/* Themes such as Twenty Twenty-One draw their own box for every input[type="checkbox"] and "radio",
+   which outranks survey-core's single-class rule and shows the native control next to SurveyJS's one. */
+.wp-sjs-survey .sd-visuallyhidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    opacity: 0;
+}
+
+/* Same control reset as themes/wordpress.css, for forms with a SurveyJS theme: the site theme styles
+   input[type="text"] and button too, and its rules outrank the single-class survey-core ones. */
+.wp-sjs-survey .sjs-theme-overrides .sd-formbox__input,
+.wp-sjs-survey .sjs-theme-overrides .sd-dropdown__filter-string-input {
+    height: auto;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    background: none;
+    letter-spacing: normal;
     text-transform: none;
 }
 
-.wp-sjs-plugin input[type="text"]:focus {
-    border-color: initial;
-    outline: none;
-    outline-offset: none;
+.wp-sjs-survey .sjs-theme-overrides .sd-formbox__input {
+    min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
+    padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+    color: var(--sjs2-color-component-input-default-value);
+    font-family: var(--sjs2-typography-font-family-component-input-content), inherit;
+    font-size: var(--sjs2-typography-font-size-component-input-content);
+    font-weight: var(--sjs2-typography-font-weight-component-input-content);
+    line-height: var(--sjs2-typography-line-height-component-input-content);
 }
 
-.wp-sjs-plugin input[type="text"] {
-    -webkit-backface-visibility: initial;
-    background: initial;
-    border: none;
-    box-sizing: initial;
-    outline: none;
+.wp-sjs-survey .sjs-theme-overrides .sd-dropdown__filter-string-input {
     padding: 0;
-    -webkit-appearance: none;
-    outline-offset: 0;
-    border-radius: 0;
+    color: inherit;
+    font: inherit;
 }
 
-.wp-sjs-plugin .sv-dropdown_clean-button {
-    padding-top: 0;
-    padding-bottom: 0;
+.wp-sjs-survey .sjs-theme-overrides .sd-action {
+    width: auto;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: var(--sd-action-padding);
+    border: none;
+    border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action));
+    box-shadow: none;
+    background: var(--sd-action-background);
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.wp-sjs-survey .sjs-theme-overrides .sd-action--border {
+    box-shadow: var(--sd-action-boxshadow);
+}
+
+.wp-sjs-survey .sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
+.wp-sjs-survey .sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
+    background: var(--sd-action-hover-background);
+}
+
+.wp-sjs-survey .sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
+    box-shadow: var(--sd-action-hover-box-shadow);
+}
+
+.wp-sjs-draft-notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border: 1px solid rgba(127, 127, 127, 0.4);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.wp-sjs-plugin .wp-sjs-draft-notice__start-over {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: normal;
+    text-decoration: underline;
+    text-transform: none;
+    cursor: pointer;
 }

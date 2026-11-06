@@ -6,96 +6,128 @@ class SurveyJS_MySurveys {
     function __construct() {
     }
 
+    public static function handle_actions() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        require_once __DIR__ . '/surveys_list_table.php';
+        $list_url = SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' );
+
+        $action = sanitize_key( wp_unslash( $_REQUEST['action'] ?? '' ) );
+        if ( '' === $action || '-1' === $action ) {
+            $action = sanitize_key( wp_unslash( $_REQUEST['action2'] ?? '' ) );
+        }
+
+        if ( 'add' === $action ) {
+            check_admin_referer( 'surveyjs-add-survey' );
+            $name = 'New Survey';
+            $id = SurveyJS_Forms::create( array( 'name' => $name ) );
+            if ( ! $id ) {
+                wp_die( esc_html__( 'The form could not be created.', 'surveyjs' ) );
+            }
+            wp_safe_redirect( SurveyJS_Surveys_List_Table::page_url( 'surveyjs_editor', array( 'id' => $id, 'name' => $name ) ) );
+            exit;
+        }
+
+        if ( 'clone' === $action ) {
+            $id = absint( $_GET['id'] ?? 0 );
+            check_admin_referer( 'surveyjs-clone-survey_' . $id );
+            $row = SurveyJS_Forms::find( $id );
+            if ( $row ) {
+                SurveyJS_Forms::create( array(
+                    'name' => sanitize_text_field( 'Copy of ' . $row->name ),
+                    'json' => $row->json,
+                    'theme' => $row->theme,
+                    'settings' => $row->settings,
+                ) );
+            }
+            wp_safe_redirect( add_query_arg( 'message', 'cloned', $list_url ) );
+            exit;
+        }
+
+        if ( 'delete' === $action ) {
+            if ( ! isset( $_REQUEST['survey'] ) && ! isset( $_GET['id'] ) ) {
+                wp_safe_redirect( $list_url );
+                exit;
+            }
+            if ( isset( $_REQUEST['survey'] ) ) {
+                check_admin_referer( 'bulk-surveys' );
+                $ids = array_map( 'absint', (array) wp_unslash( $_REQUEST['survey'] ) );
+            } else {
+                $id = absint( $_GET['id'] ?? 0 );
+                check_admin_referer( 'surveyjs-delete-survey_' . $id );
+                $ids = array( $id );
+            }
+            $deleted = count( array_filter( array_map( array( 'SurveyJS_Forms', 'delete' ), $ids ) ) );
+            wp_safe_redirect( add_query_arg( array( 'message' => 'deleted', 'count' => $deleted ), $list_url ) );
+            exit;
+        }
+
+        if ( ! empty( $_GET['_wp_http_referer'] ) ) {
+            wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+            exit;
+        }
+    }
+
     public static function render() {
-        $client = new SurveyJS_Client();
-        $editSurveyUri = add_query_arg(array('page' => 'surveyjs_editor'), admin_url('admin.php'));
-        $addSurveyUri = add_query_arg(array('action' => 'SurveyJS_AddSurvey'), admin_url('admin-ajax.php'));
-        $deleteSurveyUri = add_query_arg(array('action' => 'SurveyJS_DeleteSurvey'), admin_url('admin-ajax.php'));
-        $cloneSurveyUri = add_query_arg(array('action' => 'SurveyJS_CloneSurvey'), admin_url('admin-ajax.php'));
-        $addSurveyNonce = wp_create_nonce('surveyjs-add-survey');
-        $deleteSurveyNonce = wp_create_nonce("delete-survey-ajax-referer");
-        $cloneSurveyNonce = wp_create_nonce('surveyjs-clone-survey');
+        require_once __DIR__ . '/surveys_list_table.php';
+        $table = new SurveyJS_Surveys_List_Table();
+        $table->prepare_items();
+
+        $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
+        $message = sanitize_key( $_GET['message'] ?? '' );
+        $count = absint( $_GET['count'] ?? 0 );
+        $messages = array(
+            /* translators: %s: number of deleted surveys */
+            'deleted' => sprintf( _n( '%s form deleted.', '%s forms deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
+            'cloned'  => __( 'Form cloned.', 'surveyjs' ),
+        );
+        $add_url = wp_nonce_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu', array( 'action' => 'add' ) ), 'surveyjs-add-survey' );
         ?>
-            <script>
-                function addNewSurvey() {
-                    jQuery.ajax({
-                        url:  "<?php echo esc_url($addSurveyUri) ?>",
-                        type: "POST",
-                        data: { Name: "New Survey", _wpnonce: '<?php echo esc_js($addSurveyNonce); ?>' },
-                        success: function (data) {
-                            window.location = "<?php echo esc_url($editSurveyUri) ?>&id=" + data.Id + "&name=New Survey";
-                        }
-                    });
+        <div class="wrap">
+            <h1 class="wp-heading-inline"><?php esc_html_e( 'Forms', 'surveyjs' ); ?></h1>
+            <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
+            <?php foreach ( SurveyJS_Import::sources() as $source => $info ) : ?>
+                <?php if ( $info['importer']::forms() ) : ?>
+                    <a href="<?php echo esc_url( SurveyJS_Import::url( $source ) ); ?>" class="page-title-action"><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), $info['title'] ) ); ?></a>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            <?php if ( '' !== $search ) : ?>
+                <span class="subtitle">
+                    <?php
+                    /* translators: %s: search query */
+                    printf( esc_html__( 'Search results for: %s', 'surveyjs' ), '<strong>' . esc_html( $search ) . '</strong>' );
+                    ?>
+                </span>
+            <?php endif; ?>
+            <hr class="wp-header-end">
+
+            <?php SurveyJS_Welcome::render_compact(); ?>
+
+            <?php if ( isset( $messages[ $message ] ) ) : ?>
+                <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
+            <?php endif; ?>
+
+            <form method="get" id="wp-sjs-forms-list">
+                <input type="hidden" name="page" value="surveyjs-main-menu" />
+                <?php
+                $table->search_box( __( 'Search Forms', 'surveyjs' ), 'surveyjs-survey' );
+                $table->display();
+                ?>
+            </form>
+        </div>
+        <script>
+            document.getElementById("wp-sjs-forms-list").addEventListener("submit", function (event) {
+                var button = event.submitter;
+                if (!button || !/^doaction2?$/.test(button.id)) {
+                    return;
                 }
-                function deleteSurvey(id) {
-                    var res = confirm("This action CANNOT be undone! Are you ABSOLUTELY sure?");
-                    if (!res) return;
-                    jQuery.ajax({
-                        url:  "<?php echo esc_url($deleteSurveyUri)  ?>",
-                        type: "POST",
-                        data: { Id: id, _wpnonce: '<?php echo esc_js($deleteSurveyNonce); ?>' },
-                        success: function (data) {
-                            window.location = "";
-                        }
-                    });
+                var select = document.getElementById(button.id === "doaction2" ? "bulk-action-selector-bottom" : "bulk-action-selector-top");
+                if (select && select.value === "delete" && !window.confirm(<?php echo wp_json_encode( __( 'Delete the selected forms? All their entries and uploaded files will be deleted too. This cannot be undone.', 'surveyjs' ), JSON_HEX_TAG ); ?>)) {
+                    event.preventDefault();
                 }
-                function cloneSurvey(id) {
-                    jQuery.ajax({
-                        url:  "<?php echo esc_url($cloneSurveyUri)  ?>",
-                        type: "POST",
-                        data: { SurveyParentId: id, _wpnonce: '<?php echo esc_js($cloneSurveyNonce); ?>' },
-                        success: function (data) {
-                            window.location = "";
-                        }
-                    });
-                }
-            </script>
-            <div class="wp-sjs-plugin">
-                <div class="sv_main sv_frame sv_default_css">
-                    <div class="sv_custom_header"></div>
-                    <div class="sv_container">
-                        <div class="sv_header">
-                            <h3><?php esc_html_e( 'SurveyJS Wordpress plugin', 'surveyjs' ); ?></h3>
-                            <p>Below you can see the list of available surveys you can edit, run and see the results</p>
-                        </div>
-                        <div class="sv_body">
-                            <div id="surveys-list" class="surveys-list">
-                                <section>
-                                    <button style='min-width: 100px; color: white;background-color: #1ab394;border: none;padding: 6px;border-radius: 5px;' onclick="addNewSurvey()">Add Survey</button>
-                                </section>
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                            <td></td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        foreach ($client->getSurveys() as $surveyDefinition) {
-                                            $editUrl = add_query_arg(array('page' => 'surveyjs_editor', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
-                                            $resultsUrl = add_query_arg(array('page' => 'surveyjs_results', 'id' => $surveyDefinition->id, 'name' => $surveyDefinition->name), admin_url('admin.php'));
-                                        ?>
-                                        <tr>
-                                            <td><?php echo esc_html($surveyDefinition->name) ?></td>
-                                            <td>
-                                                <!-- <a class="sv_button_link" href="<?php echo sanitize_key($surveyDefinition->id) ?>">Run</a> -->
-                                                <a class="sv_button_link" href="<?php echo esc_url($editUrl) ?>">Edit</a>
-                                                <a class="sv_button_link" href="<?php echo esc_url($resultsUrl) ?>">Results</a>
-                                                <span class="sv_button_link" onclick="cloneSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Clone</span>
-                                                <span class="sv_button_link sv_button_delete" onclick="deleteSurvey(<?php echo sanitize_key($surveyDefinition->id) ?>)">Delete</span>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                        }
-                                        ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            });
+        </script>
         <?php
     }
 }

@@ -1,0 +1,543 @@
+.wp-sjs-editor__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.wp-sjs-editor__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.wp-sjs-editor__name[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor .wp-sjs-editor__name h1 {
+    margin-right: 0;
+}
+
+.wp-sjs-editor__tabs {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 12px;
+}
+
+.wp-sjs-editor__tabs .wp-sjs-editor__save {
+    margin: 0 0 4px auto;
+}
+
+.wp-sjs-editor__tabs .wp-sjs-editor__full-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 8px 4px auto;
+}
+
+.wp-sjs-editor__tabs .wp-sjs-editor__full-preview ~ .wp-sjs-editor__save {
+    margin-left: 0;
+}
+
+.wp-sjs-editor__full-preview .dashicons,
+.wp-sjs-editor__preview-close .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.wp-sjs-editor__pane-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #c3c4c7;
+    background: #f6f7f7;
+}
+
+.wp-sjs-editor__theme-mode {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 12px;
+    padding: 32px 12px;
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.wp-sjs-editor__media {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 8px;
+    padding: 32px 12px;
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.wp-sjs-editor__media .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wp-core-ui .wp-sjs-editor__media .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    vertical-align: middle;
+}
+
+.wp-sjs-editor__media .button[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__images {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+    gap: 4px;
+    margin: 4px 0 0;
+}
+
+.wp-sjs-editor__images[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__image {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.wp-sjs-editor__image img {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border: 1px solid #dcdcde;
+}
+
+.wp-sjs-editor__image-name {
+    flex: 0 1 auto;
+    max-width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wp-sjs-editor__image input {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12px;
+}
+
+.wp-sjs-editor__image-remove {
+    flex: none;
+    color: #646970;
+}
+
+.wp-sjs-editor__image-remove:hover,
+.wp-sjs-editor__image-remove:focus {
+    color: #d63638;
+}
+
+.wp-sjs-editor__pane.is-theme-json-locked .wp-sjs-editor__monaco {
+    opacity: 0.5;
+}
+
+.wp-sjs-editor__theme-mode[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__theme-preset {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+}
+
+.wp-sjs-editor__theme-mode .description {
+    flex-basis: 100%;
+    margin: 0 0 24px;
+}
+
+.wp-sjs-editor__ai-theme {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-basis: 100%;
+    gap: 16px 8px;
+    padding-top: 32px;
+    border-top: 1px solid #dcdcde;
+}
+
+.wp-sjs-editor__ai-theme .description {
+    margin-bottom: 0;
+}
+
+.wp-sjs-editor__ai-form {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+    gap: 8px;
+}
+
+.wp-sjs-editor__ai-form[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__ai-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#wp-sjs-ai-notice {
+    flex-basis: 100%;
+}
+
+#wp-sjs-ai-notice:empty {
+    display: none;
+}
+
+#wp-sjs-ai-notice .notice {
+    margin: 0;
+}
+
+#wp-sjs-ai-notice code {
+    font-size: 12px;
+}
+
+.wp-sjs-editor__pane-header .wp-sjs-editor__ui-builder {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.wp-sjs-editor__pane-header .wp-sjs-editor__ui-builder .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.wp-sjs-editor__pane-header .wp-sjs-editor__pro-link {
+    flex-basis: 100%;
+    text-align: right;
+}
+
+.wp-sjs-editor__columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.wp-sjs-editor__pane {
+    border: 1px solid #c3c4c7;
+    background: #fff;
+}
+
+.wp-sjs-editor__overlay {
+    position: sticky;
+    top: calc(var(--wp-admin--admin-bar--height, 32px) + 8px);
+    z-index: 20;
+    height: 0;
+}
+
+.wp-sjs-editor__overlay .wp-sjs-editor__format {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.wp-sjs-editor__pane:hover .wp-sjs-editor__format,
+.wp-sjs-editor__pane:focus-within .wp-sjs-editor__format {
+    opacity: 1;
+}
+
+.wp-sjs-editor__pane:has(.find-widget.visible) .wp-sjs-editor__format {
+    display: none;
+}
+
+.wp-sjs-editor__monaco {
+    min-height: 300px;
+}
+
+.wp-sjs-editor__settings {
+    min-width: 0;
+}
+
+.wp-sjs-editor__settings h2:first-child {
+    margin-top: 0;
+}
+
+.wp-sjs-editor__loading {
+    padding: 0 12px;
+    color: #646970;
+}
+
+.wp-sjs-editor__preview {
+    position: sticky;
+    top: calc(var(--wp-admin--admin-bar--height, 32px) + 16px);
+    height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 32px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+}
+
+.wp-sjs-editor__preview-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #c3c4c7;
+    background: #f6f7f7;
+}
+
+.wp-sjs-editor__preview-note {
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+.wp-sjs-editor__preview-close {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+}
+
+.wp-sjs-editor__preview-close[hidden] {
+    display: none;
+}
+
+/* Above the admin bar (99999) and SurveyJS popups (2000). The extra classes outrank rules that hide the preview
+   on some tabs, such as those of SurveyJS Pro, which load later. */
+.wp-sjs-editor.wp-sjs-editor--full-preview .wp-sjs-editor__columns > .wp-sjs-editor__preview {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    width: auto;
+    height: auto;
+    border: 0;
+}
+
+body.wp-sjs-editor-full-preview-open {
+    overflow: hidden;
+}
+
+.wp-sjs-editor__preview-frame {
+    display: block;
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+}
+
+@media (max-width: 960px) {
+    .wp-sjs-editor__columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wp-sjs-editor__preview {
+        position: static;
+        height: 70vh;
+    }
+}
+
+.wp-sjs-lint {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    border-top: 1px solid #c3c4c7;
+    background: #fff;
+}
+
+.wp-sjs-lint__bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+}
+
+.wp-sjs-lint__summary {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wp-sjs-lint__meta {
+    flex-shrink: 0;
+    color: #646970;
+    font-size: 12px;
+}
+
+.wp-sjs-lint .wp-sjs-lint__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.wp-sjs-lint .wp-sjs-lint__toggle:hover,
+.wp-sjs-lint .wp-sjs-lint__toggle:focus {
+    color: #135e96;
+}
+
+.wp-sjs-lint__toggle .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.wp-sjs-lint__details {
+    max-height: 288px;
+    overflow-y: auto;
+    padding: 4px 12px 12px;
+    border-top: 1px solid #f0f0f1;
+}
+
+.wp-sjs-lint__heading {
+    margin: 8px 0 0;
+    color: #646970;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.wp-sjs-lint__rule-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0 4px;
+    font-weight: 600;
+}
+
+.wp-sjs-lint__findings {
+    margin: 0;
+}
+
+.wp-sjs-lint__finding {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.wp-sjs-lint__finding:hover,
+.wp-sjs-lint__finding.is-selected {
+    border-color: #2271b1;
+    background: #f0f6fc;
+}
+
+.wp-sjs-lint__finding .description,
+.wp-sjs-lint__path {
+    display: block;
+    margin-top: 4px;
+}
+
+.wp-sjs-lint__path {
+    padding: 0;
+    background: none;
+    color: #646970;
+    font-size: 12px;
+}
+
+.wp-sjs-lint__passing {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2px 16px;
+    margin: 12px 0 0;
+    color: #646970;
+}
+
+.wp-sjs-lint__passing li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+}
+
+.wp-sjs-lint__icon-warning,
+.wp-sjs-lint__severity-warning {
+    color: #dba617;
+}
+
+.wp-sjs-lint__severity-error {
+    color: #d63638;
+}
+
+.wp-sjs-lint__severity-info {
+    color: #646970;
+}
+
+.wp-sjs-lint-glyph::before {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    margin: 6px auto;
+    border-radius: 50%;
+}
+
+.wp-sjs-lint-glyph-error::before {
+    background: #d63638;
+}
+
+.wp-sjs-lint-glyph-warning::before {
+    background: #dba617;
+}
+
+.wp-sjs-lint-glyph-info::before {
+    background: #646970;
+}
+
+.wp-sjs-lint-line {
+    width: 3px !important;
+    margin-left: 3px;
+}
+
+.wp-sjs-lint-line-error {
+    background: #d63638;
+}
+
+.wp-sjs-lint-line-warning {
+    background: #dba617;
+}
+
+.wp-sjs-lint-line-info {
+    background: #646970;
+}
+
+.wp-sjs-lint-line-highlight {
+    background: rgba(34, 113, 177, 0.12);
+}
+
+.wp-sjs-editor__preview-frame--full,
+.wp-sjs-editor--full-preview #wp-sjs-preview {
+    display: none;
+}
+
+.wp-sjs-editor--full-preview .wp-sjs-editor__preview-frame--full {
+    display: block;
+}
+
+.wp-sjs-editor--preview-loading .wp-sjs-editor__preview-frame--full {
+    visibility: hidden;
+}

@@ -1,76 +1,85 @@
 var el = wp.element.createElement;
 var registerBlockType = wp.blocks.registerBlockType;
-var SelectControl = wp.components.SelectControl;
-var InspectorControls = wp.editor.InspectorControls;
-var blockStyle = { border: "2px solid #1ab394", padding: "20px" };
+var ComboboxControl = wp.components.ComboboxControl;
+var Placeholder = wp.components.Placeholder;
+var InspectorControls = wp.blockEditor.InspectorControls;
+var ExternalLink = wp.components.ExternalLink;
+var blockIcon = "welcome-write-blog";
 var surveysArray = this.surveys;
+var editFormUrl = this.surveyjsBlock.editUrl;
+var legacyIds = this.surveyjsBlock.legacyIds || {};
 var surveys = {};
 
 for (var i = 0; i < surveysArray.length; i++) {
   var survey = surveysArray[i];
   surveys[survey.id] = {
-    name: survey.name,
-    json: survey.json
+    name: survey.name
   };
 }
 
-registerBlockType("sjs/gutenberg-block", {
-  title: "SurveyJS",
+var options = surveysArray.map(function(survey) {
+  return {
+    label: survey.name,
+    value: String(survey.id)
+  };
+});
 
-  icon: "welcome-write-blog",
+function resolveSurveyId(surveyid) {
+  return surveys[surveyid] || !legacyIds[surveyid] ? surveyid : String(legacyIds[surveyid]);
+}
+
+function getShortcode(surveyid) {
+  return '[surveyjs id="' + surveyid + '" title="' + surveys[surveyid].name.replace(/["\[\]]/g, "") + '"] ';
+}
+
+registerBlockType("sjs/gutenberg-block", {
+  title: "SurveyJS Forms",
+
+  icon: blockIcon,
 
   category: "common",
 
   edit: function(props) {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
-    var options = [
-      {
-        label: "choose the survey...",
-        value: "none"
-      }
-    ];
+    var surveyid = resolveSurveyId(attributes.surveyid);
+    var selected = surveys[surveyid] ? String(surveyid) : null;
 
-    surveysArray.forEach(function(survey) {
-      options.push({
-        label: survey.name,
-        value: survey.id
+    function onSurveyChange(value) {
+      setAttributes({
+        surveyid: value || "none",
+        shortcode: value ? getShortcode(value) : ""
       });
-    });
+    }
+
+    function formSelector(label) {
+      return el(ComboboxControl, {
+        label: label,
+        placeholder: "Search forms...",
+        value: selected,
+        options: options,
+        onChange: onSurveyChange,
+        __nextHasNoMarginBottom: true
+      });
+    }
 
     var inspectorControl = el(
       InspectorControls,
       {},
-      el("h4", {}, "Embedding your Survey inside your website"),
+      el("h4", {}, "Embed a form on your site"),
       el("hr"),
-      el(SelectControl, {
-        label: "Choose survey to insert",
-        defaultValue: "none",
-        value: attributes.surveyid,
-        options: options,
-        onChange: function(value) {
-          setAttributes({ surveyid: value });
-        }
-      })
+      formSelector("Choose form to insert"),
+      selected && el(
+        "p",
+        {},
+        el(ExternalLink, { href: editFormUrl + "&id=" + encodeURIComponent(selected) }, "Edit this form")
+      )
     );
 
-    var surveyid = attributes.surveyid;
-    var shortCodeString =
-      surveyid === "none"
-        ? "Please choose a survey in the Settings => Block menu"
-        : '[Survey id="' +
-          surveyid +
-          '" name="' +
-          surveys[surveyid].name +
-          '"] ';
-
-    setAttributes({ shortcode: shortCodeString });
-
     return el(
-      "div",
-      { style: blockStyle },
-      el("h3", {}, "SurveyJS shortcode: "),
-      el("div", {}, shortCodeString),
+      Placeholder,
+      { icon: blockIcon, label: "SurveyJS", instructions: "Choose form to insert" },
+      formSelector(),
       inspectorControl
     );
   },

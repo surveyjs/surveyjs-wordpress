@@ -19,13 +19,13 @@ class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {
             <script>
                 function insert_survey_shortcode() {
                     var select = document.querySelector("select[name='survey-name']");
-                    var text = '[Survey id="' + select.value + '" name="' + select.options[select.selectedIndex].text + '"]';
+                    var text = '[surveyjs id="' + select.value + '" title="' + select.options[select.selectedIndex].text.replace(/["\[\]]/g, "") + '"]';
                     window.parent.send_to_editor(text);
                     window.parent.tb_remove();
                 }
             </script>
             <select name="survey-name">
-                <option>- Choose survey to insert -</option>
+                <option>- Choose form to insert -</option>
                 <?php
                 foreach ($client->getSurveys() as $surveyDefinition) {
                     ?>

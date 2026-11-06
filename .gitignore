@@ -3,3 +3,7 @@ src/.svn
 .svn
 .svn*
 src/.svn
+node_modules/
+test-results/
+playwright-report/
+tests/e2e/.auth/
