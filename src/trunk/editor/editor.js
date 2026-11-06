@@ -1031,7 +1031,8 @@
                 surveyId: config.id,
                 name: saved.name,
                 json: survey.json,
-                theme: theme.json
+                theme: theme.json,
+                privacyPolicyUrl: config.privacyPolicyUrl
             }, event.origin);
         } else if (message.type === "save" && message.surveyId === config.id && isJsonObject(message.json)) {
             replaceSource("survey", message.json);

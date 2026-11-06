@@ -57,7 +57,7 @@ Working draft of what the Base plugin does. Source for the future `readme.txt` a
 
 ## For developers
 
-- `SURVEYJS_UI_BUILDER_URL` constant / `surveyjs_ui_builder_url` filter — UI Builder address.
+- `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter — surveyjs.io address, default `https://surveyjs.io`; the UI Builder (`/wordpress-ui-builder`) and Pro page (`/wordpress-pro`) links are built from it.
 - `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size` filters — upload rules.
 
 ## External services

@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SurveyJS_Upsell {
 
-    const URL = 'https://surveyjs.io/wordpress-pro';
+    const PATH = '/wordpress-pro';
 
     public static function init() {
         add_action( 'surveyjs_admin_menu', array( __CLASS__, 'add_menu_item' ), 100, 2 );
@@ -25,10 +25,11 @@ class SurveyJS_Upsell {
     public static function url( $placement ) {
         return add_query_arg(
             array(
-                'utm_source' => 'surveyjs-plugin',
-                'utm_medium' => $placement,
+                'utm_source'   => 'surveyjs-plugin',
+                'utm_medium'   => $placement,
+                'wp_admin_url' => rawurlencode( admin_url() ),
             ),
-            apply_filters( 'surveyjs_pro_url', self::URL )
+            surveyjs_site_url( self::PATH )
         );
     }
 

@@ -17,6 +17,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     define( 'SURVEYJS_VERSION', '2.5.6' );
     define( 'SURVEYJS_DB_VERSION', '4' );
 
+    function surveyjs_site_url( $path = '' ) {
+        $site = apply_filters( 'surveyjs_site_url', defined( 'SURVEYJS_SITE_URL' ) ? SURVEYJS_SITE_URL : 'https://surveyjs.io' );
+        return untrailingslashit( $site ) . $path;
+    }
+
     function wps_install() {
         SurveyJS_Install::install();
     }

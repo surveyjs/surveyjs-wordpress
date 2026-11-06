@@ -8,7 +8,7 @@ class SurveyJS_Editor {
     }
 
     public static function ui_builder_url() {
-        return apply_filters( 'surveyjs_ui_builder_url', defined( 'SURVEYJS_UI_BUILDER_URL' ) ? SURVEYJS_UI_BUILDER_URL : 'https://surveyjs.io/wordpress-ui-builder' );
+        return surveyjs_site_url( '/wordpress-ui-builder' );
     }
 
     public static function tabs( $survey ) {
@@ -75,6 +75,7 @@ class SurveyJS_Editor {
             'fullPreviewUrl' => SurveyJS_SurveyJS::full_preview_url(),
             'uiBuilderUrl' => self::ui_builder_url(),
             'gdpr'      => self::gdpr_agreement(),
+            'privacyPolicyUrl' => get_privacy_policy_url(),
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $captcha_configured = SurveyJS_Captcha::is_configured();
