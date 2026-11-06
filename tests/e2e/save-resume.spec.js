@@ -17,7 +17,7 @@ test.describe("save & resume", () => {
   test.beforeEach(async ({ page }) => {
     name = uniqueName("E2E save resume");
     const surveyId = await createSurvey(page, name, DRAFT_JSON);
-    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Save & Resume" }).click();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Advanced", exact: true }).click();
     await page.getByLabel("Let respondents continue later").check();
     await saveSurvey(page);
 

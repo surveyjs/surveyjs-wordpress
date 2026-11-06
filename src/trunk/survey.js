@@ -51,12 +51,6 @@
         };
     }
 
-    function renderMarkdownLinks(_, options) {
-        const text = options.text.replace(/[&<>"']/g, (char) => "&#" + char.charCodeAt(0) + ";");
-        const html = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s()]+)\)/g, "<a href=\"$2\" target=\"_blank\" rel=\"noopener\">$1</a>");
-        if (html !== text) options.html = html;
-    }
-
     function createPartialEntry(config, honeypot) {
         const options = config.partial;
         const listeners = [];
@@ -149,7 +143,7 @@
         const config = JSON.parse(configElement.textContent);
         const honeypot = configElement.parentElement.querySelector(".wp-sjs-hp input");
         const survey = new Survey.Model(config.json);
-        survey.onTextMarkdown.add(renderMarkdownLinks);
+        survey.onTextMarkdown.add(SurveyJSMarkdown.handler(config.markdown));
         // SurveyJS keeps files as base64 in the answer by default; upload them so they can be attached to emails.
         survey.getAllQuestions().filter((question) => question.getType() === "file").forEach((question) => {
             question.storeDataAsText = false;

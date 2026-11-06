@@ -17,11 +17,19 @@ class SurveyJS_Editor {
             'theme'   => __( 'Theme', 'surveyjs' ),
             'email'   => __( 'Email', 'surveyjs' ),
             'entries' => __( 'Entries', 'surveyjs' ),
-            'spam'    => __( 'Spam Protection', 'surveyjs' ),
-            'resume'  => __( 'Save & Resume', 'surveyjs' ),
+            'spam'     => __( 'Spam Protection', 'surveyjs' ),
+            'advanced' => __( 'Advanced', 'surveyjs' ),
         );
         $tabs = apply_filters( 'surveyjs_editor_tabs', $tabs, $survey );
-        return is_array( $tabs ) ? array_filter( array_map( 'strval', $tabs ), 'strlen' ) : array();
+        if ( ! is_array( $tabs ) ) {
+            return array();
+        }
+        if ( isset( $tabs['advanced'] ) ) {
+            $advanced = $tabs['advanced'];
+            unset( $tabs['advanced'] );
+            $tabs['advanced'] = $advanced;
+        }
+        return array_filter( array_map( 'strval', $tabs ), 'strlen' );
     }
 
     private static function gdpr_agreement() {
@@ -189,13 +197,20 @@ class SurveyJS_Editor {
                         </tr>
                     </table>
                 </div>
-                <div class="wp-sjs-editor__settings" data-panel="resume" hidden>
+                <div class="wp-sjs-editor__settings" data-panel="advanced" hidden>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Save & Resume', 'surveyjs' ); ?></th>
                             <td>
                                 <label><input type="checkbox" data-setting="saveResume" /> <?php esc_html_e( 'Let respondents continue later', 'surveyjs' ); ?></label>
                                 <p class="description"><?php esc_html_e( 'Unfinished answers are saved as the respondent fills in the form and restored when they come back. Visitors\' answers are kept in their browser. Logged-in users\' answers are kept on your site, so they can continue on another device. Unfinished answers are deleted after 30 days or when the form is submitted.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Markdown', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="markdown" id="wp-sjs-markdown" /> <?php esc_html_e( 'Format form texts with Markdown', 'surveyjs' ); ?></label>
+                                <p class="description"><?php esc_html_e( 'Titles, descriptions and other form texts can use **bold**, *italic*, lists and links. Links like [text](https://example.com) work even when this is off. Entries, CSV exports and emails show the texts without Markdown.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
                     </table>

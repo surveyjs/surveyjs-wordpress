@@ -19,6 +19,8 @@ class SurveyJS_SurveyJS {
     const CORE_SCRIPT = 'wps-front--survey.core.min.js';
     const UI_SCRIPT = 'wps-front--survey-js-ui.min.js';
     const CORE_STYLE = 'wps-front--survey-core.min.css';
+    const MARKDOWN_SCRIPT = 'wps-front--markdown-it.min.js';
+    const MARKDOWN_HANDLER_SCRIPT = 'wps-front--markdown.js';
     const EDITOR_SCRIPT = 'wps-adm--editor.js';
 
     private static $library_version = null;
@@ -114,6 +116,11 @@ class SurveyJS_SurveyJS {
         wp_enqueue_script('wps-adm--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array(self::CORE_SCRIPT));
         wp_enqueue_script(self::UI_SCRIPT);
         wp_enqueue_style(self::CORE_STYLE);
+
+        if ( 'surveyjs_results' === $page ) {
+            wp_enqueue_script(self::MARKDOWN_SCRIPT);
+            wp_enqueue_script(self::MARKDOWN_HANDLER_SCRIPT);
+        }
 
         if ( 'surveyjs_editor' === $page ) {
             wp_enqueue_media();
@@ -222,7 +229,7 @@ class SurveyJS_SurveyJS {
         wp_enqueue_style('wps-front--wordpress.css');
         wp_add_inline_style('wps-front--wordpress.css', '.wp-sjs-preview-page__main{padding-block:24px}.wp-sjs-preview__run-again{display:block;margin:16px auto}');
         wp_register_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-front--survey.core.min.js'));
-        wp_enqueue_script('wps-front--preview.js', plugins_url('editor/preview.js', __FILE__), array('wps-front--survey-js-ui.min.js', 'wps-front--survey.i18n.min.js', 'wps-front--wordpress.js'), self::asset_version('editor/preview.js'), true);
+        wp_enqueue_script('wps-front--preview.js', plugins_url('editor/preview.js', __FILE__), array('wps-front--survey-js-ui.min.js', 'wps-front--survey.i18n.min.js', 'wps-front--wordpress.js', self::MARKDOWN_SCRIPT, self::MARKDOWN_HANDLER_SCRIPT), self::asset_version('editor/preview.js'), true);
         wp_localize_script('wps-front--preview.js', 'surveyjsPreview', array(
             'editorUrl' => admin_url(),
             'runAgain'  => __( 'Run again', 'surveyjs' ),
@@ -234,7 +241,9 @@ class SurveyJS_SurveyJS {
         wp_register_style(self::CORE_STYLE, plugins_url('libs/library/survey-core.min.css', __FILE__));
         wp_register_script(self::CORE_SCRIPT, plugins_url('libs/library/survey.core.min.js', __FILE__), array());
         wp_register_script(self::UI_SCRIPT, plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array(self::CORE_SCRIPT));
-        wp_register_script('wps-front--survey.js', plugins_url('/survey.js', __FILE__), array(self::UI_SCRIPT), self::asset_version('survey.js'));
+        wp_register_script(self::MARKDOWN_SCRIPT, plugins_url('libs/markdown-it/markdown-it.min.js', __FILE__), array());
+        wp_register_script(self::MARKDOWN_HANDLER_SCRIPT, plugins_url('markdown.js', __FILE__), array(), self::asset_version('markdown.js'));
+        wp_register_script('wps-front--survey.js', plugins_url('/survey.js', __FILE__), array(self::UI_SCRIPT, self::MARKDOWN_HANDLER_SCRIPT), self::asset_version('survey.js'));
         wp_register_style('wps-front--wordpress.css', plugins_url('themes/wordpress.css', __FILE__), array(self::CORE_STYLE), self::asset_version('themes/wordpress.css'));
         wp_register_script('wps-front--wordpress.js', plugins_url('themes/wordpress.js', __FILE__), array(), self::asset_version('themes/wordpress.js'));
     }
@@ -293,6 +302,9 @@ class SurveyJS_SurveyJS {
         $locales = array();
         if ( isset($json->locale) && is_string($json->locale) ) {
             $locales[] = strtolower($json->locale);
+        }
+        if ( $settings['markdown'] && $surveyScript && ! in_array(self::MARKDOWN_SCRIPT, $surveyScript->deps, true) ) {
+            $surveyScript->deps[] = self::MARKDOWN_SCRIPT;
         }
         if ( SurveyJS_Captcha::is_enabled( $settings ) ) {
             SurveyJS_Captcha::enqueue_script();
@@ -390,6 +402,7 @@ class SurveyJS_SurveyJS {
             'uploadFilesNonce' => wp_create_nonce('surveyjs-upload-files'),
             'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
             'draft' => SurveyJS_Drafts::client_config($row),
+            'markdown' => SurveyJS_Form_Settings::get( $row )['markdown'],
         );
         if ( SurveyJS_Entries::partial_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['partial'] = array(

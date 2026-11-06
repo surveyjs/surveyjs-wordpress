@@ -37,6 +37,7 @@
     const themeModeElement = document.getElementById("wp-sjs-theme-mode");
     const themeModeCheckbox = document.getElementById("wp-sjs-theme-mode-adaptive");
     const transparentBackgroundCheckbox = document.getElementById("wp-sjs-transparent-background");
+    const markdownCheckbox = document.getElementById("wp-sjs-markdown");
     const themePresetSelect = document.getElementById("wp-sjs-theme-preset");
     const aiPromptButton = document.getElementById("wp-sjs-ai-prompt");
     const aiPasteButton = document.getElementById("wp-sjs-ai-paste");
@@ -678,6 +679,7 @@
             theme: theme.json,
             themeMode: checkboxValue(themeModeCheckbox),
             transparentBackground: transparentBackgroundCheckbox.checked,
+            markdown: markdownCheckbox.checked,
             checkContrast: false,
             focusName: focusName
         };
@@ -1406,6 +1408,7 @@
         updateState();
         renderPreview();
     });
+    markdownCheckbox.addEventListener("change", renderPreview);
     themePresetSelect.addEventListener("change", applyThemePreset);
     updateThemePreset();
     window.addEventListener("message", onUiBuilderMessage);

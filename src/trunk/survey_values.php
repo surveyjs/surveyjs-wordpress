@@ -31,6 +31,18 @@ class SurveyJS_Survey_Values {
 
     const MARKDOWN_LINK = '/\[([^\]]+)\]\((https?:\/\/[^\s()]+)\)/';
 
+    const MARKDOWN_MARKUP = array(
+        '/!\[([^\]]*)\]\([^)]*\)/'                  => '$1',
+        '/\[([^\]]+)\]\((?!https?:\/\/)[^\s()]+\)/' => '$1',
+        '/^ {0,3}(?:#{1,6}\s+|>\s?|[*+-]\s+)/m'     => '',
+        '/\*\*(?=\S)(.+?)(?<=\S)\*\*/'              => '$1',
+        '/(?<!\w)__(?=\S)(.+?)(?<=\S)__(?!\w)/'     => '$1',
+        '/\*(?=\S)(.+?)(?<=\S)\*/'                  => '$1',
+        '/(?<!\w)_(?=\S)(.+?)(?<=\S)_(?!\w)/'       => '$1',
+        '/~~(?=\S)(.+?)(?<=\S)~~/'                  => '$1',
+        '/`([^`]+)`/'                               => '$1',
+    );
+
     public static function question_title( $question ) {
         $title = self::form_text( self::localized( $question['title'] ?? '' ), false );
         return '' === trim( $title ) ? $question['name'] : $title;
@@ -86,8 +98,9 @@ class SurveyJS_Survey_Values {
         return $html ? esc_html( (string) $value ) : (string) $value;
     }
 
-    // Form texts render [text](https://…) as a link (survey.js); respondents' answers are never treated as markdown.
+    // Form texts may use Markdown (survey.js renders it when the form turns it on); respondents' answers are never treated as markdown.
     private static function form_text( $text, $html ) {
+        $text = preg_replace( array_keys( self::MARKDOWN_MARKUP ), array_values( self::MARKDOWN_MARKUP ), $text );
         if ( ! $html ) {
             return preg_replace( self::MARKDOWN_LINK, '$1', $text );
         }

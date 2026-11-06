@@ -230,6 +230,7 @@ class SurveyJS_Results {
             'formId'    => (int) $survey->id,
             'readNonce' => wp_create_nonce( 'surveyjs-entry-read' ),
             'readLabel' => SurveyJS_Entries::statuses()['read'],
+            'markdown'  => SurveyJS_Form_Settings::get( $survey )['markdown'],
         );
         ?>
         <div class="wrap">
@@ -284,15 +285,6 @@ class SurveyJS_Results {
         <script>
             (function () {
                 var viewData = JSON.parse(document.getElementById("wp-sjs-results-data").textContent);
-                function renderMarkdownLinks(_, options) {
-                    var text = options.text.replace(/[&<>"']/g, function (char) {
-                        return "&#" + char.charCodeAt(0) + ";";
-                    });
-                    var html = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s()]+)\)/g, "<a href=\"$2\" target=\"_blank\" rel=\"noopener\">$1</a>");
-                    if (html !== text) {
-                        options.html = html;
-                    }
-                }
                 function markRead(link) {
                     var row = link.closest("tr");
                     if (!row || !row.classList.contains("wp-sjs-entry-unread")) {
@@ -317,7 +309,7 @@ class SurveyJS_Results {
                     event.preventDefault();
                     markRead(link);
                     var survey = new Survey.Model(viewData.survey);
-                    survey.onTextMarkdown.add(renderMarkdownLinks);
+                    survey.onTextMarkdown.add(SurveyJSMarkdown.handler(viewData.markdown));
                     survey.data = viewData.results[link.dataset.resultId];
                     survey.readOnly = true;
                     var popupContainer = document.createElement("div");

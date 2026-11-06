@@ -8,12 +8,6 @@
     const SCROLL_OFFSET = 16;
     let lastMessage = null;
 
-    function renderMarkdownLinks(_, options) {
-        const text = options.text.replace(/[&<>"']/g, (char) => "&#" + char.charCodeAt(0) + ";");
-        const html = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s()]+)\)/g, "<a href=\"$2\" target=\"_blank\" rel=\"noopener\">$1</a>");
-        if (html !== text) options.html = html;
-    }
-
     function withTransparentBackground(theme) {
         const cssVariables = Object.assign({}, theme && theme.cssVariables, {
             "--sjs2-color-utility-body": "transparent",
@@ -25,7 +19,7 @@
     function render(message) {
         lastMessage = message;
         const model = new Survey.Model(message.json);
-        model.onTextMarkdown.add(renderMarkdownLinks);
+        model.onTextMarkdown.add(SurveyJSMarkdown.handler(message.markdown));
         model.onComplete.add(() => {
             const runAgain = document.createElement("button");
             runAgain.type = "button";
