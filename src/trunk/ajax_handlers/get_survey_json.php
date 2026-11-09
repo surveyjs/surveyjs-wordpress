@@ -2,6 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once("ajax_handler.php");
+include_once( __DIR__ . "/../service_client.php");
 
 class SurveyJS_GetSurveyJson extends SurveyJS_AJAX_Handler {
     
@@ -19,8 +20,10 @@ class SurveyJS_GetSurveyJson extends SurveyJS_AJAX_Handler {
                 wp_send_json_error(array('message' => 'Survey not found'));
                 return;
             }
-            $json = isset($row->json) ? $row->json : null;
-            $theme = isset($row->theme) ? $row->theme : null;
+            $decodedJson = SurveyJS_Client::decode_survey_json( isset($row->json) ? $row->json : null );
+            $decodedTheme = SurveyJS_Client::decode_survey_json( isset($row->theme) ? $row->theme : null );
+            $json = empty( $decodedJson ) ? null : wp_json_encode( $decodedJson );
+            $theme = empty( $decodedTheme ) ? null : wp_json_encode( $decodedTheme );
 
             wp_send_json( array('json' => $json, 'theme' => $theme) );
         }

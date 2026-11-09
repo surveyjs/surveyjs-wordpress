@@ -187,10 +187,10 @@ class SurveyJS_SurveyJS {
                     var json = {}
                     let theme;
                     if (data.json) {
-                        json = JSON.parse(data.json.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
+                        json = JSON.parse(data.json);
                     }
                     if (data.theme) {
-                        theme = JSON.parse(data.theme.replace(/\\\"/g, "\"").replace(/\\\\/g, "\\").replace(/\\'/g, "'"));
+                        theme = JSON.parse(data.theme);
                     } else {
                         theme = null
                     }
