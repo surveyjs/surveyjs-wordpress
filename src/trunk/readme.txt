@@ -3,7 +3,7 @@ Contributors: DevSoft Baltic
 Tags: survey, quiz, form builder, survey creator, survey maker
 Requires at least: 6.4
 Tested up to: 7.1
-Stable tag: 2.5.6
+Stable tag: 2.5.7
 Requires PHP: 8.2
 
 == Description ==
@@ -77,6 +77,10 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 
 == Changelog ==
 Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
+
+
+= v2.5.7 =
+Fixed: a survey failed to load on a page when its JSON contained escaped double quotes, for example in an HTML link or an expression.
 
 
 = v2.5.6 =
