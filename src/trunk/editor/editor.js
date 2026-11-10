@@ -1448,8 +1448,11 @@
     const initialTab = tabNames.includes(requestedTab) && !(requestedTab in sources) ? requestedTab : tabNames[0];
     if (initialTab && !(initialTab in sources)) switchTab(initialTab);
 
+    const monacoLoaded = loadMonaco();
+
     window.surveyjsEditor = {
         config: config,
+        whenMonaco: () => monacoLoaded,
         getSurvey: () => parse(sources.survey).json || null,
         setSurvey: (json) => setSource("survey", json),
         getTheme: () => parse(sources.theme).json || null,
@@ -1470,7 +1473,7 @@
     };
     document.dispatchEvent(new CustomEvent("surveyjs:editor-ready", { detail: window.surveyjsEditor }));
 
-    loadMonaco().then((loaded) => {
+    monacoLoaded.then((loaded) => {
         monaco = loaded;
         models = {
             survey: monaco.editor.createModel(sources.survey, "json"),
