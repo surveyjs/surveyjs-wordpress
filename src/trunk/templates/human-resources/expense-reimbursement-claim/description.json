@@ -1,0 +1,5 @@
+{
+  "title": "Expense Reimbursement Claim",
+  "description": "Employees itemize receipts with a running total, confirm the expenses were incurred for business, and sign the claim; a read-only section is reserved for office use.",
+  "tags": ["hr", "finance", "request", "operations"]
+}

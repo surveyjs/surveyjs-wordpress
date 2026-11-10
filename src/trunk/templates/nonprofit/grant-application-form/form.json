@@ -1,0 +1,885 @@
+{
+  "title": "Grant Application Form for NPO",
+  "completedHtml": "<h3>Thank you for submitting the application!</h3>",
+  "pages": [
+    {
+      "name": "contactInformation",
+      "elements": [
+        {
+          "type": "text",
+          "name": "contactInformationName",
+          "title": "Name"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationRegNumber",
+          "startWithNewLine": false,
+          "title": "Organization registration number or date of birth"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationAddress",
+          "title": "Postal address"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationMunicipality",
+          "title": "Municipality"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationCounty",
+          "startWithNewLine": false,
+          "title": "County"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationTel",
+          "title": "Telephone number including country and area codes",
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "+99(9) 999-999-99"
+          }
+        },
+        {
+          "type": "text",
+          "name": "contactInformationFax",
+          "startWithNewLine": false,
+          "title": "Fax number including country and area codes",
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "+99(9) 999-999-99"
+          }
+        },
+        {
+          "type": "text",
+          "name": "contactInformationEmail",
+          "title": "E-mail address",
+          "inputType": "email",
+          "autocomplete": "email"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationWebsite",
+          "startWithNewLine": false,
+          "title": "Website (if relevant)",
+          "inputType": "url"
+        },
+        {
+          "type": "text",
+          "name": "contactInformationContactPerson",
+          "title": "Contact person (project manager)"
+        }
+      ],
+      "title": "1. Contact information"
+    },
+    {
+      "name": "applicantDetails",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "registeredEmployer",
+          "title": "Registered as the employer",
+          "titleLocation": "top"
+        },
+        {
+          "type": "boolean",
+          "name": "vat",
+          "title": "Registered for VAT",
+          "titleLocation": "top"
+        },
+        {
+          "type": "text",
+          "name": "vatNumber",
+          "visibleIf": "{vat} = true",
+          "title": "Specify the VAT registration number",
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "aa999999999999"
+          }
+        },
+        {
+          "type": "boolean",
+          "name": "bankruptcy",
+          "title": "Is the applicant in a state of bankruptcy or under the supervision of an administrator, or does the applicant have debts for taxes and social security contributions?",
+          "titleLocation": "top"
+        },
+        {
+          "type": "checkbox",
+          "name": "grantUse",
+          "title": "Will the grant be used in a business activity or an activity that is required to file VAT returns?",
+          "titleLocation": "top",
+          "choices": [
+            {
+              "value": "businessActivity",
+              "text": "Business activity"
+            },
+            {
+              "value": "vatReturns",
+              "text": "Activity required to file VAT returns"
+            }
+          ],
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "organizationForm",
+          "title": "Organizational form",
+          "titleLocation": "top",
+          "choices": [
+            {
+              "value": "nonProfit",
+              "text": "Non-profit organization"
+            },
+            {
+              "value": "foundation",
+              "text": "Foundation"
+            },
+            {
+              "value": "limitedCompany",
+              "text": "Limited company"
+            },
+            {
+              "value": "religiousCommunity",
+              "text": "Registered religious community"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other (please specify)",
+          "colCount": 2
+        },
+        {
+          "type": "text",
+          "name": "operationalFocus",
+          "title": "The organization's operational focus"
+        },
+        {
+          "type": "text",
+          "name": "foundationDate",
+          "startWithNewLine": false,
+          "title": "When was the organization formed?",
+          "inputType": "date"
+        },
+        {
+          "type": "text",
+          "name": "numberMembers",
+          "title": "Number of members",
+          "inputType": "number"
+        },
+        {
+          "type": "text",
+          "name": "numberEmployees",
+          "startWithNewLine": false,
+          "title": "Number of employees",
+          "inputType": "number"
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "boardMembers",
+          "title": "Board members or other management",
+          "titleLocation": "top",
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "boardMembersName",
+              "title": "Name",
+              "cellType": "text"
+            },
+            {
+              "name": "boardMembersAddress",
+              "title": "Address",
+              "minWidth": "300px",
+              "width": "300px"
+            },
+            {
+              "name": "boardMembersTel",
+              "title": "Telephone number",
+              "cellType": "text",
+              "maskType": "pattern",
+              "maskSettings": {
+                "pattern": "+99(9) 999-999-99"
+              }
+            },
+            {
+              "name": "boardMembersEmail",
+              "title": "Email address",
+              "cellType": "text",
+              "inputType": "email",
+              "placeholder": "mail@example.com"
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "cellType": "text",
+          "rowCount": 1,
+          "addRowText": "Add a new entry"
+        }
+      ],
+      "title": "2. Information about the applicant"
+    },
+    {
+      "name": "grantDetails",
+      "elements": [
+        {
+          "type": "text",
+          "name": "grantDetailsName",
+          "title": "Name of grant (if applicable)"
+        },
+        {
+          "type": "text",
+          "name": "grantDetailsReferenceNumber",
+          "startWithNewLine": false,
+          "title": "The Government Offices’ reference number (if applicable)"
+        },
+        {
+          "type": "text",
+          "name": "grantDetailsMinistry",
+          "title": "Ministry that approves the grant (if the applicant knows)"
+        },
+        {
+          "type": "text",
+          "name": "grantDetailsAmount",
+          "startWithNewLine": false,
+          "title": "Amount",
+          "maskType": "currency",
+          "maskSettings": {
+            "prefix": "$"
+          }
+        }
+      ],
+      "title": "3. Grant to which the application refers"
+    },
+    {
+      "name": "plannedActivities",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "purpose",
+          "title": "Purpose and objectives of the activities against which the results will be reported",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "comment",
+          "name": "targetGroups",
+          "title": "Target groups",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "comment",
+          "name": "plannedActivitiesQuestion",
+          "title": "Planned activities",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "comment",
+          "name": "ownContribution",
+          "title": "Provide details of your own contribution",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "comment",
+          "name": "activitiesNeed",
+          "title": "The need for the planned activities",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "panel",
+          "name": "period",
+          "elements": [
+            {
+              "type": "text",
+              "name": "from",
+              "title": "From",
+              "inputType": "date"
+            },
+            {
+              "type": "text",
+              "name": "to",
+              "startWithNewLine": false,
+              "title": "To",
+              "inputType": "date"
+            }
+          ],
+          "title": "The period during which the activities will be carried out",
+          "state": "collapsed"
+        },
+        {
+          "type": "comment",
+          "name": "genderMainstreaming",
+          "title": "How does the applicant intend to gender mainstream the activities?",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "collaborations",
+          "title": "There will be collaboration with the following companies, government agencies, organizations and institutions",
+          "titleLocation": "top",
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "index",
+              "title": "#",
+              "cellType": "expression",
+              "minWidth": "5px",
+              "width": "5px",
+              "expression": "{rowIndex}"
+            },
+            {
+              "name": "cooperation",
+              "title": "In cooperation with",
+              "cellType": "text"
+            },
+            {
+              "name": "collaborationDescription",
+              "title": "Describe the envisioned collaboration",
+              "cellType": "comment",
+              "maxLength": 250,
+              "rows": 1
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "rowCount": 1,
+          "addRowText": "Add a new entry"
+        },
+        {
+          "type": "comment",
+          "name": "partialGrantActivities",
+          "title": "Which activities will be carried out if only part of the grant applied for is awarded?",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        }
+      ],
+      "title": "4. Planned activities"
+    },
+    {
+      "name": "funding",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fundingAmount",
+          "indent": 2,
+          "title": "Grant sought from the Government or the Government Offices via this application",
+          "titleLocation": "left",
+          "maskType": "currency",
+          "maskSettings": {
+            "prefix": "$"
+          }
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "fundingDetails",
+          "title": "Grants sought or received from other government agencies for implementation of the activities",
+          "titleLocation": "top",
+          "columns": [
+            {
+              "name": "fundingGrant",
+              "title": "Grant",
+              "cellType": "expression",
+              "minWidth": "5px",
+              "width": "5px",
+              "totalType": "count",
+              "totalFormat": "Totals:",
+              "expression": "{rowIndex}"
+            },
+            {
+              "name": "fundingAgency",
+              "title": "Government agency",
+              "cellType": "text"
+            },
+            {
+              "name": "fundingRequested",
+              "title": "Amount requested",
+              "cellType": "text",
+              "minWidth": "200px",
+              "width": "200px",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "maskType": "currency",
+              "maskSettings": {
+                "prefix": "$"
+              }
+            },
+            {
+              "name": "fundingReceived",
+              "title": "Amount received",
+              "cellType": "text",
+              "minWidth": "200px",
+              "width": "200px",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "maskType": "currency",
+              "maskSettings": {
+                "prefix": "$"
+              }
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "fundingActivities",
+          "title": "Grants for implementation of activities have also been sought or received from the following donors",
+          "titleLocation": "top",
+          "columns": [
+            {
+              "name": "donorGrant",
+              "title": "Grant",
+              "cellType": "expression",
+              "minWidth": "5px",
+              "width": "5px",
+              "totalType": "count",
+              "totalFormat": "Totals:",
+              "expression": "{rowIndex}"
+            },
+            {
+              "name": "donorDonor",
+              "title": "Donor",
+              "cellType": "text"
+            },
+            {
+              "name": "donorRequested",
+              "title": "Amount requested",
+              "cellType": "text",
+              "minWidth": "200px",
+              "width": "200px",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "maskType": "currency",
+              "maskSettings": {
+                "prefix": "$"
+              }
+            },
+            {
+              "name": "donorReceived",
+              "title": "Amount received",
+              "cellType": "text",
+              "minWidth": "200px",
+              "width": "200px",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "maskType": "currency",
+              "maskSettings": {
+                "prefix": "$"
+              }
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "otherRevenue",
+          "title": "Other revenue",
+          "titleLocation": "top",
+          "columns": [
+            {
+              "name": "otherRevenueFunding",
+              "title": "Funding",
+              "cellType": "expression",
+              "minWidth": "5px",
+              "width": "5px",
+              "totalType": "count",
+              "totalFormat": "Total:",
+              "expression": "{rowIndex}"
+            },
+            {
+              "name": "otherRevenueFundingDetails",
+              "title": "Funding details",
+              "cellType": "text"
+            },
+            {
+              "name": "otherRevenueFundingReceived",
+              "title": "Amount received",
+              "cellType": "text",
+              "minWidth": "200px",
+              "width": "200px",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "maskType": "currency",
+              "maskSettings": {
+                "prefix": "$"
+              }
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "type": "text",
+          "name": "ownContributionQuestion",
+          "indent": 2,
+          "title": "Own contribution",
+          "titleLocation": "left",
+          "maskType": "currency",
+          "maskSettings": {
+            "prefix": "$"
+          }
+        }
+      ],
+      "questionTitleWidth": "650px",
+      "questionTitleLocation": "left",
+      "title": "5. Funding of activities"
+    },
+    {
+      "name": "activityBudget",
+      "elements": [
+        {
+          "type": "text",
+          "name": "activityBudgetRevenue",
+          "indent": 2,
+          "title": "Revenue and own contribution",
+          "titleLocation": "left",
+          "maskType": "currency",
+          "maskSettings": {
+            "prefix": "$"
+          }
+        },
+        {
+          "type": "panel",
+          "name": "costsPanel",
+          "elements": [
+            {
+              "type": "matrixdynamic",
+              "name": "salariesCosts",
+              "title": "Salaries and social insurance contributions",
+              "titleLocation": "top",
+              "alternateRows": true,
+              "columns": [
+                {
+                  "name": "item",
+                  "title": "Item",
+                  "cellType": "expression",
+                  "minWidth": "5px",
+                  "width": "5px",
+                  "totalType": "count",
+                  "totalFormat": "Total:",
+                  "expression": "{rowIndex}"
+                },
+                {
+                  "name": "function",
+                  "title": "Function (e.g. project manager)",
+                  "cellType": "text"
+                },
+                {
+                  "name": "amount",
+                  "title": "Amount",
+                  "cellType": "text",
+                  "minWidth": "200px",
+                  "width": "200px",
+                  "totalType": "sum",
+                  "totalDisplayStyle": "currency",
+                  "maskType": "currency",
+                  "maskSettings": {
+                    "prefix": "$"
+                  }
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rowCount": 1,
+              "addRowText": "Add a new entry"
+            }
+          ],
+          "title": "Costs"
+        },
+        {
+          "type": "matrixdropdown",
+          "name": "otherCostCategories",
+          "titleLocation": "hidden",
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "amount",
+              "title": "Amount",
+              "cellType": "text",
+              "minWidth": "240px",
+              "width": "240px",
+              "totalType": "sum",
+              "totalFormat": "Total: {0}",
+              "totalDisplayStyle": "currency",
+              "maskType": "currency",
+              "maskSettings": {
+                "prefix": "$"
+              }
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "rows": [
+            {
+              "value": "office",
+              "text": "Office costs"
+            },
+            {
+              "value": "travel",
+              "text": "Travel costs"
+            },
+            {
+              "value": "audit",
+              "text": "Audit costs"
+            }
+          ],
+          "title": "Office, travel, and audit costs"
+        },
+        {
+          "type": "panel",
+          "name": "otherCostsPanel",
+          "elements": [
+            {
+              "type": "matrixdynamic",
+              "name": "otherCosts",
+              "startWithNewLine": false,
+              "title": "Other costs",
+              "titleLocation": "hidden",
+              "alternateRows": true,
+              "columns": [
+                {
+                  "name": "item",
+                  "title": "Item",
+                  "cellType": "expression",
+                  "minWidth": "5px",
+                  "width": "5px",
+                  "totalType": "count",
+                  "totalFormat": "Total:",
+                  "expression": "{rowIndex}"
+                },
+                {
+                  "name": "costDescription",
+                  "title": "Cost description",
+                  "cellType": "text"
+                },
+                {
+                  "name": "amount",
+                  "title": "Amount",
+                  "cellType": "text",
+                  "minWidth": "200px",
+                  "width": "200px",
+                  "totalType": "sum",
+                  "totalDisplayStyle": "currency",
+                  "maskType": "currency",
+                  "maskSettings": {
+                    "prefix": "$"
+                  }
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rowCount": 1,
+              "addRowText": "Add a new entry"
+            }
+          ],
+          "title": "Other costs"
+        },
+        {
+          "type": "text",
+          "name": "totalCosts",
+          "indent": 2,
+          "title": "Total costs:",
+          "setValueIf": "{otherCostCategories.office.amount} notempty or {otherCostCategories.travel.amount} notempty or {otherCostCategories.audit.amount} notempty or {salariesCosts[0].amount} notempty or {otherCosts[0].amount} notempty",
+          "setValueExpression": "{otherCosts-total.amount} + {otherCostCategories-total.amount} + {salariesCosts-total.amount}",
+          "maskType": "currency",
+          "maskSettings": {
+            "prefix": "$"
+          }
+        }
+      ],
+      "questionTitleWidth": "650px",
+      "questionTitleLocation": "left",
+      "title": "6. Activity budget"
+    },
+    {
+      "name": "skills",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "skillsProspects",
+          "title": "Describe the applicant’s prospects of carrying out the activities described.",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "comment",
+          "name": "skillsActivities",
+          "title": "Specify activities that have previously been conducted.",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "file",
+          "name": "skillsAntiCorruption",
+          "title": "Please attach the applicant's anti-corruption policy or the equivalent.",
+          "titleLocation": "top",
+          "waitForUpload": true
+        },
+        {
+          "type": "file",
+          "name": "skillsRiskAnalysis",
+          "startWithNewLine": false,
+          "title": "Please attach the applicant's risk analysis concerning the activity of the envisaged grant.",
+          "titleLocation": "top",
+          "waitForUpload": true
+        },
+        {
+          "type": "comment",
+          "name": "skillsOtherInformation",
+          "title": "Other information that the applicant wishes to present to confirm his or her skills to carry out the activities and achieve the specified goals.",
+          "maxLength": 250,
+          "rows": 2,
+          "autoGrow": true
+        }
+      ],
+      "title": "7. Skills requirement regarding the activities covered by the grant application"
+    },
+    {
+      "name": "references",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "referenceOnePanel",
+          "elements": [
+            {
+              "type": "text",
+              "name": "referenceOneName",
+              "title": "Name"
+            },
+            {
+              "type": "comment",
+              "name": "referenceOneAddress",
+              "title": "Address",
+              "maxLength": 200,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "text",
+              "name": "referenceOneEmail",
+              "title": "E-mail address",
+              "inputType": "email",
+              "autocomplete": "email"
+            },
+            {
+              "type": "text",
+              "name": "referenceOneTel",
+              "title": "Telephone number including area code",
+              "maskType": "pattern",
+              "maskSettings": {
+                "pattern": "+99(9) 999-999-99"
+              }
+            }
+          ],
+          "title": "Reference 1"
+        },
+        {
+          "type": "panel",
+          "name": "referenceTwoPanel",
+          "elements": [
+            {
+              "type": "text",
+              "name": "referenceTwoName",
+              "title": "Name"
+            },
+            {
+              "type": "comment",
+              "name": "referenceTwoAddress",
+              "title": "Address",
+              "maxLength": 200,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "text",
+              "name": "referenceTwoEmail",
+              "title": "E-mail address",
+              "inputType": "email",
+              "autocomplete": "email"
+            },
+            {
+              "type": "text",
+              "name": "referenceTwoTel",
+              "title": "Telephone number including area code",
+              "maskType": "pattern",
+              "maskSettings": {
+                "pattern": "+99(9) 999-999-99"
+              }
+            }
+          ],
+          "title": "Reference 2",
+          "startWithNewLine": false
+        }
+      ],
+      "title": "8. References"
+    },
+    {
+      "name": "otherInformation",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "otherInformationBox",
+          "title": "Please provide any further information that needs to be considered."
+        }
+      ],
+      "title": "9. Other information in support of the specific grant"
+    }
+  ],
+  "questionTitleLocation": "bottom",
+  "showTOC": true,
+  "widthMode": "static",
+  "width": "1100px"
+}

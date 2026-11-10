@@ -1,0 +1,195 @@
+{
+  "title": "Service Price Estimate",
+  "description": "Answer a few questions to see an instant estimate, then send us your details for an exact quote.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Request Exact Quote",
+  "calculatedValues": [
+    {
+      "name": "basePrice",
+      "expression": "iif({propertySize} > 0, 60 + {propertySize} * 0.08, 0)"
+    },
+    {
+      "name": "serviceLevelFactor",
+      "expression": "iif({serviceLevel} = 'premium', 1.4, iif({serviceLevel} = 'basic', 0.85, 1))"
+    },
+    {
+      "name": "frequencyDiscount",
+      "expression": "iif({frequency} = 'weekly', 0.2, iif({frequency} = 'biweekly', 0.15, iif({frequency} = 'monthly', 0.1, 0)))"
+    },
+    {
+      "name": "addOnsPrice",
+      "expression": "iif({addOns} contains 'priority', 40, 0) + iif({addOns} contains 'afterHours', 25, 0) + iif({addOns} contains 'materials', 15, 0) + iif({addOns} contains 'haulAway', 60, 0) + iif({addOns} contains 'followUpVisit', 30, 0)"
+    },
+    {
+      "name": "visitsPerMonth",
+      "expression": "iif({frequency} = 'weekly', 4, iif({frequency} = 'biweekly', 2, 1))"
+    }
+  ],
+  "pages": [
+    {
+      "name": "estimate",
+      "title": "Your Estimate",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "serviceLevel",
+          "title": "Service level",
+          "isRequired": true,
+          "choices": [
+            { "value": "basic", "text": "Basic: the essentials, done efficiently" },
+            { "value": "standard", "text": "Standard: our most popular option" },
+            { "value": "premium", "text": "Premium: our most thorough, top-to-bottom service" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "propertySize",
+          "title": "Property size (square feet)",
+          "description": "An approximate figure is fine.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 200,
+          "max": 20000,
+          "step": 50
+        },
+        {
+          "type": "radiogroup",
+          "name": "frequency",
+          "title": "How often do you need the service?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "oneTime", "text": "One time" },
+            { "value": "weekly", "text": "Weekly (save 20%)" },
+            { "value": "biweekly", "text": "Every two weeks (save 15%)" },
+            { "value": "monthly", "text": "Monthly (save 10%)" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "addOns",
+          "title": "Add-ons",
+          "description": "Prices are per visit.",
+          "choices": [
+            { "value": "priority", "text": "Priority scheduling within 48 hours (+$40)" },
+            { "value": "afterHours", "text": "Weekend or evening visit (+$25)" },
+            { "value": "materials", "text": "Premium materials and supplies (+$15)" },
+            { "value": "haulAway", "text": "Removal and disposal of waste (+$60)" },
+            { "value": "followUpVisit", "text": "Follow-up check visit (+$30)" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "estimateSummary",
+          "title": "Estimated price",
+          "visibleIf": "{propertySize} > 0 and {serviceLevel} notempty and {frequency} notempty",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "estimatePerVisit",
+              "title": "Per visit",
+              "expression": "round({basePrice} * {serviceLevelFactor} * (1 - {frequencyDiscount}) + {addOnsPrice})",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "minimumFractionDigits": 0,
+              "maximumFractionDigits": 0
+            },
+            {
+              "type": "expression",
+              "name": "estimatePerMonth",
+              "visibleIf": "{frequency} notempty and {frequency} <> 'oneTime'",
+              "title": "Per month",
+              "description": "Based on 4 visits a month for weekly service and 2 for every two weeks.",
+              "startWithNewLine": false,
+              "expression": "{estimatePerVisit} * {visitsPerMonth}",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "minimumFractionDigits": 0,
+              "maximumFractionDigits": 0
+            },
+            {
+              "type": "html",
+              "name": "estimateDisclaimer",
+              "html": "<p><small>This is an estimate based on your answers. We confirm the final price after reviewing your request, and it may change if the job differs from the description.</small></p>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "quoteRequest",
+      "title": "Request an Exact Quote",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "requiredIf": "{preferredContactMethod} anyof ['phone', 'sms']",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "text",
+          "name": "serviceAddress",
+          "title": "Service address",
+          "autocomplete": "street-address"
+        },
+        {
+          "type": "text",
+          "name": "postalCode",
+          "title": "ZIP code",
+          "description": "So we can check that you're in our service area.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "postal-code"
+        },
+        {
+          "type": "text",
+          "name": "preferredStartDate",
+          "title": "When would you like to start?",
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How should we send your quote?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" },
+            { "value": "sms", "text": "Text message" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "jobDetails",
+          "title": "Anything else that would help us quote accurately?",
+          "description": "For example: access instructions, parking, pets on site, or areas that need extra attention."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {fullName}!</h3><p>Your estimate is <b>{estimatePerVisit}</b> per visit. We'll review your details and send an exact quote within one business day.</p><p>The quote is free and there's no obligation to book.</p>"
+}

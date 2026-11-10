@@ -1,0 +1,10 @@
+{
+  "title": "Product Order Form",
+  "description": "An order form for a small shop: customers pick quantities from a product list with live line totals, choose shipping or pickup, and select how to pay. Replace the sample product rows and prices with your own catalog.",
+  "tags": [
+    "order",
+    "payment",
+    "calculator",
+    "ecommerce"
+  ]
+}

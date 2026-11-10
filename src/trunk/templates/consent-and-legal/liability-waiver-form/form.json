@@ -1,0 +1,246 @@
+{
+  "title": "Activity Participation Waiver",
+  "description": "Please complete this waiver before taking part. If the participant is under 18, a parent or legal guardian must complete and sign it.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Sign and Submit",
+  "pages": [
+    {
+      "name": "participant",
+      "title": "Participant",
+      "elements": [
+        {
+          "type": "text",
+          "name": "activityName",
+          "title": "Activity, program, or event",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "activityDate",
+          "title": "Activity date",
+          "description": "For a series or season, enter the first date.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date"
+        },
+        {
+          "type": "text",
+          "name": "participantFirstName",
+          "title": "Participant's first name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "participantLastName",
+          "title": "Participant's last name",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "participantDateOfBirth",
+          "title": "Participant's date of birth",
+          "isRequired": true,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "participantEmail",
+          "title": "Email",
+          "description": "For a participant under 18, a parent's email is fine.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "participantPhone",
+          "title": "Phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "panel",
+          "name": "guardianDetails",
+          "title": "Parent or legal guardian",
+          "description": "The participant is under 18, so a parent or legal guardian must complete this section and sign the waiver.",
+          "visibleIf": "{participantDateOfBirth} notempty and age({participantDateOfBirth}) < 18",
+          "elements": [
+            {
+              "type": "text",
+              "name": "guardianFullName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "dropdown",
+              "name": "guardianRelationship",
+              "title": "Relationship to participant",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                { "value": "parent", "text": "Parent" },
+                { "value": "legalGuardian", "text": "Legal guardian" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "guardianPhone",
+              "title": "Phone",
+              "isRequired": true,
+              "inputType": "tel"
+            },
+            {
+              "type": "text",
+              "name": "guardianEmail",
+              "title": "Email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "emergencyAndHealth",
+      "title": "Emergency Contact and Health",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "emergencyContact",
+          "title": "Emergency contact",
+          "description": "Someone we can reach during the activity who is not taking part.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "emergencyContactName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "emergencyContactRelationship",
+              "title": "Relationship to participant",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "emergencyContactPhone",
+              "title": "Phone",
+              "isRequired": true,
+              "inputType": "tel"
+            },
+            {
+              "type": "text",
+              "name": "emergencyContactAltPhone",
+              "title": "Alternative phone",
+              "startWithNewLine": false,
+              "inputType": "tel"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "hasHealthConditions",
+          "title": "Does the participant have any medical conditions, allergies, or physical limitations we should know about?",
+          "isRequired": true
+        },
+        {
+          "type": "comment",
+          "name": "healthConditionDetails",
+          "visibleIf": "{hasHealthConditions} = true",
+          "title": "Please describe them and any care staff should provide",
+          "description": "Include allergies, medications the participant may need during the activity, and what to do in an emergency.",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "name": "waiverAndSignature",
+      "title": "Waiver and Signature",
+      "elements": [
+        {
+          "type": "html",
+          "name": "waiverText",
+          "html": "<h4>Assumption of risk and release</h4><p>Taking part in this activity involves risks that cannot be completely removed, even with careful supervision and well-maintained equipment. These risks include, among others, slips and falls, collisions with people or objects, equipment failure, changing weather and ground conditions, physical strain and exhaustion, and the actions of other participants. They can lead to property damage, serious injury, or, in rare cases, death.</p><p>By signing below, the participant (or, for a participant under 18, the parent or legal guardian) agrees to take part voluntarily and accepts these risks. To the fullest extent permitted by law, the signer releases the organizer, its staff, volunteers, and agents from claims arising from participation, except claims caused by their gross negligence or willful misconduct.</p><p>The participant agrees to follow staff instructions and safety rules, use equipment as directed, and stop taking part if they feel unwell or unsafe.</p>"
+        },
+        {
+          "type": "checkbox",
+          "name": "riskAcknowledgements",
+          "title": "Please confirm each statement",
+          "isRequired": true,
+          "choices": [
+            { "value": "readAndUnderstood", "text": "I have read this waiver and understand the risks of the activity." },
+            { "value": "voluntaryAndFit", "text": "The participant is taking part voluntarily and is physically able to do so." },
+            { "value": "followRules", "text": "The participant will follow staff instructions, safety rules, and equipment guidelines." },
+            { "value": "emergencyTreatment", "text": "I authorize the organizer to arrange emergency medical treatment for the participant if needed, at the participant's own expense." },
+            { "value": "releaseOfClaims", "text": "I agree to the release of claims described above." }
+          ],
+          "validators": [
+            {
+              "type": "answercount",
+              "minCount": 5,
+              "text": "Please confirm every statement to continue."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "guardianConsent",
+          "visibleIf": "{participantDateOfBirth} notempty and age({participantDateOfBirth}) < 18",
+          "title": "I am the participant's parent or legal guardian, and I agree to this waiver on their behalf",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{guardianConsent} = true",
+              "text": "A parent or legal guardian must agree for a participant under 18 to take part."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "mediaConsent",
+          "title": "May the organizer use photos or video in which the participant appears for promotional purposes?",
+          "description": "Optional. Your answer does not affect participation.",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "signerFullName",
+          "title": "Full name of the person signing",
+          "description": "The participant, or the parent or legal guardian if the participant is under 18.",
+          "isRequired": true
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "title": "Signature",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "signatureDate",
+          "title": "Date signed",
+          "inputType": "date",
+          "readOnly": true,
+          "defaultValueExpression": "today()"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you. Your waiver has been submitted.</h3><p>We've recorded the signed waiver for <b>{participantFirstName} {participantLastName}</b>. Please bring any required gear and arrive a few minutes early for the safety briefing.</p><p>If anything about the participant's health changes before the activity, let our staff know.</p>"
+}

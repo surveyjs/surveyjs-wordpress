@@ -1,0 +1,89 @@
+{
+  "title": "Send Us a Message",
+  "description": "Attach screenshots, photos, or documents if they help explain your question.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Send message",
+  "widthMode": "static",
+  "width": "680px",
+  "pages": [
+    {
+      "name": "contactMessage",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "startWithNewLine": false,
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "subject",
+          "title": "Subject",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "comment",
+          "name": "message",
+          "title": "Message",
+          "description": "If you are reporting a problem, tell us what you expected to happen and what happened instead.",
+          "isRequired": true,
+          "rows": 6,
+          "maxLength": 3000
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Attachments",
+          "description": "Optional. Up to 5 files, 10 MB each: images, PDF, Word, Excel, or plain text.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
+        },
+        {
+          "type": "boolean",
+          "name": "noSensitiveDataConfirmed",
+          "visibleIf": "{attachments} notempty",
+          "title": "Sensitive data check",
+          "titleLocation": "hidden",
+          "label": "I confirm that the attached files contain no passwords, payment card details, or other information I shouldn't share.",
+          "renderAs": "checkbox",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{noSensitiveDataConfirmed} = true",
+              "text": "Please remove any sensitive information from your files and confirm."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}!</h3><p>We've received your message and will reply to <b>{email}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{attachments} notempty",
+      "html": "<h3>Thank you, {fullName}!</h3><p>We've received your message and the files you attached. We'll reply to <b>{email}</b>.</p>"
+    }
+  ]
+}

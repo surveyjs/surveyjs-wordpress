@@ -1,0 +1,201 @@
+{
+  "title": "Flexible Working Hours Request Form",
+  "pages": [
+    {
+      "name": "requestDetails",
+      "elements": [
+        {
+          "type": "text",
+          "name": "employeeName",
+          "title": "Employee name:",
+          "maxLength": 30
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title:",
+          "maxLength": 35,
+          "dataList": [
+            "Accountant",
+            "Administrative Assistant",
+            "Architect",
+            "Business Analyst",
+            "Civil Engineer",
+            "Customer Service Representative",
+            "Data Analyst",
+            "Electrical Engineer",
+            "Executive Assistant",
+            "Financial Analyst",
+            "Graphic Designer",
+            "Human Resources Manager",
+            "Information Technology Specialist"
+          ]
+        },
+        {
+          "type": "text",
+          "name": "department",
+          "title": "Department/Division/Centre:",
+          "maxLength": 30
+        },
+        {
+          "type": "boolean",
+          "name": "numberOfWeeks",
+          "title": "I have worked continuously for the last 26 weeks."
+        },
+        {
+          "type": "boolean",
+          "name": "previousRequests",
+          "title": "I have not made a flexible working request in the last 12 months."
+        },
+        {
+          "type": "dropdown",
+          "name": "currentPattern",
+          "title": "What is your current working pattern?",
+          "choices": [
+            {
+              "value": "9-5",
+              "text": "Monday to Friday, 9 AM to 5 PM"
+            },
+            {
+              "value": "8-4",
+              "text": "Monday to Friday, 8 AM to 4 PM"
+            },
+            {
+              "value": "10-6",
+              "text": "Monday to Thursday, 10 AM to 6 PM"
+            },
+            {
+              "value": "7-3",
+              "text": "Tuesday to Saturday, 7 AM to 3 PM"
+            },
+            {
+              "value": "12-8",
+              "text": "Wednesday to Sunday, 12 PM to 8 PM"
+            },
+            {
+              "value": "weekends",
+              "text": "Weekends only, 9 AM to 5 PM"
+            },
+            {
+              "value": "even",
+              "text": "Monday, Wednesday, Friday, 9 AM to 5 PM"
+            },
+            {
+              "value": "part-time",
+              "text": "Part-time: Monday, Wednesday, Friday, 10 AM to 2 PM"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "pattern",
+          "title": "What working pattern are you requesting?",
+          "choices": [
+            {
+              "value": "part-time",
+              "text": "Part-time: Monday, Wednesday, Friday, 10 AM to 2 PM"
+            },
+            {
+              "value": "shifting",
+              "text": "Shift work: Rotating shifts, 7 AM to 3 PM / 3 PM to 11 PM / 11 PM to 7 AM"
+            },
+            {
+              "value": "flexible",
+              "text": "Flexible hours: Varies each day, core hours 10 AM to 3 PM"
+            },
+            {
+              "value": "compressed",
+              "text": "Compressed workweek: Monday to Thursday, 8 AM to 6 PM"
+            },
+            {
+              "value": "remote",
+              "text": "Remote work: Flexible hours, typically 9 AM to 5 PM"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "startDate",
+          "title": "When would you like your new working pattern to commence?",
+          "validators": [
+            {
+              "type": "expression",
+              "text": "The start date for your new working pattern must be at least 7 days from today.",
+              "expression": "diffDays({startDate}, today()) >= 7 and {startDate} > today()"
+            }
+          ],
+          "inputType": "date"
+        },
+        {
+          "type": "boolean",
+          "name": "riskAssessment",
+          "visibleIf": "{pattern} = 'remote'",
+          "title": "Have you completed a Homeworking Risk Assessment?"
+        },
+        {
+          "type": "panel",
+          "name": "areas",
+          "elements": [
+            {
+              "type": "html",
+              "name": "areasList",
+              "html": "<ul><li>What impact (both positive and challenges) do you think your requested arrangement will have on the service, your colleagues, your manager?</li><li>How can this impact be managed?</li><li>Do you have any flexibility with your request?</li></ul>"
+            },
+            {
+              "type": "comment",
+              "name": "areasComment",
+              "title": "Comments",
+              "titleLocation": "hidden",
+              "maxLength": 300,
+              "placeholder": "Please type your comments here...",
+              "autoGrow": true
+            }
+          ],
+          "title": "Please consider the following areas:"
+        },
+        {
+          "type": "checkbox",
+          "name": "consent",
+          "title": "Terms and Conditions",
+          "titleLocation": "hidden",
+          "showNumber": false,
+          "isRequired": true,
+          "requiredErrorText": "You must agree to the Terms and Conditions changes to continue. Please check the box to confirm your understanding.",
+          "choices": [
+            {
+              "value": "agreed",
+              "text": "I understand that if the request is successful, this will mean a permanent change to my Terms and Conditions."
+            }
+          ]
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "title": "Signature:",
+          "titleLocation": "top",
+          "showNumber": false
+        },
+        {
+          "type": "text",
+          "name": "date",
+          "maxWidth": "40%",
+          "startWithNewLine": false,
+          "title": "Date:",
+          "titleLocation": "top",
+          "showNumber": false,
+          "defaultValueExpression": "today()",
+          "readOnly": true,
+          "inputType": "date"
+        },
+        {
+          "type": "html",
+          "name": "lineManagerNote",
+          "html": "<em>The line manager receiving this form should contact their HR Partner to progress this application or seek further advice.</em>"
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit the form",
+  "widthMode": "static",
+  "width": "700px"
+}

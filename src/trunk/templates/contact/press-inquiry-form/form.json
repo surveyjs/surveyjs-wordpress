@@ -1,0 +1,455 @@
+{
+  "title": "Media Inquiries",
+  "description": "Journalists, bloggers, and podcasters: tell us what you're working on and when you need it, and our press team will follow up.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Send request",
+  "widthMode": "static",
+  "width": "720px",
+  "pages": [
+    {
+      "name": "mediaRequest",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "mediaProfile",
+          "title": "About you and your outlet",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Your name",
+              "isRequired": true,
+              "autocomplete": "name",
+              "maxLength": 100
+            },
+            {
+              "type": "dropdown",
+              "name": "mediaRole",
+              "title": "Your role",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                {
+                  "value": "staff-journalist",
+                  "text": "Staff journalist or reporter"
+                },
+                {
+                  "value": "editor-producer",
+                  "text": "Editor or producer"
+                },
+                {
+                  "value": "freelancer",
+                  "text": "Freelance journalist"
+                },
+                {
+                  "value": "blogger-creator",
+                  "text": "Blogger or content creator"
+                },
+                {
+                  "value": "podcaster",
+                  "text": "Podcast host or producer"
+                },
+                {
+                  "value": "analyst",
+                  "text": "Industry analyst"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "text",
+              "name": "mediaOutlet",
+              "title": "Publication, channel, or show",
+              "description": "Freelancers: name the outlet you're writing for, if you already know it.",
+              "requiredIf": "{mediaRole} <> 'freelancer'",
+              "maxLength": 150
+            },
+            {
+              "type": "dropdown",
+              "name": "outletType",
+              "title": "Type of outlet",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                {
+                  "value": "news-site",
+                  "text": "Newspaper or news website"
+                },
+                {
+                  "value": "magazine",
+                  "text": "Magazine"
+                },
+                {
+                  "value": "trade-publication",
+                  "text": "Trade or industry publication"
+                },
+                {
+                  "value": "tv",
+                  "text": "Television"
+                },
+                {
+                  "value": "radio",
+                  "text": "Radio"
+                },
+                {
+                  "value": "podcast",
+                  "text": "Podcast"
+                },
+                {
+                  "value": "blog-newsletter",
+                  "text": "Blog or newsletter"
+                },
+                {
+                  "value": "video-channel",
+                  "text": "Online video channel"
+                },
+                {
+                  "value": "news-agency",
+                  "text": "News agency"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "text",
+              "name": "outletWebsite",
+              "title": "Outlet website or profile link",
+              "inputType": "url",
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^(https?://)?[^\\s/$.?#]+\\.[^\\s]+$",
+                  "text": "Please enter a valid web address."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "requestDetails",
+          "title": "Your request",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "inquiryType",
+              "title": "What do you need from us?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "interview",
+                  "text": "An interview"
+                },
+                {
+                  "value": "comment",
+                  "text": "A comment or quote"
+                },
+                {
+                  "value": "press-kit",
+                  "text": "Press kit, logos, or photos"
+                },
+                {
+                  "value": "event-coverage",
+                  "text": "Access to cover an event"
+                },
+                {
+                  "value": "other",
+                  "text": "Something else"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "interviewee",
+              "visibleIf": "{inquiryType} = 'interview'",
+              "title": "Who would you like to speak with?",
+              "description": "A name, a job title, or simply \"a subject-matter expert\" is fine.",
+              "maxLength": 150
+            },
+            {
+              "type": "dropdown",
+              "name": "interviewLength",
+              "visibleIf": "{inquiryType} = 'interview'",
+              "title": "Expected length",
+              "startWithNewLine": false,
+              "choices": [
+                {
+                  "value": "15-minutes",
+                  "text": "Up to 15 minutes"
+                },
+                {
+                  "value": "30-minutes",
+                  "text": "About 30 minutes"
+                },
+                {
+                  "value": "1-hour",
+                  "text": "About an hour"
+                },
+                {
+                  "value": "longer",
+                  "text": "Longer than an hour"
+                }
+              ]
+            },
+            {
+              "type": "radiogroup",
+              "name": "interviewRecording",
+              "visibleIf": "{inquiryType} = 'interview'",
+              "title": "How will the interview be used?",
+              "colCount": 0,
+              "choices": [
+                {
+                  "value": "live",
+                  "text": "Broadcast or streamed live"
+                },
+                {
+                  "value": "recorded",
+                  "text": "Recorded and edited"
+                },
+                {
+                  "value": "notes-only",
+                  "text": "For a written article"
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "commentQuestions",
+              "visibleIf": "{inquiryType} = 'comment'",
+              "title": "What would you like us to respond to?",
+              "description": "List your questions or summarize the claim or development so we can reply accurately.",
+              "isRequired": true,
+              "rows": 4,
+              "maxLength": 2000
+            },
+            {
+              "type": "radiogroup",
+              "name": "attribution",
+              "visibleIf": "{inquiryType} = 'comment'",
+              "title": "How do you plan to attribute the response?",
+              "colCount": 0,
+              "choices": [
+                {
+                  "value": "named-spokesperson",
+                  "text": "To a named spokesperson"
+                },
+                {
+                  "value": "organization",
+                  "text": "To the organization"
+                },
+                {
+                  "value": "background",
+                  "text": "Background only, not for attribution"
+                }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "pressKitItems",
+              "visibleIf": "{inquiryType} = 'press-kit'",
+              "title": "Which materials do you need?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "fact-sheet",
+                  "text": "Company overview and key facts"
+                },
+                {
+                  "value": "logos",
+                  "text": "Logos"
+                },
+                {
+                  "value": "leadership",
+                  "text": "Leadership bios and headshots"
+                },
+                {
+                  "value": "product-images",
+                  "text": "Product or location photos"
+                },
+                {
+                  "value": "video-footage",
+                  "text": "Video footage"
+                },
+                {
+                  "value": "press-releases",
+                  "text": "Recent announcements"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "text",
+              "name": "eventName",
+              "visibleIf": "{inquiryType} = 'event-coverage'",
+              "title": "Which event?",
+              "isRequired": true,
+              "maxLength": 150
+            },
+            {
+              "type": "text",
+              "name": "eventDate",
+              "visibleIf": "{inquiryType} = 'event-coverage'",
+              "title": "Event date",
+              "startWithNewLine": false,
+              "inputType": "date",
+              "minValueExpression": "today()"
+            },
+            {
+              "type": "text",
+              "name": "crewSize",
+              "visibleIf": "{inquiryType} = 'event-coverage'",
+              "title": "How many people from your team will attend?",
+              "inputType": "number",
+              "min": 1,
+              "max": 20,
+              "step": 1
+            },
+            {
+              "type": "checkbox",
+              "name": "eventCoverageNeeds",
+              "visibleIf": "{inquiryType} = 'event-coverage'",
+              "title": "What will you need on site?",
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "press-pass",
+                  "text": "Press accreditation"
+                },
+                {
+                  "value": "filming",
+                  "text": "Permission to film or photograph"
+                },
+                {
+                  "value": "interview-slot",
+                  "text": "Time with a speaker or host"
+                },
+                {
+                  "value": "workspace",
+                  "text": "A place to work and Wi-Fi"
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "storyTopic",
+              "visibleIf": "{inquiryType} notempty",
+              "title": "What is your story about?",
+              "description": "A working headline or a few sentences about the angle helps us find the right person.",
+              "isRequired": true,
+              "rows": 3,
+              "maxLength": 1500
+            },
+            {
+              "type": "text",
+              "name": "deadlineDate",
+              "visibleIf": "{inquiryType} notempty",
+              "title": "Your deadline",
+              "description": "If there's no fixed deadline, enter the latest date that still works for you.",
+              "isRequired": true,
+              "inputType": "date",
+              "minValueExpression": "today()"
+            },
+            {
+              "type": "text",
+              "name": "deadlineTime",
+              "visibleIf": "{inquiryType} notempty",
+              "title": "Time of day (optional)",
+              "startWithNewLine": false,
+              "inputType": "time"
+            },
+            {
+              "type": "radiogroup",
+              "name": "preferredFormat",
+              "visibleIf": "{inquiryType} anyof ['interview', 'comment', 'other']",
+              "title": "How would you prefer to talk?",
+              "isRequired": true,
+              "colCount": 4,
+              "choices": [
+                {
+                  "value": "phone",
+                  "text": "Phone"
+                },
+                {
+                  "value": "video",
+                  "text": "Video call"
+                },
+                {
+                  "value": "email",
+                  "text": "Email"
+                },
+                {
+                  "value": "in-person",
+                  "text": "In person"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "meetingLocation",
+              "visibleIf": "{preferredFormat} = 'in-person' and {inquiryType} anyof ['interview', 'comment', 'other']",
+              "title": "Where would you like to meet?",
+              "placeholder": "City or address",
+              "isRequired": true,
+              "maxLength": 200
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "contactDetails",
+          "title": "How can we reach you?",
+          "elements": [
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email address",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                {
+                  "type": "email",
+                  "text": "Please enter a valid email address."
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone number",
+              "description": "Include the country code if you are outside the country.",
+              "requiredIf": "{preferredFormat} = 'phone' and {inquiryType} anyof ['interview', 'comment', 'other']",
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel",
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^\\+?[0-9 ().-]{7,20}$",
+                  "text": "Please enter a valid phone number."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}.</h3><p>Our press team has your request and will reply to <b>{email}</b> before your deadline whenever possible.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{deadlineDate} <= today(1)",
+      "html": "<h3>Thank you, {fullName}.</h3><p>We see your deadline is very close. Our press team handles urgent requests first and will reply to <b>{email}</b> as soon as it can.</p>"
+    },
+    {
+      "expression": "{inquiryType} = 'press-kit'",
+      "html": "<h3>Thank you, {fullName}.</h3><p>We'll send the materials you asked for to <b>{email}</b>.</p>"
+    }
+  ]
+}

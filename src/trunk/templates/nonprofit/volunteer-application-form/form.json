@@ -1,0 +1,398 @@
+{
+  "title": "Volunteer Application Form",
+  "description": "Thank you for your interest in volunteering with us. Tell us a little about yourself, when you are available, and how you would like to help, and our volunteer coordinator will be in touch.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "contactInformation",
+      "title": "Contact Information",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email", "text": "Please enter a valid email address." }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone number",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "text",
+          "name": "streetAddress",
+          "title": "Street address",
+          "autocomplete": "street-address"
+        },
+        {
+          "type": "text",
+          "name": "city",
+          "title": "City",
+          "isRequired": true,
+          "autocomplete": "address-level2"
+        },
+        {
+          "type": "text",
+          "name": "stateRegion",
+          "title": "State or region",
+          "startWithNewLine": false,
+          "autocomplete": "address-level1"
+        },
+        {
+          "type": "text",
+          "name": "postalCode",
+          "title": "ZIP or postal code",
+          "startWithNewLine": false,
+          "autocomplete": "postal-code"
+        },
+        {
+          "type": "radiogroup",
+          "name": "ageGroup",
+          "title": "How old are you?",
+          "description": "Some volunteer roles have minimum age requirements.",
+          "isRequired": true,
+          "choices": [
+            { "value": "under16", "text": "Under 16" },
+            { "value": "16to17", "text": "16–17" },
+            { "value": "18plus", "text": "18 or older" }
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "panel",
+          "name": "guardianPanel",
+          "visibleIf": "{ageGroup} anyof ['under16', '16to17']",
+          "title": "Parent or guardian",
+          "description": "Volunteers under 18 need consent from a parent or legal guardian.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "guardianName",
+              "title": "Parent or guardian's full name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "guardianPhone",
+              "title": "Parent or guardian's phone number",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel"
+            },
+            {
+              "type": "boolean",
+              "name": "guardianConsent",
+              "title": "I am the parent or legal guardian of this applicant, and I consent to their application to volunteer.",
+              "renderAs": "checkbox",
+              "isRequired": true,
+              "validators": [
+                {
+                  "type": "expression",
+                  "expression": "{guardianConsent} = true",
+                  "text": "Parent or guardian consent is required for applicants under 18."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How do you prefer to be contacted?",
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" },
+            { "value": "textMessage", "text": "Text message" }
+          ],
+          "colCount": 3
+        }
+      ]
+    },
+    {
+      "name": "availability",
+      "title": "Availability",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "availableDays",
+          "title": "Which days are you usually available?",
+          "isRequired": true,
+          "choices": [
+            { "value": "monday", "text": "Monday" },
+            { "value": "tuesday", "text": "Tuesday" },
+            { "value": "wednesday", "text": "Wednesday" },
+            { "value": "thursday", "text": "Thursday" },
+            { "value": "friday", "text": "Friday" },
+            { "value": "saturday", "text": "Saturday" },
+            { "value": "sunday", "text": "Sunday" }
+          ],
+          "colCount": 4
+        },
+        {
+          "type": "checkbox",
+          "name": "availableTimes",
+          "title": "Which times of day work best for you?",
+          "isRequired": true,
+          "choices": [
+            { "value": "morning", "text": "Morning" },
+            { "value": "afternoon", "text": "Afternoon" },
+            { "value": "evening", "text": "Evening" }
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "commitmentLevel",
+          "title": "How often would you like to volunteer?",
+          "isRequired": true,
+          "choices": [
+            { "value": "oneTime", "text": "For a one-time event" },
+            { "value": "occasionally", "text": "Occasionally, when my schedule allows" },
+            { "value": "monthly", "text": "About once a month" },
+            { "value": "weekly", "text": "About once a week" },
+            { "value": "severalTimesWeekly", "text": "Several times a week" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "availableFrom",
+          "title": "When could you start?",
+          "inputType": "date",
+          "minValueExpression": "today()"
+        }
+      ]
+    },
+    {
+      "name": "interestsAndSkills",
+      "title": "Interests and Skills",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "areasOfInterest",
+          "title": "Which areas would you like to help with?",
+          "description": "Select all that interest you.",
+          "isRequired": true,
+          "choices": [
+            { "value": "events", "text": "Events and activities" },
+            { "value": "fundraising", "text": "Fundraising" },
+            { "value": "officeAdmin", "text": "Office and administrative support" },
+            { "value": "mentoring", "text": "Mentoring or tutoring" },
+            { "value": "outreach", "text": "Community outreach" },
+            { "value": "foodDistribution", "text": "Food collection and distribution" },
+            { "value": "environment", "text": "Environmental and outdoor projects" },
+            { "value": "communications", "text": "Marketing and communications" },
+            { "value": "professionalServices", "text": "Professional skills (legal, finance, IT, design)" }
+          ],
+          "colCount": 2,
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "checkbox",
+          "name": "skills",
+          "title": "Which of these skills or qualifications do you have?",
+          "description": "Select all that apply.",
+          "choices": [
+            { "value": "firstAid", "text": "First aid or CPR certification" },
+            { "value": "driversLicense", "text": "Valid driver's license" },
+            { "value": "teaching", "text": "Teaching or coaching" },
+            { "value": "foodHandling", "text": "Food handling" },
+            { "value": "writing", "text": "Writing and editing" },
+            { "value": "photoVideo", "text": "Photography or video" },
+            { "value": "socialMedia", "text": "Social media" },
+            { "value": "design", "text": "Graphic design" },
+            { "value": "itSupport", "text": "IT support" },
+            { "value": "accounting", "text": "Bookkeeping or accounting" },
+            { "value": "construction", "text": "Construction or repairs" },
+            { "value": "eventPlanning", "text": "Event planning" }
+          ],
+          "colCount": 2,
+          "showOtherItem": true,
+          "otherText": "Other skill"
+        },
+        {
+          "type": "text",
+          "name": "languages",
+          "title": "Which languages do you speak fluently?"
+        }
+      ]
+    },
+    {
+      "name": "experienceAndMotivation",
+      "title": "Experience and Motivation",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "hasVolunteered",
+          "title": "Have you volunteered before?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "paneldynamic",
+          "name": "volunteerHistory",
+          "visibleIf": "{hasVolunteered} = true",
+          "title": "Previous volunteer experience",
+          "description": "List your most recent or most relevant roles.",
+          "templateTitle": "Role {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "organizationName",
+              "title": "Organization",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "role",
+              "title": "Role or activity",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "dropdown",
+              "name": "duration",
+              "title": "How long did you volunteer there?",
+              "choices": [
+                { "value": "underSixMonths", "text": "Less than 6 months" },
+                { "value": "sixToTwelveMonths", "text": "6 to 12 months" },
+                { "value": "oneToThreeYears", "text": "1 to 3 years" },
+                { "value": "overThreeYears", "text": "More than 3 years" }
+              ]
+            }
+          ],
+          "panelCount": 1,
+          "minPanelCount": 1,
+          "maxPanelCount": 5,
+          "panelAddText": "Add another role",
+          "panelRemoveText": "Remove role"
+        },
+        {
+          "type": "comment",
+          "name": "motivation",
+          "title": "Why would you like to volunteer with us?",
+          "isRequired": true,
+          "rows": 4
+        },
+        {
+          "type": "comment",
+          "name": "accommodations",
+          "title": "Is there anything we should know to make volunteering accessible and comfortable for you?",
+          "description": "Optional. For example, mobility needs or tasks you prefer to avoid.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "emergencyContact",
+      "title": "Emergency Contact",
+      "description": "We will contact this person only in an emergency while you are volunteering.",
+      "elements": [
+        {
+          "type": "text",
+          "name": "emergencyContactName",
+          "title": "Full name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "emergencyContactRelationship",
+          "title": "Relationship to you",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "emergencyContactPhone",
+          "title": "Phone number",
+          "isRequired": true,
+          "inputType": "tel"
+        }
+      ]
+    },
+    {
+      "name": "consentAndAgreement",
+      "title": "Consent and Agreement",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "backgroundCheckConsent",
+          "title": "Do you consent to a background check if the volunteer role requires one?",
+          "description": "Roles that involve working with children, vulnerable adults, or finances may require a background check before you start. We will tell you in advance if your role needs one and ask for any further details then.",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "html",
+          "name": "backgroundCheckNote",
+          "visibleIf": "{backgroundCheckConsent} = false",
+          "html": "<p>That's fine. We will only offer you roles that do not require a background check.</p>"
+        },
+        {
+          "type": "boolean",
+          "name": "photoConsent",
+          "title": "May we use photos or videos of you taken while volunteering in our newsletters, website, and social media?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "boolean",
+          "name": "codeOfConductAgreement",
+          "title": "I agree to follow the organization's volunteer code of conduct and policies, including those on confidentiality and safeguarding.",
+          "renderAs": "checkbox",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{codeOfConductAgreement} = true",
+              "text": "You need to agree to the code of conduct to volunteer with us."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "accuracyConfirmation",
+          "title": "I confirm that the information in this application is accurate and complete.",
+          "renderAs": "checkbox",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{accuracyConfirmation} = true",
+              "text": "Please confirm that your information is accurate."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit Application",
+  "completedHtml": "<h3>Thank you for applying, {firstName}!</h3><p>We have received your application. Our volunteer coordinator will review it and contact you at {email} to talk about next steps and suitable opportunities.</p>"
+}

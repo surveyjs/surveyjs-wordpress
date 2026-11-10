@@ -1,0 +1,350 @@
+{
+  "title": "Subscription Order Form",
+  "description": "Pick a plan, the number of seats, and a billing cycle to see your price, then tell us who to invoice. Your subscription starts once we confirm the order.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "completeText": "Place Order",
+  "calculatedValues": [
+    {
+      "name": "seatPrice",
+      "expression": "iif({plan} = 'starter', 10, iif({plan} = 'professional', 24, iif({plan} = 'business', 39, 0)))"
+    },
+    {
+      "name": "seatAddOnPrice",
+      "expression": "iif({addOns} contains 'prioritySupport', 4, 0) + iif({addOns} contains 'advancedSecurity' and {plan} <> 'business', 6, 0)"
+    },
+    {
+      "name": "flatAddOnPrice",
+      "expression": "iif({addOns} contains 'extraStorage', 20, 0)"
+    },
+    {
+      "name": "billingMonths",
+      "expression": "iif({billingCycle} = 'annual', 12, 1)"
+    },
+    {
+      "name": "annualDiscountRate",
+      "expression": "iif({billingCycle} = 'annual', 0.2, 0)"
+    },
+    {
+      "name": "periodLabel",
+      "expression": "iif({billingCycle} = 'annual', 'year', 'month')"
+    }
+  ],
+  "pages": [
+    {
+      "name": "planAndSeats",
+      "title": "Plan and Seats",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "plan",
+          "title": "Choose a plan",
+          "description": "Prices are per seat per month. One seat is one user who can sign in.",
+          "isRequired": true,
+          "choices": [
+            { "value": "starter", "text": "Starter: $10 per seat. Core features and email support" },
+            { "value": "professional", "text": "Professional: $24 per seat. Adds integrations, reporting, and admin controls" },
+            { "value": "business", "text": "Business: $39 per seat. Adds advanced security, audit logs, and a dedicated account manager (5 seats minimum)" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "seats",
+          "title": "Number of seats",
+          "description": "You can add or remove seats later. Changes apply from the next billing period.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 1,
+          "max": 1000,
+          "step": 1,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{plan} <> 'business' or {seats} >= 5",
+              "text": "The Business plan requires at least 5 seats."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "billingCycle",
+          "title": "Billing cycle",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "monthly", "text": "Monthly: pay as you go, cancel any time" },
+            { "value": "annual", "text": "Annual: pay for 12 months upfront and save 20%" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "addOns",
+          "title": "Add-ons",
+          "description": "Optional. Recurring add-ons follow your billing cycle and get the annual discount.",
+          "choices": [
+            { "value": "prioritySupport", "text": "Priority support with a 4-hour response time (+$4 per seat per month)" },
+            {
+              "value": "advancedSecurity",
+              "text": "Advanced security: single sign-on and audit logs (+$6 per seat per month)",
+              "visibleIf": "{plan} <> 'business'"
+            },
+            { "value": "extraStorage", "text": "Extra 1 TB of shared storage (+$20 per month)" },
+            { "value": "onboarding", "text": "Guided onboarding: two live setup sessions with a specialist (one-time $300)" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "priceSummary",
+          "title": "Your price",
+          "visibleIf": "{plan} notempty and {billingCycle} notempty and {seats} > 0",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "listPrice",
+              "title": "Price per {periodLabel}",
+              "expression": "({seatPrice} + {seatAddOnPrice}) * {seats} * {billingMonths} + {flatAddOnPrice} * {billingMonths}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "annualDiscount",
+              "visibleIf": "{billingCycle} = 'annual'",
+              "title": "Annual discount (20%)",
+              "startWithNewLine": false,
+              "expression": "round({listPrice} * {annualDiscountRate}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "recurringTotal",
+              "title": "Total per {periodLabel}",
+              "startWithNewLine": false,
+              "expression": "{listPrice} - {annualDiscount}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "oneTimeFees",
+              "visibleIf": "{addOns} contains 'onboarding'",
+              "title": "One-time fees",
+              "expression": "iif({addOns} contains 'onboarding', 300, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "firstInvoiceTotal",
+              "title": "First invoice",
+              "startWithNewLine": false,
+              "expression": "{recurringTotal} + {oneTimeFees}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "html",
+              "name": "taxNote",
+              "html": "<p><small>Prices exclude sales tax or VAT, which is added to your invoice where it applies.</small></p>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "customerDetails",
+      "title": "Customer Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "organizationName",
+          "title": "Organization name",
+          "description": "As it should appear on invoices.",
+          "isRequired": true,
+          "autocomplete": "organization"
+        },
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Your full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title",
+          "startWithNewLine": false,
+          "autocomplete": "organization-title"
+        },
+        {
+          "type": "text",
+          "name": "workEmail",
+          "title": "Work email",
+          "description": "This person becomes the account administrator.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "boolean",
+          "name": "separateBillingContact",
+          "title": "Should invoices go to someone else?",
+          "description": "For example, your accounts payable team."
+        },
+        {
+          "type": "panel",
+          "name": "billingContact",
+          "visibleIf": "{separateBillingContact} = true",
+          "elements": [
+            {
+              "type": "text",
+              "name": "billingContactName",
+              "title": "Billing contact name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "billingEmail",
+              "title": "Billing email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "billingAddress",
+          "title": "Billing address",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "addressLine2",
+              "title": "Suite, floor, or building",
+              "autocomplete": "address-line2"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "region",
+              "title": "State, province, or region",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "Postal code",
+              "isRequired": true,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "country",
+              "title": "Country",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "country-name"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "taxId",
+          "title": "VAT or tax ID",
+          "description": "Optional. Add it if your organization is tax-exempt or needs it printed on invoices."
+        },
+        {
+          "type": "text",
+          "name": "purchaseOrderNumber",
+          "title": "Purchase order number",
+          "description": "Optional. We'll include it on every invoice.",
+          "startWithNewLine": false
+        }
+      ]
+    },
+    {
+      "name": "paymentAndTerms",
+      "title": "Payment and Terms",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "paymentMethod",
+          "title": "How would you like to pay?",
+          "isRequired": true,
+          "choices": [
+            { "value": "card", "text": "Credit or debit card (we'll email a secure payment link)" },
+            {
+              "value": "invoice",
+              "text": "Invoice with bank transfer, due in 30 days",
+              "visibleIf": "{billingCycle} = 'annual'"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "startDate",
+          "title": "Preferred start date",
+          "description": "Your first billing period starts on this date.",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "comment",
+          "name": "orderNotes",
+          "title": "Questions or special requirements",
+          "description": "For example, a data residency requirement or a plan to add more seats soon."
+        },
+        {
+          "type": "html",
+          "name": "subscriptionTerms",
+          "html": "<p><b>Subscription terms</b></p><ul><li>Your subscription renews automatically at the end of each billing period until you cancel it.</li><li>You can cancel at any time. Access continues until the end of the period you've paid for; we don't refund partial periods.</li><li>Seats you add mid-period are charged pro rata. Seats you remove are credited from the next period.</li><li>We'll give you at least 30 days' notice of any price change before it applies to your renewal.</li></ul>"
+        },
+        {
+          "type": "checkbox",
+          "name": "termsAgreement",
+          "title": "Agreement",
+          "titleLocation": "hidden",
+          "isRequired": true,
+          "requiredErrorText": "Please accept the subscription terms to place your order.",
+          "choices": [
+            { "value": "agreed", "text": "I accept the subscription terms and the terms of service, and I'm authorized to place this order for my organization." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you for your order, {fullName}!</h3><p>Your subscription total is <b>{recurringTotal}</b> per {periodLabel}. We'll email an order confirmation and payment details to <b>{workEmail}</b> within one business day.</p><p>Your account will be ready to use on your start date.</p>"
+}

@@ -1,0 +1,428 @@
+{
+  "title": "Become a Supplier",
+  "description": "Tell us about your company and what you offer. Our procurement team reviews every inquiry and will be in touch if there's a fit.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit inquiry",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "companyProfile",
+      "title": "Your Company",
+      "elements": [
+        {
+          "type": "text",
+          "name": "companyName",
+          "title": "Company name",
+          "isRequired": true,
+          "autocomplete": "organization",
+          "maxLength": 150
+        },
+        {
+          "type": "text",
+          "name": "website",
+          "title": "Website",
+          "isRequired": true,
+          "inputType": "url",
+          "autocomplete": "url",
+          "startWithNewLine": false,
+          "placeholder": "https://",
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^(https?://)?[^\\s/$.?#]+\\.[^\\s]+$",
+              "text": "Please enter a valid web address."
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "country",
+          "title": "Country of registration",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "united-states",
+              "text": "United States"
+            },
+            {
+              "value": "canada",
+              "text": "Canada"
+            },
+            {
+              "value": "united-kingdom",
+              "text": "United Kingdom"
+            },
+            {
+              "value": "germany",
+              "text": "Germany"
+            },
+            {
+              "value": "france",
+              "text": "France"
+            },
+            {
+              "value": "netherlands",
+              "text": "Netherlands"
+            },
+            {
+              "value": "spain",
+              "text": "Spain"
+            },
+            {
+              "value": "italy",
+              "text": "Italy"
+            },
+            {
+              "value": "australia",
+              "text": "Australia"
+            },
+            {
+              "value": "india",
+              "text": "India"
+            },
+            {
+              "value": "china",
+              "text": "China"
+            },
+            {
+              "value": "japan",
+              "text": "Japan"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other country"
+        },
+        {
+          "type": "dropdown",
+          "name": "yearsInBusiness",
+          "title": "Years in business",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            {
+              "value": "under-1",
+              "text": "Less than 1 year"
+            },
+            {
+              "value": "1-3",
+              "text": "1–3 years"
+            },
+            {
+              "value": "4-10",
+              "text": "4–10 years"
+            },
+            {
+              "value": "11-20",
+              "text": "11–20 years"
+            },
+            {
+              "value": "over-20",
+              "text": "More than 20 years"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "companySize",
+          "title": "Company size",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            {
+              "value": "1-10",
+              "text": "1–10 employees"
+            },
+            {
+              "value": "11-50",
+              "text": "11–50 employees"
+            },
+            {
+              "value": "51-250",
+              "text": "51–250 employees"
+            },
+            {
+              "value": "251-1000",
+              "text": "251–1,000 employees"
+            },
+            {
+              "value": "over-1000",
+              "text": "More than 1,000 employees"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "contactName",
+          "title": "Contact person",
+          "isRequired": true,
+          "autocomplete": "name",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title",
+          "autocomplete": "organization-title",
+          "startWithNewLine": false,
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Business email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone number",
+          "inputType": "tel",
+          "autocomplete": "tel",
+          "startWithNewLine": false,
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^\\+?[0-9 ().-]{7,20}$",
+              "text": "Please enter a valid phone number."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "offering",
+      "title": "Your Offering",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "vendorCategory",
+          "title": "What do you supply?",
+          "description": "Select all that apply.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "raw-materials",
+              "text": "Raw materials"
+            },
+            {
+              "value": "components",
+              "text": "Components and parts"
+            },
+            {
+              "value": "packaging",
+              "text": "Packaging"
+            },
+            {
+              "value": "it-services",
+              "text": "IT services and software"
+            },
+            {
+              "value": "logistics",
+              "text": "Logistics and transportation"
+            },
+            {
+              "value": "professional-services",
+              "text": "Professional services"
+            },
+            {
+              "value": "marketing",
+              "text": "Marketing and creative"
+            },
+            {
+              "value": "facilities",
+              "text": "Facilities and maintenance"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "comment",
+          "name": "offeringDescription",
+          "title": "Describe your products or services",
+          "description": "What you offer, what makes it different, and how it could support our business.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 3000
+        },
+        {
+          "type": "text",
+          "name": "keyClients",
+          "title": "Key clients or references",
+          "description": "Optional. A few companies you currently work with.",
+          "maxLength": 300
+        },
+        {
+          "type": "checkbox",
+          "name": "certifications",
+          "title": "Which certifications do you hold?",
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "iso-9001",
+              "text": "ISO 9001 (quality management)"
+            },
+            {
+              "value": "iso-14001",
+              "text": "ISO 14001 (environmental management)"
+            },
+            {
+              "value": "iso-27001",
+              "text": "ISO 27001 (information security)"
+            },
+            {
+              "value": "soc-2",
+              "text": "SOC 2"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other certification",
+          "showNoneItem": true,
+          "noneText": "None yet"
+        },
+        {
+          "type": "text",
+          "name": "minimumOrder",
+          "title": "Minimum order quantity or contract value",
+          "description": "Optional. For example, 500 units or $5,000 per order.",
+          "maxLength": 100
+        },
+        {
+          "type": "dropdown",
+          "name": "leadTime",
+          "title": "Typical lead time",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            {
+              "value": "in-stock",
+              "text": "In stock, ships immediately"
+            },
+            {
+              "value": "under-1-week",
+              "text": "Less than 1 week"
+            },
+            {
+              "value": "1-2-weeks",
+              "text": "1–2 weeks"
+            },
+            {
+              "value": "3-4-weeks",
+              "text": "3–4 weeks"
+            },
+            {
+              "value": "1-3-months",
+              "text": "1–3 months"
+            },
+            {
+              "value": "over-3-months",
+              "text": "More than 3 months"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "pricingModel",
+          "title": "How do you price your offering?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "per-unit",
+              "text": "Per unit"
+            },
+            {
+              "value": "hourly-daily",
+              "text": "Hourly or daily rate"
+            },
+            {
+              "value": "fixed-project",
+              "text": "Fixed price per project"
+            },
+            {
+              "value": "subscription",
+              "text": "Subscription or retainer"
+            },
+            {
+              "value": "volume-tiers",
+              "text": "Volume-based tiers"
+            },
+            {
+              "value": "custom-quote",
+              "text": "Custom quote"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "existingRelationship",
+          "title": "Have you worked with our company before?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "existingContactName",
+          "visibleIf": "{existingRelationship} = true",
+          "title": "Who did you work with on our side?",
+          "description": "The name or department of your previous contact.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "maxLength": 150
+        },
+        {
+          "type": "file",
+          "name": "capabilityDocs",
+          "title": "Capability statement, catalog, or price list",
+          "description": "Optional. Up to 3 PDF files, 10 MB each.",
+          "allowMultiple": true,
+          "maxFiles": 3,
+          "maxSize": 10485760,
+          "acceptedTypes": ".pdf"
+        },
+        {
+          "type": "boolean",
+          "name": "diversityOwned",
+          "title": "Is your company certified as a diverse-owned business?",
+          "description": "Optional. For example, minority-, women-, veteran-, or disability-owned.",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "checkbox",
+          "name": "accuracyConfirmation",
+          "title": "Confirmation",
+          "titleLocation": "hidden",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "confirmed",
+              "text": "I confirm that the information provided is accurate and that I am authorized to represent this company."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {contactName}.</h3><p>We've received the inquiry from <b>{companyName}</b>. Our procurement team reviews new supplier inquiries within <b>10 business days</b> and will reply to <b>{email}</b> if we'd like to learn more.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{existingRelationship} = true",
+      "html": "<h3>Thank you, {contactName}.</h3><p>We've received the inquiry from <b>{companyName}</b>. Since you've worked with us before, we'll check with <b>{existingContactName}</b> and reply to <b>{email}</b> within <b>5 business days</b>.</p>"
+    }
+  ]
+}

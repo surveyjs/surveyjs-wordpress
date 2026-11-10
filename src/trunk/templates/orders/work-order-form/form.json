@@ -1,0 +1,325 @@
+{
+  "title": "Work Order",
+  "description": "Describe the work you need done, and we'll schedule a technician. Cost estimates update as you fill in labor and materials.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Submit work order",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "request",
+      "title": "Request",
+      "elements": [
+        {
+          "type": "text",
+          "name": "requesterName",
+          "title": "Requested by",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "department",
+          "title": "Department",
+          "startWithNewLine": false,
+          "autocomplete": "organization"
+        },
+        {
+          "type": "text",
+          "name": "requesterEmail",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "requesterPhone",
+          "title": "Phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "text",
+          "name": "siteLocation",
+          "title": "Location or site",
+          "description": "Building, floor, room, or address where the work is needed.",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "assetId",
+          "title": "Asset or equipment ID",
+          "description": "The tag number on the equipment, if there is one.",
+          "startWithNewLine": false
+        },
+        {
+          "type": "radiogroup",
+          "name": "workType",
+          "title": "Type of work",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "repair", "text": "Repair" },
+            { "value": "installation", "text": "Installation" },
+            { "value": "preventive-maintenance", "text": "Preventive maintenance" },
+            { "value": "inspection", "text": "Inspection" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "priority",
+          "title": "Priority",
+          "isRequired": true,
+          "choices": [
+            { "value": "low", "text": "Low: can wait for the next scheduled visit" },
+            { "value": "medium", "text": "Medium: should be done within two weeks" },
+            { "value": "high", "text": "High: affects daily operations, needed within 48 hours" },
+            { "value": "emergency", "text": "Emergency: safety risk or complete outage, needed today" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "problemDescription",
+          "title": "Describe the problem or the work required",
+          "description": "Include symptoms, when the issue started, and anything already tried.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 2000
+        },
+        {
+          "type": "file",
+          "name": "photos",
+          "title": "Photos",
+          "description": "Optional. Up to 5 photos of the equipment or area.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*"
+        },
+        {
+          "type": "comment",
+          "name": "accessInstructions",
+          "title": "Access instructions",
+          "description": "Keys, badges, escort requirements, or hours when the area is available.",
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "name": "scope",
+      "title": "Scope and Estimate",
+      "elements": [
+        {
+          "type": "text",
+          "name": "assignedTechnician",
+          "title": "Assigned technician",
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "scheduledDate",
+          "title": "Scheduled date",
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "scheduledTime",
+          "title": "Scheduled time",
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "text",
+          "name": "estimatedHours",
+          "title": "Estimated labor hours",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.5
+        },
+        {
+          "type": "text",
+          "name": "laborRate",
+          "title": "Labor rate ($ per hour)",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "number",
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "materials",
+          "title": "Materials and parts",
+          "description": "List each part or material needed. Leave empty if none.",
+          "columns": [
+            {
+              "name": "item",
+              "title": "Item",
+              "cellType": "text",
+              "isRequired": true,
+              "width": "45%"
+            },
+            {
+              "name": "quantity",
+              "title": "Quantity",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "defaultValue": 1,
+              "min": 0,
+              "step": 1
+            },
+            {
+              "name": "unitCost",
+              "title": "Unit cost ($)",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "name": "lineTotal",
+              "title": "Total",
+              "cellType": "expression",
+              "expression": "iif({row.quantity} > 0 and {row.unitCost} > 0, round({row.quantity} * {row.unitCost}, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "totalCurrency": "USD"
+            }
+          ],
+          "rowCount": 0,
+          "maxRowCount": 30,
+          "addRowText": "Add material",
+          "removeRowText": "Remove"
+        },
+        {
+          "type": "panel",
+          "name": "costEstimate",
+          "title": "Cost estimate",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "laborCost",
+              "title": "Labor",
+              "expression": "iif({estimatedHours} > 0 and {laborRate} > 0, round({estimatedHours} * {laborRate}, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "materialsCost",
+              "title": "Materials",
+              "startWithNewLine": false,
+              "expression": "sumInArray({materials}, 'lineTotal')",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "estimatedTotal",
+              "title": "Estimated total",
+              "startWithNewLine": false,
+              "expression": "{laborCost} + {materialsCost}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "scopeNotes",
+          "title": "Scope notes",
+          "description": "Technician notes on the planned approach, parts to order, or follow-up work.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "authorization",
+      "title": "Authorization",
+      "elements": [
+        {
+          "type": "html",
+          "name": "approvalNotice",
+          "visibleIf": "{estimatedTotal} > 500",
+          "html": "<p><b>Approval required.</b> Work orders with an estimated total above $500 must be approved by a budget holder before work starts.</p>"
+        },
+        {
+          "type": "boolean",
+          "name": "approvalRequired",
+          "visibleIf": "{estimatedTotal} > 500",
+          "title": "Has a budget holder approved this work order?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "Not yet"
+        },
+        {
+          "type": "text",
+          "name": "approverName",
+          "visibleIf": "{approvalRequired} = true",
+          "title": "Approver name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "approverEmail",
+          "visibleIf": "{approvalRequired} = true",
+          "title": "Approver email",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "purchaseOrderNumber",
+          "visibleIf": "{approvalRequired} = true",
+          "title": "Purchase order or cost center",
+          "description": "Optional. The code the work should be charged to."
+        },
+        {
+          "type": "signaturepad",
+          "name": "requesterSignature",
+          "title": "Requester signature",
+          "description": "By signing, you confirm the request details are accurate and authorize the estimated work.",
+          "isRequired": true,
+          "signatureWidth": 400,
+          "signatureHeight": 160
+        },
+        {
+          "type": "text",
+          "name": "signatureDate",
+          "title": "Date",
+          "inputType": "date",
+          "readOnly": true,
+          "defaultValueExpression": "today()"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Work order submitted</h3><p>Thank you, {requesterName}. Your <b>{workType}</b> request for <b>{siteLocation}</b> has been logged with an estimated cost of <b>{estimatedTotal}</b>. We'll confirm the schedule by email at <b>{requesterEmail}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{priority} = 'emergency'",
+      "html": "<h3>Emergency work order submitted</h3><p>Thank you, {requesterName}. Your request for <b>{siteLocation}</b> has been flagged as an <b>emergency</b> and sent to the on-call technician. Someone will contact you at <b>{requesterPhone}</b> or <b>{requesterEmail}</b> shortly.</p><p>If there is an immediate danger to people, call emergency services now.</p>"
+    }
+  ]
+}

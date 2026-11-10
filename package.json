@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "test:e2e": "playwright test --project=setup --project=e2e",
-    "test:unit": "playwright test --project=unit"
+    "test:unit": "playwright test --project=unit",
+    "update-templates": "node scripts/update-templates.js"
   },
   "devDependencies": {
     "@playwright/test": "1.48.2"

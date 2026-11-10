@@ -1,0 +1,133 @@
+{
+  "title": "Customer Recommendation Survey",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{recommendationLikelihood} <= 6 or {wouldBuyAgain} = false",
+      "html": "Thanks for your feedback! We highly value all ideas and suggestions from our customers, whether they're positive or critical. In the future, our team might reach out to you to learn more about how we can further improve our product so that it exceeds your expectations."
+    },
+    {
+      "expression": "{recommendationLikelihood} = 6 or {recommendationLikelihood} = 7",
+      "html": "Thanks for your feedback. Our goal is to create the best possible product, and your thoughts, ideas, and suggestions play a major role in helping us identify opportunities to improve."
+    },
+    {
+      "expression": "{recommendationLikelihood} >= 8",
+      "html": "Thanks for your feedback. It's great to hear that you're a fan of our product. Your feedback helps us discover new opportunities to improve it and make sure you have the best possible experience."
+    }
+  ],
+  "pages": [
+    {
+      "name": "recommendation",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "recommendationLikelihood",
+          "title": "On a scale from 0 to 10, how likely are you to recommend us to a friend or colleague?",
+          "rateMin": 0,
+          "rateMax": 10,
+          "minRateDescription": "Very unlikely",
+          "maxRateDescription": "Very likely",
+          "rateDescriptionLocation": "bottom"
+        },
+        {
+          "type": "comment",
+          "name": "disappointingExperience",
+          "visibleIf": "{recommendationLikelihood} <= 5",
+          "title": "How did we disappoint you and what can we do to make things right?",
+          "maxLength": 300
+        },
+        {
+          "type": "comment",
+          "name": "improvementsRequired",
+          "visibleIf": "{recommendationLikelihood} >= 6",
+          "title": "What can we do to make your experience more satisfying?",
+          "maxLength": 300
+        },
+        {
+          "type": "checkbox",
+          "name": "valuedFeatures",
+          "visibleIf": "{recommendationLikelihood} >= 9",
+          "title": "Which of the following features do you value the most?",
+          "description": "Please select no more than three features.",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "performance",
+              "text": "Performance"
+            },
+            {
+              "value": "stability",
+              "text": "Stability"
+            },
+            {
+              "value": "ui",
+              "text": "User interface"
+            },
+            {
+              "value": "complete-functionality",
+              "text": "Complete functionality"
+            },
+            {
+              "value": "learning-materials",
+              "text": "Learning materials (documentation, demos, code examples)"
+            },
+            {
+              "value": "support",
+              "text": "Quality support"
+            }
+          ],
+          "showOtherItem": true,
+          "otherPlaceholder": "Please specify...",
+          "otherText": "Other features",
+          "colCount": 2,
+          "maxSelectedChoices": 3
+        }
+      ]
+    },
+    {
+      "name": "repurchase",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "wouldBuyAgain",
+          "title": "Would you buy our product again?"
+        }
+      ]
+    },
+    {
+      "name": "testimonialRequest",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "testimonial",
+          "title": "Would you mind providing us a brief testimonial for the website?",
+          "choices": [
+            {
+              "value": "yes",
+              "text": "Sure!"
+            },
+            {
+              "value": "no",
+              "text": "No"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "visibleIf": "{testimonial} = 'yes'",
+          "title": "What is your email address?",
+          "inputType": "email",
+          "validators": [
+            {
+              "type": "email"
+            }
+          ],
+          "placeholder": "Enter your email here"
+        }
+      ]
+    }
+  ],
+  "showPrevButton": false,
+  "widthMode": "static",
+  "width": "1000px"
+}

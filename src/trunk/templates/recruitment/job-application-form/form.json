@@ -1,0 +1,119 @@
+{
+  "title": "Job Application Form",
+  "description": "Thank you for your interest in working with us. Please fill out the form and send your application. We will get back to you within a week.",
+  "questionErrorLocation": "bottom",
+  "elements": [
+    {
+      "type": "panel",
+      "name": "personalInfo",
+      "title": "Personal Information",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "startWithNewLine": false,
+          "title": "Last name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "birthdate",
+          "title": "Date of birth",
+          "inputType": "date",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "name": "location",
+      "title": "Your Location",
+      "elements": [
+        {
+          "type": "text",
+          "name": "country",
+          "title": "Country"
+        },
+        {
+          "type": "text",
+          "name": "city",
+          "title": "City/Town"
+        },
+        {
+          "type": "text",
+          "name": "zip",
+          "startWithNewLine": false,
+          "title": "Zip code"
+        },
+        {
+          "type": "text",
+          "name": "address",
+          "title": "Street address"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "email",
+      "title": "Email",
+      "inputType": "email",
+      "placeholder": "mail@example.com"
+    },
+    {
+      "type": "text",
+      "name": "salary",
+      "title": "Expected salary (in US dollars)",
+      "inputType": "number",
+      "validators": [
+        {
+          "type": "numeric"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "position",
+      "title": "What position are you applying for?",
+      "choices": [
+        {
+          "value": "frontend",
+          "text": "Frontend Developer"
+        },
+        {
+          "value": "backend",
+          "text": "Backend Developer"
+        },
+        {
+          "value": "fullstack",
+          "text": "Full-Stack Developer"
+        },
+        {
+          "value": "intern",
+          "text": "Intern"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "startDate",
+      "title": "Date available to start work",
+      "isRequired": true,
+      "inputType": "date"
+    },
+    {
+      "type": "file",
+      "name": "resume",
+      "title": "Upload your resume",
+      "acceptedTypes": "application/pdf"
+    }
+  ],
+  "completeText": "Send",
+  "widthMode": "static",
+  "width": "800px"
+}

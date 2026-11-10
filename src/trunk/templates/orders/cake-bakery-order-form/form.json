@@ -1,0 +1,333 @@
+{
+  "title": "Custom Cake Order Form",
+  "description": "Tell us about the cake you have in mind and when you need it. You'll see a price estimate as you go, and we'll confirm the details with you before baking.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Send cake order",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "cake",
+      "title": "Your Cake",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "occasion",
+          "title": "What's the occasion?",
+          "isRequired": true,
+          "choices": [
+            { "value": "birthday", "text": "Birthday" },
+            { "value": "wedding", "text": "Wedding" },
+            { "value": "anniversary", "text": "Anniversary" },
+            { "value": "baby-shower", "text": "Baby shower" },
+            { "value": "graduation", "text": "Graduation" },
+            { "value": "corporate", "text": "Corporate event" },
+            { "value": "just-because", "text": "Just because" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "servings",
+          "title": "How many servings do you need?",
+          "description": "Prices shown are for a single-tier cake with standard flavors.",
+          "isRequired": true,
+          "choices": [
+            { "value": "6-8", "text": "6-8 servings ($35)" },
+            { "value": "10-12", "text": "10-12 servings ($55)" },
+            { "value": "20-25", "text": "20-25 servings ($95)" },
+            { "value": "30-40", "text": "30-40 servings ($150)" },
+            { "value": "50-plus", "text": "50+ servings ($220)" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "tiers",
+          "title": "Number of tiers",
+          "description": "Each extra tier adds $40 for structure and assembly.",
+          "isRequired": true,
+          "defaultValue": 1,
+          "choices": [
+            { "value": 1, "text": "1 tier" },
+            { "value": 2, "text": "2 tiers" },
+            { "value": 3, "text": "3 tiers" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "flavor",
+          "title": "Cake flavor",
+          "isRequired": true,
+          "choices": [
+            { "value": "vanilla", "text": "Vanilla" },
+            { "value": "chocolate", "text": "Chocolate" },
+            { "value": "red-velvet", "text": "Red velvet" },
+            { "value": "lemon", "text": "Lemon" },
+            { "value": "carrot", "text": "Carrot" },
+            { "value": "marble", "text": "Marble" },
+            { "value": "funfetti", "text": "Funfetti" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "filling",
+          "title": "Filling",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "none", "text": "No filling" },
+            { "value": "vanilla-buttercream", "text": "Vanilla buttercream" },
+            { "value": "chocolate-ganache", "text": "Chocolate ganache" },
+            { "value": "strawberry", "text": "Strawberry" },
+            { "value": "raspberry", "text": "Raspberry" },
+            { "value": "lemon-curd", "text": "Lemon curd" },
+            { "value": "cream-cheese", "text": "Cream cheese" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "frosting",
+          "title": "Frosting",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "buttercream", "text": "Buttercream" },
+            { "value": "cream-cheese", "text": "Cream cheese" },
+            { "value": "whipped-cream", "text": "Whipped cream" },
+            { "value": "fondant", "text": "Fondant" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "dietary",
+          "title": "Dietary options",
+          "description": "Each option adds $12. We bake in a kitchen that handles wheat, eggs, dairy, and nuts.",
+          "colCount": 2,
+          "choices": [
+            { "value": "gluten-free", "text": "Gluten-free" },
+            { "value": "vegan", "text": "Vegan" },
+            { "value": "nut-free", "text": "Nut-free" },
+            { "value": "sugar-free", "text": "Sugar-free" }
+          ],
+          "showNoneItem": true,
+          "noneText": "No special requirements"
+        },
+        {
+          "type": "text",
+          "name": "inscription",
+          "title": "Inscription",
+          "description": "Text to pipe on the cake, exactly as you want it to appear. Up to 60 characters.",
+          "maxLength": 60,
+          "placeholder": "e.g. Happy 30th Birthday, Maya!"
+        },
+        {
+          "type": "comment",
+          "name": "designNotes",
+          "title": "Design notes",
+          "description": "Colors, theme, decorations, toppers, or anything else that helps us picture your cake.",
+          "rows": 4,
+          "maxLength": 1000
+        },
+        {
+          "type": "file",
+          "name": "referenceImages",
+          "title": "Reference images",
+          "description": "Optional. Upload up to 3 photos or sketches of designs you like.",
+          "allowMultiple": true,
+          "maxFiles": 3,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*"
+        }
+      ]
+    },
+    {
+      "name": "dateAndDelivery",
+      "title": "Date and Delivery",
+      "elements": [
+        {
+          "type": "text",
+          "name": "neededDate",
+          "title": "When do you need the cake?",
+          "description": "We need at least 48 hours' notice. Tiered and fondant cakes may need a week.",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "neededTime",
+          "title": "Pickup or delivery time",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "radiogroup",
+          "name": "fulfillment",
+          "title": "Pickup or delivery?",
+          "isRequired": true,
+          "choices": [
+            { "value": "pickup", "text": "I'll pick it up at the bakery (free)" },
+            { "value": "delivery", "text": "Deliver it to me ($25 within 15 miles)" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "deliveryAddress",
+          "visibleIf": "{fulfillment} = 'delivery'",
+          "title": "Delivery address",
+          "elements": [
+            {
+              "type": "text",
+              "name": "deliveryStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "deliveryCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "deliveryState",
+              "title": "State",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "deliveryPostalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "comment",
+              "name": "deliveryInstructions",
+              "title": "Delivery instructions",
+              "description": "For example: venue name, gate code, or who will receive the cake.",
+              "rows": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "summaryAndContact",
+      "title": "Estimate and Contact",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "estimate",
+          "title": "Price estimate",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "basePrice",
+              "title": "Cake base price",
+              "expression": "iif({servings} = '6-8', 35, iif({servings} = '10-12', 55, iif({servings} = '20-25', 95, iif({servings} = '30-40', 150, iif({servings} = '50-plus', 220, 0)))))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "tierSurcharge",
+              "title": "Extra tiers",
+              "startWithNewLine": false,
+              "expression": "iif({tiers} > 1, ({tiers} - 1) * 40, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "dietarySurcharge",
+              "title": "Dietary options",
+              "startWithNewLine": false,
+              "expression": "iif({dietary} contains 'gluten-free', 12, 0) + iif({dietary} contains 'vegan', 12, 0) + iif({dietary} contains 'nut-free', 12, 0) + iif({dietary} contains 'sugar-free', 12, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "deliveryFee",
+              "title": "Delivery",
+              "expression": "iif({fulfillment} = 'delivery', 25, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "estimatedTotal",
+              "title": "Estimated total",
+              "startWithNewLine": false,
+              "expression": "{basePrice} + {tierSurcharge} + {dietarySurcharge} + {deliveryFee}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "depositDue",
+              "title": "Deposit due to confirm (50%)",
+              "startWithNewLine": false,
+              "expression": "round({estimatedTotal} * 0.5, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "html",
+              "name": "estimateNote",
+              "html": "<p><small>Custom decorations, sugar flowers, and hand-painted designs are quoted separately. Sales tax is not included.</small></p>"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "customerName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "customerEmail",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "customerPhone",
+          "title": "Phone",
+          "description": "We'll call if we have questions about your design.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "checkbox",
+          "name": "allergyAcknowledgement",
+          "title": "Allergy notice",
+          "isRequired": true,
+          "choices": [
+            { "value": "acknowledged", "text": "I understand that all cakes are made in a kitchen that handles wheat, eggs, dairy, soy, and tree nuts, and that cross-contact is possible." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {customerName}!</h3><p>We've received your cake order for <b>{neededDate}</b>. Your estimated total is <b>{estimatedTotal}</b>, with a deposit of <b>{depositDue}</b> due to confirm. We'll email <b>{customerEmail}</b> within one business day to confirm the details and send a payment link.</p>"
+}

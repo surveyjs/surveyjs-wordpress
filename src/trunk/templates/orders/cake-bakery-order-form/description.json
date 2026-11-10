@@ -1,0 +1,10 @@
+{
+  "title": "Custom Cake Order Form",
+  "description": "A custom cake order form for bakeries: customers choose the occasion, servings, tiers, flavor, filling, frosting, and dietary options, add an inscription and reference images, and pick a date with pickup or delivery. The form calculates a price estimate with tier, dietary, and delivery surcharges and a 50% deposit.",
+  "tags": [
+    "order",
+    "food",
+    "calculator",
+    "booking"
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "title": "Product/Market Fit Survey",
+  "pages": [
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "role",
+          "title": "What best describes your role?",
+          "showOtherItem": true,
+          "choices": [
+            "Engineering Lead",
+            "Project Manager",
+            "Software Developer",
+            "Designer",
+            "Product Manager",
+            "CEO / Founder",
+            "Customer Support"
+          ],
+          "otherText": "Other",
+          "colCount": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "accountOrigin",
+          "title": "How did you start using the product?",
+          "choices": [
+            {
+              "value": "created",
+              "text": "I created my account"
+            },
+            {
+              "value": "invited",
+              "text": "I was invited to an account"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "discoveryChannel",
+          "title": "How did you first discover the product?",
+          "showOtherItem": true,
+          "choices": [
+            "Friend or colleague",
+            "Search engine",
+            "Facebook",
+            "Twitter",
+            "Blog"
+          ],
+          "otherText": "Other",
+          "colCount": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "payingCustomer",
+          "title": "Do you currently pay for the product?",
+          "isRequired": true,
+          "choices": [
+            "Yes",
+            "No"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "productFit",
+      "title": "Product Fit",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "disappointmentLevel",
+          "title": "How would you feel if you could no longer use the product?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "3",
+              "text": "Very disappointed"
+            },
+            {
+              "value": "2",
+              "text": "Somewhat disappointed"
+            },
+            {
+              "value": "1",
+              "text": "Not disappointed"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "disappointmentReason",
+          "visibleIf": "{disappointmentLevel} notempty",
+          "title": "Please help us understand why you selected the answer above"
+        }
+      ]
+    },
+    {
+      "name": "alternativesAndBenefits",
+      "title": "Alternatives and Benefits",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "alternativeSolution",
+          "title": "What would you use as an alternative if the product were no longer available?",
+          "showOtherItem": true,
+          "choices": [
+            "A similar product from another company",
+            "An open-source tool",
+            "A tool we would build ourselves",
+            "Spreadsheets, documents, or email",
+            "Manual work without any tool",
+            "I would stop doing this task"
+          ],
+          "otherText": "Other (please name)",
+          "colCount": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "primaryBenefit",
+          "title": "What is the primary benefit that you have received from the product?",
+          "showOtherItem": true,
+          "choices": [
+            "Saves time",
+            "Saves money",
+            "Improves team collaboration",
+            "Improves the quality of my work",
+            "Easier to use than alternatives",
+            "Helps me make better decisions"
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "hasRecommended",
+          "title": "Have you recommended the product to anyone?",
+          "choices": [
+            "Yes",
+            "No"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "recommendationAndFeatures",
+      "title": "Recommendation and Features",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "recommendationLikelihood",
+          "title": "How likely are you to recommend the product to a friend or colleague?",
+          "isRequired": true,
+          "rateMin": 0,
+          "rateMax": 10,
+          "minRateDescription": "Most unlikely",
+          "maxRateDescription": "Most likely"
+        },
+        {
+          "type": "radiogroup",
+          "name": "favoriteFeature",
+          "title": "What's your favorite functionality / add-on for the product?",
+          "showOtherItem": true,
+          "choices": [
+            "Reporting and analytics",
+            "Integrations",
+            "Collaboration tools",
+            "Automation",
+            "Mobile app",
+            "Customization options"
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "comment",
+          "name": "improvementSuggestions",
+          "title": "How could the product be improved to better meet your needs?"
+        }
+      ]
+    },
+    {
+      "name": "followUp",
+      "title": "Follow-Up",
+      "elements": [
+        {
+          "type": "multipletext",
+          "name": "contactCustomer",
+          "title": "Want us to follow up? Leave your name and email here:",
+          "items": [
+            {
+              "name": "name",
+              "title": "Name"
+            },
+            {
+              "name": "email",
+              "title": "Email",
+              "inputType": "email",
+              "validators": [
+                {
+                  "type": "email"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

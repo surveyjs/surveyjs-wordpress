@@ -1,0 +1,11 @@
+{
+  "title": "Vehicle Inspection Form",
+  "description": "A pre-trip and post-trip vehicle inspection form for fleet operators and drivers. Drivers record the vehicle, odometer, and fuel level, mark exterior, tire, under-hood, and interior safety items as OK, Defect, or N/A, log tire pressures, and describe any defects with severity and photos. A defect section appears automatically when any item fails, and the driver signs off on whether the vehicle is safe to operate.",
+  "tags": [
+    "inspection",
+    "checklist",
+    "operations",
+    "safety",
+    "report"
+  ]
+}

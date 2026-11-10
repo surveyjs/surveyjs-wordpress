@@ -1,0 +1,285 @@
+{
+  "title": "Vehicle Inspection Form",
+  "description": "Walk around the vehicle and check each item before or after your trip. Mark anything that isn't right as a defect so it can be fixed.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Submit inspection",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "vehicle",
+      "title": "Vehicle and Driver",
+      "elements": [
+        {
+          "type": "text",
+          "name": "driverName",
+          "title": "Driver name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "vehicleId",
+          "title": "Vehicle ID or license plate",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "makeModel",
+          "title": "Make and model",
+          "placeholder": "e.g. Ford Transit 350"
+        },
+        {
+          "type": "text",
+          "name": "odometer",
+          "title": "Odometer reading (miles)",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "number",
+          "min": 0,
+          "step": 1
+        },
+        {
+          "type": "text",
+          "name": "inspectionDate",
+          "title": "Inspection date",
+          "isRequired": true,
+          "inputType": "date",
+          "defaultValueExpression": "today()",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "inspectionTime",
+          "title": "Time",
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "radiogroup",
+          "name": "inspectionType",
+          "title": "Inspection type",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "pre-trip", "text": "Pre-trip" },
+            { "value": "post-trip", "text": "Post-trip" },
+            { "value": "periodic", "text": "Periodic" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "fuelLevel",
+          "title": "Fuel level",
+          "isRequired": true,
+          "colCount": 5,
+          "choices": [
+            { "value": "empty", "text": "Empty" },
+            { "value": "quarter", "text": "1/4" },
+            { "value": "half", "text": "1/2" },
+            { "value": "three-quarters", "text": "3/4" },
+            { "value": "full", "text": "Full" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "checklist",
+      "title": "Checklist",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "exterior",
+          "title": "Exterior",
+          "eachRowRequired": true,
+          "alternateRows": true,
+          "columns": [
+            { "value": "ok", "text": "OK" },
+            { "value": "defect", "text": "Defect" },
+            { "value": "na", "text": "N/A" }
+          ],
+          "rows": [
+            { "value": "lights", "text": "Headlights, tail lights, brake lights, and turn signals" },
+            { "value": "mirrors", "text": "Mirrors clean, intact, and adjusted" },
+            { "value": "windshield", "text": "Windshield and wipers" },
+            { "value": "bodyDamage", "text": "Body free of new damage" },
+            { "value": "plates", "text": "License plates present and legible" }
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "tiresBrakes",
+          "title": "Tires and brakes",
+          "eachRowRequired": true,
+          "alternateRows": true,
+          "columns": [
+            { "value": "ok", "text": "OK" },
+            { "value": "defect", "text": "Defect" },
+            { "value": "na", "text": "N/A" }
+          ],
+          "rows": [
+            { "value": "tread", "text": "Tire tread depth and condition" },
+            { "value": "pressure", "text": "Tire pressure" },
+            { "value": "brakes", "text": "Service brakes" },
+            { "value": "parkingBrake", "text": "Parking brake" }
+          ]
+        },
+        {
+          "type": "multipletext",
+          "name": "tirePressures",
+          "title": "Tire pressures (PSI)",
+          "description": "Optional. Record the measured pressure for each tire.",
+          "colCount": 2,
+          "items": [
+            { "name": "frontLeft", "title": "Front left", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0, "maxValue": 150 } ] },
+            { "name": "frontRight", "title": "Front right", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0, "maxValue": 150 } ] },
+            { "name": "rearLeft", "title": "Rear left", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0, "maxValue": 150 } ] },
+            { "name": "rearRight", "title": "Rear right", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0, "maxValue": 150 } ] }
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "underHood",
+          "title": "Under the hood",
+          "eachRowRequired": true,
+          "alternateRows": true,
+          "columns": [
+            { "value": "ok", "text": "OK" },
+            { "value": "defect", "text": "Defect" },
+            { "value": "na", "text": "N/A" }
+          ],
+          "rows": [
+            { "value": "oil", "text": "Engine oil level" },
+            { "value": "coolant", "text": "Coolant level" },
+            { "value": "brakeFluid", "text": "Brake fluid level" },
+            { "value": "beltsHoses", "text": "Belts and hoses" },
+            { "value": "battery", "text": "Battery and terminals" }
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "interiorSafety",
+          "title": "Interior and safety equipment",
+          "eachRowRequired": true,
+          "alternateRows": true,
+          "columns": [
+            { "value": "ok", "text": "OK" },
+            { "value": "defect", "text": "Defect" },
+            { "value": "na", "text": "N/A" }
+          ],
+          "rows": [
+            { "value": "seatBelts", "text": "Seat belts" },
+            { "value": "horn", "text": "Horn" },
+            { "value": "gauges", "text": "Gauges and warning lights" },
+            { "value": "firstAidKit", "text": "First-aid kit" },
+            { "value": "fireExtinguisher", "text": "Fire extinguisher" },
+            { "value": "warningTriangles", "text": "Warning triangles or flares" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "defects",
+      "title": "Defects and Sign-off",
+      "elements": [
+        {
+          "type": "html",
+          "name": "noDefectsNotice",
+          "visibleIf": "{exterior.lights} <> 'defect' and {exterior.mirrors} <> 'defect' and {exterior.windshield} <> 'defect' and {exterior.bodyDamage} <> 'defect' and {exterior.plates} <> 'defect' and {tiresBrakes.tread} <> 'defect' and {tiresBrakes.pressure} <> 'defect' and {tiresBrakes.brakes} <> 'defect' and {tiresBrakes.parkingBrake} <> 'defect' and {underHood.oil} <> 'defect' and {underHood.coolant} <> 'defect' and {underHood.brakeFluid} <> 'defect' and {underHood.beltsHoses} <> 'defect' and {underHood.battery} <> 'defect' and {interiorSafety.seatBelts} <> 'defect' and {interiorSafety.horn} <> 'defect' and {interiorSafety.gauges} <> 'defect' and {interiorSafety.firstAidKit} <> 'defect' and {interiorSafety.fireExtinguisher} <> 'defect' and {interiorSafety.warningTriangles} <> 'defect'",
+          "html": "<p>No defects were marked on the checklist. If you noticed anything else, add it in the notes below.</p>"
+        },
+        {
+          "type": "paneldynamic",
+          "name": "defectDetails",
+          "visibleIf": "{exterior.lights} = 'defect' or {exterior.mirrors} = 'defect' or {exterior.windshield} = 'defect' or {exterior.bodyDamage} = 'defect' or {exterior.plates} = 'defect' or {tiresBrakes.tread} = 'defect' or {tiresBrakes.pressure} = 'defect' or {tiresBrakes.brakes} = 'defect' or {tiresBrakes.parkingBrake} = 'defect' or {underHood.oil} = 'defect' or {underHood.coolant} = 'defect' or {underHood.brakeFluid} = 'defect' or {underHood.beltsHoses} = 'defect' or {underHood.battery} = 'defect' or {interiorSafety.seatBelts} = 'defect' or {interiorSafety.horn} = 'defect' or {interiorSafety.gauges} = 'defect' or {interiorSafety.firstAidKit} = 'defect' or {interiorSafety.fireExtinguisher} = 'defect' or {interiorSafety.warningTriangles} = 'defect'",
+          "title": "Defect details",
+          "description": "Add one entry for each item you marked as a defect.",
+          "isRequired": true,
+          "minPanelCount": 1,
+          "maxPanelCount": 20,
+          "addPanelText": "Add defect",
+          "removePanelText": "Remove defect",
+          "templateTitle": "Defect {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "component",
+              "title": "Component",
+              "isRequired": true,
+              "placeholder": "e.g. Rear left brake light"
+            },
+            {
+              "type": "radiogroup",
+              "name": "severity",
+              "title": "Severity",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "colCount": 3,
+              "choices": [
+                { "value": "minor", "text": "Minor" },
+                { "value": "major", "text": "Major" },
+                { "value": "critical", "text": "Critical" }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "description",
+              "title": "Describe the defect",
+              "isRequired": true,
+              "rows": 2
+            },
+            {
+              "type": "file",
+              "name": "photo",
+              "title": "Photo",
+              "acceptedTypes": "image/*",
+              "maxSize": 10485760
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "vehicleSafeToOperate",
+          "title": "Is the vehicle safe to operate?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "unsafeReason",
+          "visibleIf": "{vehicleSafeToOperate} = false",
+          "title": "Why is the vehicle not safe to operate?",
+          "isRequired": true,
+          "rows": 2
+        },
+        {
+          "type": "comment",
+          "name": "mechanicNotes",
+          "title": "Notes for the mechanic",
+          "description": "Anything the maintenance team should know, such as unusual noises, warning lights, or handling issues.",
+          "rows": 3
+        },
+        {
+          "type": "signaturepad",
+          "name": "driverSignature",
+          "title": "Driver signature",
+          "description": "I confirm that I inspected this vehicle and the information above is accurate.",
+          "isRequired": true,
+          "signatureWidth": 400,
+          "signatureHeight": 160
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Inspection recorded</h3><p>Thank you, {driverName}. The {inspectionType} inspection of vehicle <b>{vehicleId}</b> at {odometer} miles has been saved. Drive safely.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{vehicleSafeToOperate} = false",
+      "html": "<h3>Vehicle reported as not safe to operate</h3><p>Thank you, {driverName}. Vehicle <b>{vehicleId}</b> has been flagged as <b>out of service</b>, and the fleet maintenance team has been notified. Do not drive this vehicle until a mechanic clears it. Contact dispatch to arrange a replacement.</p>"
+    }
+  ]
+}

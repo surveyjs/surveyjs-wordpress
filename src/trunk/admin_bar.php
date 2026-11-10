@@ -82,7 +82,7 @@ class SurveyJS_Admin_Bar {
             'parent' => self::NODE,
             'id'     => self::NODE . '-add',
             'title'  => esc_html__( 'Add New', 'surveyjs' ),
-            'href'   => wp_nonce_url( self::admin_url( 'surveyjs-main-menu', array( 'action' => 'add' ) ), 'surveyjs-add-survey' ),
+            'href'   => self::admin_url( 'surveyjs-templates' ),
         ) );
 
         if ( is_admin() ) {

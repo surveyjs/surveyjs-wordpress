@@ -1,0 +1,370 @@
+{
+  "title": "Membership Registration",
+  "description": "Join or renew your membership. Choose a plan, add family members and extras, and see your total before you pay.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Submit Registration",
+  "calculatedValues": [
+    {
+      "name": "planFee",
+      "expression": "iif({membershipPlan} = 'supporting', 300, iif({membershipPlan} = 'reduced', 90, iif({membershipPlan} = 'standard', 150, 0)))"
+    },
+    {
+      "name": "extrasFee",
+      "expression": "iif({extras} contains 'printedNewsletter', 15, 0) + iif({extras} contains 'guestPasses', 40, 0) + iif({extras} contains 'parkingPermit', 50, 0) + iif({extras} contains 'locker', 80, 0)"
+    }
+  ],
+  "pages": [
+    {
+      "name": "memberDetails",
+      "title": "Member Details",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "registrationType",
+          "title": "Are you a new or returning member?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "new", "text": "New member" },
+            { "value": "renewal", "text": "Renewing my membership" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "membershipNumber",
+          "visibleIf": "{registrationType} = 'renewal'",
+          "title": "Membership number",
+          "description": "You'll find it on your membership card or last renewal email."
+        },
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "dateOfBirth",
+          "title": "Date of birth",
+          "description": "Used to confirm eligibility for reduced rates.",
+          "isRequired": true,
+          "inputType": "date",
+          "autocomplete": "bday",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "panel",
+          "name": "homeAddress",
+          "title": "Home address",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "title": "State",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "membershipOptions",
+      "title": "Membership Options",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "membershipPlan",
+          "title": "Membership plan",
+          "description": "Annual fees for the main member.",
+          "isRequired": true,
+          "choices": [
+            { "value": "standard", "text": "Standard: $150 a year" },
+            { "value": "reduced", "text": "Reduced, for students and people aged 65 or over: $90 a year" },
+            { "value": "supporting", "text": "Supporting, with all standard benefits plus a contribution to the club's programs: $300 a year" }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "reducedPlanInfo",
+          "visibleIf": "{membershipPlan} = 'reduced'",
+          "html": "<p>Please bring a valid student card or proof of age when you collect your membership card.</p>"
+        },
+        {
+          "type": "boolean",
+          "name": "includeFamily",
+          "title": "Would you like to add family members living at the same address?",
+          "description": "Each additional adult costs $60 a year and each child under 18 costs $30 a year."
+        },
+        {
+          "type": "paneldynamic",
+          "name": "familyMembers",
+          "visibleIf": "{includeFamily} = true",
+          "title": "Family members",
+          "templateTitle": "Family member {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "familyMemberFirstName",
+              "title": "First name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "familyMemberLastName",
+              "title": "Last name",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "dropdown",
+              "name": "relationship",
+              "title": "Relationship to you",
+              "isRequired": true,
+              "choices": [
+                { "value": "spouse", "text": "Spouse or partner" },
+                { "value": "child", "text": "Child" },
+                { "value": "parent", "text": "Parent" },
+                { "value": "sibling", "text": "Sibling" },
+                { "value": "otherRelative", "text": "Other relative" }
+              ]
+            },
+            {
+              "type": "radiogroup",
+              "name": "ageGroup",
+              "title": "Age group",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "colCount": 2,
+              "choices": [
+                { "value": "adult", "text": "18 or older" },
+                { "value": "child", "text": "Under 18" }
+              ]
+            },
+            {
+              "type": "expression",
+              "name": "memberFee",
+              "title": "Annual fee",
+              "expression": "iif({panel.ageGroup} = 'child', 30, iif({panel.ageGroup} = 'adult', 60, 0))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ],
+          "minPanelCount": 1,
+          "maxPanelCount": 6,
+          "panelAddText": "Add a family member",
+          "panelRemoveText": "Remove"
+        },
+        {
+          "type": "checkbox",
+          "name": "extras",
+          "title": "Optional extras",
+          "description": "Prices are per year.",
+          "choices": [
+            { "value": "printedNewsletter", "text": "Printed newsletter by mail (+$15)" },
+            { "value": "guestPasses", "text": "Five guest day passes a year (+$40)" },
+            { "value": "parkingPermit", "text": "Parking permit (+$50)" },
+            { "value": "locker", "text": "Personal locker (+$80)" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "paymentAndAgreement",
+      "title": "Payment and Agreement",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "paymentFrequency",
+          "title": "How would you like to pay?",
+          "description": "Monthly payments include a 10% installment charge, so paying for the year up front costs less.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "annual", "text": "Once a year" },
+            { "value": "monthly", "text": "Monthly" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "feeSummary",
+          "title": "Your fees",
+          "visibleIf": "{membershipPlan} notempty and {paymentFrequency} notempty",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "membershipFee",
+              "title": "Membership plan",
+              "expression": "{planFee}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "familyFee",
+              "visibleIf": "{includeFamily} = true",
+              "title": "Family members",
+              "startWithNewLine": false,
+              "expression": "iif({includeFamily} = true, sumInArray({familyMembers}, 'memberFee'), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "extrasTotal",
+              "visibleIf": "{extras} notempty",
+              "title": "Extras",
+              "startWithNewLine": false,
+              "expression": "{extrasFee}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "annualFees",
+              "title": "Yearly fees",
+              "expression": "{membershipFee} + {familyFee} + {extrasTotal}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "monthlyPayment",
+              "visibleIf": "{paymentFrequency} = 'monthly'",
+              "title": "Monthly payment",
+              "description": "Yearly fees plus 10%, divided into 12 payments.",
+              "startWithNewLine": false,
+              "expression": "iif({paymentFrequency} = 'monthly', round({annualFees} * 1.1 / 12, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "joiningFee",
+              "visibleIf": "{registrationType} = 'new'",
+              "title": "One-time joining fee",
+              "startWithNewLine": false,
+              "expression": "iif({registrationType} = 'new', 25, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "amountDueNow",
+              "title": "Due now",
+              "expression": "iif({paymentFrequency} = 'monthly', {monthlyPayment}, {annualFees}) + {joiningFee}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "firstYearTotal",
+              "title": "Total for the first year",
+              "startWithNewLine": false,
+              "expression": "iif({paymentFrequency} = 'monthly', {monthlyPayment} * 12, {annualFees}) + {joiningFee}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "paymentMethod",
+          "title": "Payment method",
+          "isRequired": true,
+          "choices": [
+            { "value": "cardLink", "text": "Credit or debit card: email me a secure payment link" },
+            { "value": "bankTransfer", "text": "Bank transfer: email me the details" },
+            {
+              "value": "directDebit",
+              "text": "Automatic monthly debit from my bank account",
+              "visibleIf": "{paymentFrequency} = 'monthly'"
+            },
+            { "value": "inPerson", "text": "In person at the office" }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "membershipRules",
+          "html": "<p><b>Membership rules</b></p><ul><li>Membership runs for 12 months from the date your first payment is received.</li><li>Membership cards are personal and may not be lent to others.</li><li>Members are expected to treat other members, guests, and staff with respect and to follow posted facility rules.</li><li>Fees are non-refundable once the membership has started, except where required by law.</li><li>Monthly plans can be canceled with 30 days' notice after the first three months.</li></ul>"
+        },
+        {
+          "type": "boolean",
+          "name": "photoConsent",
+          "title": "May we include you in photos from club activities used in our newsletter and social media?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "checkbox",
+          "name": "agreements",
+          "title": "Agreement",
+          "isRequired": true,
+          "choices": [
+            { "value": "rules", "text": "I have read and agree to follow the membership rules." },
+            { "value": "privacy", "text": "I agree that my details may be stored and used to manage my membership." }
+          ],
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{agreements} allof ['rules', 'privacy']",
+              "text": "Please accept both to complete your registration."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}!</h3><p>Your registration has been received. The amount due now is <b>{amountDueNow}</b>. We'll email payment instructions and your membership details to <b>{email}</b> within two business days.</p>"
+}

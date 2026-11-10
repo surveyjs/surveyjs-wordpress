@@ -1,0 +1,581 @@
+{
+  "title": "Alumni Survey",
+  "completedHtml": "<h3>Thank you for completing the Alumni Survey!</h3>",
+  "pages": [
+    {
+      "name": "introPage",
+      "elements": [
+        {
+          "type": "html",
+          "name": "introduction",
+          "html": "<h5>Introduction</h5>\n\n<p style=\"margin-top: 1em; text-align: justify;\">\n  <strong>Thank you for participating in the Alumni Survey!</strong>\n</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">This survey collects information about your education and career since graduating from our university and provides an opportunity for you to evaluate your undergraduate experience now that nearly a decade has passed.</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">Your answers are very important to us — they will inform our efforts to improve the undergraduate experience in the years to come.</p>\n\n<p style=\"margin-top: 1em; text-align: left;\"> <strong>If you have any questions about the survey, please contact alumni_survey@example.edu. Thanks again for your participation.</strong></p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">Participation in this survey is completely voluntary. Feel free to answer as few or as many questions as you wish. Please be assured your responses will remain strictly confidential and no individually identifiable information will ever be reported.</p>\n\n\n"
+        }
+      ]
+    },
+    {
+      "name": "demographics",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "plans",
+          "title": "Please indicate the plan(s) you completed in {program}.",
+          "choices": [
+            {
+              "value": "biology",
+              "text": "Biology"
+            },
+            {
+              "value": "chemistry",
+              "text": "Chemistry"
+            },
+            {
+              "value": "physics",
+              "text": "Physics"
+            },
+            {
+              "value": "math",
+              "text": "Mathematics"
+            }
+          ],
+          "maxSelectedChoices": 2,
+          "minSelectedChoices": 1
+        },
+        {
+          "type": "text",
+          "name": "graduation",
+          "title": "In which year did you complete your undergraduate program?",
+          "isRequired": true,
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "9999"
+          }
+        },
+        {
+          "type": "text",
+          "name": "age",
+          "title": "How old are you?",
+          "isRequired": true,
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "99"
+          }
+        },
+        {
+          "type": "radiogroup",
+          "name": "gender",
+          "title": "What gender do you most identify with?",
+          "choices": [
+            "Female",
+            "Male",
+            "Transgender",
+            "Prefer not to say"
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "employment",
+          "title": "Please describe your employment status.\r",
+          "choices": [
+            "Employed full time",
+            "Employed part time",
+            "Unemployed looking for work",
+            "Student",
+            "Not in labor force"
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "frequency",
+          "title": "How frequently do you engage in volunteer work?\r",
+          "choices": [
+            "About weekly",
+            "About monthly",
+            "A few times a year",
+            "Never"
+          ]
+        }
+      ],
+      "title": "Demographics\r"
+    },
+    {
+      "name": "decisionPoints",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "whenDecided",
+          "title": "At what point in your university career did you decide to enroll in {program}?",
+          "choices": [
+            "Before attending university",
+            "During 1st year",
+            "During 2nd year",
+            "During 3rd year",
+            "During 4th year or later"
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "whyEnroll",
+          "title": "Why did you enroll in {program} at our university?",
+          "maxLength": 300,
+          "autoGrow": true
+        }
+      ],
+      "title": "Decision points"
+    },
+    {
+      "name": "curriculum",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "statements",
+          "title": "Please indicate the extent to which you agree or disagree with the following statements:",
+          "alternateRows": true,
+          "rowTitleWidth": "150px",
+          "columns": [
+            {
+              "value": "s-disagree",
+              "text": "Strongly<br>Disagree"
+            },
+            {
+              "value": "disagree",
+              "text": "Disagree"
+            },
+            {
+              "value": "neither-nor",
+              "text": "Neither agree nor disagree"
+            },
+            {
+              "value": "agree",
+              "text": "Agree"
+            },
+            {
+              "value": "s-agree",
+              "text": "Strongly<br>Agree"
+            },
+            {
+              "value": "N/A",
+              "text": "Not applicable"
+            }
+          ],
+          "rows": [
+            {
+              "value": "influence",
+              "text": "I had opportunities to influence the design of my program."
+            },
+            {
+              "value": "worthwhile",
+              "text": "Overall, I found my required courses worthwhile."
+            },
+            {
+              "value": "satisfied",
+              "text": "I was satisfied with the content of the courses required for the degree."
+            },
+            {
+              "value": "availability",
+              "text": "I was satisfied with the availability of electives in {program}."
+            },
+            {
+              "value": "opportunity",
+              "text": "I was satisfied with the opportunity to take electives outside of {program}."
+            },
+            {
+              "value": "number",
+              "text": "I was satisfied with the number of courses {program}"
+            },
+            {
+              "value": "mode",
+              "text": "I was satisfied with the mode of delivery (e.g., face-to-face lectures, online) of courses."
+            },
+            {
+              "value": "variety",
+              "text": "I was satisfied with the variety of courses {program} offered."
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "barriers",
+          "title": "Did you experience any barriers to registering for the courses you needed to complete your\r\nmodule in {program}? Select any that apply.",
+          "choices": [
+            "Course scheduling",
+            "Course enrollment caps",
+            "Frequency of course offerings",
+            "No barriers to registration"
+          ],
+          "showOtherItem": true,
+          "otherText": "Other (please describe)"
+        },
+        {
+          "type": "boolean",
+          "name": "remove",
+          "title": "Are there courses we should add or remove from our curriculum?"
+        },
+        {
+          "type": "comment",
+          "name": "whatToRemove",
+          "visibleIf": "{remove} = true",
+          "title": "What courses should be added or removed from the curriculum?",
+          "description": "Please provide a brief rationale.",
+          "maxLength": 200,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "comment",
+          "name": "learningExperience",
+          "title": "Please briefly describe one learning experience in {program} that had a particularly\r\npositive impact on you.",
+          "maxLength": 500,
+          "autoGrow": true
+        }
+      ],
+      "title": "Curriculum"
+    },
+    {
+      "name": "effectiveness",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "overallExperience",
+          "title": "How satisfied are you with the overall educational experience you had in {program}?",
+          "choices": [
+            "Extremely dissatisfied",
+            "Somewhat dissatisfied",
+            "Neither satisfied nor dissatisfied",
+            "Somewhat satisfied",
+            "Extremely satisfied"
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "useOfSkills",
+          "title": "How often do you use skills or knowledge learned at {program} in your daily life?",
+          "choices": [
+            "Never",
+            "Sometimes",
+            "Often",
+            "Very often"
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "matrixStatements",
+          "title": "Please indicate the extent to which you agree or disagree with the following statements:",
+          "alternateRows": true,
+          "rowTitleWidth": "150px",
+          "columns": [
+            {
+              "value": "s-disagree",
+              "text": "Strongly<br>Disagree"
+            },
+            {
+              "value": "disagree",
+              "text": "Disagree"
+            },
+            {
+              "value": "neither-nor",
+              "text": "Neither agree nor disagree"
+            },
+            {
+              "value": "agree",
+              "text": "Agree"
+            },
+            {
+              "value": "s-agree",
+              "text": "Strongly<br>Agree"
+            },
+            {
+              "value": "N/A",
+              "text": "Not applicable"
+            }
+          ],
+          "rows": [
+            {
+              "value": "environment",
+              "text": "The environment in {program} department was conducive to learning."
+            },
+            {
+              "value": "quality",
+              "text": "The overall quality of teaching in {program} department was high."
+            },
+            {
+              "value": "credit",
+              "text": "I credit {program} with preparing me to contribute to society as a broadly educated, articulate, and ethical citizen."
+            },
+            {
+              "value": "challenge",
+              "text": "I was challenged academically in {program}."
+            },
+            {
+              "value": "presence",
+              "text": "The presence of graduate students in {program} department enhanced my learning experience."
+            },
+            {
+              "value": "staff",
+              "text": "The presence of departmental staff in {program} department enhanced my learning experience."
+            },
+            {
+              "value": "admin-staff",
+              "text": "The undergraduate administrative staff enhanced my satisfaction with {program}."
+            },
+            {
+              "value": "instructions",
+              "text": "I received an appropriate level of individualized instruction from instructors."
+            },
+            {
+              "value": "access",
+              "text": "I had access to the appropriate library resources."
+            },
+            {
+              "value": "belong",
+              "text": "I felt like I belonged to a community in {program}."
+            },
+            {
+              "value": "overall",
+              "text": "Overall, I was satisfied with the quality of interactions I had with faculty members in {program}."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "discussGrades",
+          "title": "Thinking back to your experiences in {program} how often would you say that you\r\ndiscussed grades with an instructor?",
+          "choices": [
+            "Never",
+            "Sometimes",
+            "Often"
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "relationship",
+          "title": "While studying, did you develop a relationship with one or more faculty members in {program} such that you could ask for a letter of recommendation?\r"
+        },
+        {
+          "type": "comment",
+          "name": "aspects",
+          "title": "What aspects of {program} have been most beneficial to you post-graduation?",
+          "maxLength": 300,
+          "autoGrow": true
+        }
+      ],
+      "title": "Program Effectiveness"
+    },
+    {
+      "name": "gradSchoolPage",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "presentOccupation",
+          "title": "My education did a good job of preparing me for my present occupation.",
+          "rateType": "stars",
+          "autoGenerate": false,
+          "rateValues": [
+            "Strongly Disagree",
+            "Disagree",
+            "Neither agree nor disagree",
+            "Agree",
+            "Strongly agree"
+          ],
+          "minRateDescription": "Strongly Disagree",
+          "maxRateDescription": "Strongly agree"
+        },
+        {
+          "type": "rating",
+          "name": "furtherStudy",
+          "title": "My education did a good job of preparing me for further study.",
+          "rateType": "stars",
+          "autoGenerate": false,
+          "rateValues": [
+            "Strongly Disagree",
+            "Disagree",
+            "Neither agree nor disagree",
+            "Agree",
+            "Strongly agree"
+          ],
+          "minRateDescription": "Strongly Disagree",
+          "maxRateDescription": "Strongly agree"
+        },
+        {
+          "type": "rating",
+          "name": "relevance",
+          "title": "How would you rate the relevance of the courses to your career goals/ further study?",
+          "rateType": "smileys",
+          "autoGenerate": false,
+          "rateCount": 4,
+          "rateValues": [
+            "Poor",
+            "Fair",
+            "Good",
+            "Excellent"
+          ],
+          "minRateDescription": "Poor",
+          "maxRateDescription": "Excellent"
+        },
+        {
+          "type": "matrix",
+          "name": "courses",
+          "title": "Reflecting back on your studies, please indicate the extent to which the following types of courses\r\ncontributed to preparing you for your current position:",
+          "alternateRows": true,
+          "rowTitleWidth": "150px",
+          "columns": [
+            {
+              "value": "no",
+              "text": "No<br>contribution"
+            },
+            {
+              "value": "little",
+              "text": "Little<br>contribution"
+            },
+            {
+              "value": "some",
+              "text": "Some<br>contribution"
+            },
+            {
+              "value": "significant",
+              "text": "Significant<br>contribution"
+            },
+            {
+              "value": "N/A",
+              "text": "Not<br>applicable"
+            }
+          ],
+          "rows": [
+            {
+              "value": "outside",
+              "text": "Elective courses outside program of study"
+            },
+            {
+              "value": "theory",
+              "text": "Courses that focused on theory"
+            },
+            {
+              "value": "applied-work",
+              "text": "Courses that focused on applied work"
+            },
+            {
+              "value": "analytical",
+              "text": "Courses that emphasized analytical and critical thinking skills"
+            },
+            {
+              "value": "oral",
+              "text": "Courses that focused on oral presentation"
+            },
+            {
+              "value": "writing",
+              "text": "Courses that focused on writing skills"
+            },
+            {
+              "value": "teamwork",
+              "text": "Courses that focused on teamwork"
+            }
+          ]
+        }
+      ],
+      "title": "Graduate School and Employment Preparedness"
+    },
+    {
+      "name": "pageEmployment",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "field",
+          "title": "Of the following, which best characterizes the field in which you are employed?",
+          "choices": [
+            "Management occupations",
+            "Business, finance, and administrative occupations",
+            "Natural and applied sciences and related occupations",
+            "Health occupations",
+            "Occupations in social science, education, government service, and religion",
+            "Occupations in art, culture, recreation, and sport",
+            "Sales and services",
+            "Trades, transport, and equipment operators and related occupations"
+          ],
+          "showOtherItem": true,
+          "otherText": "Other (please specify)"
+        },
+        {
+          "type": "rating",
+          "name": "salary",
+          "title": "Please rate the extent to which you agree or disagree with the following statement:\r\nI am satisfied with my salary.",
+          "rateType": "stars",
+          "autoGenerate": false,
+          "rateValues": [
+            "Strongly Disagree",
+            "Disagree",
+            "Neither agree nor disagree",
+            "Agree",
+            "Strongly agree"
+          ],
+          "minRateDescription": "Strongly Disagree",
+          "maxRateDescription": "Strongly Agree"
+        }
+      ],
+      "title": "Employment"
+    },
+    {
+      "name": "graduatePage",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "professionalSchool",
+          "title": "Did you attend graduate or professional school after graduation?"
+        },
+        {
+          "type": "text",
+          "name": "degree",
+          "visibleIf": "{professionalSchool} = true",
+          "title": "In what degree or area of study?",
+          "isRequired": true
+        },
+        {
+          "type": "boolean",
+          "name": "anotherProgram",
+          "title": "Did you attend another undergraduate program after graduation?"
+        },
+        {
+          "type": "text",
+          "name": "area",
+          "visibleIf": "{anotherProgram} = true",
+          "title": "In what degree or area of study?\r",
+          "isRequired": true
+        }
+      ],
+      "title": "Graduate School"
+    },
+    {
+      "name": "additionalInputPage",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "furtherComments",
+          "title": "Please provide any further comments about {program} that you feel may benefit this\r\ncurriculum review process.",
+          "maxLength": 500,
+          "autoGrow": true
+        }
+      ],
+      "title": "Additional Input"
+    }
+  ],
+  "calculatedValues": [
+    {
+      "name": "program",
+      "expression": "'the Bachelor of Science program'"
+    }
+  ],
+  "showProgressBar": true,
+  "progressBarLocation": "belowheader",
+  "progressBarType": "questions",
+  "showTOC": true,
+  "autoAdvanceEnabled": true,
+  "autoAdvanceAllowComplete": false,
+  "autoGrowComment": true,
+  "completeText": "Submit",
+  "questionStartIndex": "Q1",
+  "firstPageIsStartPage": true,
+  "showPreviewBeforeComplete": true,
+  "previewMode": "answeredQuestions",
+  "widthMode": "static",
+  "width": "1300"
+}

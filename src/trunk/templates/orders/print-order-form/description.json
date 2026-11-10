@@ -1,0 +1,10 @@
+{
+  "title": "Print Order Form",
+  "description": "An order form for print shops: customers choose a product, size, paper stock, sides, color, finishing, and quantity, upload print-ready artwork or request design help, and pick turnaround and delivery. Size and finishing options adapt to the product, and a live estimate shows the price per piece, volume discount, rush surcharge, design fee, delivery fee, and total.",
+  "tags": [
+    "order",
+    "calculator",
+    "payment",
+    "ecommerce"
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "title": "Maintenance Request Form",
+  "description": "Let us know what needs fixing in your home. Clear details and photos help our team arrive prepared.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit request",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "tenantAndProperty",
+      "title": "Tenant and Property",
+      "elements": [
+        {
+          "type": "text",
+          "name": "tenantName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "text",
+          "name": "propertyAddress",
+          "title": "Property address",
+          "isRequired": true,
+          "autocomplete": "street-address"
+        },
+        {
+          "type": "text",
+          "name": "unitNumber",
+          "title": "Unit or apartment number",
+          "startWithNewLine": false,
+          "maxLength": 10
+        },
+        {
+          "type": "radiogroup",
+          "name": "bestTimeToReach",
+          "title": "Best time to reach you",
+          "colCount": 3,
+          "choices": [
+            { "value": "morning", "text": "Morning (8 a.m.–12 p.m.)" },
+            { "value": "afternoon", "text": "Afternoon (12–5 p.m.)" },
+            { "value": "evening", "text": "Evening (5–8 p.m.)" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "issueDetails",
+      "title": "Issue Details",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "issueCategory",
+          "title": "What type of issue is it?",
+          "isRequired": true,
+          "choices": [
+            { "value": "plumbing", "text": "Plumbing" },
+            { "value": "electrical", "text": "Electrical" },
+            { "value": "heating-cooling", "text": "Heating or cooling" },
+            { "value": "appliance", "text": "Appliance" },
+            { "value": "pest-control", "text": "Pest control" },
+            { "value": "locks-doors-windows", "text": "Locks, doors, or windows" },
+            { "value": "structural", "text": "Structural (walls, floors, roof)" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other",
+          "otherPlaceholder": "Describe the type of issue"
+        },
+        {
+          "type": "dropdown",
+          "name": "applianceType",
+          "visibleIf": "{issueCategory} = 'appliance'",
+          "title": "Which appliance?",
+          "isRequired": true,
+          "choices": [
+            { "value": "refrigerator", "text": "Refrigerator" },
+            { "value": "stove-oven", "text": "Stove or oven" },
+            { "value": "dishwasher", "text": "Dishwasher" },
+            { "value": "washer", "text": "Washing machine" },
+            { "value": "dryer", "text": "Dryer" },
+            { "value": "microwave", "text": "Microwave" },
+            { "value": "water-heater", "text": "Water heater" }
+          ],
+          "showOtherItem": true
+        },
+        {
+          "type": "radiogroup",
+          "name": "urgency",
+          "title": "How urgent is it?",
+          "description": "Emergencies include flooding, no heat in winter, gas smell, electrical sparks, a non-working lock on an exterior door, or anything that threatens safety.",
+          "isRequired": true,
+          "choices": [
+            { "value": "emergency", "text": "Emergency – immediate risk to safety or property" },
+            { "value": "urgent", "text": "Urgent – needs attention within 24–48 hours" },
+            { "value": "routine", "text": "Routine – can be scheduled within the next week or two" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "issueLocation",
+          "title": "Where in the home is the issue?",
+          "placeholder": "For example, kitchen sink or master bathroom",
+          "isRequired": true,
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "issueStartDate",
+          "title": "When did you first notice it?",
+          "startWithNewLine": false,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "comment",
+          "name": "issueDescription",
+          "title": "Describe the issue",
+          "description": "What is happening, how often, and anything you've already tried.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 2000
+        },
+        {
+          "type": "file",
+          "name": "photos",
+          "title": "Photos or videos",
+          "description": "Optional. Up to 5 files, 10 MB each.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*,video/*"
+        },
+        {
+          "type": "boolean",
+          "name": "permissionToEnter",
+          "title": "May our maintenance team enter if you're not home?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "entryInstructions",
+          "visibleIf": "{permissionToEnter} = true",
+          "title": "Entry instructions",
+          "description": "Alarm codes, where to find keys, or other instructions for entry.",
+          "rows": 2,
+          "maxLength": 500
+        },
+        {
+          "type": "checkbox",
+          "name": "availabilityWindows",
+          "visibleIf": "{permissionToEnter} = false",
+          "title": "When are you available to let us in?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "weekday-mornings", "text": "Weekday mornings" },
+            { "value": "weekday-afternoons", "text": "Weekday afternoons" },
+            { "value": "weekday-evenings", "text": "Weekday evenings" },
+            { "value": "weekends", "text": "Weekends" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "petsOnPremises",
+          "title": "Are there pets on the premises?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "petDetails",
+          "visibleIf": "{petsOnPremises} = true",
+          "title": "Tell us about your pets",
+          "placeholder": "For example, one friendly dog, kept in the bedroom",
+          "isRequired": true,
+          "maxLength": 200
+        },
+        {
+          "type": "checkbox",
+          "name": "acknowledgement",
+          "title": "Acknowledgement",
+          "isRequired": true,
+          "choices": [
+            { "value": "accepted", "text": "I confirm the information above is accurate and understand that repairs caused by tenant damage may be charged back to me as described in my lease." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {tenantName}. Your maintenance request has been submitted.</h3><p>Our team will review the <b>{issueCategory}</b> issue at <b>{propertyAddress}</b> and contact you at <b>{phone}</b> or <b>{email}</b> to schedule a visit.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{urgency} = 'emergency'",
+      "html": "<h3>Your emergency request has been received, {tenantName}.</h3><p>Please also <b>call our 24-hour emergency line at (555) 010-9111</b> right now so we can dispatch help immediately. If there is a gas smell or fire risk, leave the property and call emergency services first.</p>"
+    }
+  ]
+}

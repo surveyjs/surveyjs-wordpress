@@ -1,0 +1,9 @@
+{
+  "title": "Sign-Up Form",
+  "description": "A compact account registration form for web apps and online services. It collects name, email, and phone, enforces a password policy with a confirmation check, records agreement to the terms and privacy policy, and captures a marketing opt-in.",
+  "tags": [
+    "registration",
+    "consent",
+    "lead-generation"
+  ]
+}

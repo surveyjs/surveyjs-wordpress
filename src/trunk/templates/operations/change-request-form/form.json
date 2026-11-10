@@ -1,0 +1,306 @@
+{
+  "title": "Change Request",
+  "description": "Describe the change you'd like to make, its impact, and how it will be tested and rolled back. The change advisory board reviews requests every Tuesday.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Submit change request",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "requester",
+      "title": "Requester",
+      "elements": [
+        {
+          "type": "text",
+          "name": "requesterName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "requesterEmail",
+          "title": "Email",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "department",
+          "title": "Department or team",
+          "isRequired": true,
+          "autocomplete": "organization"
+        },
+        {
+          "type": "text",
+          "name": "requestDate",
+          "title": "Request date",
+          "startWithNewLine": false,
+          "inputType": "date",
+          "readOnly": true,
+          "defaultValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "changeTitle",
+          "title": "Change title",
+          "description": "A short name for the change, as it should appear on the change calendar.",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "radiogroup",
+          "name": "changeType",
+          "title": "Change type",
+          "isRequired": true,
+          "choices": [
+            { "value": "standard", "text": "Standard: pre-approved, low-risk, follows a documented procedure" },
+            { "value": "normal", "text": "Normal: needs assessment and approval by the change advisory board" },
+            { "value": "emergency", "text": "Emergency: must be made immediately to restore service or prevent an outage" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "changeCategory",
+          "title": "Category",
+          "isRequired": true,
+          "choices": [
+            { "value": "software", "text": "Software or application" },
+            { "value": "hardware", "text": "Hardware" },
+            { "value": "network", "text": "Network" },
+            { "value": "process", "text": "Process" },
+            { "value": "documentation", "text": "Documentation" },
+            { "value": "security", "text": "Security" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "relatedTicket",
+          "title": "Related incident or ticket number",
+          "startWithNewLine": false,
+          "placeholder": "e.g. INC-10482"
+        }
+      ]
+    },
+    {
+      "name": "details",
+      "title": "Change Details",
+      "elements": [
+        {
+          "type": "tagbox",
+          "name": "systemsAffected",
+          "title": "Systems affected",
+          "isRequired": true,
+          "choices": [
+            { "value": "crm", "text": "CRM" },
+            { "value": "erp", "text": "ERP" },
+            { "value": "website", "text": "Website" },
+            { "value": "email", "text": "Email" },
+            { "value": "network", "text": "Network" },
+            { "value": "database", "text": "Database" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "comment",
+          "name": "changeDescription",
+          "title": "Describe the change",
+          "description": "What will be changed, and how? Include versions, configuration items, and the steps involved.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 3000
+        },
+        {
+          "type": "comment",
+          "name": "businessJustification",
+          "title": "Business justification",
+          "description": "Why is this change needed, and what happens if it isn't made?",
+          "isRequired": true,
+          "rows": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "impactLevel",
+          "title": "Impact level",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "low", "text": "Low: a single team or non-critical system" },
+            { "value": "medium", "text": "Medium: several teams or a business-important system" },
+            { "value": "high", "text": "High: the whole organization or a critical system" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "riskLevel",
+          "title": "Risk level",
+          "description": "How likely is the change to cause problems, and how hard would they be to fix?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "low", "text": "Low" },
+            { "value": "medium", "text": "Medium" },
+            { "value": "high", "text": "High" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "affectedUsers",
+          "title": "Who will notice the change?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "none", "text": "No one: it is transparent to users" },
+            { "value": "single-team", "text": "A single team" },
+            { "value": "multiple-teams", "text": "Multiple teams or departments" },
+            { "value": "all-users", "text": "All users" },
+            { "value": "customers", "text": "External customers" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "downtimeRequired",
+          "title": "Will the change require downtime?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "downtimeMinutes",
+          "visibleIf": "{downtimeRequired} = true",
+          "title": "Expected downtime (minutes)",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "number",
+          "min": 1,
+          "step": 1
+        },
+        {
+          "type": "comment",
+          "name": "testingPlan",
+          "title": "Testing plan",
+          "description": "How was or will the change be tested before and after implementation?",
+          "isRequired": true,
+          "rows": 3
+        },
+        {
+          "type": "comment",
+          "name": "rollbackPlan",
+          "title": "Rollback plan",
+          "description": "How will the change be reversed if it fails, and how long will that take?",
+          "isRequired": true,
+          "rows": 3
+        },
+        {
+          "type": "comment",
+          "name": "dependencies",
+          "title": "Dependencies",
+          "description": "Other changes, vendors, or approvals this change depends on.",
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "name": "scheduleAndApproval",
+      "title": "Schedule and Approval",
+      "elements": [
+        {
+          "type": "text",
+          "name": "proposedStartDate",
+          "title": "Proposed start",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "proposedEndDate",
+          "title": "Proposed end",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "minValueExpression": "{proposedStartDate}",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{proposedEndDate} >= {proposedStartDate}",
+              "text": "The end date can't be before the start date."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "implementationWindow",
+          "title": "Implementation window",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "business-hours", "text": "Business hours" },
+            { "value": "after-hours", "text": "After hours" },
+            { "value": "weekend", "text": "Weekend" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "communicationPlan",
+          "title": "How will affected users be informed?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "email", "text": "Email announcement" },
+            { "value": "status-page", "text": "Status page" },
+            { "value": "chat", "text": "Team chat message" },
+            { "value": "team-leads", "text": "Briefing for team leads" },
+            { "value": "release-notes", "text": "Release notes" }
+          ],
+          "showNoneItem": true,
+          "noneText": "No communication needed"
+        },
+        {
+          "type": "text",
+          "name": "approverName",
+          "title": "Approver name",
+          "description": "The change manager or system owner who should approve this request.",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "approverEmail",
+          "title": "Approver email",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "requesterAcknowledgement",
+          "title": "Acknowledgement",
+          "isRequired": true,
+          "choices": [
+            { "value": "acknowledged", "text": "I confirm that the information above is accurate and that the change will not be made until it is approved." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Change request submitted</h3><p>Thank you, {requesterName}. Your request <b>{changeTitle}</b> has been sent to {approverName} for approval. You'll receive updates at <b>{requesterEmail}</b>. Please don't start the change until it is approved.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{changeType} = 'emergency'",
+      "html": "<h3>Emergency change request submitted</h3><p>Thank you, {requesterName}. Your emergency change <b>{changeTitle}</b> has been sent to {approverName} and the on-call change manager for expedited review. Expect a response at <b>{requesterEmail}</b> within the hour. Document every step you take so the change can be reviewed afterward.</p>"
+    }
+  ]
+}

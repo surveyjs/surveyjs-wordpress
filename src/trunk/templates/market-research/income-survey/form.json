@@ -1,0 +1,654 @@
+{
+  "title": "Income Survey",
+  "pages": [
+    {
+      "name": "intro",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "introPanel",
+          "elements": [
+            {
+              "type": "html",
+              "name": "incomeIntro",
+              "html": "<article><h4>Income</h4><div><p>In this section, you will be asked about your current employment and any other way you and your partner currently receive income.</p><p>It will be handy to have the following in front of you:</p><ul><li>Payslip (for employment details)</li><li><p>A current Centrelink Schedule for any account-based pension from super, annuities, or other income stream products that you own.</p><p>If you don't have a current one, you can get these schedules by contacting your income stream provider.</p></li><li>Latest statement from any payments (from Centrelink or other authority)</li></ul></div></article>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "maritalStatusPage",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "maritalStatus",
+          "title": "What is your marital status?",
+          "titleLocation": "top",
+          "choices": [
+            "Married",
+            "In a registered relationship",
+            "Living with my partner",
+            "Widowed",
+            "Single"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employmentIncome",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "employmentIncomePanel",
+          "title": "Do you and/or your partner currently receive income from employment?",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "memberEmploymentPanel",
+              "questionTitleLocation": "hidden",
+              "title": "You",
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "memberReceivesIncomeFromEmployment",
+                  "isRequired": true,
+                  "choices": [
+                    {
+                      "value": "1",
+                      "text": "Yes"
+                    },
+                    {
+                      "value": "0",
+                      "text": "No"
+                    }
+                  ],
+                  "colCount": 2,
+                  "title": "Do you currently receive income from employment?"
+                },
+                {
+                  "type": "checkbox",
+                  "name": "memberTypeOfEmployment",
+                  "visible": false,
+                  "visibleIf": "{memberReceivesIncomeFromEmployment} = 1",
+                  "isRequired": true,
+                  "choices": [
+                    "Self employment",
+                    "All other types of employment"
+                  ],
+                  "title": "Type of employment"
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "partnerEmploymentPanel",
+              "visible": false,
+              "visibleIf": "{maritalStatus} = 'Married' or {maritalStatus} = 'In a registered relationship' or {maritalStatus} = 'Living with my partner'",
+              "questionTitleLocation": "hidden",
+              "title": "Your Partner",
+              "startWithNewLine": false,
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "partnerReceivesIncomeFromEmployment",
+                  "isRequired": true,
+                  "choices": [
+                    {
+                      "value": "1",
+                      "text": "Yes"
+                    },
+                    {
+                      "value": "0",
+                      "text": "No"
+                    }
+                  ],
+                  "colCount": 2,
+                  "title": "Does your partner currently receive income from employment?"
+                },
+                {
+                  "type": "checkbox",
+                  "name": "partnerTypeOfEmployment",
+                  "visible": false,
+                  "visibleIf": "{partnerReceivesIncomeFromEmployment} = 1",
+                  "isRequired": true,
+                  "choices": [
+                    "Self employment",
+                    "All other types of employment"
+                  ],
+                  "title": "Type of employment"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employers",
+      "visible": false,
+      "visibleIf": "{memberTypeOfEmployment} contains 'All other types of employment' or {partnerTypeOfEmployment} contains 'All other types of employment'",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "employersPanel",
+          "title": "Who are you employed by?",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "memberEmployersPanel",
+              "visible": false,
+              "visibleIf": "{memberTypeOfEmployment} contains 'All other types of employment'",
+              "title": "You",
+              "elements": [
+                {
+                  "type": "paneldynamic",
+                  "name": "memberEmployerNames",
+                  "title": "Please enter all your employers",
+                  "valueName": "memberEmployers",
+                  "templateElements": [
+                    {
+                      "type": "text",
+                      "name": "memberEmployerName",
+                      "title": "Name of employer",
+                      "valueName": "name"
+                    }
+                  ],
+                  "panelCount": 1,
+                  "minPanelCount": 1,
+                  "addPanelText": "Add another employer"
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "partnerEmployersPanel",
+              "visible": false,
+              "visibleIf": "{partnerTypeOfEmployment} contains 'All other types of employment'",
+              "title": "Your Partner",
+              "startWithNewLine": false,
+              "elements": [
+                {
+                  "type": "paneldynamic",
+                  "name": "partnerEmployerNames",
+                  "title": "Please enter all your partner's employers",
+                  "valueName": "partnerEmployers",
+                  "templateElements": [
+                    {
+                      "type": "text",
+                      "name": "partnerEmployerName",
+                      "title": "Name of employer",
+                      "valueName": "name"
+                    }
+                  ],
+                  "panelCount": 1,
+                  "minPanelCount": 1,
+                  "addPanelText": "Add another employer"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employerDetails",
+      "visibleIf": "{memberTypeOfEmployment} contains 'All other types of employment' or {partnerTypeOfEmployment} contains 'All other types of employment'",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "employerDetailsPanel",
+          "title": "Tell us about your employer(s)",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "memberEmployerDetailsPanel",
+              "visibleIf": "{memberTypeOfEmployment} contains 'All other types of employment'",
+              "title": "You",
+              "elements": [
+                {
+                  "type": "paneldynamic",
+                  "name": "memberEmployerInfo",
+                  "title": "Your employers",
+                  "valueName": "memberEmployers",
+                  "templateElements": [
+                    {
+                      "type": "panel",
+                      "name": "panelMemberEmployerAddress",
+                      "title": "Address",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "name": "memberEmployerAddress",
+                          "title": "Address",
+                          "valueName": "address"
+                        },
+                        {
+                          "type": "text",
+                          "name": "memberEmployerPhone",
+                          "title": "Phone number:",
+                          "valueName": "phone"
+                        },
+                        {
+                          "type": "text",
+                          "name": "memberEmployerAbn",
+                          "title": "ABN",
+                          "valueName": "abn"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "panel",
+                      "name": "panelMemberEmployerRole",
+                      "title": "What is your role?",
+                      "elements": [
+                        {
+                          "type": "radiogroup",
+                          "name": "memberEmployerRole",
+                          "title": "Your role",
+                          "valueName": "role",
+                          "choices": [
+                            "Full time",
+                            "Part time",
+                            "Casual",
+                            "Seasonal"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "panel",
+                      "name": "panelMemberEmployerHoursWork",
+                      "title": "What hours do you work?",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "name": "memberEmployerHoursWorked",
+                          "title": "Hours:",
+                          "valueName": "hoursWorked",
+                          "inputType": "number"
+                        },
+                        {
+                          "type": "dropdown",
+                          "name": "memberEmployerHoursWorkedFrequency",
+                          "startWithNewLine": false,
+                          "title": "Worked Frequency:",
+                          "valueName": "hoursWorkedFrequency",
+                          "defaultValue": "Year",
+                          "choices": [
+                            "Day",
+                            "Week",
+                            "Fortnight",
+                            "Month",
+                            "Year"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "panel",
+                      "name": "panelMemberEmployerIncome",
+                      "title": "What income do you receive?",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "name": "memberEmployerIncome",
+                          "title": "Income:",
+                          "valueName": "income",
+                          "inputType": "number"
+                        },
+                        {
+                          "type": "dropdown",
+                          "name": "memberEmployerIncomeFrequency",
+                          "startWithNewLine": false,
+                          "title": "Income Frequency",
+                          "valueName": "incomeFrequency",
+                          "defaultValue": "Year",
+                          "choices": [
+                            "Day",
+                            "Week",
+                            "Fortnight",
+                            "Month",
+                            "Year"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "templateTitle": "Employer name: {panel.name}",
+                  "allowAddPanel": false,
+                  "allowRemovePanel": false,
+                  "panelCount": 1,
+                  "displayMode": "carousel"
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "partnerEmployerDetailsPanel",
+              "visibleIf": "{partnerTypeOfEmployment} contains 'All other types of employment'",
+              "title": "Your partner",
+              "startWithNewLine": false,
+              "elements": [
+                {
+                  "type": "paneldynamic",
+                  "name": "partnerEmployerInfo",
+                  "title": "Your partner's employers",
+                  "valueName": "partnerEmployers",
+                  "templateElements": [
+                    {
+                      "type": "panel",
+                      "name": "panelPartnerEmployerAddress",
+                      "title": "Address",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "name": "partnerEmployerAddress",
+                          "title": "Address:",
+                          "valueName": "address"
+                        },
+                        {
+                          "type": "text",
+                          "name": "partnerEmployerPhone",
+                          "title": "Phone number",
+                          "valueName": "phone"
+                        },
+                        {
+                          "type": "text",
+                          "name": "partnerEmployerAbn",
+                          "title": "ABN",
+                          "valueName": "abn"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "panel",
+                      "name": "panelPartnerEmployerRole",
+                      "title": "What is your role?",
+                      "elements": [
+                        {
+                          "type": "radiogroup",
+                          "name": "partnerEmployerRole",
+                          "title": "Your role",
+                          "valueName": "role",
+                          "choices": [
+                            "Full time",
+                            "Part time",
+                            "Casual",
+                            "Seasonal"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "panel",
+                      "name": "panelPartnerEmployerHoursWork",
+                      "title": "What hours do you work?",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "name": "partnerEmployerHoursWorked",
+                          "title": "Hours",
+                          "valueName": "hoursWorked",
+                          "inputType": "number"
+                        },
+                        {
+                          "type": "dropdown",
+                          "name": "partnerEmployerHoursWorkedFrequency",
+                          "startWithNewLine": false,
+                          "title": "Worked Frequency:",
+                          "valueName": "hoursWorkedFrequency",
+                          "defaultValue": "Year",
+                          "choices": [
+                            "Day",
+                            "Week",
+                            "Fortnight",
+                            "Month",
+                            "Year"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "panel",
+                      "name": "panelPartnerEmployerIncome",
+                      "title": "What income do you receive?",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "name": "partnerEmployerIncome",
+                          "title": "Income:",
+                          "valueName": "income",
+                          "inputType": "number"
+                        },
+                        {
+                          "type": "dropdown",
+                          "name": "partnerEmployerIncomeFrequency",
+                          "startWithNewLine": false,
+                          "title": "Income frequency:",
+                          "valueName": "incomeFrequency",
+                          "defaultValue": "Year",
+                          "choices": [
+                            "Day",
+                            "Week",
+                            "Fortnight",
+                            "Month",
+                            "Year"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "templateTitle": "Employer name: {panel.name}",
+                  "allowAddPanel": false,
+                  "allowRemovePanel": false,
+                  "panelCount": 1,
+                  "displayMode": "carousel"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fringeBenefits",
+      "visible": false,
+      "visibleIf": "{memberTypeOfEmployment} contains 'All other types of employment' or {partnerTypeOfEmployment} contains 'All other types of employment'",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "fringeBenefitsPanel",
+          "title": "Do any of your employers provide you with fringe benefits?",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "memberFringeBenefitsPanel",
+              "visible": false,
+              "visibleIf": "{memberTypeOfEmployment} contains 'All other types of employment'",
+              "questionTitleLocation": "hidden",
+              "title": "You",
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "memberReceiveFringeBenefits",
+                  "isRequired": true,
+                  "choices": [
+                    {
+                      "value": "1",
+                      "text": "Yes"
+                    },
+                    {
+                      "value": "0",
+                      "text": "No"
+                    }
+                  ],
+                  "colCount": 2,
+                  "title": "Do any of your employers provide you with fringe benefits?"
+                },
+                {
+                  "type": "panel",
+                  "name": "memberFringeBenefitsDetails",
+                  "visible": false,
+                  "visibleIf": "{memberReceiveFringeBenefits} = 1",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "name": "memberFringeBenefitsType",
+                      "title": "Type of fringe benefits"
+                    },
+                    {
+                      "type": "text",
+                      "name": "memberFringeBenefitsValue",
+                      "title": "Value of fringe benefits"
+                    },
+                    {
+                      "type": "radiogroup",
+                      "name": "memberFringeBenefitsGrossing",
+                      "choices": [
+                        "Grossed up",
+                        "Not grossed up"
+                      ],
+                      "title": "Is the value grossed up?"
+                    }
+                  ],
+                  "questionTitleLocation": "top"
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "partnerFringeBenefitsPanel",
+              "visible": false,
+              "visibleIf": "{partnerTypeOfEmployment} contains 'All other types of employment'",
+              "questionTitleLocation": "hidden",
+              "title": "Your Partner",
+              "startWithNewLine": false,
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "partnerReceiveFringeBenefits",
+                  "isRequired": true,
+                  "choices": [
+                    {
+                      "value": "1",
+                      "text": "Yes"
+                    },
+                    {
+                      "value": "0",
+                      "text": "No"
+                    }
+                  ],
+                  "colCount": 2,
+                  "title": "Do any of your partner's employers provide fringe benefits?"
+                },
+                {
+                  "type": "panel",
+                  "name": "partnerFringeBenefitsDetails",
+                  "visible": false,
+                  "visibleIf": "{partnerReceiveFringeBenefits} = 1",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "name": "partnerFringeBenefitsType",
+                      "title": "Type of fringe benefits"
+                    },
+                    {
+                      "type": "text",
+                      "name": "partnerFringeBenefitsValue",
+                      "title": "Value of fringe benefits"
+                    },
+                    {
+                      "type": "radiogroup",
+                      "name": "partnerFringeBenefitsGrossing",
+                      "choices": [
+                        "Grossed up",
+                        "Not grossed up"
+                      ],
+                      "title": "Is the value grossed up?"
+                    }
+                  ],
+                  "questionTitleLocation": "top"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "seasonalWork",
+      "visible": false,
+      "visibleIf": "{memberReceivesIncomeFromEmployment} = 1 or {partnerReceivesIncomeFromEmployment} = 1",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "seasonalWorkPanel",
+          "title": "In the last 6 months, have you done any seasonal, intermittent or contract work?",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "memberSeasonalWorkPanel",
+              "visible": false,
+              "visibleIf": "{memberReceivesIncomeFromEmployment} = 1",
+              "questionTitleLocation": "hidden",
+              "title": "You",
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "memberSeasonalIntermittentOrContractWork",
+                  "isRequired": true,
+                  "choices": [
+                    {
+                      "value": "1",
+                      "text": "Yes"
+                    },
+                    {
+                      "value": "0",
+                      "text": "No"
+                    }
+                  ],
+                  "colCount": 2,
+                  "title": "In the last 6 months, have you done any seasonal, intermittent or contract work?"
+                }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "partnerSeasonalWorkPanel",
+              "visible": false,
+              "visibleIf": "{partnerReceivesIncomeFromEmployment} = 1",
+              "questionTitleLocation": "hidden",
+              "title": "Your Partner",
+              "startWithNewLine": false,
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "partnerSeasonalIntermittentOrContractWork",
+                  "title": "In the last 6 months, has your partner done any seasonal, intermittent or contract work?",
+                  "isRequired": true,
+                  "choices": [
+                    {
+                      "value": "1",
+                      "text": "Yes"
+                    },
+                    {
+                      "value": "0",
+                      "text": "No"
+                    }
+                  ],
+                  "colCount": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "storeOthersAsComment": false,
+  "pagePrevText": "Previous",
+  "pageNextText": "Continue",
+  "completeText": "Finish",
+  "requiredMark": ""
+}

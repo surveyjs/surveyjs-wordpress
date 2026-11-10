@@ -1,0 +1,10 @@
+{
+  "title": "Bug Report Form",
+  "description": "A customer-facing bug report form for software products. It captures the affected area, severity, reproduction steps, expected and actual results, environment details, and attachments, and shows a priority message for critical bugs.",
+  "tags": [
+    "support",
+    "request",
+    "report",
+    "product-research"
+  ]
+}

@@ -1,0 +1,310 @@
+{
+  "title": "Hotel Reservation Form",
+  "description": "Reserve your stay in a few minutes. We'll confirm availability and send your booking details by email.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Reserve my stay",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "stayDetails",
+      "title": "Your Stay",
+      "elements": [
+        {
+          "type": "text",
+          "name": "checkInDate",
+          "title": "Check-in date",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "checkOutDate",
+          "title": "Check-out date",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "minValueExpression": "{checkInDate}",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{checkOutDate} > {checkInDate}",
+              "text": "Check-out must be at least one day after check-in."
+            }
+          ]
+        },
+        {
+          "type": "expression",
+          "name": "nights",
+          "visibleIf": "{checkInDate} notempty and {checkOutDate} notempty",
+          "title": "Number of nights",
+          "expression": "iif({checkInDate} notempty and {checkOutDate} notempty and {checkOutDate} > {checkInDate}, diffDays({checkInDate}, {checkOutDate}), 0)",
+          "displayStyle": "decimal",
+          "maximumFractionDigits": 0
+        },
+        {
+          "type": "dropdown",
+          "name": "adults",
+          "title": "Adults",
+          "isRequired": true,
+          "defaultValue": 2,
+          "choices": [
+            { "value": 1, "text": "1" },
+            { "value": 2, "text": "2" },
+            { "value": 3, "text": "3" },
+            { "value": 4, "text": "4" },
+            { "value": 5, "text": "5" },
+            { "value": 6, "text": "6" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "children",
+          "title": "Children",
+          "description": "Ages 0–12.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "defaultValue": 0,
+          "choices": [
+            { "value": 0, "text": "0" },
+            { "value": 1, "text": "1" },
+            { "value": 2, "text": "2" },
+            { "value": 3, "text": "3" },
+            { "value": 4, "text": "4" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "rooms",
+          "title": "Rooms",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "defaultValue": 1,
+          "choices": [
+            { "value": 1, "text": "1" },
+            { "value": 2, "text": "2" },
+            { "value": 3, "text": "3" },
+            { "value": 4, "text": "4" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "roomType",
+          "title": "Room type",
+          "description": "Rates are per room, per night, before taxes and fees.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "standard", "text": "Standard room – $129" },
+            { "value": "deluxe", "text": "Deluxe room – $179" },
+            { "value": "suite", "text": "Suite – $259" },
+            { "value": "family", "text": "Family room – $219" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "bedPreference",
+          "title": "Bed preference",
+          "colCount": 3,
+          "choices": [
+            { "value": "king", "text": "One king bed" },
+            { "value": "queen", "text": "One queen bed" },
+            { "value": "two-doubles", "text": "Two double beds" }
+          ],
+          "showNoneItem": true,
+          "noneText": "No preference"
+        },
+        {
+          "type": "checkbox",
+          "name": "extras",
+          "title": "Extras",
+          "choices": [
+            { "value": "breakfast", "text": "Breakfast – $18 per person, per night" },
+            { "value": "parking", "text": "Parking – $25 per night" },
+            { "value": "airport-transfer", "text": "Airport transfer – $60" },
+            { "value": "late-checkout", "text": "Late checkout until 2:00 p.m. – $30" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "guestDetails",
+      "title": "Guest Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "dropdown",
+          "name": "country",
+          "title": "Country of residence",
+          "isRequired": true,
+          "choices": [
+            { "value": "us", "text": "United States" },
+            { "value": "ca", "text": "Canada" },
+            { "value": "gb", "text": "United Kingdom" },
+            { "value": "de", "text": "Germany" },
+            { "value": "fr", "text": "France" },
+            { "value": "es", "text": "Spain" },
+            { "value": "it", "text": "Italy" },
+            { "value": "au", "text": "Australia" },
+            { "value": "jp", "text": "Japan" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other country"
+        },
+        {
+          "type": "text",
+          "name": "arrivalTime",
+          "title": "Estimated arrival time",
+          "description": "Check-in opens at 3:00 p.m.",
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "radiogroup",
+          "name": "purposeOfStay",
+          "title": "Purpose of stay",
+          "colCount": 2,
+          "choices": [
+            { "value": "business", "text": "Business" },
+            { "value": "leisure", "text": "Leisure" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "loyaltyMember",
+          "title": "Are you a loyalty program member?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "loyaltyNumber",
+          "visibleIf": "{loyaltyMember} = true",
+          "title": "Loyalty number",
+          "isRequired": true,
+          "maxLength": 20
+        },
+        {
+          "type": "comment",
+          "name": "specialRequests",
+          "title": "Special requests",
+          "description": "High floor, accessible room, crib, allergies... We'll do our best but can't guarantee every request.",
+          "rows": 3,
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "summary",
+      "title": "Summary and Guarantee",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "priceSummary",
+          "title": "Estimated price",
+          "description": "Final charges are confirmed at check-in.",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "roomRate",
+              "title": "Nightly rate per room",
+              "expression": "iif({roomType} = 'standard', 129, iif({roomType} = 'deluxe', 179, iif({roomType} = 'suite', 259, iif({roomType} = 'family', 219, 0))))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "roomSubtotal",
+              "title": "Room subtotal",
+              "description": "Nightly rate × nights × rooms",
+              "expression": "{roomRate} * {nights} * {rooms}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "extrasTotal",
+              "title": "Extras",
+              "expression": "iif({extras} contains 'breakfast', 18 * ({adults} + {children}) * {nights}, 0) + iif({extras} contains 'parking', 25 * {nights}, 0) + iif({extras} contains 'airport-transfer', 60, 0) + iif({extras} contains 'late-checkout', 30, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "taxesAndFees",
+              "title": "Taxes and fees (12%)",
+              "expression": "({roomSubtotal} + {extrasTotal}) * 0.12",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "estimatedTotal",
+              "title": "Estimated total",
+              "expression": "{roomSubtotal} + {extrasTotal} + {taxesAndFees}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "guaranteeMethod",
+          "title": "How would you like to guarantee the reservation?",
+          "isRequired": true,
+          "choices": [
+            { "value": "card-at-check-in", "text": "Hold with a credit card and pay at check-in" },
+            { "value": "prepay", "text": "Prepay now with a secure payment link (5% discount)" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "cancellationPolicyAcknowledged",
+          "title": "Cancellation policy",
+          "isRequired": true,
+          "choices": [
+            { "value": "accepted", "text": "I understand that cancellations within 48 hours of check-in are charged one night's stay." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}! Your reservation request has been received.</h3><p>We've noted a <b>{nights}</b>-night stay from <b>{checkInDate}</b> to <b>{checkOutDate}</b> with an estimated total of <b>{estimatedTotal}</b>.</p><p>A confirmation with your booking number will be sent to <b>{email}</b> once availability is verified.</p>"
+}

@@ -1,0 +1,349 @@
+{
+  "title": "T-Shirt and Merch Order Form",
+  "description": "Pick your items, sizes, and colors, and we'll show your total as you go. Orders usually ship within 5 business days.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Place order",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "items",
+      "title": "Your Items",
+      "elements": [
+        {
+          "type": "matrixdynamic",
+          "name": "orderItems",
+          "title": "Items",
+          "description": "Add one row per product, size, and color combination.",
+          "isRequired": true,
+          "columns": [
+            {
+              "name": "product",
+              "title": "Product",
+              "cellType": "dropdown",
+              "isRequired": true,
+              "width": "28%",
+              "choices": [
+                { "value": "classic-tee", "text": "Classic tee ($20)" },
+                { "value": "premium-tee", "text": "Premium tee ($28)" },
+                { "value": "hoodie", "text": "Hoodie ($45)" },
+                { "value": "cap", "text": "Cap ($18)" },
+                { "value": "tote", "text": "Tote bag ($15)" }
+              ]
+            },
+            {
+              "name": "size",
+              "title": "Size",
+              "cellType": "dropdown",
+              "isRequired": true,
+              "choices": [
+                { "value": "xs", "text": "XS" },
+                { "value": "s", "text": "S" },
+                { "value": "m", "text": "M" },
+                { "value": "l", "text": "L" },
+                { "value": "xl", "text": "XL" },
+                { "value": "2xl", "text": "2XL" },
+                { "value": "3xl", "text": "3XL" },
+                { "value": "one-size", "text": "One size" }
+              ]
+            },
+            {
+              "name": "color",
+              "title": "Color",
+              "cellType": "dropdown",
+              "isRequired": true,
+              "choices": [
+                { "value": "black", "text": "Black" },
+                { "value": "white", "text": "White" },
+                { "value": "navy", "text": "Navy" },
+                { "value": "heather-gray", "text": "Heather gray" },
+                { "value": "forest-green", "text": "Forest green" },
+                { "value": "burgundy", "text": "Burgundy" }
+              ]
+            },
+            {
+              "name": "quantity",
+              "title": "Qty",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "defaultValue": 1,
+              "min": 1,
+              "max": 500,
+              "step": 1
+            },
+            {
+              "name": "unitPrice",
+              "title": "Unit price",
+              "cellType": "expression",
+              "expression": "iif({row.product} = 'classic-tee', 20, iif({row.product} = 'premium-tee', 28, iif({row.product} = 'hoodie', 45, iif({row.product} = 'cap', 18, iif({row.product} = 'tote', 15, 0)))))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "name": "lineTotal",
+              "title": "Total",
+              "cellType": "expression",
+              "expression": "iif({row.quantity} > 0, {row.quantity} * {row.unitPrice}, 0)",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "totalCurrency": "USD"
+            }
+          ],
+          "rowCount": 1,
+          "minRowCount": 1,
+          "maxRowCount": 20,
+          "addRowText": "Add item",
+          "removeRowText": "Remove"
+        },
+        {
+          "type": "boolean",
+          "name": "personalization",
+          "title": "Would you like custom text printed on your items?",
+          "description": "Adds a flat $8 personalization fee to the order.",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "printText",
+          "visibleIf": "{personalization} = true",
+          "title": "Text to print",
+          "description": "Up to 30 characters. Type it exactly as you want it to appear.",
+          "isRequired": true,
+          "maxLength": 30,
+          "placeholder": "e.g. TEAM ALPHA"
+        },
+        {
+          "type": "radiogroup",
+          "name": "placement",
+          "visibleIf": "{personalization} = true",
+          "title": "Where should the text go?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "front-left-chest", "text": "Front, left chest" },
+            { "value": "front-center", "text": "Front, center" },
+            { "value": "back-center", "text": "Back, center" },
+            { "value": "sleeve", "text": "Sleeve" },
+            { "value": "nape", "text": "Back of neck" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "delivery",
+      "title": "Delivery",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "fulfillment",
+          "title": "How would you like to receive your order?",
+          "isRequired": true,
+          "choices": [
+            { "value": "pickup", "text": "Pick up at our store (free)" },
+            { "value": "ship", "text": "Ship to my address" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "shippingAddress",
+          "visibleIf": "{fulfillment} = 'ship'",
+          "title": "Shipping address",
+          "elements": [
+            {
+              "type": "text",
+              "name": "shippingRecipient",
+              "title": "Recipient name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "shippingStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "shippingUnit",
+              "title": "Apartment, suite, or unit",
+              "startWithNewLine": false,
+              "autocomplete": "address-line2"
+            },
+            {
+              "type": "text",
+              "name": "shippingCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "shippingState",
+              "title": "State",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "shippingPostalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "shippingMethod",
+          "visibleIf": "{fulfillment} = 'ship'",
+          "title": "Shipping method",
+          "isRequired": true,
+          "choices": [
+            { "value": "standard", "text": "Standard, 5-7 business days ($6)" },
+            { "value": "expedited", "text": "Expedited, 2-3 business days ($15)" },
+            { "value": "overnight", "text": "Overnight ($30)" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "giftWrap",
+          "title": "Gift wrap this order?",
+          "description": "Adds $5. Items are wrapped in tissue paper with a handwritten card.",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "giftMessage",
+          "visibleIf": "{giftWrap} = true",
+          "title": "Message for the gift card",
+          "maxLength": 120
+        }
+      ]
+    },
+    {
+      "name": "summary",
+      "title": "Summary and Contact",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "orderSummary",
+          "title": "Order summary",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "itemsSubtotal",
+              "title": "Items subtotal",
+              "expression": "sumInArray({orderItems}, 'lineTotal')",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "personalizationFee",
+              "title": "Personalization",
+              "startWithNewLine": false,
+              "expression": "iif({personalization} = true, 8, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "giftWrapFee",
+              "title": "Gift wrap",
+              "startWithNewLine": false,
+              "expression": "iif({giftWrap} = true, 5, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "shippingCost",
+              "title": "Shipping",
+              "expression": "iif({fulfillment} = 'ship', iif({shippingMethod} = 'standard', 6, iif({shippingMethod} = 'expedited', 15, iif({shippingMethod} = 'overnight', 30, 0))), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "orderTotal",
+              "title": "Order total",
+              "startWithNewLine": false,
+              "expression": "{itemsSubtotal} + {personalizationFee} + {giftWrapFee} + {shippingCost}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "html",
+              "name": "summaryNote",
+              "html": "<p><small>Sales tax is calculated at checkout. We'll email you a payment link once your order is confirmed.</small></p>"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "customerName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "customerEmail",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "customerPhone",
+          "title": "Phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "comment",
+          "name": "orderNotes",
+          "title": "Notes for our team",
+          "description": "Optional. For example: a deadline, a team name for the order, or questions about sizing.",
+          "rows": 3,
+          "maxLength": 500
+        },
+        {
+          "type": "boolean",
+          "name": "termsAccepted",
+          "title": "I understand that personalized items can't be returned or exchanged",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{termsAccepted} = true",
+              "text": "Please accept the terms to place your order."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {customerName}! Your order is in.</h3><p>Your order total is <b>{orderTotal}</b>. We've sent a confirmation and payment link to <b>{customerEmail}</b>. Once payment is received, we'll get started on your items.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{fulfillment} = 'pickup'",
+      "html": "<h3>Thanks, {customerName}! Your order is in.</h3><p>Your order total is <b>{orderTotal}</b>. We've sent a confirmation and payment link to <b>{customerEmail}</b>. We'll email you again when your order is ready to pick up at the store.</p>"
+    }
+  ]
+}

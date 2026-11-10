@@ -1,0 +1,318 @@
+{
+  "title": "Request a Quote",
+  "description": "Tell us about your project and we'll prepare a free, no-obligation estimate.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Request quote",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "projectDetails",
+      "title": "Project",
+      "description": "The more detail you give us, the more accurate your quote will be.",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "serviceType",
+          "title": "What service do you need?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "installation",
+              "text": "Installation"
+            },
+            {
+              "value": "repair",
+              "text": "Repair"
+            },
+            {
+              "value": "maintenance",
+              "text": "Maintenance or servicing"
+            },
+            {
+              "value": "renovation",
+              "text": "Renovation or upgrade"
+            },
+            {
+              "value": "assessment",
+              "text": "Inspection or assessment"
+            },
+            {
+              "value": "custom",
+              "text": "Custom project"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "propertyType",
+          "title": "Type of property",
+          "isRequired": true,
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "residential",
+              "text": "Residential"
+            },
+            {
+              "value": "commercial",
+              "text": "Commercial"
+            },
+            {
+              "value": "industrial",
+              "text": "Industrial"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "projectDescription",
+          "title": "Describe the work",
+          "description": "What needs to be done, current condition, materials or brands you prefer, and anything we should know about access.",
+          "isRequired": true,
+          "rows": 6,
+          "maxLength": 4000
+        },
+        {
+          "type": "multipletext",
+          "name": "projectScope",
+          "title": "Size of the job",
+          "description": "Fill in whatever applies to your project.",
+          "colCount": 2,
+          "items": [
+            {
+              "name": "quantity",
+              "title": "Number of items or units",
+              "inputType": "number",
+              "validators": [
+                {
+                  "type": "numeric",
+                  "minValue": 1,
+                  "text": "Enter a number of 1 or more."
+                }
+              ]
+            },
+            {
+              "name": "areaSqFt",
+              "title": "Area (sq ft)",
+              "inputType": "number",
+              "validators": [
+                {
+                  "type": "numeric",
+                  "minValue": 1,
+                  "text": "Enter an area of 1 or more."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Photos, drawings, or specifications",
+          "description": "Optional. Up to 5 files, 10 MB each.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*,.pdf,.doc,.docx,.xls,.xlsx,.dwg"
+        }
+      ]
+    },
+    {
+      "name": "timingAndBudget",
+      "title": "Timing and Budget",
+      "elements": [
+        {
+          "type": "text",
+          "name": "preferredStartDate",
+          "title": "Preferred start date",
+          "inputType": "date",
+          "isRequired": true,
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "completionDeadline",
+          "title": "Must be finished by",
+          "inputType": "date",
+          "startWithNewLine": false,
+          "minValueExpression": "today()",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{completionDeadline} empty or {preferredStartDate} empty or {completionDeadline} >= {preferredStartDate}",
+              "text": "The finish date can't be earlier than the start date."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "dateFlexibility",
+          "title": "How flexible are these dates?",
+          "choices": [
+            {
+              "value": "fixed",
+              "text": "Fixed: the dates can't change"
+            },
+            {
+              "value": "somewhat",
+              "text": "Somewhat flexible: a week or two either way"
+            },
+            {
+              "value": "flexible",
+              "text": "Very flexible: whenever you're available"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "budgetRange",
+          "title": "Approximate budget",
+          "description": "This helps us suggest options that fit. It doesn't commit you to anything.",
+          "choices": [
+            {
+              "value": "under-1k",
+              "text": "Less than $1,000"
+            },
+            {
+              "value": "1k-5k",
+              "text": "$1,000–$5,000"
+            },
+            {
+              "value": "5k-15k",
+              "text": "$5,000–$15,000"
+            },
+            {
+              "value": "15k-50k",
+              "text": "$15,000–$50,000"
+            },
+            {
+              "value": "over-50k",
+              "text": "More than $50,000"
+            },
+            {
+              "value": "not-sure",
+              "text": "Not sure yet"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "siteVisitWelcome",
+          "title": "Can we visit the site before preparing the quote?",
+          "description": "A short visit lets us give you a firm price instead of an estimate.",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    },
+    {
+      "name": "locationAndContact",
+      "title": "Location and Contact",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "serviceLocation",
+          "title": "Where will the work take place?",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "title": "State",
+              "isRequired": true,
+              "autocomplete": "address-level1",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "autocomplete": "postal-code",
+              "startWithNewLine": false,
+              "maxLength": 10
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "contactInfo",
+          "title": "Your contact details",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "companyName",
+              "title": "Company (if applicable)",
+              "autocomplete": "organization",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email address",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                {
+                  "type": "email",
+                  "text": "Please enter a valid email address."
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone number",
+              "isRequired": true,
+              "inputType": "tel",
+              "autocomplete": "tel",
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^\\+?[0-9 ().-]{7,20}$",
+                  "text": "Please enter a valid phone number."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}!</h3><p>We've received your quote request and will email your estimate to <b>{email}</b>. If we have questions about the project, we'll call you at <b>{phone}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{siteVisitWelcome} = true",
+      "html": "<h3>Thank you, {fullName}!</h3><p>We've received your quote request. We'll call you at <b>{phone}</b> to arrange a site visit, then send a firm quote to <b>{email}</b>.</p>"
+    }
+  ]
+}

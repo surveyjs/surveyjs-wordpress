@@ -1,0 +1,5 @@
+{
+  "title": "Income Survey",
+  "description": "Collects employment income details for a respondent and their partner, with Australian specifics such as Centrelink schedules and employer ABNs: employers, roles, hours, income, fringe benefits, and seasonal or contract work.",
+  "tags": ["finance", "request", "income"]
+}

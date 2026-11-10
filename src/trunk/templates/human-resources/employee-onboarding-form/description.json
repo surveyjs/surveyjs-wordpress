@@ -1,0 +1,10 @@
+{
+  "title": "Employee Onboarding Form",
+  "description": "A four-page new hire form that collects personal and emergency contact details, role and equipment needs, and policy acknowledgements with a signature. Conditional questions appear for office locations and laptop preferences, and a validator requires all policies to be acknowledged.",
+  "tags": [
+    "hr",
+    "onboarding",
+    "registration",
+    "consent"
+  ]
+}

@@ -1,0 +1,360 @@
+{
+  "title": "Business Inquiry",
+  "description": "Tell us about your organization and what you need. A member of our business team will follow up.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit inquiry",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "companyProfile",
+      "title": "You and Your Company",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "contactPerson",
+          "title": "Contact person",
+          "elements": [
+            {
+              "type": "text",
+              "name": "firstName",
+              "title": "First name",
+              "isRequired": true,
+              "autocomplete": "given-name"
+            },
+            {
+              "type": "text",
+              "name": "lastName",
+              "title": "Last name",
+              "isRequired": true,
+              "autocomplete": "family-name",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "workEmail",
+              "title": "Work email",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                {
+                  "type": "email",
+                  "text": "Please enter a valid email address."
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Direct phone",
+              "inputType": "tel",
+              "autocomplete": "tel",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "jobTitle",
+              "title": "Job title",
+              "isRequired": true,
+              "autocomplete": "organization-title"
+            },
+            {
+              "type": "dropdown",
+              "name": "buyingRole",
+              "title": "Your role in this purchase",
+              "startWithNewLine": false,
+              "choices": [
+                {
+                  "value": "decision-maker",
+                  "text": "I make the final decision"
+                },
+                {
+                  "value": "evaluator",
+                  "text": "I'm evaluating options for a decision maker"
+                },
+                {
+                  "value": "user",
+                  "text": "I'll be using the product or service"
+                },
+                {
+                  "value": "advisor",
+                  "text": "I'm an advisor or consultant"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "organization",
+          "title": "Organization",
+          "elements": [
+            {
+              "type": "text",
+              "name": "companyName",
+              "title": "Company name",
+              "isRequired": true,
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "companyWebsite",
+              "title": "Company website",
+              "inputType": "url",
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^(https?://)?[^\\s/$.?#]+\\.[^\\s]+$",
+                  "text": "Please enter a valid website address."
+                }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "name": "industry",
+              "title": "Industry",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "manufacturing",
+                  "text": "Manufacturing"
+                },
+                {
+                  "value": "retail",
+                  "text": "Retail and e-commerce"
+                },
+                {
+                  "value": "financial-services",
+                  "text": "Financial services"
+                },
+                {
+                  "value": "healthcare",
+                  "text": "Healthcare"
+                },
+                {
+                  "value": "technology",
+                  "text": "Technology and software"
+                },
+                {
+                  "value": "professional-services",
+                  "text": "Professional services"
+                },
+                {
+                  "value": "education",
+                  "text": "Education"
+                },
+                {
+                  "value": "government",
+                  "text": "Government and public sector"
+                },
+                {
+                  "value": "nonprofit",
+                  "text": "Nonprofit"
+                },
+                {
+                  "value": "logistics",
+                  "text": "Transportation and logistics"
+                },
+                {
+                  "value": "construction",
+                  "text": "Construction and real estate"
+                },
+                {
+                  "value": "hospitality",
+                  "text": "Hospitality and travel"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "text",
+              "name": "headquarters",
+              "title": "Headquarters location",
+              "placeholder": "City, country",
+              "startWithNewLine": false
+            },
+            {
+              "type": "radiogroup",
+              "name": "companySize",
+              "title": "Number of employees",
+              "isRequired": true,
+              "colCount": 4,
+              "choices": [
+                {
+                  "value": "1-10",
+                  "text": "1–10"
+                },
+                {
+                  "value": "11-50",
+                  "text": "11–50"
+                },
+                {
+                  "value": "51-200",
+                  "text": "51–200"
+                },
+                {
+                  "value": "201-500",
+                  "text": "201–500"
+                },
+                {
+                  "value": "501-1000",
+                  "text": "501–1,000"
+                },
+                {
+                  "value": "1001-5000",
+                  "text": "1,001–5,000"
+                },
+                {
+                  "value": "5001+",
+                  "text": "More than 5,000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "inquiryDetails",
+      "title": "Your Inquiry",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "interestAreas",
+          "title": "Which areas are you interested in?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "products",
+              "text": "Products"
+            },
+            {
+              "value": "professional-services",
+              "text": "Professional services"
+            },
+            {
+              "value": "custom-solution",
+              "text": "A custom solution"
+            },
+            {
+              "value": "volume-licensing",
+              "text": "Volume or enterprise pricing"
+            },
+            {
+              "value": "training",
+              "text": "Training and onboarding"
+            },
+            {
+              "value": "ongoing-support",
+              "text": "Ongoing support"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "comment",
+          "name": "requirements",
+          "title": "Describe your needs",
+          "description": "What problem are you trying to solve, and what would a good outcome look like?",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 4000
+        },
+        {
+          "type": "dropdown",
+          "name": "budgetRange",
+          "title": "Estimated budget",
+          "choices": [
+            {
+              "value": "under-10k",
+              "text": "Less than $10,000"
+            },
+            {
+              "value": "10k-50k",
+              "text": "$10,000–$50,000"
+            },
+            {
+              "value": "50k-100k",
+              "text": "$50,000–$100,000"
+            },
+            {
+              "value": "100k-250k",
+              "text": "$100,000–$250,000"
+            },
+            {
+              "value": "over-250k",
+              "text": "More than $250,000"
+            },
+            {
+              "value": "not-defined",
+              "text": "Not defined yet"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "timeline",
+          "title": "When do you expect to start?",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            {
+              "value": "immediately",
+              "text": "Immediately"
+            },
+            {
+              "value": "within-3-months",
+              "text": "Within 3 months"
+            },
+            {
+              "value": "3-6-months",
+              "text": "In 3–6 months"
+            },
+            {
+              "value": "6-12-months",
+              "text": "In 6–12 months"
+            },
+            {
+              "value": "no-timeline",
+              "text": "No fixed timeline"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "contactConsent",
+          "title": "Consent to be contacted",
+          "titleLocation": "hidden",
+          "label": "I agree to be contacted by email or phone about this inquiry.",
+          "renderAs": "checkbox",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{contactConsent} = true",
+              "text": "Please agree to be contacted so we can respond to your inquiry."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "marketingConsent",
+          "title": "Marketing updates",
+          "titleLocation": "hidden",
+          "label": "Send me occasional news and offers. I can unsubscribe at any time.",
+          "renderAs": "checkbox"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}.</h3><p>We've received the inquiry from <b>{companyName}</b>. A member of our business team will review your needs and contact you at <b>{workEmail}</b>.</p>"
+}

@@ -1,0 +1,195 @@
+{
+  "title": "Bug Report",
+  "description": "Found something that isn't working? Tell us what happened and we'll get it to the right engineers. Exact steps and screenshots help us fix it faster.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit bug report",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "reporter",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "reporterName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "reporterEmail",
+          "title": "Email address",
+          "description": "We will send updates about this report here.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "productArea",
+          "title": "Which product or area is affected?",
+          "isRequired": true,
+          "choices": [
+            { "value": "web-app", "text": "Web app" },
+            { "value": "mobile-app", "text": "Mobile app (iOS or Android)" },
+            { "value": "desktop-app", "text": "Desktop app" },
+            { "value": "api", "text": "API and integrations" },
+            { "value": "billing", "text": "Billing and payments" },
+            { "value": "account", "text": "Account and sign-in" },
+            { "value": "notifications", "text": "Emails and notifications" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        }
+      ]
+    },
+    {
+      "name": "bugDetails",
+      "title": "The Bug",
+      "elements": [
+        {
+          "type": "text",
+          "name": "bugTitle",
+          "title": "Bug title",
+          "description": "One line that sums up the problem, e.g. \"Export button does nothing on the Reports page\".",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "radiogroup",
+          "name": "severity",
+          "title": "How severe is the bug?",
+          "isRequired": true,
+          "choices": [
+            { "value": "critical", "text": "Critical — the product is unusable or data is lost" },
+            { "value": "high", "text": "High — a key feature is broken and there is no workaround" },
+            { "value": "medium", "text": "Medium — a feature misbehaves but I can work around it" },
+            { "value": "low", "text": "Low — cosmetic issue, typo, or minor annoyance" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "stepsToReproduce",
+          "title": "Steps to reproduce",
+          "description": "List the exact actions that lead to the problem, one per line.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 3000,
+          "placeholder": "1. \n2. \n3. "
+        },
+        {
+          "type": "comment",
+          "name": "expectedResult",
+          "title": "Expected result",
+          "description": "What should have happened?",
+          "isRequired": true,
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "comment",
+          "name": "actualResult",
+          "title": "Actual result",
+          "description": "What happened instead? Include any error message.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "radiogroup",
+          "name": "frequency",
+          "title": "How often does it happen?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "always", "text": "Every time" },
+            { "value": "often", "text": "Most of the time" },
+            { "value": "sometimes", "text": "Occasionally" },
+            { "value": "once", "text": "Only once so far" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "firstSeen",
+          "title": "When did you first notice it?",
+          "startWithNewLine": false,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        }
+      ]
+    },
+    {
+      "name": "environmentAndAttachments",
+      "title": "Environment and Attachments",
+      "elements": [
+        {
+          "type": "multipletext",
+          "name": "environment",
+          "title": "Your environment",
+          "description": "Fill in what you know. The app version is usually shown under Settings or About.",
+          "colCount": 2,
+          "items": [
+            { "name": "operatingSystem", "title": "Operating system and version", "placeholder": "e.g. Windows 11, macOS 15" },
+            { "name": "browser", "title": "Browser and version", "placeholder": "e.g. Chrome 131" },
+            { "name": "appVersion", "title": "App version", "placeholder": "e.g. 4.12.0" },
+            { "name": "device", "title": "Device", "placeholder": "e.g. iPhone 15, Dell XPS 13" }
+          ]
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Screenshots, recordings, or log files",
+          "description": "Optional. Up to 5 files, 20 MB each. Please remove passwords and personal data before you upload.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 20971520,
+          "acceptedTypes": "image/*,video/*,.pdf,.txt,.log,.json,.har,.zip"
+        },
+        {
+          "type": "boolean",
+          "name": "hasWorkaround",
+          "title": "Have you found a workaround?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "workaroundDetails",
+          "visibleIf": "{hasWorkaround} = true",
+          "title": "Describe the workaround",
+          "description": "This helps other users while we work on a fix.",
+          "isRequired": true,
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "boolean",
+          "name": "contactAllowed",
+          "title": "May we contact you if we need more information?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {reporterName}. Your bug report has been submitted.</h3><p>Our engineers will review <b>{bugTitle}</b> and we will send updates to <b>{reporterEmail}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{severity} = 'critical'",
+      "html": "<h3>Thanks, {reporterName}. Your report has been flagged as critical.</h3><p>Critical bugs go to the front of our queue. An engineer will look at <b>{bugTitle}</b> right away and contact you at <b>{reporterEmail}</b> as soon as there is news.</p>"
+    }
+  ]
+}

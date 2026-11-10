@@ -1,0 +1,10 @@
+{
+  "title": "Cleaning Checklist",
+  "description": "A facility cleaning checklist for janitorial teams and facility managers. Cleaners record the area, shift, and times, mark each task as Done, Not done, or N/A, list supplies to restock, and flag damage or maintenance needs with photos. Follow-up fields appear only when a task was skipped or an issue was found, and a supervisor can verify the record.",
+  "tags": [
+    "checklist",
+    "inspection",
+    "operations",
+    "report"
+  ]
+}

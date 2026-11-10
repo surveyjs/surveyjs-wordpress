@@ -1,0 +1,571 @@
+{
+  "title": "IT Help Desk Ticket",
+  "description": "Report a technical problem or request IT help. The more we know about the problem and your device, the faster a technician can fix it.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "completeText": "Submit Ticket",
+  "calculatedValues": [
+    {
+      "name": "basePriority",
+      "expression": "iif({urgency} = 'workStopped', iif({impact} anyof ['department', 'organization'], 'Critical', 'High'), iif({urgency} = 'workDegraded', iif({impact} anyof ['department', 'organization'], 'High', 'Medium'), iif({impact} anyof ['department', 'organization'], 'Medium', 'Low')))"
+    }
+  ],
+  "pages": [
+    {
+      "name": "requester",
+      "title": "Requester",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "workEmail",
+          "title": "Work email",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "department",
+          "title": "Department",
+          "isRequired": true,
+          "choices": [
+            { "value": "administration", "text": "Administration" },
+            { "value": "customerService", "text": "Customer service" },
+            { "value": "engineering", "text": "Engineering" },
+            { "value": "facilities", "text": "Facilities" },
+            { "value": "finance", "text": "Finance and accounting" },
+            { "value": "humanResources", "text": "Human resources" },
+            { "value": "legal", "text": "Legal and compliance" },
+            { "value": "marketing", "text": "Marketing" },
+            { "value": "operations", "text": "Operations" },
+            { "value": "sales", "text": "Sales" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "text",
+          "name": "phoneExtension",
+          "title": "Phone or extension",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "radiogroup",
+          "name": "workLocation",
+          "title": "Where are you working today?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "office", "text": "In the office" },
+            { "value": "remote", "text": "Remotely" },
+            { "value": "traveling", "text": "Traveling" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "deskLocation",
+          "visibleIf": "{workLocation} = 'office'",
+          "title": "Office, floor, and desk or room",
+          "description": "So a technician can find you if the problem needs a visit."
+        },
+        {
+          "type": "boolean",
+          "name": "reportingForSomeoneElse",
+          "title": "Are you reporting this for a colleague?"
+        },
+        {
+          "type": "panel",
+          "name": "affectedEmployee",
+          "visibleIf": "{reportingForSomeoneElse} = true",
+          "elements": [
+            {
+              "type": "text",
+              "name": "affectedEmployeeName",
+              "title": "Colleague's name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "affectedEmployeeEmail",
+              "title": "Colleague's work email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "issue",
+      "title": "Issue",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "issueCategory",
+          "title": "What do you need help with?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "hardware", "text": "Computer or equipment" },
+            { "value": "software", "text": "An application or program" },
+            { "value": "network", "text": "Internet, Wi-Fi, or VPN" },
+            { "value": "access", "text": "Sign-in, password, or permissions" },
+            { "value": "emailCalendar", "text": "Email or calendar" },
+            { "value": "printing", "text": "Printing or scanning" },
+            { "value": "security", "text": "A possible security problem" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else"
+        },
+        {
+          "type": "html",
+          "name": "securityWarning",
+          "visibleIf": "{issueCategory} = 'security'",
+          "html": "<p><b>Act now, then finish this ticket.</b> If a device was lost or stolen, or you entered your password on a page you don't trust, also call the IT help desk right away. Don't delete suspicious emails, and don't turn off an affected computer unless IT asks you to: disconnect it from the network instead.</p>"
+        },
+        {
+          "type": "panel",
+          "name": "hardwareDetails",
+          "visibleIf": "{issueCategory} = 'hardware'",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "hardwareSymptoms",
+              "title": "What's happening?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                { "value": "noPower", "text": "It won't turn on or charge" },
+                { "value": "damaged", "text": "It's physically damaged" },
+                { "value": "slow", "text": "It's very slow or freezes" },
+                { "value": "overheating", "text": "It overheats or the fan is loud" },
+                { "value": "display", "text": "Screen or display problems" },
+                { "value": "peripherals", "text": "A monitor, dock, keyboard, mouse, or headset isn't detected" },
+                { "value": "replacement", "text": "I need new or replacement equipment" }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "softwareDetails",
+          "visibleIf": "{issueCategory} = 'software'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "applicationName",
+              "title": "Which application?",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "softwareProblem",
+              "title": "What's the problem?",
+              "isRequired": true,
+              "choices": [
+                { "value": "notInstalled", "text": "I need it installed" },
+                { "value": "wontStart", "text": "It won't open" },
+                { "value": "crashes", "text": "It crashes or freezes" },
+                { "value": "errorMessage", "text": "It shows an error message" },
+                { "value": "license", "text": "It asks for a license or activation" },
+                { "value": "feature", "text": "A feature doesn't work as expected" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "errorText",
+              "visibleIf": "{softwareProblem} = 'errorMessage'",
+              "title": "Error message",
+              "description": "Copy the exact text or code, or attach a screenshot on the next page."
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "networkDetails",
+          "visibleIf": "{issueCategory} = 'network'",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "connectionType",
+              "title": "How are you connecting?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                { "value": "officeWired", "text": "Office network cable" },
+                { "value": "officeWifi", "text": "Office Wi-Fi" },
+                { "value": "vpn", "text": "VPN from outside the office" },
+                { "value": "homeOrPublic", "text": "Home or public internet without VPN" }
+              ]
+            },
+            {
+              "type": "radiogroup",
+              "name": "networkSymptom",
+              "title": "What do you see?",
+              "isRequired": true,
+              "choices": [
+                { "value": "noConnection", "text": "No connection at all" },
+                { "value": "dropping", "text": "The connection keeps dropping" },
+                { "value": "slow", "text": "Everything is slow" },
+                { "value": "oneResource", "text": "Only one site, drive, or system is unreachable" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "unreachableResource",
+              "visibleIf": "{networkSymptom} = 'oneResource'",
+              "title": "Which site, drive, or system can't you reach?",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "accessDetails",
+          "visibleIf": "{issueCategory} = 'access'",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "accessProblem",
+              "title": "What do you need?",
+              "description": "Never include your password in this ticket. IT will never ask for it.",
+              "isRequired": true,
+              "choices": [
+                { "value": "lockedOut", "text": "My account is locked or my password expired" },
+                { "value": "mfaDevice", "text": "I lost or replaced the phone I use for two-step verification" },
+                { "value": "newAccess", "text": "Access to a system, shared folder, or mailbox I don't have yet" },
+                { "value": "wrongPermissions", "text": "My permissions are wrong or something I used to access is gone" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "systemName",
+              "visibleIf": "{accessProblem} anyof ['newAccess', 'wrongPermissions']",
+              "title": "Which system, folder, or mailbox?",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "approverEmail",
+              "visibleIf": "{accessProblem} = 'newAccess'",
+              "title": "Approver's work email",
+              "description": "Usually your manager or the owner of the system. We'll ask them to approve the access.",
+              "isRequired": true,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "emailCalendarDetails",
+          "visibleIf": "{issueCategory} = 'emailCalendar'",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "emailCalendarProblems",
+              "title": "What's not working?",
+              "isRequired": true,
+              "choices": [
+                { "value": "sending", "text": "I can't send or receive email" },
+                { "value": "missingMessages", "text": "Messages or folders are missing" },
+                { "value": "sharedMailbox", "text": "A shared mailbox or distribution list" },
+                { "value": "calendarSync", "text": "Calendar events don't sync or meeting invites fail" },
+                { "value": "mobileMail", "text": "Email on my phone" }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "printingDetails",
+          "visibleIf": "{issueCategory} = 'printing'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "printerLocation",
+              "title": "Printer name or location",
+              "description": "The name is usually on a label on the front of the printer.",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "printingProblem",
+              "title": "What's the problem?",
+              "isRequired": true,
+              "choices": [
+                { "value": "notListed", "text": "The printer doesn't appear on my computer" },
+                { "value": "jobsStuck", "text": "Jobs are sent but nothing prints" },
+                { "value": "quality", "text": "Prints are faded, streaked, or jammed" },
+                { "value": "scanning", "text": "Scanning to email or a folder doesn't work" },
+                { "value": "supplies", "text": "It needs toner or other supplies" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "securityDetails",
+          "visibleIf": "{issueCategory} = 'security'",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "securityEvent",
+              "title": "What happened?",
+              "isRequired": true,
+              "choices": [
+                { "value": "phishing", "text": "I received a suspicious email or message" },
+                { "value": "clickedLink", "text": "I clicked a suspicious link or opened an attachment" },
+                { "value": "lostDevice", "text": "A device was lost or stolen" },
+                { "value": "malwareWarning", "text": "My computer shows a virus or malware warning" },
+                { "value": "unusualActivity", "text": "I see account activity that wasn't me" },
+                { "value": "dataMisdirected", "text": "Sensitive information was sent to the wrong person" }
+              ]
+            },
+            {
+              "type": "boolean",
+              "name": "credentialsEntered",
+              "visibleIf": "{securityEvent} anyof ['phishing', 'clickedLink']",
+              "title": "Did you enter your password or any other information after clicking?"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "affectedDevice",
+          "title": "Affected device",
+          "visibleIf": "{issueCategory} anyof ['hardware', 'software', 'network', 'emailCalendar', 'security']",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "deviceType",
+              "title": "Device",
+              "isRequired": true,
+              "choices": [
+                { "value": "companyLaptop", "text": "Company laptop" },
+                { "value": "companyDesktop", "text": "Company desktop computer" },
+                { "value": "companyPhone", "text": "Company phone or tablet" },
+                { "value": "personalComputer", "text": "Personal computer" },
+                { "value": "personalPhone", "text": "Personal phone or tablet" },
+                { "value": "sharedDevice", "text": "Shared device, such as a meeting room screen" }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "name": "operatingSystem",
+              "title": "Operating system",
+              "startWithNewLine": false,
+              "choices": [
+                { "value": "windows", "text": "Windows" },
+                { "value": "macos", "text": "macOS" },
+                { "value": "linux", "text": "Linux" },
+                { "value": "ios", "text": "iOS or iPadOS" },
+                { "value": "android", "text": "Android" },
+                { "value": "unknown", "text": "I don't know" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "assetTag",
+              "visibleIf": "{deviceType} anyof ['companyLaptop', 'companyDesktop', 'companyPhone', 'sharedDevice']",
+              "title": "Asset tag or serial number",
+              "description": "Usually on a sticker on the bottom or back of the device."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "details",
+      "title": "Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "subject",
+          "title": "Summary",
+          "description": "One line, for example: \"Laptop won't connect to the VPN since this morning.\"",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "comment",
+          "name": "issueDescription",
+          "title": "Describe the problem",
+          "description": "What were you doing, what did you expect, and what happened instead?",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 5000
+        },
+        {
+          "type": "radiogroup",
+          "name": "issueFrequency",
+          "title": "How often does it happen?",
+          "colCount": 3,
+          "choices": [
+            { "value": "constant", "text": "All the time" },
+            { "value": "intermittent", "text": "On and off" },
+            { "value": "once", "text": "Only once so far" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "startDate",
+          "title": "When did it start?",
+          "startWithNewLine": false,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "checkbox",
+          "name": "stepsTried",
+          "title": "What have you already tried?",
+          "colCount": 2,
+          "choices": [
+            { "value": "restarted", "text": "Restarted the device" },
+            { "value": "signedOutIn", "text": "Signed out and back in" },
+            { "value": "checkedCables", "text": "Checked cables and power" },
+            { "value": "otherDevice", "text": "Tried another device or browser" },
+            { "value": "otherNetwork", "text": "Tried another network" },
+            { "value": "updated", "text": "Installed pending updates" },
+            { "value": "askedColleague", "text": "Asked a colleague whether it works for them" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else",
+          "showNoneItem": true,
+          "noneText": "Nothing yet"
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Screenshots or files",
+          "description": "Optional. Up to 5 files, 10 MB each. Make sure no passwords are visible.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*,video/*,.pdf,.txt,.log,.zip"
+        }
+      ]
+    },
+    {
+      "name": "impactAndFollowUp",
+      "title": "Impact and Follow-Up",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "impact",
+          "title": "Who is affected?",
+          "isRequired": true,
+          "choices": [
+            { "value": "individual", "text": "Only me" },
+            { "value": "team", "text": "A few people or my team" },
+            { "value": "department", "text": "A whole department or office" },
+            { "value": "organization", "text": "The entire organization or our customers" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "urgency",
+          "title": "How does it affect the work?",
+          "isRequired": true,
+          "choices": [
+            { "value": "workStopped", "text": "Work has stopped and there's no way around it" },
+            { "value": "workDegraded", "text": "Work is slower or harder, but there's a workaround" },
+            { "value": "canWait", "text": "It's an inconvenience that can wait" }
+          ]
+        },
+        {
+          "type": "expression",
+          "name": "priority",
+          "visibleIf": "{impact} notempty and {urgency} notempty",
+          "title": "Suggested priority",
+          "description": "Based on who is affected and how much. Security reports are always at least High. The help desk may adjust it.",
+          "expression": "iif({issueCategory} = 'security' and {basePriority} anyof ['Low', 'Medium'], 'High', {basePriority})"
+        },
+        {
+          "type": "boolean",
+          "name": "hasDeadline",
+          "title": "Do you need this fixed by a specific date?",
+          "description": "For example, before a presentation, a trip, or a new hire's first day."
+        },
+        {
+          "type": "text",
+          "name": "neededBy",
+          "visibleIf": "{hasDeadline} = true",
+          "title": "Needed by",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "contactMethod",
+          "title": "How should a technician contact you?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "chat", "text": "Work chat" },
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" },
+            {
+              "value": "deskVisit",
+              "text": "Visit me at my desk",
+              "visibleIf": "{workLocation} = 'office'"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "availableTimes",
+          "title": "When are you usually available?",
+          "colCount": 3,
+          "choices": [
+            { "value": "morning", "text": "Morning" },
+            { "value": "midday", "text": "Midday" },
+            { "value": "afternoon", "text": "Afternoon" }
+          ],
+          "showSelectAllItem": true,
+          "selectAllText": "Any time"
+        },
+        {
+          "type": "boolean",
+          "name": "remoteAccessConsent",
+          "visibleIf": "{issueCategory} notempty and {issueCategory} <> 'access'",
+          "title": "May a technician connect to your computer remotely?",
+          "description": "You'll always be asked to approve the connection first, and you can end it at any time."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {fullName}. Your ticket has been submitted.</h3><p>Suggested priority: <b>{priority}</b>. A technician will review it and contact you at <b>{workEmail}</b> or by the method you chose. Reply to the confirmation email to add details later.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{issueCategory} = 'security'",
+      "html": "<h3>Thanks, {fullName}. Your security report has been submitted.</h3><p>The IT team handles security reports first. If you haven't already, call the help desk now, especially if a device is missing or you entered your password somewhere suspicious.</p>"
+    }
+  ]
+}

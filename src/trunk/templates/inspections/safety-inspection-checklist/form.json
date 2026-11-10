@@ -1,0 +1,306 @@
+{
+  "title": "Workplace Safety Inspection Checklist",
+  "description": "Walk through the area and mark each item as Pass, Fail, or N/A. Record any hazards you find so they can be assigned and fixed.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Submit inspection",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "details",
+      "title": "Inspection Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "siteName",
+          "title": "Site or facility",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "areaInspected",
+          "title": "Area inspected",
+          "description": "Building, floor, department, or zone.",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "inspectorName",
+          "title": "Inspector name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "inspectionDate",
+          "title": "Inspection date",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "defaultValueExpression": "today()",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "inspectionType",
+          "title": "Inspection type",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "routine", "text": "Routine scheduled inspection" },
+            { "value": "follow-up", "text": "Follow-up on previous findings" },
+            { "value": "pre-shift", "text": "Pre-shift walkthrough" },
+            { "value": "incident", "text": "Post-incident inspection" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "previousInspectionDate",
+          "visibleIf": "{inspectionType} = 'follow-up'",
+          "title": "Date of the previous inspection",
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "peoplePresent",
+          "title": "Number of people working in the area",
+          "inputType": "number",
+          "min": 0,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "name": "checklist",
+      "title": "Checklist",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "emergencyPanel",
+          "title": "Emergency equipment",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "emergencyEquipment",
+              "titleLocation": "hidden",
+              "eachRowRequired": true,
+              "alternateRows": true,
+              "columns": [
+                { "value": "pass", "text": "Pass" },
+                { "value": "fail", "text": "Fail" },
+                { "value": "na", "text": "N/A" }
+              ],
+              "rows": [
+                { "value": "extinguishers", "text": "Fire extinguishers charged, inspected, and accessible" },
+                { "value": "exits", "text": "Emergency exits marked, lit, and unobstructed" },
+                { "value": "firstAid", "text": "First-aid kit stocked and clearly located" },
+                { "value": "alarms", "text": "Alarms and emergency lighting tested" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "housekeepingPanel",
+          "title": "Housekeeping",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "housekeeping",
+              "titleLocation": "hidden",
+              "eachRowRequired": true,
+              "alternateRows": true,
+              "columns": [
+                { "value": "pass", "text": "Pass" },
+                { "value": "fail", "text": "Fail" },
+                { "value": "na", "text": "N/A" }
+              ],
+              "rows": [
+                { "value": "floors", "text": "Floors dry and free of slip or trip hazards" },
+                { "value": "aisles", "text": "Aisles and walkways clear" },
+                { "value": "waste", "text": "Waste disposed of properly and bins not overflowing" },
+                { "value": "lighting", "text": "Lighting adequate for the work performed" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "equipmentPanel",
+          "title": "Equipment and PPE",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "equipmentPpe",
+              "titleLocation": "hidden",
+              "eachRowRequired": true,
+              "alternateRows": true,
+              "columns": [
+                { "value": "pass", "text": "Pass" },
+                { "value": "fail", "text": "Fail" },
+                { "value": "na", "text": "N/A" }
+              ],
+              "rows": [
+                { "value": "guards", "text": "Machine guards in place and functional" },
+                { "value": "ppeAvailable", "text": "Required PPE available and in good condition" },
+                { "value": "ppeWorn", "text": "PPE worn correctly by all workers" },
+                { "value": "lockout", "text": "Lockout/tagout procedures followed" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "chemicalsPanel",
+          "title": "Chemicals and hazardous materials",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "chemicals",
+              "titleLocation": "hidden",
+              "eachRowRequired": true,
+              "alternateRows": true,
+              "columns": [
+                { "value": "pass", "text": "Pass" },
+                { "value": "fail", "text": "Fail" },
+                { "value": "na", "text": "N/A" }
+              ],
+              "rows": [
+                { "value": "labeled", "text": "All containers labeled" },
+                { "value": "sds", "text": "Safety data sheets available and current" },
+                { "value": "storage", "text": "Chemicals stored properly and incompatibles separated" },
+                { "value": "spillKit", "text": "Spill kit available and stocked" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "failNotice",
+          "visibleIf": "{emergencyEquipment.extinguishers} = 'fail' or {emergencyEquipment.exits} = 'fail' or {emergencyEquipment.firstAid} = 'fail' or {emergencyEquipment.alarms} = 'fail' or {housekeeping.floors} = 'fail' or {housekeeping.aisles} = 'fail' or {housekeeping.waste} = 'fail' or {housekeeping.lighting} = 'fail' or {equipmentPpe.guards} = 'fail' or {equipmentPpe.ppeAvailable} = 'fail' or {equipmentPpe.ppeWorn} = 'fail' or {equipmentPpe.lockout} = 'fail' or {chemicals.labeled} = 'fail' or {chemicals.sds} = 'fail' or {chemicals.storage} = 'fail' or {chemicals.spillKit} = 'fail'",
+          "html": "<p><b>One or more items failed.</b> Please record each failed item as a hazard on the next page, with a corrective action and a due date.</p>"
+        }
+      ]
+    },
+    {
+      "name": "findings",
+      "title": "Findings and Sign-off",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "hazardsFound",
+          "title": "Hazards found",
+          "description": "Add one entry for each hazard or failed checklist item.",
+          "panelCount": 0,
+          "maxPanelCount": 20,
+          "addPanelText": "Add hazard",
+          "removePanelText": "Remove hazard",
+          "templateTitle": "Hazard {panelIndex}",
+          "templateElements": [
+            {
+              "type": "comment",
+              "name": "hazardDescription",
+              "title": "Describe the hazard",
+              "isRequired": true,
+              "rows": 3
+            },
+            {
+              "type": "text",
+              "name": "hazardLocation",
+              "title": "Exact location",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "riskLevel",
+              "title": "Risk level",
+              "isRequired": true,
+              "colCount": 3,
+              "choices": [
+                { "value": "low", "text": "Low" },
+                { "value": "medium", "text": "Medium" },
+                { "value": "high", "text": "High" }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "correctiveAction",
+              "title": "Corrective action required",
+              "isRequired": true,
+              "rows": 2
+            },
+            {
+              "type": "text",
+              "name": "responsiblePerson",
+              "title": "Responsible person",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "dueDate",
+              "title": "Due date",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "date",
+              "minValueExpression": "today()"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "name": "photos",
+          "title": "Photos",
+          "description": "Optional. Upload photos of hazards or areas of concern.",
+          "allowMultiple": true,
+          "maxFiles": 10,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*"
+        },
+        {
+          "type": "radiogroup",
+          "name": "overallResult",
+          "title": "Overall result",
+          "isRequired": true,
+          "choices": [
+            { "value": "satisfactory", "text": "Satisfactory: no significant hazards found" },
+            { "value": "needs-improvement", "text": "Needs improvement: minor hazards found, corrective actions assigned" },
+            { "value": "unsatisfactory", "text": "Unsatisfactory: serious hazards found, immediate action required" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "inspectorComments",
+          "title": "Additional comments",
+          "rows": 3
+        },
+        {
+          "type": "signaturepad",
+          "name": "inspectorSignature",
+          "title": "Inspector signature",
+          "isRequired": true,
+          "signatureWidth": 400,
+          "signatureHeight": 160
+        },
+        {
+          "type": "text",
+          "name": "supervisorName",
+          "title": "Area supervisor notified",
+          "description": "Name of the supervisor who received a copy of this inspection.",
+          "isRequired": true,
+          "autocomplete": "name"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Inspection submitted</h3><p>Thank you, {inspectorName}. The inspection of <b>{areaInspected}</b> at <b>{siteName}</b> on {inspectionDate} has been recorded with an overall result of <b>{overallResult}</b>. A copy has been sent to {supervisorName}.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{overallResult} = 'unsatisfactory'",
+      "html": "<h3>Inspection submitted: immediate action required</h3><p>Thank you, {inspectorName}. The inspection of <b>{areaInspected}</b> at <b>{siteName}</b> was rated <b>unsatisfactory</b>. The safety team and {supervisorName} have been alerted. Please make sure that serious hazards are isolated or controlled before work continues in the area.</p>"
+    }
+  ]
+}

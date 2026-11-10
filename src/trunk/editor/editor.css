@@ -16,6 +16,10 @@
     display: none;
 }
 
+.wp-sjs-editor__header .wp-sjs-editor__save-template {
+    margin-left: auto;
+}
+
 .wp-sjs-editor .wp-sjs-editor__name h1 {
     margin-right: 0;
 }

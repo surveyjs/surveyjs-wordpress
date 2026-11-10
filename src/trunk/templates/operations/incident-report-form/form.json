@@ -1,0 +1,337 @@
+{
+  "title": "Workplace Incident Report",
+  "description": "Report any injury, near miss, damage, or safety concern as soon as possible, ideally within 24 hours. Describe what you know; it's fine to leave out what you don't.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Submit Report",
+  "pages": [
+    {
+      "name": "incidentOverview",
+      "title": "Incident Overview",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "incidentType",
+          "title": "What type of incident are you reporting?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "injury", "text": "Injury or illness" },
+            { "value": "nearMiss", "text": "Near miss (no one was hurt, but someone could have been)" },
+            { "value": "propertyDamage", "text": "Property or equipment damage" },
+            { "value": "vehicle", "text": "Vehicle incident" },
+            { "value": "spill", "text": "Spill or hazardous material release" },
+            { "value": "fire", "text": "Fire, smoke, or alarm" },
+            { "value": "security", "text": "Security, threat, or violence" }
+          ],
+          "showOtherItem": true
+        },
+        {
+          "type": "text",
+          "name": "incidentDate",
+          "title": "Date of the incident",
+          "isRequired": true,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "incidentTime",
+          "title": "Approximate time",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "text",
+          "name": "incidentSite",
+          "title": "Site or address",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "incidentArea",
+          "title": "Specific area",
+          "description": "Building, floor, room, or a nearby landmark.",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "boolean",
+          "name": "emergencyServicesCalled",
+          "title": "Were emergency services called?",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "name": "whatHappened",
+      "title": "What Happened",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "incidentDescription",
+          "title": "Describe what happened",
+          "description": "Describe events in order: what was going on beforehand, what went wrong, and what happened immediately after. Stick to facts you saw or were told, and say which is which.",
+          "isRequired": true,
+          "rows": 6
+        },
+        {
+          "type": "checkbox",
+          "name": "contributingFactors",
+          "title": "Which factors may have contributed?",
+          "colCount": 2,
+          "choices": [
+            { "value": "slipperySurface", "text": "Wet or slippery surface" },
+            { "value": "obstruction", "text": "Clutter or obstruction" },
+            { "value": "equipmentFault", "text": "Faulty or damaged equipment" },
+            { "value": "protectiveGear", "text": "Protective equipment not used or unavailable" },
+            { "value": "poorVisibility", "text": "Poor lighting or visibility" },
+            { "value": "procedure", "text": "Procedure unclear or not followed" },
+            { "value": "rushingOrFatigue", "text": "Rushing or fatigue" },
+            { "value": "weather", "text": "Weather conditions" }
+          ],
+          "showOtherItem": true,
+          "showNoneItem": true,
+          "noneText": "Not known yet"
+        },
+        {
+          "type": "comment",
+          "name": "damageDetails",
+          "visibleIf": "{incidentType} anyof ['propertyDamage', 'vehicle', 'spill', 'fire']",
+          "title": "What was damaged or released, and how badly?",
+          "description": "Include equipment or vehicle identifiers and the approximate quantity of any material released."
+        },
+        {
+          "type": "comment",
+          "name": "immediateActions",
+          "title": "What was done right away?",
+          "description": "For example: first aid given, area secured, equipment taken out of service, people notified.",
+          "isRequired": true
+        },
+        {
+          "type": "file",
+          "name": "scenePhotos",
+          "title": "Photos of the scene",
+          "description": "Optional. Upload photos of the area, equipment, or damage. Don't photograph injured people without their consent.",
+          "allowMultiple": true,
+          "acceptedTypes": "image/*",
+          "maxSize": 10485760
+        }
+      ]
+    },
+    {
+      "name": "peopleAndWitnesses",
+      "title": "People and Witnesses",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "peopleInvolved",
+          "title": "People directly involved",
+          "description": "Add everyone who was hurt or directly involved, including yourself if that applies.",
+          "isRequired": true,
+          "minPanelCount": 1,
+          "maxPanelCount": 10,
+          "templateTitle": "Person {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "personName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "dropdown",
+              "name": "personRole",
+              "title": "Role",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                { "value": "employee", "text": "Employee" },
+                { "value": "contractor", "text": "Contractor" },
+                { "value": "visitor", "text": "Visitor" },
+                { "value": "publicMember", "text": "Customer or member of the public" }
+              ],
+              "showOtherItem": true
+            },
+            {
+              "type": "text",
+              "name": "personContact",
+              "title": "Phone or email"
+            },
+            {
+              "type": "boolean",
+              "name": "wasInjured",
+              "title": "Was this person injured or taken ill?",
+              "isRequired": true
+            },
+            {
+              "type": "checkbox",
+              "name": "injuryTypes",
+              "visibleIf": "{panel.wasInjured} = true",
+              "title": "Type of injury",
+              "isRequired": true,
+              "colCount": 3,
+              "choices": [
+                { "value": "cut", "text": "Cut or puncture" },
+                { "value": "bruise", "text": "Bruise" },
+                { "value": "strain", "text": "Strain or sprain" },
+                { "value": "fracture", "text": "Fracture" },
+                { "value": "burn", "text": "Burn" },
+                { "value": "headInjury", "text": "Head injury" },
+                { "value": "eyeInjury", "text": "Eye injury" },
+                { "value": "illness", "text": "Illness or exposure" }
+              ],
+              "showOtherItem": true
+            },
+            {
+              "type": "text",
+              "name": "bodyPartsAffected",
+              "visibleIf": "{panel.wasInjured} = true",
+              "title": "Body parts affected",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "treatmentGiven",
+              "visibleIf": "{panel.wasInjured} = true",
+              "title": "Treatment received",
+              "isRequired": true,
+              "choices": [
+                { "value": "none", "text": "No treatment" },
+                { "value": "firstAid", "text": "First aid on site" },
+                { "value": "clinic", "text": "Seen by a doctor or clinic" },
+                { "value": "hospital", "text": "Taken to an emergency room or hospital" }
+              ]
+            },
+            {
+              "type": "boolean",
+              "name": "timeAwayFromWork",
+              "visibleIf": "{panel.wasInjured} = true and {panel.personRole} = 'employee'",
+              "title": "Will the injury keep this employee away from work beyond the day of the incident?",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "hasWitnesses",
+          "title": "Did anyone else see the incident?",
+          "isRequired": true
+        },
+        {
+          "type": "paneldynamic",
+          "name": "witnesses",
+          "visibleIf": "{hasWitnesses} = true",
+          "title": "Witnesses",
+          "minPanelCount": 1,
+          "maxPanelCount": 10,
+          "templateTitle": "Witness {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "witnessName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "witnessPhone",
+              "title": "Phone",
+              "startWithNewLine": false,
+              "inputType": "tel"
+            },
+            {
+              "type": "text",
+              "name": "witnessEmail",
+              "title": "Email",
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "witnessAccount",
+              "title": "What did this person see or hear?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reporter",
+      "title": "Your Information",
+      "elements": [
+        {
+          "type": "text",
+          "name": "reporterName",
+          "title": "Your full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "reporterJobTitle",
+          "title": "Job title or role",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "reporterEmail",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "reporterPhone",
+          "title": "Phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "boolean",
+          "name": "supervisorNotified",
+          "title": "Has a supervisor been told about the incident?",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "supervisorName",
+          "visibleIf": "{supervisorNotified} = true",
+          "title": "Supervisor's name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "reportDate",
+          "title": "Date of this report",
+          "inputType": "date",
+          "readOnly": true,
+          "defaultValueExpression": "today()"
+        },
+        {
+          "type": "boolean",
+          "name": "accuracyConfirmation",
+          "title": "I confirm that this report is accurate to the best of my knowledge",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{accuracyConfirmation} = true",
+              "text": "Please confirm the report before submitting it."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you for reporting this incident</h3><p>Your report has been sent to the safety team. Someone may contact you at <b>{reporterEmail}</b> for more details.</p><p>If anyone's condition gets worse or a hazard is still present, contact your supervisor or emergency services right away. Don't wait for a reply to this report.</p>"
+}

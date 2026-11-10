@@ -1,0 +1,283 @@
+{
+  "title": "Loan Payment Calculator",
+  "description": "Enter your loan details to see your payment, total interest, and total cost update as you type.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "textUpdateMode": "onTyping",
+  "completeText": "Get my results",
+  "widthMode": "static",
+  "width": "760px",
+  "calculatedValues": [
+    {
+      "name": "paymentsPerYear",
+      "expression": "iif({paymentFrequency} = 'weekly', 52, iif({paymentFrequency} = 'biweekly', 26, 12))"
+    },
+    {
+      "name": "periodicRate",
+      "expression": "iif({interestRate} > 0, {interestRate} / 100 / {paymentsPerYear}, 0)"
+    },
+    {
+      "name": "growthFactor",
+      "expression": "(1 + {periodicRate}) ^ {numberOfPayments}"
+    },
+    {
+      "name": "extraPerPeriod",
+      "expression": "iif({extraMonthlyPayment} > 0, {extraMonthlyPayment} * 12 / {paymentsPerYear}, 0)"
+    },
+    {
+      "name": "paymentWithExtra",
+      "expression": "{paymentAmount} + {extraPerPeriod}"
+    },
+    {
+      "name": "payoffPaymentsExact",
+      "expression": "iif({paymentWithExtra} > 0, iif({periodicRate} > 0, (1 - (1 - {periodicRate} * {principal} / {paymentWithExtra}) ^ 0.00001) / ((1 + {periodicRate}) ^ 0.00001 - 1), {principal} / {paymentWithExtra}), 0)"
+    }
+  ],
+  "pages": [
+    {
+      "name": "loanCalculator",
+      "title": "Loan Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "loanAmount",
+          "title": "Purchase price or loan amount (USD)",
+          "description": "If you plan to make a down payment, enter the full price here and the down payment below.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 1000,
+          "step": 100,
+          "placeholder": "250000"
+        },
+        {
+          "type": "text",
+          "name": "downPayment",
+          "title": "Down payment (USD)",
+          "description": "Optional. Leave empty if none.",
+          "startWithNewLine": false,
+          "inputType": "number",
+          "min": 0,
+          "step": 100,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{downPayment} empty or {downPayment} < {loanAmount}",
+              "text": "The down payment must be smaller than the loan amount."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "interestRate",
+          "title": "Annual interest rate (%)",
+          "description": "Enter 0 for an interest-free loan.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0,
+          "max": 50,
+          "step": 0.01,
+          "placeholder": "6.5"
+        },
+        {
+          "type": "dropdown",
+          "name": "loanTermYears",
+          "title": "Loan term",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": 1, "text": "1 year" },
+            { "value": 2, "text": "2 years" },
+            { "value": 3, "text": "3 years" },
+            { "value": 5, "text": "5 years" },
+            { "value": 7, "text": "7 years" },
+            { "value": 10, "text": "10 years" },
+            { "value": 15, "text": "15 years" },
+            { "value": 20, "text": "20 years" },
+            { "value": 25, "text": "25 years" },
+            { "value": 30, "text": "30 years" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "paymentFrequency",
+          "title": "Payment frequency",
+          "isRequired": true,
+          "colCount": 3,
+          "defaultValue": "monthly",
+          "choices": [
+            { "value": "monthly", "text": "Monthly" },
+            { "value": "biweekly", "text": "Every two weeks" },
+            { "value": "weekly", "text": "Weekly" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "extraMonthlyPayment",
+          "title": "Extra payment per month (USD)",
+          "description": "Optional. See how much faster you could pay off the loan by paying a little more each month.",
+          "inputType": "number",
+          "min": 0,
+          "step": 10
+        },
+        {
+          "type": "panel",
+          "name": "loanResults",
+          "title": "Your results",
+          "visibleIf": "{loanAmount} >= 1000 and {interestRate} notempty and {loanTermYears} notempty and ({downPayment} empty or {downPayment} < {loanAmount})",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "principal",
+              "title": "Amount financed",
+              "expression": "iif({downPayment} > 0, {loanAmount} - {downPayment}, {loanAmount})",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "numberOfPayments",
+              "title": "Number of payments",
+              "startWithNewLine": false,
+              "expression": "{loanTermYears} * {paymentsPerYear}",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 0
+            },
+            {
+              "type": "expression",
+              "name": "paymentAmount",
+              "title": "Payment amount",
+              "description": "Charged monthly, every two weeks, or weekly, depending on the frequency you chose.",
+              "expression": "iif({periodicRate} > 0, round({principal} * {periodicRate} * {growthFactor} / ({growthFactor} - 1), 2), round({principal} / {numberOfPayments}, 2))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "totalInterest",
+              "title": "Total interest",
+              "startWithNewLine": false,
+              "expression": "iif({periodicRate} > 0, round({paymentAmount} * {numberOfPayments} - {principal}, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "totalCost",
+              "title": "Total cost of the loan",
+              "description": "All payments over the full term, including interest.",
+              "startWithNewLine": false,
+              "expression": "round({principal} + {totalInterest}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "extraPaymentResults",
+          "title": "With your extra payment",
+          "visibleIf": "{paymentAmount} > 0 and {extraMonthlyPayment} > 0",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "payoffPayments",
+              "title": "Payments until paid off",
+              "expression": "round({payoffPaymentsExact})",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 0
+            },
+            {
+              "type": "expression",
+              "name": "payoffYears",
+              "title": "Approximate payoff time",
+              "startWithNewLine": false,
+              "expression": "round({payoffPayments} / {paymentsPerYear}, 1)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} years"
+            },
+            {
+              "type": "expression",
+              "name": "interestSaved",
+              "title": "Approximate interest saved",
+              "startWithNewLine": false,
+              "expression": "max(0, round({totalInterest} - ({payoffPaymentsExact} * {paymentWithExtra} - {principal}), 2))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "html",
+              "name": "extraPaymentNote",
+              "html": "<p><small>The payoff time and interest saved are estimates that assume you make the extra payment with every regular payment from the first one onward. The final payment may be smaller than the others.</small></p>"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "resultsDisclaimer",
+          "html": "<p><small>This calculator gives estimates for comparison only. It does not include taxes, insurance, fees, or rate changes. Your lender will confirm the exact payment.</small></p>"
+        },
+        {
+          "type": "boolean",
+          "name": "wantsSpecialistContact",
+          "title": "Would you like a loan specialist to contact you?",
+          "description": "We'll review your numbers and suggest options that fit your budget. No obligation.",
+          "labelTrue": "Yes, please",
+          "labelFalse": "No, thanks"
+        },
+        {
+          "type": "panel",
+          "name": "contactDetails",
+          "title": "Your contact details",
+          "visibleIf": "{wantsSpecialistContact} = true",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone",
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            },
+            {
+              "type": "radiogroup",
+              "name": "preferredContactTime",
+              "title": "Best time to reach you",
+              "colCount": 3,
+              "choices": [
+                { "value": "morning", "text": "Morning" },
+                { "value": "afternoon", "text": "Afternoon" },
+                { "value": "evening", "text": "Evening" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Your loan estimate</h3><p>Amount financed: <b>{principal}</b> over <b>{numberOfPayments}</b> payments.</p><p>Payment amount: <b>{paymentAmount}</b></p><p>Total interest: <b>{totalInterest}</b> &middot; Total cost: <b>{totalCost}</b></p><p><small>These figures are estimates. Your lender will confirm the exact terms.</small></p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{wantsSpecialistContact} = true",
+      "html": "<h3>Thanks, {fullName}!</h3><p>Your estimated payment is <b>{paymentAmount}</b>, with <b>{totalInterest}</b> in total interest over <b>{numberOfPayments}</b> payments.</p><p>A loan specialist will contact you at <b>{email}</b> within one business day to go over your options.</p>"
+    }
+  ]
+}

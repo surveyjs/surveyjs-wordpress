@@ -1,0 +1,257 @@
+{
+  "title": "Request Information",
+  "description": "Let us know what you're interested in and we'll send you the right materials.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Send request",
+  "widthMode": "static",
+  "width": "760px",
+  "elements": [
+    {
+      "type": "text",
+      "name": "firstName",
+      "title": "First name",
+      "isRequired": true,
+      "autocomplete": "given-name",
+      "maxLength": 60
+    },
+    {
+      "type": "text",
+      "name": "lastName",
+      "title": "Last name",
+      "isRequired": true,
+      "autocomplete": "family-name",
+      "startWithNewLine": false,
+      "maxLength": 60
+    },
+    {
+      "type": "text",
+      "name": "email",
+      "title": "Email address",
+      "isRequired": true,
+      "inputType": "email",
+      "autocomplete": "email",
+      "validators": [
+        {
+          "type": "email",
+          "text": "Please enter a valid email address."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "phone",
+      "title": "Phone number (optional)",
+      "inputType": "tel",
+      "autocomplete": "tel",
+      "startWithNewLine": false,
+      "validators": [
+        {
+          "type": "regex",
+          "regex": "^\\+?[0-9 ().-]{7,20}$",
+          "text": "Please enter a valid phone number."
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "interestArea",
+      "title": "What are you interested in?",
+      "isRequired": true,
+      "choices": [
+        {
+          "value": "products-services",
+          "text": "Products or services"
+        },
+        {
+          "value": "pricing",
+          "text": "Pricing"
+        },
+        {
+          "value": "programs-courses",
+          "text": "Programs or courses"
+        },
+        {
+          "value": "property-listings",
+          "text": "Property listings"
+        },
+        {
+          "value": "partnership",
+          "text": "Partnership opportunities"
+        },
+        {
+          "value": "careers",
+          "text": "Careers"
+        }
+      ],
+      "showOtherItem": true,
+      "otherText": "Other"
+    },
+    {
+      "type": "checkbox",
+      "name": "materialsRequested",
+      "title": "Which materials would you like to receive?",
+      "description": "Select all that apply.",
+      "isRequired": true,
+      "colCount": 2,
+      "choices": [
+        {
+          "value": "brochure",
+          "text": "Brochure"
+        },
+        {
+          "value": "price-list",
+          "text": "Price list"
+        },
+        {
+          "value": "catalog",
+          "text": "Product catalog"
+        },
+        {
+          "value": "sample",
+          "text": "Sample"
+        },
+        {
+          "value": "case-studies",
+          "text": "Case studies"
+        },
+        {
+          "value": "course-syllabus",
+          "text": "Course syllabus"
+        }
+      ]
+    },
+    {
+      "type": "radiogroup",
+      "name": "deliveryMethod",
+      "title": "How should we send the materials?",
+      "isRequired": true,
+      "colCount": 0,
+      "choices": [
+        {
+          "value": "email-pdf",
+          "text": "By email as PDF"
+        },
+        {
+          "value": "postal-mail",
+          "text": "By postal mail"
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "name": "postalAddress",
+      "visibleIf": "{deliveryMethod} = 'postal-mail'",
+      "title": "Mailing address",
+      "elements": [
+        {
+          "type": "text",
+          "name": "street",
+          "title": "Street address",
+          "isRequired": true,
+          "autocomplete": "street-address",
+          "maxLength": 200
+        },
+        {
+          "type": "text",
+          "name": "city",
+          "title": "City",
+          "isRequired": true,
+          "autocomplete": "address-level2",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "postalCode",
+          "title": "Postal code",
+          "isRequired": true,
+          "autocomplete": "postal-code",
+          "startWithNewLine": false,
+          "maxLength": 20
+        },
+        {
+          "type": "text",
+          "name": "country",
+          "title": "Country",
+          "isRequired": true,
+          "autocomplete": "country-name",
+          "startWithNewLine": false,
+          "maxLength": 100
+        }
+      ]
+    },
+    {
+      "type": "comment",
+      "name": "specificQuestions",
+      "title": "Do you have any specific questions?",
+      "description": "Optional. Anything you'd like the materials or our reply to cover.",
+      "rows": 4,
+      "maxLength": 2000
+    },
+    {
+      "type": "radiogroup",
+      "name": "timeline",
+      "title": "Where are you in your decision?",
+      "colCount": 3,
+      "choices": [
+        {
+          "value": "researching",
+          "text": "Just researching"
+        },
+        {
+          "value": "1-3-months",
+          "text": "Deciding in the next 1–3 months"
+        },
+        {
+          "value": "ready",
+          "text": "Ready to decide now"
+        }
+      ]
+    },
+    {
+      "type": "boolean",
+      "name": "followUpCall",
+      "title": "Would you like a follow-up call from our team?",
+      "labelTrue": "Yes",
+      "labelFalse": "No"
+    },
+    {
+      "type": "radiogroup",
+      "name": "bestTimeToCall",
+      "visibleIf": "{followUpCall} = true",
+      "title": "Best time to call",
+      "isRequired": true,
+      "startWithNewLine": false,
+      "colCount": 3,
+      "choices": [
+        {
+          "value": "morning",
+          "text": "Morning"
+        },
+        {
+          "value": "afternoon",
+          "text": "Afternoon"
+        },
+        {
+          "value": "evening",
+          "text": "Evening"
+        }
+      ]
+    },
+    {
+      "type": "boolean",
+      "name": "marketingConsent",
+      "title": "Marketing consent",
+      "titleLocation": "hidden",
+      "label": "I'd like to receive occasional news and offers by email. I can unsubscribe at any time.",
+      "renderAs": "checkbox"
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}!</h3><p>We'll send the requested materials to <b>{email}</b> within two business days.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{deliveryMethod} = 'postal-mail'",
+      "html": "<h3>Thank you, {firstName}!</h3><p>We'll mail the requested materials to <b>{street}, {city}</b>. Please allow 5–7 business days for delivery. We'll also send a confirmation to <b>{email}</b>.</p>"
+    }
+  ]
+}

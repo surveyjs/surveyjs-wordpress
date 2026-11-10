@@ -1,0 +1,180 @@
+{
+  "title": "Event RSVP Form",
+  "description": "Please let us know whether you can join us. If you are bringing guests, add them below so we can plan seating and catering.",
+  "pages": [
+    {
+      "name": "yourResponse",
+      "title": "Your Response",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "description": "We will send event updates to this address.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email", "text": "Please enter a valid email address." }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "attendance",
+          "title": "Will you attend?",
+          "isRequired": true,
+          "choices": [
+            { "value": "yes", "text": "Yes, I will be there" },
+            { "value": "maybe", "text": "Not sure yet" },
+            { "value": "no", "text": "No, I can't make it" }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "maybeNote",
+          "visibleIf": "{attendance} = 'maybe'",
+          "html": "<p>No problem. Please fill in the details below as if you were attending, and submit a new response once you know for sure.</p>"
+        },
+        {
+          "type": "boolean",
+          "name": "bringingGuests",
+          "visibleIf": "{attendance} anyof ['yes', 'maybe']",
+          "title": "Will anyone be coming with you?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "paneldynamic",
+          "name": "guests",
+          "visibleIf": "{bringingGuests} = true",
+          "title": "Your guests",
+          "description": "Add each person who will be coming with you.",
+          "templateTitle": "Guest {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "guestName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "guestAgeGroup",
+              "title": "Age group",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                { "value": "adult", "text": "Adult" },
+                { "value": "child", "text": "Child (under 12)" }
+              ],
+              "colCount": 2
+            }
+          ],
+          "panelCount": 1,
+          "minPanelCount": 1,
+          "maxPanelCount": 5,
+          "panelAddText": "Add another guest",
+          "panelRemoveText": "Remove guest"
+        },
+        {
+          "type": "expression",
+          "name": "partySize",
+          "visibleIf": "{attendance} anyof ['yes', 'maybe']",
+          "title": "Total number of people in your party",
+          "expression": "iif({bringingGuests} = true, 1 + countInArray({guests}, 'guestName'), 1)",
+          "displayStyle": "decimal"
+        }
+      ]
+    },
+    {
+      "name": "specialRequirements",
+      "title": "Dietary and Accessibility Needs",
+      "visibleIf": "{attendance} anyof ['yes', 'maybe']",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "dietaryRequirements",
+          "title": "Does anyone in your party have dietary requirements?",
+          "description": "Select all that apply to you or your guests.",
+          "isRequired": true,
+          "choices": [
+            { "value": "vegetarian", "text": "Vegetarian" },
+            { "value": "vegan", "text": "Vegan" },
+            { "value": "glutenFree", "text": "Gluten-free" },
+            { "value": "dairyFree", "text": "Dairy-free" },
+            { "value": "nutAllergy", "text": "Nut allergy" },
+            { "value": "shellfishAllergy", "text": "Shellfish allergy" },
+            { "value": "halal", "text": "Halal" },
+            { "value": "kosher", "text": "Kosher" }
+          ],
+          "colCount": 2,
+          "showOtherItem": true,
+          "otherText": "Other",
+          "showNoneItem": true,
+          "noneText": "No dietary requirements"
+        },
+        {
+          "type": "comment",
+          "name": "dietaryDetails",
+          "visibleIf": "{dietaryRequirements} notempty and {dietaryRequirements} notcontains 'none'",
+          "title": "Please tell us who each requirement applies to and how severe any allergies are.",
+          "rows": 3
+        },
+        {
+          "type": "boolean",
+          "name": "accessibilityNeeded",
+          "title": "Does anyone in your party need accessibility accommodations?",
+          "description": "For example, step-free access, reserved seating, a sign language interpreter, or space for a mobility aid.",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "accessibilityDetails",
+          "visibleIf": "{accessibilityNeeded} = true",
+          "title": "How can we help?",
+          "isRequired": true,
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "messageToHost",
+      "title": "A Note for the Host",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "hostMessage",
+          "title": "Would you like to leave a message for the host?",
+          "rows": 4,
+          "maxLength": 1000
+        }
+      ]
+    }
+  ],
+  "completeText": "Send RSVP",
+  "completedHtml": "<h3>Thank you for your reply!</h3><p>Your response has been recorded.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{attendance} = 'yes'",
+      "html": "<h3>We can't wait to see you!</h3><p>Your RSVP for a party of {partySize} is confirmed. We will send event details and any updates to {email}.</p>"
+    },
+    {
+      "expression": "{attendance} = 'maybe'",
+      "html": "<h3>Thanks for letting us know!</h3><p>We have noted your tentative reply. Please send a new response once your plans are confirmed.</p>"
+    },
+    {
+      "expression": "{attendance} = 'no'",
+      "html": "<h3>We're sorry you can't make it</h3><p>Thank you for letting us know. We hope to see you at a future event.</p>"
+    }
+  ]
+}

@@ -1,0 +1,550 @@
+{
+  "title": "Rental Application",
+  "description": "Apply to rent a home. Every adult who will sign the lease should submit a separate application. Allow about 15 minutes to complete it.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "showProgressBar": "top",
+  "completeText": "Submit Application",
+  "pages": [
+    {
+      "name": "propertyAndLease",
+      "title": "Property and Lease",
+      "elements": [
+        {
+          "type": "text",
+          "name": "propertyAddress",
+          "title": "Address of the property you're applying for",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "propertyUnit",
+          "title": "Unit number",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "desiredMoveInDate",
+          "title": "Desired move-in date",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "dropdown",
+          "name": "leaseTerm",
+          "title": "Preferred lease length",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "sixMonths", "text": "6 months" },
+            { "value": "twelveMonths", "text": "12 months" },
+            { "value": "eighteenMonths", "text": "18 months" },
+            { "value": "twentyFourMonths", "text": "24 months" },
+            { "value": "monthToMonth", "text": "Month to month" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "applicant",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "dateOfBirth",
+          "title": "Date of birth",
+          "isRequired": true,
+          "inputType": "date",
+          "maxValueExpression": "today()",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "age({dateOfBirth}) >= 18",
+              "text": "Applicants must be at least 18. List younger household members as occupants instead."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "panel",
+          "name": "emergencyContact",
+          "title": "Emergency contact",
+          "description": "Someone who won't be living with you.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "emergencyContactName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "emergencyContactRelationship",
+              "title": "Relationship",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "emergencyContactPhone",
+              "title": "Phone",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "residenceHistory",
+      "title": "Residence History",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "previousAddresses",
+          "title": "Where have you lived?",
+          "description": "Start with your current address, then add previous ones to cover at least the past three years.",
+          "isRequired": true,
+          "minPanelCount": 1,
+          "maxPanelCount": 5,
+          "templateTitle": "Address {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "title": "State",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "moveInMonth",
+              "title": "Moved in",
+              "isRequired": true,
+              "inputType": "month"
+            },
+            {
+              "type": "text",
+              "name": "moveOutMonth",
+              "title": "Moved out",
+              "description": "Leave blank for your current address.",
+              "startWithNewLine": false,
+              "inputType": "month"
+            },
+            {
+              "type": "radiogroup",
+              "name": "housingType",
+              "title": "Did you rent or own this home?",
+              "isRequired": true,
+              "colCount": 3,
+              "choices": [
+                { "value": "rented", "text": "Rented" },
+                { "value": "owned", "text": "Owned" },
+                { "value": "other", "text": "Lived with family or friends" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "monthlyRent",
+              "visibleIf": "{panel.housingType} = 'rented'",
+              "title": "Monthly rent ($)",
+              "isRequired": true,
+              "inputType": "number",
+              "min": 0
+            },
+            {
+              "type": "text",
+              "name": "landlordName",
+              "visibleIf": "{panel.housingType} = 'rented'",
+              "title": "Landlord or property manager",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "landlordPhone",
+              "visibleIf": "{panel.housingType} = 'rented'",
+              "title": "Landlord's phone",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel"
+            },
+            {
+              "type": "text",
+              "name": "reasonForLeaving",
+              "title": "Reason for leaving"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "hasEvictionHistory",
+          "title": "Has a landlord ever taken legal action to remove you from a home, or have you moved out before your lease was up?",
+          "isRequired": true
+        },
+        {
+          "type": "comment",
+          "name": "evictionExplanation",
+          "visibleIf": "{hasEvictionHistory} = true",
+          "title": "Tell us when this happened and the circumstances",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "name": "employmentAndIncome",
+      "title": "Employment and Income",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "employmentStatus",
+          "title": "Employment status",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "fullTime", "text": "Employed full time" },
+            { "value": "partTime", "text": "Employed part time" },
+            { "value": "selfEmployed", "text": "Self-employed" },
+            { "value": "student", "text": "Student" },
+            { "value": "retired", "text": "Retired" },
+            { "value": "notEmployed", "text": "Not currently employed" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "currentEmployment",
+          "title": "Current employment",
+          "visibleIf": "{employmentStatus} anyof ['fullTime', 'partTime', 'selfEmployed']",
+          "elements": [
+            {
+              "type": "text",
+              "name": "employerName",
+              "title": "Employer or business name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "jobTitle",
+              "title": "Job title",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "employmentStartMonth",
+              "title": "Start date",
+              "isRequired": true,
+              "inputType": "month"
+            },
+            {
+              "type": "text",
+              "name": "employmentContactName",
+              "title": "Supervisor or HR contact",
+              "description": "If you're self-employed, enter your accountant or a major client.",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "employmentContactPhone",
+              "title": "Contact's phone",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "primaryMonthlyIncome",
+          "title": "Gross monthly income from your main source ($)",
+          "description": "Before taxes. Include wages, business income, pension, or benefits.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0
+        },
+        {
+          "type": "text",
+          "name": "otherMonthlyIncome",
+          "title": "Other monthly income ($)",
+          "description": "For example, a second job, child support, or investments. Enter 0 if none.",
+          "inputType": "number",
+          "min": 0
+        },
+        {
+          "type": "text",
+          "name": "otherIncomeSource",
+          "visibleIf": "{otherMonthlyIncome} > 0",
+          "title": "Source of other income",
+          "isRequired": true
+        },
+        {
+          "type": "expression",
+          "name": "totalMonthlyIncome",
+          "title": "Total gross monthly income",
+          "expression": "iif({primaryMonthlyIncome} notempty, {primaryMonthlyIncome}, 0) + iif({otherMonthlyIncome} notempty, {otherMonthlyIncome}, 0)",
+          "displayStyle": "currency",
+          "currency": "USD"
+        }
+      ]
+    },
+    {
+      "name": "household",
+      "title": "Household and Pets",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "otherOccupants",
+          "title": "Who else will live with you?",
+          "description": "Include children and other adults. Adults who will sign the lease must also submit their own application.",
+          "maxPanelCount": 8,
+          "templateTitle": "Occupant {panelIndex}",
+          "noEntriesText": "No other occupants added. Use the button below if anyone else will live with you.",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "occupantName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "occupantRelationship",
+              "title": "Relationship to you",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "occupantAge",
+              "title": "Age",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 0,
+              "max": 120
+            },
+            {
+              "type": "boolean",
+              "name": "isCoApplicant",
+              "visibleIf": "{panel.occupantAge} >= 18",
+              "title": "Will this person sign the lease as a co-applicant?",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "hasPets",
+          "title": "Will any pets live in the home?",
+          "isRequired": true
+        },
+        {
+          "type": "paneldynamic",
+          "name": "pets",
+          "visibleIf": "{hasPets} = true",
+          "title": "Pets",
+          "minPanelCount": 1,
+          "maxPanelCount": 5,
+          "templateTitle": "Pet {panelIndex}",
+          "templateElements": [
+            {
+              "type": "dropdown",
+              "name": "petType",
+              "title": "Type of animal",
+              "isRequired": true,
+              "choices": [
+                { "value": "dog", "text": "Dog" },
+                { "value": "cat", "text": "Cat" },
+                { "value": "bird", "text": "Bird" },
+                { "value": "fish", "text": "Fish" },
+                { "value": "smallMammal", "text": "Small mammal" },
+                { "value": "reptile", "text": "Reptile" }
+              ],
+              "showOtherItem": true
+            },
+            {
+              "type": "text",
+              "name": "petBreed",
+              "title": "Breed",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "petWeight",
+              "title": "Weight (lb)",
+              "inputType": "number",
+              "min": 0
+            },
+            {
+              "type": "text",
+              "name": "petAge",
+              "title": "Age (years)",
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 0
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "householdSmokes",
+          "title": "Does anyone in your household smoke or vape?",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "name": "references",
+      "title": "References",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "personalReferences",
+          "title": "References",
+          "description": "Two or three people who know you well and aren't related to you, such as a former landlord, an employer, or a colleague.",
+          "isRequired": true,
+          "minPanelCount": 2,
+          "maxPanelCount": 3,
+          "templateTitle": "Reference {panelIndex}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "referenceName",
+              "title": "Full name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "referenceRelationship",
+              "title": "How do you know this person?",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "referencePhone",
+              "title": "Phone",
+              "isRequired": true,
+              "inputType": "tel"
+            },
+            {
+              "type": "text",
+              "name": "referenceEmail",
+              "title": "Email",
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "authorization",
+      "title": "Authorization and Signature",
+      "elements": [
+        {
+          "type": "html",
+          "name": "authorizationText",
+          "html": "<p>By submitting this application, I confirm that the information I've given is complete and accurate. I authorize the landlord or property manager and its agents to verify it, including by contacting my employers, current and previous landlords, and references, and to obtain credit, eviction, and background reports about me.</p><p>I understand that false or missing information may be grounds for rejecting this application or ending a lease. Submitting this application does not guarantee approval or reserve the property.</p>"
+        },
+        {
+          "type": "boolean",
+          "name": "creditCheckAuthorization",
+          "title": "I authorize credit, eviction, and background checks as described above",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{creditCheckAuthorization} = true",
+              "text": "We can't process your application without this authorization."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "accuracyCertification",
+          "title": "I certify that the information in this application is true and complete",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{accuracyCertification} = true",
+              "text": "Please certify your application before submitting it."
+            }
+          ]
+        },
+        {
+          "type": "signaturepad",
+          "name": "applicantSignature",
+          "title": "Signature",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "signatureDate",
+          "title": "Date",
+          "inputType": "date",
+          "readOnly": true,
+          "defaultValueExpression": "today()"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}! Your application has been submitted.</h3><p>We'll review it, run the checks you authorized, and contact you at <b>{email}</b>, usually within three business days.</p><p>If anyone else will sign the lease, make sure they submit their own application so we can review your household together.</p>"
+}

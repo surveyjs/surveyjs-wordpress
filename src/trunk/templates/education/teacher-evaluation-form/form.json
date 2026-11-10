@@ -1,0 +1,639 @@
+{
+  "title": "Teacher Evaluation Form",
+  "completedHtml": "<h3>Thank you for submitting the evaluation form!</h3>",
+  "pages": [
+    {
+      "name": "teacher",
+      "elements": [
+        {
+          "type": "text",
+          "name": "teacherName",
+          "title": "TEACHER"
+        },
+        {
+          "type": "text",
+          "name": "school",
+          "title": "SCHOOL"
+        },
+        {
+          "type": "text",
+          "name": "subject",
+          "startWithNewLine": false,
+          "title": "SUBJECT/GRADE"
+        },
+        {
+          "type": "panel",
+          "name": "dates",
+          "elements": [
+            {
+              "type": "text",
+              "name": "from",
+              "title": "From",
+              "inputType": "date"
+            },
+            {
+              "type": "text",
+              "name": "to",
+              "startWithNewLine": false,
+              "title": "To",
+              "inputType": "date"
+            }
+          ],
+          "title": "OBSERVATION DATE(S)"
+        }
+      ],
+      "title": "TEACHER"
+    },
+    {
+      "name": "overallEvaluation",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "classroomInstruction",
+          "title": "I CLASSROOM INSTRUCTION",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "columnClassroomInstruction",
+              "cellType": "boolean",
+              "labelTrue": "SATISFACTORY",
+              "labelFalse": "UNSATISFACTORY"
+            }
+          ],
+          "rows": [
+            {
+              "value": "a",
+              "text": "A. Planning and Preparation"
+            },
+            {
+              "value": "b",
+              "text": "B. Teacher/Student Relationships"
+            },
+            {
+              "value": "c",
+              "text": "C. Class Management"
+            },
+            {
+              "value": "d",
+              "text": "D. Management of Student Behavior"
+            },
+            {
+              "value": "e",
+              "text": "E. Instructional Time"
+            },
+            {
+              "value": "f",
+              "text": "F. Instructional Presentation"
+            },
+            {
+              "value": "g",
+              "text": "G. Instructional Monitoring of Student Performance"
+            },
+            {
+              "value": "h",
+              "text": "H. Instructional Feedback"
+            },
+            {
+              "value": "i",
+              "text": "I. Facilitating Instruction"
+            }
+          ]
+        },
+        {
+          "type": "matrixdropdown",
+          "name": "interpersonal",
+          "title": "II. INTERPERSONAL/PROFESSIONAL RESPONSIBILITIES",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "columnInterpersonal",
+              "cellType": "boolean",
+              "labelTrue": "SATISFACTORY",
+              "labelFalse": "UNSATISFACTORY"
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "rows": [
+            {
+              "value": "a",
+              "text": "A. Communicating with Families"
+            },
+            {
+              "value": "b",
+              "text": "B. Maintaining Accurate Records"
+            },
+            {
+              "value": "c",
+              "text": "C. Contributing to the School and the District"
+            },
+            {
+              "value": "d",
+              "text": "D. Showing Professionalism"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "summary",
+          "title": "III. SUMMARY:",
+          "maxLength": 300,
+          "rows": 3,
+          "autoGrow": true
+        }
+      ],
+      "title": "OVERALL EVALUATION"
+    },
+    {
+      "name": "classInstruction",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "panelPlanning",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "planning",
+              "title": "A. Planning and Preparation",
+              "description": "1 - Satisfactory, 2 - Growth Needed, 3 - Unsatisfactory, 4 - Not Observed",
+              "showHeader": false,
+              "alternateRows": true,
+              "columns": [
+                {
+                  "name": "columnPlanning",
+                  "cellType": "rating",
+                  "autoGenerate": false,
+                  "rateCount": 4,
+                  "rateValues": [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  "rateMax": 4
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rows": [
+                {
+                  "value": "content",
+                  "text": "Demonstrates knowledge of content and related pedagogy"
+                },
+                {
+                  "value": "development",
+                  "text": "Demonstrates knowledge of development characteristics of age group"
+                },
+                {
+                  "value": "learn",
+                  "text": "Demonstrates knowledge of how students learn"
+                },
+                {
+                  "value": "skills",
+                  "text": "Demonstrates awareness of student skills and knowledge"
+                },
+                {
+                  "value": "interests",
+                  "text": "Demonstrates awareness of student interests and cultural heritage"
+                },
+                {
+                  "value": "resources",
+                  "text": "Demonstrates knowledge of resources for teaching and student resources"
+                },
+                {
+                  "value": "materiasl",
+                  "text": "Designs instructional materials and activities"
+                },
+                {
+                  "value": "structure",
+                  "text": "Designs and structures lessons"
+                }
+              ],
+              "rowTitleWidth": "60%"
+            },
+            {
+              "type": "comment",
+              "name": "strengthPlanning",
+              "title": "Strengths:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "comment",
+              "name": "recommendationsPlanning",
+              "title": "Recommendations for Improvement and/or Professional Development:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "panelRelations",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "relations",
+              "title": "B. Teacher/Student Relationships",
+              "description": "1 - Satisfactory, 2 - Growth Needed, 3 - Unsatisfactory, 4 - Not Observed",
+              "showHeader": false,
+              "alternateRows": true,
+              "columns": [
+                {
+                  "name": "columnRelations",
+                  "cellType": "rating",
+                  "rateCount": 4,
+                  "rateMax": 4
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rows": [
+                {
+                  "value": "respect",
+                  "text": "Student demonstrates respect for teacher"
+                },
+                {
+                  "value": "attitude",
+                  "text": "Teacher demonstrates positive attitude and openness to students"
+                },
+                {
+                  "value": "personalization",
+                  "text": "Teacher demonstrates ability to personalize the instructional program for students"
+                },
+                {
+                  "value": "willingness",
+                  "text": "Teacher demonstrates willingness to be flexible"
+                }
+              ],
+              "rowTitleWidth": "60%"
+            },
+            {
+              "type": "comment",
+              "name": "strengthRelations",
+              "title": "Strengths:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "comment",
+              "name": "recommendationsRelations",
+              "title": "Recommendations for Improvement and/or Professional Development:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "panelInstructional",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "instructional",
+              "title": "C. Instructional Time",
+              "description": "1 - Satisfactory, 2 - Growth Needed, 3 - Unsatisfactory, 4 - Not Observed",
+              "showHeader": false,
+              "alternateRows": true,
+              "columns": [
+                {
+                  "name": "columnInstructional",
+                  "cellType": "rating",
+                  "rateCount": 4,
+                  "rateMax": 4
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rows": [
+                {
+                  "value": "materials",
+                  "text": "Materials, supplies, and equipment are ready at the start of the lessons or instructional activity"
+                },
+                {
+                  "value": "task",
+                  "text": "Students are on task quickly at the beginning of each lesson or instructional activity"
+                },
+                {
+                  "value": "high-level",
+                  "text": "Teacher maintains a high level of student time on-task"
+                }
+              ],
+              "rowTitleWidth": "60%"
+            },
+            {
+              "type": "comment",
+              "name": "strengthInstructional",
+              "title": "Strengths:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "comment",
+              "name": "recommendationsInstructional",
+              "title": "Recommendations for Improvement and/or Professional Development:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            }
+          ]
+        }
+      ],
+      "title": "CLASS INSTRUCTION"
+    },
+    {
+      "name": "responsibilities",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "panelResponsibilities",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "families",
+              "title": "A. Communicating with Families",
+              "showHeader": false,
+              "columns": [
+                {
+                  "name": "columnFamilies",
+                  "cellType": "rating",
+                  "width": "60%",
+                  "rateType": "smileys",
+                  "autoGenerate": false,
+                  "rateCount": 4,
+                  "rateValues": [
+                    "Not Observed",
+                    "Unsatisfactory",
+                    "Growth Needed",
+                    "Satisfactory"
+                  ],
+                  "rateMax": 4,
+                  "minRateDescription": "Not Observed",
+                  "maxRateDescription": "Satisfactory"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4
+              ],
+              "rows": [
+                {
+                  "value": "activities",
+                  "text": "Teacher participates in school’s activities and processes for parent communication."
+                },
+                {
+                  "value": "information",
+                  "text": "Teacher provides information to parents about the instructional, behavioral, and attendance program and the student’s progress on a regular basis."
+                },
+                {
+                  "value": "concerns",
+                  "text": "Teacher responds to parent concerns in a professional manner."
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "strengthFamilies",
+              "title": "Strengths:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "comment",
+              "name": "recommendationsFamilies",
+              "title": "Recommendations for Improvement and/or Professional Development:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "panelRecords",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "records",
+              "title": "B. Maintaining Accurate Records",
+              "showHeader": false,
+              "columns": [
+                {
+                  "name": "columnRecords",
+                  "cellType": "rating",
+                  "width": "60%",
+                  "rateType": "smileys",
+                  "autoGenerate": false,
+                  "rateCount": 4,
+                  "rateValues": [
+                    "Not Observed",
+                    "Unsatisfactory",
+                    "Growth Needed",
+                    "Satisfactory"
+                  ],
+                  "rateMax": 4,
+                  "minRateDescription": "Not Observed",
+                  "maxRateDescription": "Satisfactory"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4
+              ],
+              "rows": [
+                {
+                  "value": "system",
+                  "text": "Teacher’s system for maintaining information on student completion of assignments, student progress, behavior, and attendance is effective."
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "strengthRecords",
+              "title": "Strengths:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "comment",
+              "name": "recommendationsRecords",
+              "title": "Recommendations for Improvement and/or Professional Development:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "panelProfessionalism",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "professionalism",
+              "title": "C. Shows Professionalism",
+              "showHeader": false,
+              "columns": [
+                {
+                  "name": "columnProfessionalism",
+                  "cellType": "rating",
+                  "width": "60%",
+                  "rateType": "smileys",
+                  "autoGenerate": false,
+                  "rateCount": 4,
+                  "rateValues": [
+                    "Not Observed",
+                    "Unsatisfactory",
+                    "Growth Needed",
+                    "Satisfactory"
+                  ],
+                  "rateMax": 4,
+                  "minRateDescription": "Not Observed",
+                  "maxRateDescription": "Satisfactory"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4
+              ],
+              "rows": [
+                {
+                  "value": "respect",
+                  "text": "Teacher shows respect for students, parents, peers and administration by being punctual and prepared for class, work and meetings."
+                },
+                {
+                  "value": "students",
+                  "text": "Teacher shows respect for students, peers, parents and administration through his/her words and actions."
+                },
+                {
+                  "value": "activities",
+                  "text": "Teacher participates in activities that will enhance his/her professional skills."
+                },
+                {
+                  "value": "language",
+                  "text": "Teacher addresses and/or reports student language, bullying, harassing, hostile, prejudicial or belittling statements and/or behaviors"
+                },
+                {
+                  "value": "policies",
+                  "text": "Teacher follows the policies, regulations, and procedures of the school district."
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "strengthProfessionalism",
+              "title": "Strengths:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            },
+            {
+              "type": "comment",
+              "name": "recommendationsProfessionalism",
+              "title": "Recommendations for Improvement and/or Professional Development:",
+              "maxLength": 300,
+              "rows": 2,
+              "autoGrow": true
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "teacherSignature",
+          "elements": [
+            {
+              "type": "signaturepad",
+              "name": "teacherSignatureQuestion",
+              "title": "Teacher's signature",
+              "titleLocation": "hidden",
+              "description": "Teacher’s Signature",
+              "descriptionLocation": "underInput"
+            },
+            {
+              "type": "expression",
+              "name": "dateTeacher",
+              "maxWidth": "40%",
+              "title": "Date:",
+              "titleLocation": "left",
+              "descriptionLocation": "underInput",
+              "expression": "currentDate()",
+              "displayStyle": "date"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "panelAdminSignature",
+          "elements": [
+            {
+              "type": "signaturepad",
+              "name": "adminSignature",
+              "title": "Administrator's signature",
+              "startWithNewLine": false,
+              "titleLocation": "hidden",
+              "description": "Administrator’s Signature",
+              "descriptionLocation": "underInput"
+            },
+            {
+              "type": "expression",
+              "name": "dateAdmin",
+              "maxWidth": "40%",
+              "title": "Date:",
+              "titleLocation": "left",
+              "descriptionLocation": "underInput",
+              "expression": "currentDate()",
+              "displayStyle": "date"
+            }
+          ],
+          "startWithNewLine": false
+        },
+        {
+          "type": "html",
+          "name": "rebuttal",
+          "html": "<p><i>The teacher has the option of presenting a written rebuttal to the administrator within twenty (20) working days.</i></p>"
+        }
+      ],
+      "title": "INTERPERSONAL/PROFESSIONAL RESPONSIBILITIES"
+    }
+  ],
+  "showProgressBar": true,
+  "progressBarLocation": "belowheader",
+  "progressBarShowNavigationText": true,
+  "widthMode": "static",
+  "width": "900"
+}

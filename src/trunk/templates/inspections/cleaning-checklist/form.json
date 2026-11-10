@@ -1,0 +1,214 @@
+{
+  "title": "Cleaning Checklist",
+  "description": "Record which cleaning tasks were completed in this area, note any supplies to restock, and flag issues for maintenance.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "showProgressBar": true,
+  "completeText": "Submit checklist",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "details",
+      "title": "Shift Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "facilityName",
+          "title": "Facility or building",
+          "isRequired": true
+        },
+        {
+          "type": "dropdown",
+          "name": "areaCleaned",
+          "title": "Area cleaned",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "office", "text": "Office" },
+            { "value": "restrooms", "text": "Restrooms" },
+            { "value": "kitchen", "text": "Kitchen or break room" },
+            { "value": "lobby", "text": "Lobby and reception" },
+            { "value": "conference-rooms", "text": "Conference rooms" },
+            { "value": "warehouse", "text": "Warehouse" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "text",
+          "name": "cleanerName",
+          "title": "Cleaner name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "cleaningDate",
+          "title": "Date",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "defaultValueExpression": "today()",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "shift",
+          "title": "Shift",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "morning", "text": "Morning" },
+            { "value": "afternoon", "text": "Afternoon" },
+            { "value": "night", "text": "Night" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "startTime",
+          "title": "Start time",
+          "isRequired": true,
+          "inputType": "time"
+        },
+        {
+          "type": "text",
+          "name": "endTime",
+          "title": "End time",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "time"
+        }
+      ]
+    },
+    {
+      "name": "tasks",
+      "title": "Tasks and Sign-off",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "cleaningTasks",
+          "title": "Cleaning tasks",
+          "description": "Mark N/A for tasks that don't apply to this area.",
+          "eachRowRequired": true,
+          "alternateRows": true,
+          "columns": [
+            { "value": "done", "text": "Done" },
+            { "value": "not-done", "text": "Not done" },
+            { "value": "na", "text": "N/A" }
+          ],
+          "rows": [
+            { "value": "floors", "text": "Floors vacuumed or mopped" },
+            { "value": "surfaces", "text": "Surfaces wiped and disinfected" },
+            { "value": "trash", "text": "Trash emptied and liners replaced" },
+            { "value": "restocked", "text": "Consumables restocked" },
+            { "value": "glass", "text": "Mirrors and glass cleaned" },
+            { "value": "restroomFixtures", "text": "Restroom fixtures sanitized" },
+            { "value": "highTouch", "text": "High-touch points disinfected (handles, switches, rails)" },
+            { "value": "appliances", "text": "Kitchen appliances cleaned inside and out" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "notDoneReason",
+          "visibleIf": "{cleaningTasks.floors} = 'not-done' or {cleaningTasks.surfaces} = 'not-done' or {cleaningTasks.trash} = 'not-done' or {cleaningTasks.restocked} = 'not-done' or {cleaningTasks.glass} = 'not-done' or {cleaningTasks.restroomFixtures} = 'not-done' or {cleaningTasks.highTouch} = 'not-done' or {cleaningTasks.appliances} = 'not-done'",
+          "title": "Why were some tasks not done?",
+          "description": "For example: area occupied, missing supplies, or equipment out of order.",
+          "isRequired": true,
+          "rows": 2
+        },
+        {
+          "type": "checkbox",
+          "name": "suppliesToRestock",
+          "title": "Supplies to restock",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "paper-towels", "text": "Paper towels" },
+            { "value": "toilet-paper", "text": "Toilet paper" },
+            { "value": "soap", "text": "Hand soap" },
+            { "value": "sanitizer", "text": "Hand sanitizer" },
+            { "value": "trash-liners", "text": "Trash liners" },
+            { "value": "cleaning-chemicals", "text": "Cleaning chemicals" }
+          ],
+          "showNoneItem": true,
+          "noneText": "Nothing needed"
+        },
+        {
+          "type": "boolean",
+          "name": "issuesFound",
+          "title": "Did you find any damage, spills, or other issues?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "issueDetails",
+          "visibleIf": "{issuesFound} = true",
+          "title": "Describe the issues",
+          "isRequired": true,
+          "rows": 3
+        },
+        {
+          "type": "file",
+          "name": "photos",
+          "visibleIf": "{issuesFound} = true",
+          "title": "Photos",
+          "description": "Optional. Up to 5 photos of the issue.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*"
+        },
+        {
+          "type": "boolean",
+          "name": "maintenanceNeeded",
+          "title": "Does anything need a maintenance request?",
+          "description": "For example: a leaking tap, broken dispenser, or burnt-out light.",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "maintenanceDetails",
+          "visibleIf": "{maintenanceNeeded} = true",
+          "title": "What needs maintenance?",
+          "isRequired": true,
+          "rows": 2
+        },
+        {
+          "type": "signaturepad",
+          "name": "cleanerSignature",
+          "title": "Cleaner signature",
+          "isRequired": true,
+          "signatureWidth": 400,
+          "signatureHeight": 160
+        },
+        {
+          "type": "boolean",
+          "name": "supervisorVerified",
+          "title": "Has a supervisor verified this area?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "supervisorName",
+          "visibleIf": "{supervisorVerified} = true",
+          "title": "Supervisor name",
+          "isRequired": true,
+          "autocomplete": "name"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Checklist submitted</h3><p>Thank you, {cleanerName}. The cleaning record for <b>{areaCleaned}</b> at <b>{facilityName}</b> on {cleaningDate} has been saved.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{maintenanceNeeded} = true",
+      "html": "<h3>Checklist submitted</h3><p>Thank you, {cleanerName}. The cleaning record for <b>{areaCleaned}</b> at <b>{facilityName}</b> has been saved, and a <b>maintenance request</b> has been forwarded to the facilities team.</p>"
+    }
+  ]
+}

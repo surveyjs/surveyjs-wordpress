@@ -1,0 +1,9 @@
+{
+  "title": "New Customer Registration Form",
+  "description": "An account sign-up form for businesses that take on new customers: individuals or companies enter contact details, billing and delivery addresses, and communication preferences, then accept the terms and privacy policy. Company fields appear only for business customers.",
+  "tags": [
+    "registration",
+    "consent",
+    "order"
+  ]
+}

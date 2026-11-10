@@ -95,6 +95,7 @@ class SurveyJS_Editor {
                     <button type="button" class="button button-small" id="wp-sjs-name-save" aria-label="<?php esc_attr_e( 'Save name', 'surveyjs' ); ?>"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
                     <button type="button" class="button-link" id="wp-sjs-name-cancel"><?php esc_html_e( 'Cancel', 'surveyjs' ); ?></button>
                 </div>
+                <a href="<?php echo esc_url( SurveyJS_Templates::save_url( $survey->id ) ); ?>" class="button wp-sjs-editor__save-template" id="wp-sjs-save-template"><?php esc_html_e( 'Save as Template', 'surveyjs' ); ?></a>
             </div>
             <div id="wp-sjs-editor-notice"></div>
 

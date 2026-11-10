@@ -1,0 +1,234 @@
+{
+  "title": "Event Feedback Form",
+  "description": "Thank you for attending. Please share your impressions of the event so we can make the next one even better. It takes about 5 minutes.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "overallImpressions",
+      "title": "Overall Impressions",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "attendanceFormat",
+          "title": "How did you attend the event?",
+          "isRequired": true,
+          "choices": [
+            { "value": "inPerson", "text": "In person" },
+            { "value": "online", "text": "Online" }
+          ],
+          "colCount": 2
+        },
+        {
+          "type": "rating",
+          "name": "overallRating",
+          "title": "How would you rate the event overall?",
+          "isRequired": true,
+          "rateType": "stars",
+          "rateCount": 5,
+          "rateMax": 5
+        },
+        {
+          "type": "radiogroup",
+          "name": "expectationsMet",
+          "title": "How did the event compare with your expectations?",
+          "isRequired": true,
+          "choices": [
+            { "value": "below", "text": "It fell short of my expectations" },
+            { "value": "met", "text": "It met my expectations" },
+            { "value": "exceeded", "text": "It exceeded my expectations" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "expectationsGap",
+          "visibleIf": "{expectationsMet} = 'below'",
+          "title": "What were you hoping for that the event did not deliver?",
+          "rows": 3
+        },
+        {
+          "type": "checkbox",
+          "name": "attendanceGoals",
+          "title": "What were your main reasons for attending?",
+          "description": "Select all that apply.",
+          "choices": [
+            { "value": "learnSkills", "text": "Learn new skills or ideas" },
+            { "value": "hearSpeakers", "text": "Hear specific speakers" },
+            { "value": "meetPeers", "text": "Meet peers in my field" },
+            { "value": "findPartners", "text": "Find clients, partners, or suppliers" },
+            { "value": "careerOpportunities", "text": "Explore career opportunities" },
+            { "value": "employerRequest", "text": "My employer asked me to attend" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other reason"
+        }
+      ]
+    },
+    {
+      "name": "sessionsAndSpeakers",
+      "title": "Sessions and Speakers",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "contentRatings",
+          "title": "Please rate the event program.",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Poor" },
+            { "value": 2, "text": "Fair" },
+            { "value": 3, "text": "Good" },
+            { "value": 4, "text": "Very good" },
+            { "value": 5, "text": "Excellent" }
+          ],
+          "rows": [
+            { "value": "relevance", "text": "Relevance of topics to my work or interests" },
+            { "value": "depth", "text": "Depth of the content" },
+            { "value": "speakerExpertise", "text": "Speakers' knowledge of their subjects" },
+            { "value": "speakerDelivery", "text": "Speakers' presentation skills" },
+            { "value": "sessionVariety", "text": "Variety of session formats" },
+            { "value": "pacing", "text": "Session length and pacing" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "mostValuableSession",
+          "title": "Which session or speaker was the most valuable to you, and why?",
+          "rows": 3
+        },
+        {
+          "type": "comment",
+          "name": "futureTopics",
+          "title": "Which topics or speakers would you like to see at a future event?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "logisticsAndNetworking",
+      "title": "Logistics and Networking",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "venueRatings",
+          "visibleIf": "{attendanceFormat} = 'inPerson'",
+          "title": "Please rate the following aspects of the venue and organization.",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Poor" },
+            { "value": 2, "text": "Fair" },
+            { "value": 3, "text": "Good" },
+            { "value": 4, "text": "Very good" },
+            { "value": 5, "text": "Excellent" },
+            { "value": "notApplicable", "text": "Not applicable" }
+          ],
+          "rows": [
+            { "value": "registration", "text": "Registration and check-in" },
+            { "value": "location", "text": "Venue location and access" },
+            { "value": "rooms", "text": "Rooms, seating, and audio" },
+            { "value": "foodAndDrinks", "text": "Food and drinks" },
+            { "value": "wayfinding", "text": "Signage and wayfinding" },
+            { "value": "staff", "text": "Helpfulness of event staff" }
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "onlineRatings",
+          "visibleIf": "{attendanceFormat} = 'online'",
+          "title": "Please rate the following aspects of the online experience.",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Poor" },
+            { "value": 2, "text": "Fair" },
+            { "value": 3, "text": "Good" },
+            { "value": 4, "text": "Very good" },
+            { "value": 5, "text": "Excellent" },
+            { "value": "notApplicable", "text": "Not applicable" }
+          ],
+          "rows": [
+            { "value": "joining", "text": "Ease of joining the event" },
+            { "value": "streamQuality", "text": "Video and audio quality" },
+            { "value": "platformUsability", "text": "Ease of using the event platform" },
+            { "value": "interaction", "text": "Opportunities to ask questions and interact" },
+            { "value": "materials", "text": "Access to recordings and materials" }
+          ]
+        },
+        {
+          "type": "rating",
+          "name": "networkingValue",
+          "title": "How valuable were the opportunities to connect with other attendees?",
+          "rateValues": [
+            { "value": 1, "text": "Not at all valuable" },
+            { "value": 2, "text": "Slightly valuable" },
+            { "value": 3, "text": "Moderately valuable" },
+            { "value": 4, "text": "Very valuable" },
+            { "value": 5, "text": "Extremely valuable" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "networkingImprovements",
+          "visibleIf": "{networkingValue} <= 2",
+          "title": "What would have helped you connect with other attendees?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "futureEvents",
+      "title": "Future Events",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "improvementSuggestions",
+          "title": "What is the one thing we should change or improve for the next event?",
+          "rows": 4
+        },
+        {
+          "type": "radiogroup",
+          "name": "futureInterest",
+          "title": "How interested are you in attending our future events?",
+          "isRequired": true,
+          "choices": [
+            { "value": "veryInterested", "text": "Very interested" },
+            { "value": "somewhatInterested", "text": "Somewhat interested" },
+            { "value": "notSure", "text": "Not sure" },
+            { "value": "notInterested", "text": "Not interested" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredFormat",
+          "visibleIf": "{futureInterest} anyof ['veryInterested', 'somewhatInterested', 'notSure']",
+          "title": "Which format would you prefer for future events?",
+          "choices": [
+            { "value": "inPerson", "text": "In person" },
+            { "value": "online", "text": "Online" },
+            { "value": "hybrid", "text": "Hybrid (both options available)" },
+            { "value": "noPreference", "text": "No preference" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "receiveUpdates",
+          "title": "Would you like to hear about upcoming events?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "visibleIf": "{receiveUpdates} = true",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email", "text": "Please enter a valid email address." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "completedHtml": "<h3>Thank you for your feedback!</h3><p>Your input goes directly to the event team and helps shape the program, venue, and format of our next event.</p>"
+}

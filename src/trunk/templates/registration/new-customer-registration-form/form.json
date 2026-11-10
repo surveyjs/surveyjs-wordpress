@@ -1,0 +1,342 @@
+{
+  "title": "New Customer Registration",
+  "description": "Set up your customer account with us. We use these details for quotes, orders, invoices, and deliveries.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Create Account",
+  "pages": [
+    {
+      "name": "customerDetails",
+      "title": "Customer Details",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "customerType",
+          "title": "Who is opening the account?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "individual", "text": "An individual" },
+            { "value": "business", "text": "A business or organization" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "businessDetails",
+          "title": "Business details",
+          "visibleIf": "{customerType} = 'business'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "companyName",
+              "title": "Legal company name",
+              "isRequired": true,
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "tradingName",
+              "title": "Trading name, if different",
+              "startWithNewLine": false
+            },
+            {
+              "type": "dropdown",
+              "name": "businessStructure",
+              "title": "Business structure",
+              "choices": [
+                { "value": "soleProprietor", "text": "Sole proprietor" },
+                { "value": "partnership", "text": "Partnership" },
+                { "value": "llc", "text": "Limited liability company" },
+                { "value": "corporation", "text": "Corporation" },
+                { "value": "nonprofit", "text": "Nonprofit organization" },
+                { "value": "publicSector", "text": "Government or public body" }
+              ],
+              "showOtherItem": true
+            },
+            {
+              "type": "text",
+              "name": "taxRegistrationNumber",
+              "title": "Tax or VAT registration number",
+              "description": "Needed if it should appear on your invoices or if you buy tax-exempt.",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "companyWebsite",
+              "title": "Company website",
+              "inputType": "url",
+              "autocomplete": "url"
+            },
+            {
+              "type": "text",
+              "name": "accountsPayableEmail",
+              "title": "Email for invoices, if different from the contact email",
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "contactDetails",
+          "title": "Contact details",
+          "description": "For a business, enter the person we should talk to about orders and billing.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "firstName",
+              "title": "First name",
+              "isRequired": true,
+              "autocomplete": "given-name"
+            },
+            {
+              "type": "text",
+              "name": "lastName",
+              "title": "Last name",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "family-name"
+            },
+            {
+              "type": "text",
+              "name": "jobTitle",
+              "visibleIf": "{customerType} = 'business'",
+              "title": "Job title",
+              "autocomplete": "organization-title"
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone",
+              "requiredIf": "{preferredContactMethod} anyof ['phone', 'sms']",
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "addresses",
+      "title": "Addresses",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "billingAddress",
+          "title": "Billing address",
+          "description": "The address printed on your invoices.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "billingStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "billingAddressLine2",
+              "title": "Apartment, suite, or floor",
+              "autocomplete": "address-line2"
+            },
+            {
+              "type": "text",
+              "name": "billingCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "billingState",
+              "title": "State, province, or region",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "billingPostalCode",
+              "title": "ZIP or postal code",
+              "isRequired": true,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "billingCountry",
+              "title": "Country",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "country-name"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "shipToBillingAddress",
+          "title": "Should we deliver to your billing address?",
+          "defaultValue": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No, use another address"
+        },
+        {
+          "type": "panel",
+          "name": "shippingAddress",
+          "title": "Delivery address",
+          "visibleIf": "{shipToBillingAddress} = false",
+          "elements": [
+            {
+              "type": "text",
+              "name": "shippingRecipient",
+              "title": "Recipient or department",
+              "description": "Who should receive deliveries at this address."
+            },
+            {
+              "type": "text",
+              "name": "shippingStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "shippingAddressLine2",
+              "title": "Apartment, suite, or floor",
+              "autocomplete": "address-line2"
+            },
+            {
+              "type": "text",
+              "name": "shippingCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "shippingState",
+              "title": "State, province, or region",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "shippingPostalCode",
+              "title": "ZIP or postal code",
+              "isRequired": true,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "shippingCountry",
+              "title": "Country",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "country-name"
+            },
+            {
+              "type": "comment",
+              "name": "deliveryInstructions",
+              "title": "Delivery instructions",
+              "description": "For example: loading dock hours, gate codes, or where to leave packages.",
+              "maxLength": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "preferencesAndAgreement",
+      "title": "Preferences and Agreement",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How should we contact you about your account?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" },
+            { "value": "sms", "text": "Text message" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "invoiceDelivery",
+          "title": "How would you like to receive invoices?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "email", "text": "By email as a PDF" },
+            { "value": "post", "text": "By mail to the billing address" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "marketingTopics",
+          "title": "Which updates would you like to receive?",
+          "description": "Optional. Account and order messages are always sent. You can unsubscribe at any time.",
+          "choices": [
+            { "value": "productNews", "text": "New products and services" },
+            { "value": "offers", "text": "Offers and discounts" },
+            { "value": "events", "text": "Events and workshops" },
+            { "value": "newsletter", "text": "Monthly newsletter" }
+          ],
+          "showNoneItem": true,
+          "noneText": "None, account messages only"
+        },
+        {
+          "type": "dropdown",
+          "name": "referralSource",
+          "title": "How did you hear about us?",
+          "choices": [
+            { "value": "search", "text": "Online search" },
+            { "value": "socialMedia", "text": "Social media" },
+            { "value": "recommendation", "text": "Recommendation from someone I know" },
+            { "value": "advertising", "text": "Advertising" },
+            { "value": "tradeEvent", "text": "Trade show or event" },
+            { "value": "existingCustomer", "text": "I've bought from you before" }
+          ],
+          "showOtherItem": true
+        },
+        {
+          "type": "html",
+          "name": "agreementInfo",
+          "html": "<p>Before we open your account, please review our terms of service and privacy policy. We use your details only to manage your account, process orders and payments, and contact you in the ways you've chosen. We never sell your data, and you can ask us to update or delete it at any time.</p>"
+        },
+        {
+          "type": "checkbox",
+          "name": "agreements",
+          "title": "Terms and privacy",
+          "isRequired": true,
+          "choices": [
+            { "value": "terms", "text": "I agree to the terms of service." },
+            { "value": "privacy", "text": "I have read the privacy policy and agree to my data being processed as described." }
+          ],
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{agreements} allof ['terms', 'privacy']",
+              "text": "Please accept both to create your account."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Welcome, {firstName}!</h3><p>We've received your registration. We'll confirm your account by email at <b>{email}</b> within one business day.</p><p>If any of your details change, just let us know and we'll update your account.</p>"
+}

@@ -1,0 +1,381 @@
+{
+  "title": "Start a Project",
+  "description": "Tell us what you have in mind. We'll read your brief and get back to you with next steps or a few questions.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Send inquiry",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "projectBrief",
+      "title": "The Project",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "projectType",
+          "title": "What kind of work do you need?",
+          "description": "Select all that apply.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "brand-identity",
+              "text": "Brand identity"
+            },
+            {
+              "value": "website",
+              "text": "Website"
+            },
+            {
+              "value": "online-store",
+              "text": "Online store"
+            },
+            {
+              "value": "web-app",
+              "text": "Web application"
+            },
+            {
+              "value": "mobile-app",
+              "text": "Mobile app"
+            },
+            {
+              "value": "ux-ui-design",
+              "text": "UX or UI design"
+            },
+            {
+              "value": "content",
+              "text": "Copywriting, photo, or video"
+            },
+            {
+              "value": "marketing",
+              "text": "Digital marketing"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else"
+        },
+        {
+          "type": "radiogroup",
+          "name": "projectStage",
+          "title": "Where does the project stand today?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "idea",
+              "text": "It's an idea; nothing is planned yet"
+            },
+            {
+              "value": "planned",
+              "text": "We have a plan, requirements, or a written brief"
+            },
+            {
+              "value": "redesign",
+              "text": "We want to redo something that already exists"
+            },
+            {
+              "value": "in-progress",
+              "text": "Work has started and we need help to finish it"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "currentUrl",
+          "visibleIf": "{projectStage} anyof ['redesign', 'in-progress']",
+          "title": "Link to the current website, app, or work in progress",
+          "inputType": "url",
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^(https?://)?[^\\s/$.?#]+\\.[^\\s]+$",
+              "text": "Please enter a valid web address."
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "briefDescription",
+          "title": "Describe the project in a few sentences",
+          "description": "What you want to make, who it is for, and anything that has already been decided.",
+          "isRequired": true,
+          "rows": 6,
+          "maxLength": 4000
+        },
+        {
+          "type": "checkbox",
+          "name": "projectGoals",
+          "title": "What should the project achieve?",
+          "description": "Pick up to three.",
+          "maxSelectedChoices": 3,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "launch-new",
+              "text": "Launch a new product or business"
+            },
+            {
+              "value": "more-leads",
+              "text": "Bring in more inquiries or sign-ups"
+            },
+            {
+              "value": "more-sales",
+              "text": "Increase online sales"
+            },
+            {
+              "value": "brand-perception",
+              "text": "Change how people see the brand"
+            },
+            {
+              "value": "user-experience",
+              "text": "Make things easier for users"
+            },
+            {
+              "value": "save-time",
+              "text": "Save the team time"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "comment",
+          "name": "references",
+          "title": "Examples you like",
+          "description": "Optional. Links to work, sites, or brands that capture the look or features you want, and what you like about them.",
+          "rows": 3,
+          "maxLength": 2000
+        }
+      ]
+    },
+    {
+      "name": "budgetAndTiming",
+      "title": "Budget and Timing",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "budgetRange",
+          "title": "What budget do you have in mind?",
+          "description": "A rough range helps us suggest a scope that fits. It doesn't commit you to anything.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "under-5k",
+              "text": "Under $5,000"
+            },
+            {
+              "value": "5k-15k",
+              "text": "$5,000–$15,000"
+            },
+            {
+              "value": "15k-40k",
+              "text": "$15,000–$40,000"
+            },
+            {
+              "value": "40k-100k",
+              "text": "$40,000–$100,000"
+            },
+            {
+              "value": "over-100k",
+              "text": "Over $100,000"
+            },
+            {
+              "value": "need-advice",
+              "text": "Not sure yet, I'd like your advice"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "desiredStart",
+          "title": "When would you like to start?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "asap",
+              "text": "As soon as possible"
+            },
+            {
+              "value": "within-month",
+              "text": "Within a month"
+            },
+            {
+              "value": "1-3-months",
+              "text": "In 1–3 months"
+            },
+            {
+              "value": "later",
+              "text": "Later than 3 months from now"
+            },
+            {
+              "value": "flexible",
+              "text": "We're flexible"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "hasDeadline",
+          "title": "Is there a date the project must be ready by?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "deadlineDate",
+          "visibleIf": "{hasDeadline} = true",
+          "title": "Deadline",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "deadlineReason",
+          "visibleIf": "{hasDeadline} = true",
+          "title": "What is the deadline tied to?",
+          "description": "For example, a product launch, an event, or the end of a contract.",
+          "startWithNewLine": false,
+          "maxLength": 200
+        },
+        {
+          "type": "radiogroup",
+          "name": "ongoingSupport",
+          "title": "Will you need help after launch?",
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "yes",
+              "text": "Yes, ongoing support"
+            },
+            {
+              "value": "occasional",
+              "text": "Occasional updates"
+            },
+            {
+              "value": "no",
+              "text": "No, we'll take it from there"
+            },
+            {
+              "value": "not-sure",
+              "text": "Not sure yet"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contactDetails",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "companyName",
+          "title": "Company or organization",
+          "description": "Leave blank if this is a personal project.",
+          "autocomplete": "organization",
+          "startWithNewLine": false,
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone number (optional)",
+          "inputType": "tel",
+          "autocomplete": "tel",
+          "startWithNewLine": false,
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^\\+?[0-9 ().-]{7,20}$",
+              "text": "Please enter a valid phone number."
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "referralSource",
+          "title": "How did you find us?",
+          "choices": [
+            {
+              "value": "search",
+              "text": "Search engine"
+            },
+            {
+              "value": "social-media",
+              "text": "Social media"
+            },
+            {
+              "value": "recommendation",
+              "text": "Someone recommended you"
+            },
+            {
+              "value": "past-work",
+              "text": "I saw your work"
+            },
+            {
+              "value": "event",
+              "text": "Event or talk"
+            },
+            {
+              "value": "directory",
+              "text": "Online directory or marketplace"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "text",
+          "name": "referrerName",
+          "visibleIf": "{referralSource} = 'recommendation'",
+          "title": "Who recommended us?",
+          "description": "Optional. We'd like to thank them.",
+          "startWithNewLine": false,
+          "maxLength": 100
+        },
+        {
+          "type": "boolean",
+          "name": "ndaRequired",
+          "title": "NDA",
+          "titleLocation": "hidden",
+          "label": "I'd like a non-disclosure agreement signed before we discuss the details.",
+          "renderAs": "checkbox"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}!</h3><p>Your project inquiry is in. We'll review your brief and reply to <b>{email}</b> with next steps or a few questions.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{ndaRequired} = true",
+      "html": "<h3>Thank you, {fullName}!</h3><p>Your project inquiry is in. Before we go into the details, we'll send a non-disclosure agreement to <b>{email}</b>.</p>"
+    }
+  ]
+}

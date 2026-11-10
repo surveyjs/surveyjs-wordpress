@@ -1,0 +1,233 @@
+{
+  "title": "Appointment Booking Form",
+  "description": "Request an appointment at a time that suits you. We'll confirm your booking by email or phone.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Request Appointment",
+  "pages": [
+    {
+      "name": "appointmentDetails",
+      "title": "Appointment Details",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "serviceType",
+          "title": "What type of appointment do you need?",
+          "isRequired": true,
+          "choices": [
+            { "value": "consultation", "text": "Initial consultation" },
+            { "value": "standard", "text": "Standard appointment" },
+            { "value": "extended", "text": "Extended appointment" },
+            { "value": "followUp", "text": "Follow-up visit" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else",
+          "otherPlaceholder": "Tell us what you need"
+        },
+        {
+          "type": "radiogroup",
+          "name": "appointmentFormat",
+          "title": "How would you like to meet?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "inPerson", "text": "In person" },
+            { "value": "video", "text": "Video call" },
+            { "value": "phone", "text": "Phone call" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "preferredStaffMember",
+          "title": "Preferred staff member",
+          "description": "Leave blank if you have no preference."
+        },
+        {
+          "type": "comment",
+          "name": "appointmentPurpose",
+          "title": "What would you like to cover in this appointment?",
+          "description": "A short note helps us reserve enough time and prepare.",
+          "maxLength": 1000
+        }
+      ]
+    },
+    {
+      "name": "dateAndTime",
+      "title": "Date and Time",
+      "description": "Choose your first choice and, if you can, an alternative.",
+      "elements": [
+        {
+          "type": "text",
+          "name": "preferredDate",
+          "title": "Preferred date",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredTime",
+          "title": "Preferred time",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "earlyMorning", "text": "8:00–10:00 a.m." },
+            { "value": "lateMorning", "text": "10:00 a.m.–12:00 p.m." },
+            { "value": "earlyAfternoon", "text": "12:00–2:00 p.m." },
+            { "value": "lateAfternoon", "text": "2:00–4:00 p.m." },
+            { "value": "evening", "text": "4:00–6:00 p.m." }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "alternativeDate",
+          "title": "Alternative date",
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "alternativeTime",
+          "visibleIf": "{alternativeDate} notempty",
+          "title": "Alternative time",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "earlyMorning", "text": "8:00–10:00 a.m." },
+            { "value": "lateMorning", "text": "10:00 a.m.–12:00 p.m." },
+            { "value": "earlyAfternoon", "text": "12:00–2:00 p.m." },
+            { "value": "lateAfternoon", "text": "2:00–4:00 p.m." },
+            { "value": "evening", "text": "4:00–6:00 p.m." }
+          ],
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{alternativeDate} <> {preferredDate} or {alternativeTime} <> {preferredTime}",
+              "text": "Your alternative should differ from your first choice in date or time."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "acceptEarliestSlot",
+          "title": "If none of these times are available, may we offer you the earliest open slot?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    },
+    {
+      "name": "contactAndReminders",
+      "title": "Contact and Reminders",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "clientStatus",
+          "title": "Have you visited us before?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "new", "text": "No, I'm a new client" },
+            { "value": "returning", "text": "Yes, I'm a returning client" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "referralSource",
+          "visibleIf": "{clientStatus} = 'new'",
+          "title": "How did you hear about us?",
+          "choices": [
+            { "value": "onlineSearch", "text": "Online search" },
+            { "value": "socialMedia", "text": "Social media" },
+            { "value": "friendOrFamily", "text": "Friend or family" },
+            { "value": "professionalReferral", "text": "Referral from a professional" },
+            { "value": "passedBy", "text": "Walked or drove by" }
+          ],
+          "showOtherItem": true
+        },
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "checkbox",
+          "name": "reminderChannels",
+          "title": "How should we remind you about your appointment?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "sms", "text": "Text message" }
+          ],
+          "showNoneItem": true,
+          "noneText": "No reminders, please"
+        },
+        {
+          "type": "radiogroup",
+          "name": "reminderTiming",
+          "visibleIf": "{reminderChannels} notempty and {reminderChannels} notcontains 'none'",
+          "title": "When should we send the reminder?",
+          "isRequired": true,
+          "choices": [
+            { "value": "oneDayBefore", "text": "One day before" },
+            { "value": "twoDaysBefore", "text": "Two days before" },
+            { "value": "weekAndDayBefore", "text": "One week before and again one day before" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "smsConsent",
+          "visibleIf": "{reminderChannels} contains 'sms'",
+          "title": "I agree to receive appointment reminders by text message at the phone number above",
+          "description": "Message and data rates may apply. You can opt out at any time.",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{smsConsent} = true",
+              "text": "Please agree to text reminders, or choose a different reminder option."
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "specialRequests",
+          "title": "Accessibility needs or other requests",
+          "description": "Let us know about anything that would make your visit more comfortable."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}!</h3><p>We've received your appointment request. This is not yet a confirmed booking: we'll contact you at <b>{email}</b> within one business day to confirm the date and time.</p><p>If your plans change, please let us know at least 24 hours in advance so we can offer the time to someone else.</p>"
+}

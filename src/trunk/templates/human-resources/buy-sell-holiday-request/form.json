@@ -1,0 +1,488 @@
+{
+  "title": "Buying and Selling of Annual Leave Application Form",
+  "pages": [
+    {
+      "name": "sectionOne",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "employeeDetails",
+          "elements": [
+            {
+              "type": "text",
+              "name": "employeeSurname",
+              "title": "Surname"
+            },
+            {
+              "type": "text",
+              "name": "employeeFirstName",
+              "startWithNewLine": false,
+              "title": "First Name"
+            },
+            {
+              "type": "text",
+              "name": "employeeJobTitle",
+              "title": "Job title"
+            },
+            {
+              "type": "text",
+              "name": "employeeBand",
+              "startWithNewLine": false,
+              "title": "Band"
+            },
+            {
+              "type": "text",
+              "name": "employeeEmailAddress",
+              "title": "E-mail",
+              "inputType": "email"
+            },
+            {
+              "type": "text",
+              "name": "employeePhoneNumber",
+              "startWithNewLine": false,
+              "title": "Phone number",
+              "maskType": "pattern",
+              "maskSettings": {
+                "pattern": "+1(999)-999-99-99"
+              }
+            },
+            {
+              "type": "text",
+              "name": "employeeWorkAddress",
+              "title": "Work address"
+            }
+          ],
+          "questionTitleWidth": "130px",
+          "questionTitleLocation": "left"
+        },
+        {
+          "type": "panel",
+          "name": "employeeManagerDetails",
+          "elements": [
+            {
+              "type": "text",
+              "name": "directorate",
+              "title": "Directorate"
+            },
+            {
+              "type": "text",
+              "name": "lineManager",
+              "startWithNewLine": false,
+              "title": "Line manager"
+            },
+            {
+              "type": "text",
+              "name": "base",
+              "title": "Base"
+            },
+            {
+              "type": "text",
+              "name": "wardDepartment",
+              "startWithNewLine": false,
+              "title": "Ward/Department"
+            },
+            {
+              "type": "text",
+              "name": "assignmentNumber",
+              "title": "Assignment Number",
+              "description": "(8 digit number and can be found on your pay slip)",
+              "descriptionLocation": "underInput",
+              "maskType": "pattern",
+              "maskSettings": {
+                "pattern": "99999999-9"
+              }
+            },
+            {
+              "type": "text",
+              "name": "contractedHours",
+              "title": "Contracted hours of Employment",
+              "inputType": "number"
+            },
+            {
+              "type": "text",
+              "name": "continuousServiceDate",
+              "startWithNewLine": false,
+              "title": "Continuous Service date",
+              "inputType": "date"
+            },
+            {
+              "type": "checkbox",
+              "name": "contractType",
+              "title": "Type of contract",
+              "description": "(please tick all that apply)",
+              "descriptionLocation": "underInput",
+              "choices": [
+                {
+                  "value": "permanent",
+                  "text": "Permanent"
+                },
+                {
+                  "value": "fixedTerm",
+                  "text": "Fixed-Term"
+                },
+                {
+                  "value": "allYearRound",
+                  "text": "All year round"
+                },
+                {
+                  "value": "termTimeOnly",
+                  "text": "Term-time only"
+                },
+                {
+                  "value": "annualized",
+                  "text": "Annualized"
+                }
+              ],
+              "colCount": 5
+            }
+          ],
+          "questionTitleWidth": "140px",
+          "questionTitleLocation": "left"
+        },
+        {
+          "type": "panel",
+          "name": "buyingPanel",
+          "elements": [
+            {
+              "type": "html",
+              "name": "wouldLikeToBuy",
+              "html": "<p style=\"line-height: 36px;\">\nI would like to request to <b>buy</b>\n</p>"
+            },
+            {
+              "type": "text",
+              "name": "buyHours",
+              "startWithNewLine": false,
+              "titleLocation": "hidden",
+              "resetValueIf": "{sellHours} notempty",
+              "title": "Hours to buy"
+            },
+            {
+              "type": "html",
+              "name": "hoursAnnualLeave",
+              "startWithNewLine": false,
+              "html": "<p style=\"line-height: 36px;\">\nhours annual leave.\n</p>"
+            },
+            {
+              "type": "html",
+              "name": "buyDetails",
+              "html": "<p style=\"text-align: justify;\">On approval of request to buy annual leave, I authorize a variation in my contract of employment in\nthat there will be a reduction in my gross annual salary in return for a non-cash benefit of additional\nannual leave and that the deduction will be made over a 12 month period from January 2024 to January 2025.</p>\n"
+            }
+          ],
+          "title": "Buying Leave"
+        },
+        {
+          "type": "panel",
+          "name": "sellingPanel",
+          "elements": [
+            {
+              "type": "html",
+              "name": "wouldLikeToSell",
+              "html": "<p style=\"line-height: 36px;\">\nI would like to request to <b>sell</b>\n</p>"
+            },
+            {
+              "type": "text",
+              "name": "sellHours",
+              "startWithNewLine": false,
+              "titleLocation": "hidden",
+              "resetValueIf": "{buyHours} notempty",
+              "title": "Hours to sell"
+            },
+            {
+              "type": "html",
+              "name": "sellHoursAnnualLeave",
+              "startWithNewLine": false,
+              "html": "<p style=\"line-height: 36px;\">\nhours of my annual leave entitlement.\n</p>"
+            },
+            {
+              "type": "html",
+              "name": "sellDetails",
+              "html": "<p style=\"text-align: justify;\">On approval I will forgo this amount of leave from my annual leave entitlement and that the Trust will make payment in consideration of the loss of leave. This payment will be made in a lump sum in January 2024.</p>\n"
+            }
+          ],
+          "title": "Selling Leave"
+        },
+        {
+          "type": "checkbox",
+          "name": "declineLesserProportion",
+          "title": "Decline a lesser proportion",
+          "titleLocation": "hidden",
+          "choices": [
+            {
+              "value": "declineLesserProportion",
+              "text": "It may not be possible for the full amount requested to be authorized; however, a proportion may be authorized (e.g., 37.5 hours requested, 18.75 hours approved). Please tick this box if you would not wish to accept a lesser proportion of your request. The request would then be declined."
+            }
+          ],
+          "colCount": 0
+        },
+        {
+          "type": "panel",
+          "name": "reasonToBuySell",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "buyReason",
+              "title": "Buy",
+              "enableIf": "{buyHours} notempty",
+              "resetValueIf": "{buyHours} empty",
+              "choices": [
+                "More time to spend with family",
+                "Travel",
+                "Home improvements"
+              ],
+              "showOtherItem": true,
+              "otherText": "Other (specify)"
+            },
+            {
+              "type": "radiogroup",
+              "name": "sellReason",
+              "startWithNewLine": false,
+              "title": "Sell",
+              "enableIf": "{sellHours} notempty",
+              "resetValueIf": "{sellHours} empty",
+              "choices": [
+                "Do not require full leave entitlement",
+                "Would prefer to have extra money"
+              ],
+              "showOtherItem": true,
+              "otherText": "Other (specify)"
+            }
+          ],
+          "title": "Please indicate why you are making an application to either buy or sell annual leave.",
+          "description": "(please choose only one option, the one that best describes your reason for applying)"
+        }
+      ],
+      "title": "Section 1: For completion by the employee: All information to be completed."
+    },
+    {
+      "name": "salarySacrifice",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "importantInformation",
+          "elements": [
+            {
+              "type": "html",
+              "name": "salarySacrificeDetails",
+              "html": "<p style=\"text-align: justify;\">The new national pension scheme is now based on career average earnings, rather than final salary. Your participation in a salary sacrifice scheme may affect your pension, as salary sacrifice reduces the basic salary that your pension is based on.</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">The Trust and its officers do not give pension advice. You are strongly advised to consider the impact of the reduced salary due to salary sacrifice and seek independent financial advice if you are unsure about the potential impact. </p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">Further information can be obtained from the National pension system website.</p>"
+            },
+            {
+              "type": "checkbox",
+              "name": "salarySacrificeCheckbox",
+              "title": "Please tick the box as applicable:",
+              "choices": [
+                {
+                  "value": "advice",
+                  "text": "I have taken independent advice regarding the impact of the salary sacrifice on my pension."
+                },
+                {
+                  "value": "no-advice",
+                  "text": "I have chosen not to take independent advice regarding the impact of the salary sacrifice on my pension."
+                },
+                {
+                  "value": "no-pension-scheme",
+                  "text": "I am not in the pension scheme."
+                },
+                {
+                  "value": "not-applicable",
+                  "text": "Not applicable: I am selling annual leave.",
+                  "visibleIf": "{sellHours} notempty"
+                }
+              ]
+            }
+          ],
+          "title": "Salary Sacrifice - Important information"
+        },
+        {
+          "type": "panel",
+          "name": "employeeSignature",
+          "elements": [
+            {
+              "type": "html",
+              "name": "employeeStatementConsent",
+              "html": "<p style=\"text-align: justify;\">I have read and understood the information above and in the salary sacrifice guidance.</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">I understand that the Trust cannot provide financial advice, and that I should get independent\nfinancial advice if I am unsure about how salary sacrifice may affect me financially.</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\"><b>I confirm that I have read and understood the ‘Salary Sacrifice Guidance’\ndocument and authorize any changes to my salary as per choice and approval.</b></p>"
+            },
+            {
+              "type": "signaturepad",
+              "name": "employeeSign",
+              "title": "Signature",
+              "signatureHeight": 150
+            },
+            {
+              "type": "text",
+              "name": "employeePrintedName",
+              "startWithNewLine": false,
+              "title": "Print Name"
+            },
+            {
+              "type": "text",
+              "name": "employeeDate",
+              "startWithNewLine": false,
+              "title": "Date",
+              "defaultValueExpression": "today()",
+              "inputType": "date"
+            },
+            {
+              "type": "html",
+              "name": "forwardComment",
+              "html": "<em>Please forward this form to your Line Manager by 15 January for completion\nof Section 3.</em>"
+            }
+          ],
+          "title": "Please read and sign below"
+        }
+      ],
+      "title": "Section 2: To be completed by employee"
+    },
+    {
+      "name": "lineManagerPage",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "previousAnnualLeave",
+          "title": "Has the employee already carried over annual leave from the previous year?"
+        },
+        {
+          "type": "multipletext",
+          "name": "carriedOverDaysHours",
+          "title": "Please detail how many hours/days were carried over.",
+          "enableIf": "{previousAnnualLeave} = true",
+          "items": [
+            {
+              "name": "days",
+              "inputType": "number",
+              "title": "Days"
+            },
+            {
+              "name": "hours",
+              "inputType": "number",
+              "title": "Hours"
+            }
+          ],
+          "colCount": 2,
+          "itemTitleWidth": "40",
+          "requiredIf": "{previousAnnualLeave} = true"
+        },
+        {
+          "type": "boolean",
+          "name": "sicknessAbsence",
+          "title": "Does the employee’s sickness absence rate exceed the Trust’s trigger points?"
+        },
+        {
+          "type": "comment",
+          "name": "supportApplicationComment",
+          "visibleIf": "{previousAnnualLeave} = true and {sicknessAbsence} = true",
+          "title": "If you do still support the employee’s application, please provide brief details here regarding your decision:"
+        },
+        {
+          "type": "panel",
+          "name": "lineManagerDecision",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "decisionOne",
+              "titleLocation": "hidden",
+              "choices": [
+                {
+                  "value": "support",
+                  "text": "I support this application (pending living wage checks being undertaken)"
+                }
+              ],
+              "title": "Support the application"
+            },
+            {
+              "type": "checkbox",
+              "name": "decisionTwo",
+              "titleLocation": "hidden",
+              "choices": [
+                {
+                  "value": "doNotSupport",
+                  "text": "I do not support this application"
+                }
+              ],
+              "title": "Do not support the application"
+            },
+            {
+              "type": "html",
+              "name": "decisionThree",
+              "html": "<p style=\"margin-left: 2em; text-align: justify; line-height: 36px;\">\nI cannot support the employee’s full request; however I can accommodate a proportion of this request. I would therefore support the application to</p>"
+            },
+            {
+              "type": "boolean",
+              "name": "partialApprovalType",
+              "minWidth": "100px",
+              "maxWidth": "25%",
+              "indent": 1,
+              "titleLocation": "hidden",
+              "labelTrue": "Sell",
+              "labelFalse": "Buy",
+              "title": "Sell or buy"
+            },
+            {
+              "type": "html",
+              "name": "totalOf",
+              "minWidth": "100px",
+              "maxWidth": "25%",
+              "startWithNewLine": false,
+              "html": "<p style=\"line-height: 36px;\">\na total of\n</p>"
+            },
+            {
+              "type": "text",
+              "name": "hoursConfirmed",
+              "minWidth": "100px",
+              "maxWidth": "25%",
+              "startWithNewLine": false,
+              "titleLocation": "hidden",
+              "inputType": "number",
+              "title": "Hours"
+            },
+            {
+              "type": "html",
+              "name": "hoursLabel",
+              "minWidth": "100px",
+              "maxWidth": "25%",
+              "startWithNewLine": false,
+              "html": "<p style=\"line-height: 36px;\">\n <b>hours</b>.\n</p>"
+            }
+          ],
+          "title": "Please tick the appropriate option:"
+        },
+        {
+          "type": "comment",
+          "name": "decisionRationale",
+          "title": "Rationale for decision:",
+          "maxLength": 400,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "signaturepad",
+          "name": "lineManagerSignature",
+          "title": "Signature",
+          "signatureHeight": 150,
+          "penColor": "#2c2b2b"
+        },
+        {
+          "type": "text",
+          "name": "lineManagerPrintedName",
+          "startWithNewLine": false,
+          "title": "Print Name"
+        },
+        {
+          "type": "text",
+          "name": "lineManagerDate",
+          "startWithNewLine": false,
+          "title": "Date",
+          "defaultValueExpression": "today()",
+          "inputType": "date"
+        },
+        {
+          "type": "html",
+          "name": "lineManagerComment",
+          "html": "<b>At this point managers <u>must not</u> communicate any decision to employee.</b>"
+        }
+      ],
+      "title": "Section 3: To be completed by Line Manager"
+    }
+  ],
+  "widthMode": "static",
+  "width": "60%"
+}

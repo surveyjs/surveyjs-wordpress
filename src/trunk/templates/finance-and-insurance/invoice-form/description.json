@@ -1,0 +1,10 @@
+{
+  "title": "Invoice Form",
+  "description": "An invoice builder for freelancers and small businesses: enter seller and client details, payment terms, and line items, and the form calculates the subtotal, discount, tax, invoice total, and balance due. The due date is set from the payment terms.",
+  "tags": [
+    "calculator",
+    "finance",
+    "payment",
+    "invoice"
+  ]
+}

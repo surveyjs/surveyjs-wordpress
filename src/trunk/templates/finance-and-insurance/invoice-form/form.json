@@ -1,0 +1,337 @@
+{
+  "title": "Invoice",
+  "description": "Fill in the seller, client, and line items to prepare an invoice. Totals, tax, and the balance due update as you type. All amounts are in US dollars.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Issue Invoice",
+  "pages": [
+    {
+      "name": "sellerAndClient",
+      "title": "Seller and Client",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "seller",
+          "title": "From",
+          "description": "Your business details as they should appear on the invoice.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "sellerName",
+              "title": "Business name",
+              "isRequired": true,
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "sellerTaxNumber",
+              "title": "Tax or VAT registration number",
+              "startWithNewLine": false
+            },
+            {
+              "type": "comment",
+              "name": "sellerAddress",
+              "title": "Business address",
+              "isRequired": true,
+              "rows": 3
+            },
+            {
+              "type": "text",
+              "name": "sellerEmail",
+              "title": "Email",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "sellerPhone",
+              "title": "Phone",
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "client",
+          "title": "Bill to",
+          "elements": [
+            {
+              "type": "text",
+              "name": "clientName",
+              "title": "Client or company name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "clientContact",
+              "title": "Attention of",
+              "description": "The person or department responsible for payment.",
+              "startWithNewLine": false
+            },
+            {
+              "type": "comment",
+              "name": "clientAddress",
+              "title": "Billing address",
+              "isRequired": true,
+              "rows": 3
+            },
+            {
+              "type": "text",
+              "name": "clientEmail",
+              "title": "Email",
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "clientTaxNumber",
+              "title": "Client's tax or VAT registration number",
+              "startWithNewLine": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoiceDetails",
+      "title": "Invoice Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "invoiceNumber",
+          "title": "Invoice number",
+          "description": "Use a unique number, ideally following on from your previous invoice.",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "purchaseOrderNumber",
+          "title": "Client's purchase order number",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "issueDate",
+          "title": "Issue date",
+          "isRequired": true,
+          "inputType": "date",
+          "defaultValueExpression": "today()"
+        },
+        {
+          "type": "dropdown",
+          "name": "paymentTerms",
+          "title": "Payment terms",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "dueOnReceipt", "text": "Due on receipt" },
+            { "value": "net7", "text": "Net 7 days" },
+            { "value": "net15", "text": "Net 15 days" },
+            { "value": "net30", "text": "Net 30 days" },
+            { "value": "net60", "text": "Net 60 days" },
+            { "value": "customDate", "text": "Custom due date" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "dueDate",
+          "visibleIf": "{paymentTerms} notempty",
+          "enableIf": "{paymentTerms} = 'customDate'",
+          "title": "Due date",
+          "description": "Calculated from the payment terms. Choose \"Custom due date\" to set it yourself.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "minValueExpression": "{issueDate}",
+          "setValueIf": "{paymentTerms} notempty and {paymentTerms} <> 'customDate' and {issueDate} notempty",
+          "setValueExpression": "iif({paymentTerms} = 'dueOnReceipt', {issueDate}, dateAdd({issueDate}, iif({paymentTerms} = 'net7', 7, iif({paymentTerms} = 'net15', 15, iif({paymentTerms} = 'net30', 30, 60))), 'days'))"
+        }
+      ]
+    },
+    {
+      "name": "itemsAndTotals",
+      "title": "Items and Totals",
+      "elements": [
+        {
+          "type": "matrixdynamic",
+          "name": "lineItems",
+          "title": "Line items",
+          "description": "List each product or service on its own row.",
+          "isRequired": true,
+          "columns": [
+            {
+              "name": "itemDescription",
+              "title": "Description",
+              "cellType": "text",
+              "isRequired": true,
+              "width": "45%"
+            },
+            {
+              "name": "quantity",
+              "title": "Quantity",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "defaultValue": 1,
+              "min": 0,
+              "step": 1
+            },
+            {
+              "name": "unitPrice",
+              "title": "Unit price ($)",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "min": 0
+            },
+            {
+              "name": "lineTotal",
+              "title": "Amount",
+              "cellType": "expression",
+              "expression": "iif({row.quantity} > 0 and {row.unitPrice} > 0, round({row.quantity} * {row.unitPrice}, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "totalCurrency": "USD"
+            }
+          ],
+          "rowCount": 1,
+          "minRowCount": 1,
+          "addRowText": "Add line item",
+          "removeRowText": "Remove"
+        },
+        {
+          "type": "radiogroup",
+          "name": "discountType",
+          "title": "Discount",
+          "colCount": 3,
+          "defaultValue": "none",
+          "choices": [
+            { "value": "none", "text": "No discount" },
+            { "value": "percentage", "text": "Percentage" },
+            { "value": "fixedAmount", "text": "Fixed amount" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "discountPercent",
+          "visibleIf": "{discountType} = 'percentage'",
+          "title": "Discount (%)",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0,
+          "max": 100
+        },
+        {
+          "type": "text",
+          "name": "discountAmount",
+          "visibleIf": "{discountType} = 'fixedAmount'",
+          "title": "Discount amount ($)",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{discountAmount} <= {subtotal}",
+              "text": "The discount can't be larger than the subtotal."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "taxRate",
+          "title": "Tax rate (%)",
+          "description": "Enter 0 if no sales tax or VAT applies.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0,
+          "max": 100,
+          "step": 0.01
+        },
+        {
+          "type": "text",
+          "name": "amountPaid",
+          "title": "Amount already paid ($)",
+          "description": "Any deposit or partial payment received for this invoice.",
+          "startWithNewLine": false,
+          "inputType": "number",
+          "min": 0
+        },
+        {
+          "type": "panel",
+          "name": "invoiceTotals",
+          "title": "Totals",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "subtotal",
+              "title": "Subtotal",
+              "expression": "{lineItems-total.lineTotal}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "discountTotal",
+              "title": "Discount",
+              "startWithNewLine": false,
+              "expression": "iif({discountType} = 'percentage' and {discountPercent} > 0, round({subtotal} * {discountPercent} / 100, 2), iif({discountType} = 'fixedAmount' and {discountAmount} > 0, min({discountAmount}, {subtotal}), 0))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "taxAmount",
+              "title": "Tax",
+              "startWithNewLine": false,
+              "expression": "iif({taxRate} > 0, round(({subtotal} - {discountTotal}) * {taxRate} / 100, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "invoiceTotal",
+              "title": "Invoice total",
+              "expression": "{subtotal} - {discountTotal} + {taxAmount}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "balanceDue",
+              "title": "Balance due",
+              "startWithNewLine": false,
+              "expression": "{invoiceTotal} - iif({amountPaid} > 0, {amountPaid}, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "paymentInstructions",
+          "title": "How to pay",
+          "description": "For example: bank account details, accepted payment methods, or a reference to include with the payment."
+        },
+        {
+          "type": "comment",
+          "name": "invoiceNotes",
+          "title": "Notes for the client",
+          "description": "Optional. For example: late payment terms or a thank-you message.",
+          "maxLength": 500
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Invoice {invoiceNumber} is ready</h3><p>The invoice to <b>{clientName}</b> totals <b>{invoiceTotal}</b>, with <b>{balanceDue}</b> due by {dueDate}.</p>"
+}

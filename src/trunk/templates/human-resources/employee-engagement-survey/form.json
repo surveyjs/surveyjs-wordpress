@@ -1,0 +1,303 @@
+{
+  "title": "Employee Engagement Survey",
+  "description": "Anonymous, about 10 minutes. Think about the last three months of your work when you answer.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "dayToDayWork",
+      "title": "Day-to-Day Work",
+      "elements": [
+        {
+          "type": "html",
+          "name": "anonymityNotice",
+          "html": "<p><strong>Your responses are anonymous.</strong> We do not collect your name or email address. Results are reported only for groups large enough that no individual can be identified, and written comments are shared without any details that point to their author.</p>"
+        },
+        {
+          "type": "matrix",
+          "name": "typicalWeek",
+          "title": "How often is each of these true in a typical week?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Never" },
+            { "value": 2, "text": "Rarely" },
+            { "value": 3, "text": "Sometimes" },
+            { "value": 4, "text": "Often" },
+            { "value": 5, "text": "Almost always" }
+          ],
+          "rows": [
+            { "value": "competingRequests", "text": "When two requests compete for my time, it's clear which one comes first." },
+            { "value": "noWaiting", "text": "I can finish a task without waiting days for an approval or an answer." },
+            { "value": "focusBlocks", "text": "I get a few uninterrupted hours to concentrate on my own tasks." },
+            { "value": "ownMethod", "text": "I choose how to approach an assignment without needing sign-off on every step." },
+            { "value": "meetingOutcomes", "text": "The meetings I attend end with a decision or an agreed next step." }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "meetingShare",
+          "title": "Roughly what share of your working week goes to meetings and calls?",
+          "choices": [
+            { "value": "underTenPercent", "text": "Less than 10%" },
+            { "value": "tenToTwentyFivePercent", "text": "10% to 25%" },
+            { "value": "twentyFiveToFiftyPercent", "text": "25% to 50%" },
+            { "value": "overFiftyPercent", "text": "More than half" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "meetingShareFeeling",
+          "title": "How do you feel about that amount?",
+          "colCount": 3,
+          "choices": [
+            { "value": "tooMuch", "text": "Too much" },
+            { "value": "aboutRight", "text": "About right" },
+            { "value": "tooLittle", "text": "Too little" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "teamworkAndDecisions",
+      "title": "Teamwork and Decisions",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "teamPractices",
+          "title": "To what extent does each statement describe your team?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Not at all" },
+            { "value": 2, "text": "A little" },
+            { "value": 3, "text": "Somewhat" },
+            { "value": 4, "text": "Largely" },
+            { "value": 5, "text": "Completely" }
+          ],
+          "rows": [
+            { "value": "mistakesShared", "text": "People bring up their own mistakes in meetings so others can learn from them." },
+            { "value": "juniorsQuestion", "text": "Newer or junior colleagues openly question proposals from senior people." },
+            { "value": "otherDepartmentsRespond", "text": "Requests we send to other departments get a response within a reasonable time." },
+            { "value": "reasonsShared", "text": "We hear the reasons behind decisions that change our work, not just the outcome." },
+            { "value": "decisionsWithoutDelay", "text": "Decisions that affect us are made without long delays." },
+            { "value": "ideasAdopted", "text": "Ideas from people at every level have changed how things are done here." }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "crossTeamFriction",
+          "title": "What slows down work between teams? Select all that apply.",
+          "colCount": 2,
+          "choices": [
+            { "value": "unclearOwnership", "text": "Nobody is sure who owns a task" },
+            { "value": "conflictingGoals", "text": "Departments pull in different directions" },
+            { "value": "slowApprovals", "text": "Approvals take too long" },
+            { "value": "scatteredInformation", "text": "Information is spread across too many tools" },
+            { "value": "tooManyPeople", "text": "Too many people are involved in each decision" },
+            { "value": "scheduleGaps", "text": "Different time zones or working hours" }
+          ],
+          "showNoneItem": true,
+          "noneText": "Nothing significant",
+          "showOtherItem": true,
+          "otherText": "Something else"
+        }
+      ]
+    },
+    {
+      "name": "checkIns",
+      "title": "Check-Ins with Your Manager",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "recentCheckIns",
+          "title": "Think about your last few one-on-ones or check-ins with your manager. Which of these happened?",
+          "choices": [
+            { "value": "beyondStatus", "text": "We talked about more than status updates" },
+            { "value": "askedAboutBlockers", "text": "My manager asked what was getting in my way" },
+            { "value": "concreteSuggestion", "text": "I got a concrete suggestion about a specific piece of my work" },
+            { "value": "agreedToDrop", "text": "We agreed on something I could drop or postpone" },
+            { "value": "followedUp", "text": "A concern I raised earlier was followed up" }
+          ],
+          "showNoneItem": true,
+          "noneText": "None of these"
+        },
+        {
+          "type": "boolean",
+          "name": "hasRegularCheckIns",
+          "title": "Do you have a recurring one-on-one with your manager?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "rating",
+          "name": "badNewsEase",
+          "title": "How easy is it to bring bad news or a problem to your manager?",
+          "rateCount": 5,
+          "minRateDescription": "Very hard",
+          "maxRateDescription": "Very easy"
+        }
+      ]
+    },
+    {
+      "name": "onboardingAndCareer",
+      "title": "Onboarding and Career",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "rampUpTime",
+          "title": "When you joined, how long did it take before you could handle routine tasks without asking for help?",
+          "choices": [
+            { "value": "underOneMonth", "text": "Under a month" },
+            { "value": "oneToThreeMonths", "text": "One to three months" },
+            { "value": "threeToSixMonths", "text": "Three to six months" },
+            { "value": "overSixMonths", "text": "Longer than six months" },
+            { "value": "stillLearning", "text": "I'm not there yet" },
+            { "value": "cannotRecall", "text": "I joined too long ago to say" }
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "careerMobility",
+          "title": "How true is each statement for you?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Not true" },
+            { "value": 2, "text": "Partly true" },
+            { "value": 3, "text": "Mostly true" },
+            { "value": 4, "text": "Completely true" }
+          ],
+          "rows": [
+            { "value": "internalMoves", "text": "People can switch to another team or role here without leaving the company first." },
+            { "value": "newAssignment", "text": "In the past year I was given at least one assignment I had never done before." },
+            { "value": "promotionCriteriaClear", "text": "I could explain to a new colleague what it takes to be promoted here." },
+            { "value": "payDecisionsClear", "text": "I understand how my pay is decided." }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "energyAndTimeOff",
+      "title": "Energy and Time Off",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "energyAfterWork",
+          "title": "At the end of a typical workday, how much energy do you have left for life outside work?",
+          "rateCount": 5,
+          "minRateDescription": "Almost none",
+          "maxRateDescription": "Plenty"
+        },
+        {
+          "type": "radiogroup",
+          "name": "afterHoursMessages",
+          "title": "How often do you handle work messages in the evening, on weekends, or while on leave?",
+          "choices": [
+            { "value": "never", "text": "Never" },
+            { "value": "fewTimesAMonth", "text": "A few times a month" },
+            { "value": "weekly", "text": "About once a week" },
+            { "value": "mostDays", "text": "Most days" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "leaveTaken",
+          "title": "In the last 12 months, did you take all the leave you had planned?",
+          "choices": [
+            { "value": "yes", "text": "Yes" },
+            { "value": "noWorkload", "text": "No, because there was too much to do" },
+            { "value": "noOtherReason", "text": "No, for other reasons" },
+            { "value": "notApplicable", "text": "Not applicable" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lookingAhead",
+      "title": "Looking Ahead",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "adviceToFriend",
+          "title": "A friend with your skills asks whether they should apply here. What would you tell them?",
+          "choices": [
+            { "value": "applyGladly", "text": "Go for it, without hesitation" },
+            { "value": "applyWithCaveats", "text": "Apply, but here are the downsides" },
+            { "value": "thinkTwice", "text": "Think it over carefully" },
+            { "value": "lookElsewhere", "text": "Look somewhere else" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "externalJobSearch",
+          "title": "Have you looked at job openings at other organizations in the last three months?",
+          "choices": [
+            { "value": "no", "text": "No" },
+            { "value": "browsed", "text": "I browsed a few" },
+            { "value": "appliedOrInterviewed", "text": "Yes, I applied or interviewed" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "worthProtecting",
+          "title": "What about working here should stay the same as the organization changes?",
+          "rows": 3
+        },
+        {
+          "type": "comment",
+          "name": "fixByNextQuarter",
+          "title": "If you could fix one thing by next quarter, what would it be?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "description": "These questions are optional. They let us compare results between groups without identifying anyone.",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "department",
+          "title": "Which area do you work in?",
+          "choices": [
+            { "value": "operations", "text": "Operations" },
+            { "value": "salesMarketing", "text": "Sales and marketing" },
+            { "value": "customerService", "text": "Customer service" },
+            { "value": "productEngineering", "text": "Product and engineering" },
+            { "value": "finance", "text": "Finance" },
+            { "value": "peopleHr", "text": "People and HR" },
+            { "value": "administration", "text": "Administration" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "tenure",
+          "title": "How long have you worked here?",
+          "choices": [
+            { "value": "underOneYear", "text": "Less than 1 year" },
+            { "value": "oneToThreeYears", "text": "1 to 3 years" },
+            { "value": "threeToFiveYears", "text": "3 to 5 years" },
+            { "value": "overFiveYears", "text": "More than 5 years" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "managesOthers",
+          "title": "Do you manage other people?",
+          "choices": [
+            { "value": "yes", "text": "Yes" },
+            { "value": "no", "text": "No" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ],
+          "colCount": 3
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "completedHtml": "<h3>Thank you for sharing your views!</h3><p>Your anonymous responses have been recorded. Once the survey closes, we will publish the combined results and the steps we plan to take.</p>"
+}

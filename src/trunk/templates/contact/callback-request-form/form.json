@@ -1,0 +1,203 @@
+{
+  "title": "Request a Callback",
+  "description": "Leave your number and tell us when it suits you. We'll call you back.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Request callback",
+  "widthMode": "static",
+  "width": "600px",
+  "pages": [
+    {
+      "name": "callback",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone number",
+          "description": "Include the country code if you are outside the country.",
+          "isRequired": true,
+          "inputType": "tel",
+          "autocomplete": "tel",
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^\\+?[0-9 ().-]{7,20}$",
+              "text": "Please enter a valid phone number."
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "callReason",
+          "title": "What would you like to talk about?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "new-inquiry",
+              "text": "A new inquiry or quote"
+            },
+            {
+              "value": "existing-order",
+              "text": "An existing order or booking"
+            },
+            {
+              "value": "help",
+              "text": "Help with a product or service"
+            },
+            {
+              "value": "billing",
+              "text": "Billing or payments"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else"
+        },
+        {
+          "type": "text",
+          "name": "referenceNumber",
+          "visibleIf": "{callReason} anyof ['existing-order', 'billing']",
+          "title": "Order, booking, or account number",
+          "description": "Optional, but it lets us prepare before we call."
+        },
+        {
+          "type": "radiogroup",
+          "name": "callTiming",
+          "title": "When should we call?",
+          "isRequired": true,
+          "defaultValue": "asap",
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "asap",
+              "text": "As soon as possible"
+            },
+            {
+              "value": "scheduled",
+              "text": "At a time that suits me"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "preferredDays",
+          "visibleIf": "{callTiming} = 'scheduled'",
+          "title": "Best days",
+          "isRequired": true,
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "monday",
+              "text": "Mon"
+            },
+            {
+              "value": "tuesday",
+              "text": "Tue"
+            },
+            {
+              "value": "wednesday",
+              "text": "Wed"
+            },
+            {
+              "value": "thursday",
+              "text": "Thu"
+            },
+            {
+              "value": "friday",
+              "text": "Fri"
+            },
+            {
+              "value": "saturday",
+              "text": "Sat"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "preferredTimeWindows",
+          "visibleIf": "{callTiming} = 'scheduled'",
+          "title": "Best time of day",
+          "isRequired": true,
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "morning",
+              "text": "Morning (9 a.m.–12 p.m.)"
+            },
+            {
+              "value": "afternoon",
+              "text": "Afternoon (12–5 p.m.)"
+            },
+            {
+              "value": "evening",
+              "text": "Evening (5–7 p.m.)"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "timeZone",
+          "visibleIf": "{callTiming} = 'scheduled'",
+          "title": "Your time zone",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "eastern",
+              "text": "Eastern Time"
+            },
+            {
+              "value": "central",
+              "text": "Central Time"
+            },
+            {
+              "value": "mountain",
+              "text": "Mountain Time"
+            },
+            {
+              "value": "pacific",
+              "text": "Pacific Time"
+            },
+            {
+              "value": "alaska",
+              "text": "Alaska Time"
+            },
+            {
+              "value": "hawaii",
+              "text": "Hawaii-Aleutian Time"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other (please specify)"
+        },
+        {
+          "type": "comment",
+          "name": "callNotes",
+          "title": "Anything we should know before we call?",
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "boolean",
+          "name": "voicemailAllowed",
+          "title": "If we miss you, may we leave a voicemail?",
+          "defaultValue": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {fullName}!</h3><p>Your callback request is in. We'll call <b>{phone}</b> as soon as someone is available.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{callTiming} = 'scheduled'",
+      "html": "<h3>Thanks, {fullName}!</h3><p>We'll call <b>{phone}</b> during one of the times you selected.</p>"
+    }
+  ]
+}

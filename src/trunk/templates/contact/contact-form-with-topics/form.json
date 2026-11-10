@@ -1,0 +1,335 @@
+{
+  "title": "Get in Touch",
+  "description": "Choose a topic so your message reaches the right team.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Send message",
+  "widthMode": "static",
+  "width": "720px",
+  "pages": [
+    {
+      "name": "inquiry",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "inquiryTopic",
+          "title": "What is your message about?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "sales",
+              "text": "Sales and pricing"
+            },
+            {
+              "value": "support",
+              "text": "Help with a product"
+            },
+            {
+              "value": "billing",
+              "text": "Billing and payments"
+            },
+            {
+              "value": "partnership",
+              "text": "Partnership opportunity"
+            },
+            {
+              "value": "press",
+              "text": "Press and media"
+            },
+            {
+              "value": "other",
+              "text": "Something else"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "salesDetails",
+          "visibleIf": "{inquiryTopic} = 'sales'",
+          "title": "About your interest",
+          "elements": [
+            {
+              "type": "text",
+              "name": "salesCompany",
+              "title": "Company or organization",
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "salesProductInterest",
+              "title": "Which product or plan are you interested in?",
+              "startWithNewLine": false
+            },
+            {
+              "type": "radiogroup",
+              "name": "salesTimeframe",
+              "title": "When are you planning to buy?",
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "now",
+                  "text": "As soon as possible"
+                },
+                {
+                  "value": "1-3-months",
+                  "text": "In the next 1–3 months"
+                },
+                {
+                  "value": "later",
+                  "text": "Later this year"
+                },
+                {
+                  "value": "researching",
+                  "text": "Just researching"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "supportDetails",
+          "visibleIf": "{inquiryTopic} = 'support'",
+          "title": "About the problem",
+          "elements": [
+            {
+              "type": "text",
+              "name": "supportProduct",
+              "title": "Which product or feature is this about?",
+              "isRequired": true
+            },
+            {
+              "type": "radiogroup",
+              "name": "supportImpact",
+              "title": "How much is this affecting you?",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "blocked",
+                  "text": "I can't continue my work"
+                },
+                {
+                  "value": "workaround",
+                  "text": "It's a problem, but I have a workaround"
+                },
+                {
+                  "value": "question",
+                  "text": "I just have a question"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "billingDetails",
+          "visibleIf": "{inquiryTopic} = 'billing'",
+          "title": "About your account",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "billingIssue",
+              "title": "What do you need help with?",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "charge",
+                  "text": "A charge I don't recognize"
+                },
+                {
+                  "value": "refund",
+                  "text": "Refund request"
+                },
+                {
+                  "value": "payment-method",
+                  "text": "Updating my payment method"
+                },
+                {
+                  "value": "plan-change",
+                  "text": "Changing or canceling my plan"
+                },
+                {
+                  "value": "invoice",
+                  "text": "Copy of an invoice or receipt"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "text",
+              "name": "invoiceNumber",
+              "title": "Invoice or order number",
+              "description": "If you have one, it helps us find your account faster.",
+              "startWithNewLine": false
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "partnershipDetails",
+          "visibleIf": "{inquiryTopic} = 'partnership'",
+          "title": "About your organization",
+          "elements": [
+            {
+              "type": "text",
+              "name": "partnerOrganization",
+              "title": "Organization name",
+              "isRequired": true,
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "partnerWebsite",
+              "title": "Website",
+              "inputType": "url",
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^(https?://)?[^\\s/$.?#]+\\.[^\\s]+$",
+                  "text": "Please enter a valid website address."
+                }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "partnershipType",
+              "title": "What kind of partnership do you have in mind?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "reseller",
+                  "text": "Reselling our products"
+                },
+                {
+                  "value": "integration",
+                  "text": "Technology integration"
+                },
+                {
+                  "value": "referral",
+                  "text": "Referrals"
+                },
+                {
+                  "value": "co-marketing",
+                  "text": "Joint marketing or events"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "pressDetails",
+          "visibleIf": "{inquiryTopic} = 'press'",
+          "title": "About your request",
+          "elements": [
+            {
+              "type": "text",
+              "name": "mediaOutlet",
+              "title": "Media outlet",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "pressDeadline",
+              "title": "Your deadline",
+              "inputType": "date",
+              "minValueExpression": "today()",
+              "startWithNewLine": false
+            },
+            {
+              "type": "radiogroup",
+              "name": "pressRequestType",
+              "title": "What are you looking for?",
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "interview",
+                  "text": "An interview"
+                },
+                {
+                  "value": "statement",
+                  "text": "A comment or statement"
+                },
+                {
+                  "value": "media-kit",
+                  "text": "Images, logos, or a media kit"
+                },
+                {
+                  "value": "background",
+                  "text": "Background information"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "message",
+          "visibleIf": "{inquiryTopic} notempty",
+          "title": "Your message",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 3000
+        },
+        {
+          "type": "panel",
+          "name": "contactDetails",
+          "visibleIf": "{inquiryTopic} notempty",
+          "title": "How can we reach you?",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email address",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "email",
+                  "text": "Please enter a valid email address."
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone number (optional)",
+              "inputType": "tel",
+              "autocomplete": "tel"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks for reaching out, {fullName}.</h3><p>Your message has been sent to the right team. We'll reply to <b>{email}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{inquiryTopic} = 'support' and {supportImpact} = 'blocked'",
+      "html": "<h3>Thanks, {fullName}.</h3><p>We've marked your request as urgent and will reply to <b>{email}</b> as soon as possible.</p>"
+    },
+    {
+      "expression": "{inquiryTopic} = 'press'",
+      "html": "<h3>Thanks, {fullName}.</h3><p>Our media team has your request and will do its best to reply before your deadline.</p>"
+    },
+    {
+      "expression": "{inquiryTopic} = 'partnership'",
+      "html": "<h3>Thanks, {fullName}.</h3><p>Our partnerships team will review your proposal and get back to you at <b>{email}</b>.</p>"
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "title": "Customer Referral Form",
+  "description": "Know someone who would love our product? Introduce them here and earn a reward when they become a customer.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit referral",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "referrerName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "referrerEmail",
+          "title": "Your email",
+          "description": "We'll use this to track your referral and send your reward.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "referrerPhone",
+          "title": "Your phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "text",
+          "name": "customerAccountEmail",
+          "title": "Customer ID or account email",
+          "description": "Optional. Helps us match the referral to your account if it differs from the email above.",
+          "maxLength": 100
+        },
+        {
+          "type": "radiogroup",
+          "name": "relationshipToReferee",
+          "title": "How do you know the person you're referring?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "colleague", "text": "Colleague or former colleague" },
+            { "value": "friend-family", "text": "Friend or family member" },
+            { "value": "business-partner", "text": "Business partner or client" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        }
+      ]
+    },
+    {
+      "name": "aboutReferee",
+      "title": "Who Are You Referring?",
+      "elements": [
+        {
+          "type": "text",
+          "name": "refereeName",
+          "title": "Their full name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "refereeCompany",
+          "title": "Their company",
+          "startWithNewLine": false,
+          "autocomplete": "organization"
+        },
+        {
+          "type": "text",
+          "name": "refereeEmail",
+          "title": "Their work email",
+          "isRequired": true,
+          "inputType": "email",
+          "validators": [
+            { "type": "email" },
+            {
+              "type": "expression",
+              "expression": "{refereeEmail} <> {referrerEmail}",
+              "text": "The referee's email must differ from your own."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "refereePhone",
+          "title": "Their phone",
+          "startWithNewLine": false,
+          "inputType": "tel"
+        },
+        {
+          "type": "text",
+          "name": "refereeRole",
+          "title": "Their job title or role",
+          "maxLength": 100
+        },
+        {
+          "type": "checkbox",
+          "name": "productInterest",
+          "title": "Which products might interest them?",
+          "colCount": 2,
+          "choices": [
+            { "value": "starter", "text": "Starter plan" },
+            { "value": "professional", "text": "Professional plan" },
+            { "value": "enterprise", "text": "Enterprise plan" },
+            { "value": "integrations", "text": "Integrations and add-ons" },
+            { "value": "training", "text": "Training and onboarding services" }
+          ],
+          "showNoneItem": true,
+          "noneText": "Not sure yet"
+        },
+        {
+          "type": "comment",
+          "name": "whyGoodFit",
+          "title": "Why do you think they'd be a good fit?",
+          "description": "A sentence or two about their situation or challenges helps our team start the right conversation.",
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "radiogroup",
+          "name": "bestWayToReach",
+          "title": "Best way for us to reach them",
+          "colCount": 3,
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" },
+            { "value": "introduction", "text": "An email introduction from me" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "permissionConfirmed",
+          "title": "I have the referee's permission to share their contact details",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{permissionConfirmed} = true",
+              "text": "We can only contact people who have agreed to be referred."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "rewardPreference",
+          "title": "How would you like to receive your reward?",
+          "description": "Rewards are issued once the referred customer completes their first paid month.",
+          "colCount": 2,
+          "choices": [
+            { "value": "account-credit", "text": "Account credit" },
+            { "value": "gift-card", "text": "Gift card" },
+            { "value": "charity-donation", "text": "Donation to charity" },
+            { "value": "no-reward", "text": "No reward, thanks" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "notifyReferrer",
+          "title": "Keep me updated on the status of this referral",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {referrerName}!</h3><p>We've received your referral for <b>{refereeName}</b>. Our team will reach out to them shortly and we'll keep you posted at <b>{referrerEmail}</b>.</p>"
+}

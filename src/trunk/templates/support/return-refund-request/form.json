@@ -1,0 +1,259 @@
+{
+  "title": "Return and Refund Request",
+  "description": "Tell us which items you'd like to return and how you'd like the issue resolved. We'll email return instructions within one business day.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit return request",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "order",
+      "title": "Your Order",
+      "elements": [
+        {
+          "type": "text",
+          "name": "orderNumber",
+          "title": "Order number",
+          "description": "You can find it in your order confirmation email.",
+          "isRequired": true,
+          "placeholder": "e.g. ORD-123456",
+          "maxLength": 30
+        },
+        {
+          "type": "text",
+          "name": "orderDate",
+          "title": "Order date",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "description": "Use the email address you placed the order with.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "items",
+      "title": "Items to Return",
+      "elements": [
+        {
+          "type": "matrixdynamic",
+          "name": "returnItems",
+          "title": "Which items are you returning?",
+          "description": "Add one row per product.",
+          "isRequired": true,
+          "columns": [
+            {
+              "name": "itemName",
+              "title": "Item name or SKU",
+              "cellType": "text",
+              "isRequired": true
+            },
+            {
+              "name": "quantity",
+              "title": "Quantity",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "min": 1,
+              "max": 20,
+              "step": 1,
+              "width": "110px"
+            },
+            {
+              "name": "reason",
+              "title": "Reason",
+              "cellType": "dropdown",
+              "isRequired": true,
+              "choices": [
+                { "value": "damaged", "text": "Arrived damaged" },
+                { "value": "defective", "text": "Defective or not working" },
+                { "value": "wrong-item", "text": "Wrong item received" },
+                { "value": "not-as-described", "text": "Not as described" },
+                { "value": "wrong-size", "text": "Wrong size or fit" },
+                { "value": "changed-mind", "text": "Changed my mind" }
+              ]
+            }
+          ],
+          "rowCount": 1,
+          "minRowCount": 1,
+          "maxRowCount": 10,
+          "addRowText": "Add another item",
+          "removeRowText": "Remove"
+        },
+        {
+          "type": "radiogroup",
+          "name": "overallReason",
+          "title": "What best describes the main reason for this return?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "quality", "text": "Quality problem" },
+            { "value": "order-error", "text": "Mistake with the order" },
+            { "value": "expectations", "text": "Didn't meet my expectations" },
+            { "value": "no-longer-needed", "text": "No longer needed" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "itemCondition",
+          "title": "What condition are the items in?",
+          "isRequired": true,
+          "choices": [
+            { "value": "new-sealed", "text": "New, in original sealed packaging" },
+            { "value": "new-opened", "text": "New, packaging opened" },
+            { "value": "used", "text": "Used, in good condition" },
+            { "value": "damaged", "text": "Damaged or faulty" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "openedOrUsed",
+          "title": "Have the items been used or worn?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "file",
+          "name": "photos",
+          "title": "Photos of the items",
+          "description": "Required for damaged or faulty items. Up to 5 photos, 10 MB each.",
+          "requiredIf": "{itemCondition} = 'damaged'",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*"
+        }
+      ]
+    },
+    {
+      "name": "resolution",
+      "title": "Refund and Shipping",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "preferredOutcome",
+          "title": "How would you like this resolved?",
+          "isRequired": true,
+          "choices": [
+            { "value": "refund-original", "text": "Refund to my original payment method" },
+            { "value": "store-credit", "text": "Store credit (plus a 10% bonus)" },
+            { "value": "exchange", "text": "Exchange for another item or size" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "exchangeDetails",
+          "visibleIf": "{preferredOutcome} = 'exchange'",
+          "title": "What would you like instead?",
+          "description": "Tell us the product, size, or color you want in exchange.",
+          "isRequired": true,
+          "rows": 3,
+          "maxLength": 500
+        },
+        {
+          "type": "radiogroup",
+          "name": "returnShippingMethod",
+          "title": "How will you send the items back?",
+          "isRequired": true,
+          "choices": [
+            { "value": "prepaid-label", "text": "Email me a prepaid shipping label" },
+            { "value": "drop-off", "text": "I will drop them off at a store" },
+            { "value": "courier-pickup", "text": "Schedule a courier pickup from my address" },
+            { "value": "own-shipping", "text": "I will arrange my own shipping" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "pickupAddress",
+          "visibleIf": "{returnShippingMethod} = 'courier-pickup'",
+          "title": "Pickup address",
+          "elements": [
+            {
+              "type": "text",
+              "name": "pickupStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "pickupCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "pickupPostalCode",
+              "title": "Postal code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "pickupPhone",
+              "title": "Phone number for the courier",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "comments",
+          "title": "Anything else we should know?",
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "checkbox",
+          "name": "policyAcknowledgement",
+          "title": "Return policy",
+          "titleLocation": "hidden",
+          "isRequired": true,
+          "requiredErrorText": "Please confirm that you have read the return policy.",
+          "choices": [
+            { "value": "accepted", "text": "I have read the return policy and understand that items must be returned within 30 days of delivery." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {fullName}. Your return request has been received.</h3><p>We will review the request for order <b>{orderNumber}</b> and email return instructions to <b>{email}</b> within one business day. Refunds are issued within 5 business days after we receive the items.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{preferredOutcome} = 'exchange'",
+      "html": "<h3>Thanks, {fullName}. Your exchange request has been received.</h3><p>We will check availability of the replacement for order <b>{orderNumber}</b> and email the next steps to <b>{email}</b> within one business day.</p>"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "title": "COVID-19 Screening Form",
+  "description": "All fields with an asterisk (*) are required fields and must be filled out in order to process the information in strict confidentiality.",
+  "questionErrorLocation": "bottom",
+  "pages": [
+    {
+      "name": "patientInfo",
+      "title": "Patient Information",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "fullName",
+          "title": "Full name",
+          "elements": [
+            {
+              "type": "text",
+              "name": "firstName",
+              "title": "First name",
+              "isRequired": true,
+              "maxLength": 25
+            },
+            {
+              "type": "text",
+              "name": "lastName",
+              "startWithNewLine": false,
+              "title": "Last name",
+              "isRequired": true,
+              "maxLength": 25
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "personalInfo",
+          "elements": [
+            {
+              "type": "text",
+              "name": "ssn",
+              "title": "Social Security number",
+              "isRequired": true,
+              "maxLength": 9,
+              "validators": [
+                {
+                  "type": "regex",
+                  "text": "Your SSN must be a 9-digit number.",
+                  "regex": "^\\d{9}$"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "birthdate",
+              "startWithNewLine": false,
+              "title": "Date of Birth",
+              "isRequired": true,
+              "inputType": "date"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "symptomsPage",
+      "title": "Current Symptoms",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "symptoms",
+          "title": "Have you experienced any of the following symptoms of COVID-19 within the last 48 hours?",
+          "isRequired": true,
+          "choices": [
+            "Fever or chills",
+            "New and persistent cough",
+            "Shortness of breath or difficulty breathing",
+            "Fatigue",
+            "Muscle or body aches",
+            "New loss of taste or smell",
+            "Sore throat"
+          ],
+          "showNoneItem": true,
+          "noneText": "No symptoms"
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "title": "Contacts",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "contactedPersonWithSymptoms",
+          "title": "Have you been in contact with anyone in the last 14 days who is experiencing these symptoms?"
+        },
+        {
+          "type": "radiogroup",
+          "name": "contactedCovidPositive",
+          "title": "Have you been in contact with anyone who has since tested positive for COVID-19?",
+          "choices": [
+            "Yes",
+            "No",
+            "Not sure"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "travels",
+      "title": "Travels",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "travelled",
+          "title": "Have you traveled abroad in the last 14 days?"
+        },
+        {
+          "type": "text",
+          "name": "travelDestination",
+          "visibleIf": "{travelled} = true",
+          "title": "Where did you go?"
+        }
+      ]
+    },
+    {
+      "name": "tests",
+      "title": "Tests",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "testedCovidPositive",
+          "title": "Have you tested positive for COVID-19 in the past 10 days?"
+        },
+        {
+          "type": "boolean",
+          "name": "awaitingCovidTest",
+          "title": "Are you currently awaiting results from a COVID-19 test?"
+        },
+        {
+          "type": "paneldynamic",
+          "name": "emergencyContacts",
+          "title": "Emergency Contacts",
+          "description": "If possible, it's best to specify at least TWO emergency contacts.",
+          "panelsState": "firstExpanded",
+          "confirmDelete": true,
+          "addPanelText": "Add a new contact person",
+          "visibleIf": "(({testedCovidPositive} = true or {contactedCovidPositive} = 'Yes') or ({symptoms} notempty and {symptoms} notcontains 'none'))",
+          "isRequired": true,
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "emergencyFirstName",
+              "title": "First name"
+            },
+            {
+              "type": "text",
+              "name": "emergencyLastName",
+              "startWithNewLine": false,
+              "title": "Last name"
+            },
+            {
+              "type": "text",
+              "name": "emergencyRelationship",
+              "title": "Relationship"
+            },
+            {
+              "type": "text",
+              "name": "emergencyPhone",
+              "startWithNewLine": false,
+              "title": "Phone number",
+              "inputType": "tel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finalization",
+      "title": "Miscellaneous",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "additionalInfo",
+          "title": "Additional information"
+        },
+        {
+          "type": "text",
+          "name": "date",
+          "title": "Date",
+          "inputType": "date"
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "startWithNewLine": false,
+          "title": "Signature"
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "showPreviewBeforeComplete": true,
+  "previewMode": "answeredQuestions",
+  "widthMode": "static",
+  "width": "1000px"
+}

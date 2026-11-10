@@ -1,0 +1,9 @@
+{
+  "title": "Restaurant Feedback Form",
+  "description": "A guest feedback form for restaurants, cafes, and delivery kitchens. It records the visit details, an overall star rating, a ratings matrix for food and service, and return intent, asks for improvement suggestions when the rating is low, and collects contact details only when the guest agrees to follow-up.",
+  "tags": [
+    "feedback",
+    "customer-experience",
+    "food"
+  ]
+}

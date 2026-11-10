@@ -1,0 +1,275 @@
+{
+  "title": "Book a Product Demo",
+  "description": "See the product in action with your own use case in mind. It takes about two minutes to request a demo.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Request demo",
+  "widthMode": "static",
+  "width": "720px",
+  "pages": [
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "autocomplete": "family-name",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "workEmail",
+          "title": "Work email",
+          "description": "We'll send the meeting invitation here.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title",
+          "autocomplete": "organization-title",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "companyName",
+          "title": "Company",
+          "isRequired": true,
+          "autocomplete": "organization"
+        },
+        {
+          "type": "radiogroup",
+          "name": "teamSize",
+          "title": "How many people would use the product?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            {
+              "value": "1-10",
+              "text": "1–10"
+            },
+            {
+              "value": "11-50",
+              "text": "11–50"
+            },
+            {
+              "value": "51-200",
+              "text": "51–200"
+            },
+            {
+              "value": "201-1000",
+              "text": "201–1,000"
+            },
+            {
+              "value": "1000+",
+              "text": "More than 1,000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "demoDetails",
+      "title": "Your Demo",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "goals",
+          "title": "What do you want to achieve?",
+          "description": "Select all that apply. We'll focus the demo on these.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "automate",
+              "text": "Automate manual work"
+            },
+            {
+              "value": "collaborate",
+              "text": "Help teams work together"
+            },
+            {
+              "value": "reporting",
+              "text": "Get better reporting and insights"
+            },
+            {
+              "value": "integrate",
+              "text": "Connect with our other systems"
+            },
+            {
+              "value": "replace-tool",
+              "text": "Replace a current tool"
+            },
+            {
+              "value": "scale",
+              "text": "Support a growing team"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "comment",
+          "name": "useCase",
+          "title": "Describe your use case",
+          "description": "A real scenario from your work helps us tailor the demo.",
+          "rows": 4,
+          "maxLength": 2000
+        },
+        {
+          "type": "text",
+          "name": "currentTool",
+          "title": "What do you use for this today?",
+          "placeholder": "Spreadsheets, an in-house system, another product..."
+        },
+        {
+          "type": "radiogroup",
+          "name": "evaluationStage",
+          "title": "How soon do you expect to make a choice?",
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "thisMonth",
+              "text": "Within a month"
+            },
+            {
+              "value": "thisQuarter",
+              "text": "In the next one to three months"
+            },
+            {
+              "value": "laterThisYear",
+              "text": "Later this year"
+            },
+            {
+              "value": "noTimeline",
+              "text": "No timeline set yet"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "demoFormat",
+          "title": "How would you like to see the product?",
+          "isRequired": true,
+          "defaultValue": "live",
+          "choices": [
+            {
+              "value": "live",
+              "text": "Live video call with a product specialist"
+            },
+            {
+              "value": "recorded",
+              "text": "Recorded walkthrough I can watch anytime"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "liveDemoScheduling",
+          "visibleIf": "{demoFormat} = 'live'",
+          "title": "Scheduling",
+          "elements": [
+            {
+              "type": "text",
+              "name": "preferredDate",
+              "title": "Preferred date",
+              "inputType": "date",
+              "isRequired": true,
+              "minValueExpression": "today(1)"
+            },
+            {
+              "type": "dropdown",
+              "name": "preferredTime",
+              "title": "Preferred time",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                {
+                  "value": "morning",
+                  "text": "Morning"
+                },
+                {
+                  "value": "midday",
+                  "text": "Around midday"
+                },
+                {
+                  "value": "afternoon",
+                  "text": "Afternoon"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "timeZone",
+              "title": "Your time zone",
+              "isRequired": true,
+              "placeholder": "City or UTC offset"
+            },
+            {
+              "type": "text",
+              "name": "attendeeCount",
+              "title": "Number of attendees",
+              "inputType": "number",
+              "min": 1,
+              "max": 50,
+              "defaultValue": 1,
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "numeric",
+                  "minValue": 1,
+                  "maxValue": 50,
+                  "text": "Enter a number from 1 to 50."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "contactConsent",
+          "title": "Consent to be contacted",
+          "titleLocation": "hidden",
+          "label": "I agree to be contacted about this demo request.",
+          "renderAs": "checkbox",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{contactConsent} = true",
+              "text": "Please agree to be contacted so we can arrange your demo."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {firstName}!</h3><p>Your demo request is in. A product specialist will email <b>{workEmail}</b> to confirm a time that works for you.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{demoFormat} = 'recorded'",
+      "html": "<h3>Thanks, {firstName}!</h3><p>We'll email the walkthrough to <b>{workEmail}</b>. When you're ready for a live conversation, just reply to that email.</p>"
+    }
+  ]
+}

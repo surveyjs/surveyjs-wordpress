@@ -1,0 +1,236 @@
+{
+  "title": "ROI Calculator",
+  "description": "Enter what you expect to invest and gain to see your return on investment, net return, and payback period update as you type.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "textUpdateMode": "onTyping",
+  "completeText": "Get my results",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "roiCalculator",
+      "title": "Investment and Returns",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "investmentInputs",
+          "title": "Your investment",
+          "elements": [
+            {
+              "type": "text",
+              "name": "initialInvestment",
+              "title": "One-time initial investment (USD)",
+              "description": "Setup, implementation, equipment, training, or launch costs.",
+              "isRequired": true,
+              "inputType": "number",
+              "min": 0,
+              "step": 100,
+              "placeholder": "10000"
+            },
+            {
+              "type": "text",
+              "name": "ongoingMonthlyCost",
+              "title": "Ongoing monthly cost (USD)",
+              "description": "Subscription fees, ad spend, staff time, or maintenance. Enter 0 if none.",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 0,
+              "step": 50,
+              "placeholder": "500"
+            },
+            {
+              "type": "dropdown",
+              "name": "timePeriodMonths",
+              "title": "Time period",
+              "description": "How long you want to measure the return over.",
+              "isRequired": true,
+              "defaultValue": 12,
+              "choices": [
+                { "value": 6, "text": "6 months" },
+                { "value": 12, "text": "12 months" },
+                { "value": 24, "text": "24 months" },
+                { "value": 36, "text": "36 months" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "gainInputs",
+          "title": "Your expected gains",
+          "elements": [
+            {
+              "type": "text",
+              "name": "additionalMonthlyRevenue",
+              "title": "Additional monthly revenue (USD)",
+              "description": "New sales or income you expect each month as a result of the investment.",
+              "isRequired": true,
+              "inputType": "number",
+              "min": 0,
+              "step": 100,
+              "placeholder": "2000"
+            },
+            {
+              "type": "text",
+              "name": "monthlyCostSavings",
+              "title": "Monthly cost savings (USD)",
+              "description": "Time saved, lower vendor costs, fewer errors. Enter 0 if none.",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 0,
+              "step": 100,
+              "placeholder": "300"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "roiResults",
+          "title": "Your results",
+          "visibleIf": "{initialInvestment} notempty and {ongoingMonthlyCost} notempty and {timePeriodMonths} notempty and {additionalMonthlyRevenue} notempty and {monthlyCostSavings} notempty",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "totalInvestment",
+              "title": "Total investment",
+              "description": "Initial investment plus ongoing costs over the period.",
+              "expression": "round({initialInvestment} + {ongoingMonthlyCost} * {timePeriodMonths}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "totalGain",
+              "title": "Total gain",
+              "description": "Additional revenue plus cost savings over the period.",
+              "startWithNewLine": false,
+              "expression": "round(({additionalMonthlyRevenue} + {monthlyCostSavings}) * {timePeriodMonths}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "netReturn",
+              "title": "Net return",
+              "description": "Total gain minus total investment.",
+              "expression": "round({totalGain} - {totalInvestment}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "roiPercent",
+              "title": "Return on investment (ROI)",
+              "description": "Net return divided by total investment.",
+              "startWithNewLine": false,
+              "expression": "iif({totalInvestment} > 0, round({netReturn} / {totalInvestment}, 4), 0)",
+              "displayStyle": "percent",
+              "maximumFractionDigits": 1
+            },
+            {
+              "type": "expression",
+              "name": "monthlyNetGain",
+              "title": "Net gain per month",
+              "description": "Monthly revenue and savings minus the ongoing monthly cost.",
+              "expression": "round({additionalMonthlyRevenue} + {monthlyCostSavings} - {ongoingMonthlyCost}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "paybackMonths",
+              "visibleIf": "{monthlyNetGain} > 0",
+              "title": "Payback period",
+              "description": "Months until the net gains cover the initial investment.",
+              "startWithNewLine": false,
+              "expression": "iif({monthlyNetGain} > 0, round({initialInvestment} / {monthlyNetGain}, 1), 0)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} months"
+            },
+            {
+              "type": "html",
+              "name": "noPaybackNote",
+              "visibleIf": "{monthlyNetGain} <= 0",
+              "html": "<p><b>No payback within this scenario.</b> The ongoing monthly cost is equal to or higher than the monthly revenue and savings, so the initial investment is never recovered. Try a lower ongoing cost or higher expected gains.</p>"
+            },
+            {
+              "type": "html",
+              "name": "paybackBeyondPeriodNote",
+              "visibleIf": "{monthlyNetGain} > 0 and {paybackMonths} > {timePeriodMonths}",
+              "html": "<p><b>Payback takes longer than the selected period.</b> The investment pays for itself after the period you chose, so the ROI above is negative. Choose a longer time period to see the full picture.</p>"
+            },
+            {
+              "type": "html",
+              "name": "roiDisclaimer",
+              "html": "<p><small>These figures are estimates based on the numbers you entered. They do not account for taxes, inflation, financing costs, or changes in your business over time.</small></p>"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "wantsReport",
+          "title": "Would you like a detailed ROI report by email?",
+          "description": "We'll send a PDF with your numbers and a month-by-month breakdown.",
+          "labelTrue": "Yes, please",
+          "labelFalse": "No, thanks"
+        },
+        {
+          "type": "panel",
+          "name": "reportDetails",
+          "visibleIf": "{wantsReport} = true",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Work email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "company",
+              "title": "Company",
+              "autocomplete": "organization"
+            },
+            {
+              "type": "dropdown",
+              "name": "companySize",
+              "title": "Company size",
+              "startWithNewLine": false,
+              "choices": [
+                { "value": "1-10", "text": "1 to 10 employees" },
+                { "value": "11-50", "text": "11 to 50 employees" },
+                { "value": "51-200", "text": "51 to 200 employees" },
+                { "value": "201-1000", "text": "201 to 1,000 employees" },
+                { "value": "1000-plus", "text": "More than 1,000 employees" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Your ROI estimate</h3><p>Over <b>{timePeriodMonths}</b>, a total investment of <b>{totalInvestment}</b> is expected to bring <b>{totalGain}</b> in revenue and savings.</p><p>Net return: <b>{netReturn}</b> &middot; ROI: <b>{roiPercent}</b></p><p><small>These figures are estimates based on the numbers you entered.</small></p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{wantsReport} = true",
+      "html": "<h3>Thanks, {fullName}!</h3><p>Over <b>{timePeriodMonths}</b>, a total investment of <b>{totalInvestment}</b> is expected to bring <b>{totalGain}</b> in revenue and savings, for a net return of <b>{netReturn}</b> and an ROI of <b>{roiPercent}</b>.</p><p>Your detailed report is on its way to <b>{email}</b>.</p>"
+    }
+  ]
+}

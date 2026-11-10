@@ -1,0 +1,341 @@
+{
+  "title": "Request a Consultation",
+  "description": "Tell us a little about yourself and what you'd like to discuss, and we'll confirm a time that works for you.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Request consultation",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name",
+          "maxLength": 60
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "autocomplete": "family-name",
+          "startWithNewLine": false,
+          "maxLength": 60
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone number",
+          "description": "We'll call this number if you choose a phone consultation.",
+          "isRequired": true,
+          "inputType": "tel",
+          "autocomplete": "tel",
+          "startWithNewLine": false,
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^\\+?[0-9 ().-]{7,20}$",
+              "text": "Please enter a valid phone number."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "company",
+          "title": "Company or organization (optional)",
+          "autocomplete": "organization",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "role",
+          "title": "Your role",
+          "description": "For example, owner, HR manager, or private individual.",
+          "startWithNewLine": false,
+          "maxLength": 100
+        }
+      ]
+    },
+    {
+      "name": "consultation",
+      "title": "Consultation",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "serviceArea",
+          "title": "Which area would you like to discuss?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "legal",
+              "text": "Legal"
+            },
+            {
+              "value": "financial-planning",
+              "text": "Financial planning"
+            },
+            {
+              "value": "marketing-strategy",
+              "text": "Marketing strategy"
+            },
+            {
+              "value": "it-software",
+              "text": "IT and software"
+            },
+            {
+              "value": "hr",
+              "text": "HR and recruitment"
+            },
+            {
+              "value": "design",
+              "text": "Design and branding"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "consultationType",
+          "title": "What type of consultation do you need?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "initial-free",
+              "text": "Initial free consultation"
+            },
+            {
+              "value": "paid-session",
+              "text": "Paid consultation session"
+            },
+            {
+              "value": "follow-up",
+              "text": "Follow-up to a previous consultation"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "meetingFormat",
+          "title": "How would you like to meet?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            {
+              "value": "video-call",
+              "text": "Video call"
+            },
+            {
+              "value": "phone-call",
+              "text": "Phone call"
+            },
+            {
+              "value": "in-person",
+              "text": "In person"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "officeLocation",
+          "visibleIf": "{meetingFormat} = 'in-person'",
+          "title": "Which office would you like to visit?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "downtown",
+              "text": "Downtown office"
+            },
+            {
+              "value": "north-side",
+              "text": "North Side office"
+            },
+            {
+              "value": "west-end",
+              "text": "West End office"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "preferredDate",
+          "title": "Preferred date",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "alternativeDate",
+          "title": "Alternative date",
+          "description": "In case your preferred date is not available.",
+          "inputType": "date",
+          "startWithNewLine": false,
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "checkbox",
+          "name": "preferredTimes",
+          "title": "Which times of day suit you?",
+          "description": "Select all that apply.",
+          "isRequired": true,
+          "colCount": 4,
+          "choices": [
+            {
+              "value": "morning",
+              "text": "Morning (9–12)"
+            },
+            {
+              "value": "midday",
+              "text": "Midday (12–2)"
+            },
+            {
+              "value": "afternoon",
+              "text": "Afternoon (2–5)"
+            },
+            {
+              "value": "evening",
+              "text": "Evening (after 5)"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "duration",
+          "title": "How long would you like the session to be?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            {
+              "value": "30-min",
+              "text": "30 minutes"
+            },
+            {
+              "value": "60-min",
+              "text": "60 minutes"
+            },
+            {
+              "value": "90-min",
+              "text": "90 minutes"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "topicSummary",
+          "title": "What would you like to discuss?",
+          "description": "A short summary of your situation and the questions you have. This helps us assign the right specialist.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 3000
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Supporting documents (optional)",
+          "description": "Up to 3 files, 10 MB each. Contracts, reports, or anything else the consultant should see beforehand.",
+          "allowMultiple": true,
+          "maxFiles": 3,
+          "maxSize": 10485760,
+          "acceptedTypes": ".pdf,.doc,.docx,.xls,.xlsx,image/*"
+        },
+        {
+          "type": "boolean",
+          "name": "hasDeadline",
+          "title": "Is there a deadline you're working toward?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "deadlineDate",
+          "visibleIf": "{hasDeadline} = true",
+          "title": "Deadline",
+          "isRequired": true,
+          "inputType": "date",
+          "startWithNewLine": false,
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "dropdown",
+          "name": "howHeard",
+          "title": "How did you hear about us?",
+          "choices": [
+            {
+              "value": "search",
+              "text": "Search engine"
+            },
+            {
+              "value": "social-media",
+              "text": "Social media"
+            },
+            {
+              "value": "recommendation",
+              "text": "Recommendation from a friend or colleague"
+            },
+            {
+              "value": "existing-client",
+              "text": "I'm an existing client"
+            },
+            {
+              "value": "event",
+              "text": "Event or seminar"
+            },
+            {
+              "value": "advertisement",
+              "text": "Advertisement"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "boolean",
+          "name": "contactConsent",
+          "title": "Consent",
+          "titleLocation": "hidden",
+          "label": "I agree to be contacted by email or phone to arrange and confirm this consultation.",
+          "isRequired": true,
+          "renderAs": "checkbox",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{contactConsent} = true",
+              "text": "Please confirm that we may contact you."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}!</h3><p>We've received your request for a <b>{meetingFormat}</b> consultation on <b>{preferredDate}</b>. We'll confirm the exact time by email at <b>{email}</b> within one business day.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{meetingFormat} = 'in-person'",
+      "html": "<h3>Thank you, {firstName}!</h3><p>We've received your request for an in-person consultation at our <b>{officeLocation}</b> on <b>{preferredDate}</b>. We'll confirm the exact time by email at <b>{email}</b> within one business day.</p>"
+    }
+  ]
+}

@@ -1,0 +1,491 @@
+{
+  "title": "Purchase Order",
+  "description": "Fill in the buyer, vendor, and item details to issue a purchase order. Line totals, tax, and the grand total update as you type.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit purchase order",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "buyerAndVendor",
+      "title": "Buyer and Vendor",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "buyer",
+          "title": "Buyer",
+          "elements": [
+            {
+              "type": "text",
+              "name": "buyerCompany",
+              "title": "Company",
+              "isRequired": true,
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "buyerDepartment",
+              "title": "Department or cost center",
+              "startWithNewLine": false,
+              "placeholder": "e.g. Operations, CC-4120"
+            },
+            {
+              "type": "text",
+              "name": "buyerContactName",
+              "title": "Contact name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "buyerEmail",
+              "title": "Email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "buyerPhone",
+              "title": "Phone",
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            },
+            {
+              "type": "text",
+              "name": "poNumber",
+              "title": "PO number",
+              "description": "Use your company's numbering scheme. This number appears on the vendor invoice.",
+              "isRequired": true,
+              "placeholder": "PO-2024-0001"
+            },
+            {
+              "type": "text",
+              "name": "orderDate",
+              "title": "Order date",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "date",
+              "defaultValueExpression": "today()",
+              "maxValueExpression": "today()"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "vendor",
+          "title": "Vendor",
+          "elements": [
+            {
+              "type": "text",
+              "name": "vendorCompany",
+              "title": "Vendor company",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "vendorAccountNumber",
+              "title": "Vendor or supplier number",
+              "description": "Optional. Your internal vendor ID.",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "vendorContactName",
+              "title": "Vendor contact",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "vendorEmail",
+              "title": "Vendor email",
+              "description": "The purchase order is sent to this address.",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "vendorQuoteNumber",
+              "title": "Vendor quote or reference number",
+              "description": "Optional. The quote this order is based on."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "itemsAndDelivery",
+      "title": "Items and Delivery",
+      "elements": [
+        {
+          "type": "matrixdynamic",
+          "name": "lineItems",
+          "title": "Line items",
+          "description": "Add one row for each product or service you're ordering.",
+          "isRequired": true,
+          "columns": [
+            {
+              "name": "itemCode",
+              "title": "Item code / SKU",
+              "cellType": "text",
+              "width": "18%"
+            },
+            {
+              "name": "description",
+              "title": "Description",
+              "cellType": "text",
+              "isRequired": true,
+              "width": "36%"
+            },
+            {
+              "name": "quantity",
+              "title": "Qty",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "defaultValue": 1,
+              "min": 1,
+              "step": 1
+            },
+            {
+              "name": "unitPrice",
+              "title": "Unit price ($)",
+              "cellType": "text",
+              "inputType": "number",
+              "isRequired": true,
+              "min": 0,
+              "step": 0.01
+            },
+            {
+              "name": "lineTotal",
+              "title": "Line total",
+              "cellType": "expression",
+              "expression": "iif({row.quantity} > 0 and {row.unitPrice} > 0, round({row.quantity} * {row.unitPrice}, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "totalCurrency": "USD"
+            }
+          ],
+          "rowCount": 1,
+          "minRowCount": 1,
+          "maxRowCount": 50,
+          "addRowText": "Add item",
+          "removeRowText": "Remove"
+        },
+        {
+          "type": "radiogroup",
+          "name": "shippingMethod",
+          "title": "Shipping method",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "ground", "text": "Standard ground" },
+            { "value": "expedited", "text": "Expedited (2 to 3 business days)" },
+            { "value": "overnight", "text": "Overnight" },
+            { "value": "freight", "text": "Freight / LTL" },
+            { "value": "vendor-delivery", "text": "Vendor delivery" },
+            { "value": "pickup", "text": "Buyer pickup" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "requestedDeliveryDate",
+          "title": "Requested delivery date",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "boolean",
+          "name": "partialShipmentsAllowed",
+          "title": "Are partial shipments acceptable?",
+          "startWithNewLine": false,
+          "labelTrue": "Yes",
+          "labelFalse": "No, ship complete"
+        },
+        {
+          "type": "panel",
+          "name": "shipTo",
+          "title": "Ship to",
+          "visibleIf": "{shippingMethod} <> 'pickup'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "shipToAttention",
+              "title": "Attention of",
+              "description": "The person or department that receives the goods.",
+              "defaultValueExpression": "{buyerContactName}"
+            },
+            {
+              "type": "text",
+              "name": "shipToStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "shipToCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "shipToState",
+              "title": "State or province",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "shipToPostalCode",
+              "title": "ZIP or postal code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "shipToCountry",
+              "title": "Country",
+              "isRequired": true,
+              "autocomplete": "country-name"
+            },
+            {
+              "type": "text",
+              "name": "receivingHours",
+              "title": "Receiving hours",
+              "startWithNewLine": false,
+              "placeholder": "e.g. Mon to Fri, 8:00 to 16:00"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "billToSameAsShipTo",
+          "visibleIf": "{shippingMethod} <> 'pickup'",
+          "title": "Is the billing address the same as the shipping address?",
+          "defaultValue": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "panel",
+          "name": "billTo",
+          "title": "Bill to",
+          "visibleIf": "{billToSameAsShipTo} = false or {shippingMethod} = 'pickup'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "billToAttention",
+              "title": "Attention of",
+              "description": "Usually Accounts Payable.",
+              "placeholder": "Accounts Payable"
+            },
+            {
+              "type": "text",
+              "name": "billToStreet",
+              "title": "Street address",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "billToCity",
+              "title": "City",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "billToState",
+              "title": "State or province",
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "billToPostalCode",
+              "title": "ZIP or postal code",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "billToCountry",
+              "title": "Country",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "invoiceEmail",
+              "title": "Send invoices to",
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "summaryAndApproval",
+      "title": "Summary and Approval",
+      "elements": [
+        {
+          "type": "text",
+          "name": "taxRate",
+          "title": "Tax rate (%)",
+          "description": "Enter 0 if the purchase is tax exempt.",
+          "isRequired": true,
+          "inputType": "number",
+          "defaultValue": 0,
+          "min": 0,
+          "max": 100,
+          "step": 0.01
+        },
+        {
+          "type": "text",
+          "name": "shippingCost",
+          "title": "Shipping and handling ($)",
+          "description": "Leave empty if shipping is included or not yet known.",
+          "startWithNewLine": false,
+          "inputType": "number",
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "type": "panel",
+          "name": "orderTotals",
+          "title": "Order totals",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "subtotal",
+              "title": "Subtotal",
+              "expression": "sumInArray({lineItems}, 'lineTotal')",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "taxAmount",
+              "title": "Tax",
+              "startWithNewLine": false,
+              "expression": "iif({taxRate} > 0, round({subtotal} * {taxRate} / 100, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "shippingTotal",
+              "title": "Shipping",
+              "startWithNewLine": false,
+              "expression": "iif({shippingCost} > 0, {shippingCost}, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "grandTotal",
+              "title": "Grand total",
+              "expression": "round({subtotal} + {taxAmount} + {shippingTotal}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "paymentTerms",
+          "title": "Payment terms",
+          "isRequired": true,
+          "defaultValue": "net-30",
+          "choices": [
+            { "value": "prepaid", "text": "Prepaid" },
+            { "value": "net-15", "text": "Net 15" },
+            { "value": "net-30", "text": "Net 30" },
+            { "value": "net-45", "text": "Net 45" },
+            { "value": "net-60", "text": "Net 60" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "currency",
+          "title": "Currency",
+          "startWithNewLine": false,
+          "defaultValue": "usd",
+          "choices": [
+            { "value": "usd", "text": "US dollar (USD)" },
+            { "value": "eur", "text": "Euro (EUR)" },
+            { "value": "gbp", "text": "British pound (GBP)" },
+            { "value": "cad", "text": "Canadian dollar (CAD)" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "specialInstructions",
+          "title": "Special instructions",
+          "description": "Optional. Packaging, labeling, delivery, or invoicing requirements.",
+          "rows": 4,
+          "maxLength": 1000
+        },
+        {
+          "type": "panel",
+          "name": "approval",
+          "title": "Approval",
+          "elements": [
+            {
+              "type": "text",
+              "name": "approverName",
+              "title": "Approver name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "approverTitle",
+              "title": "Job title",
+              "startWithNewLine": false,
+              "autocomplete": "organization-title"
+            },
+            {
+              "type": "text",
+              "name": "approverEmail",
+              "title": "Approver email",
+              "isRequired": true,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "approvalAcknowledgement",
+              "title": "Authorization",
+              "isRequired": true,
+              "choices": [
+                { "value": "authorized", "text": "I am authorized to approve this purchase, and the items, quantities, and prices above are correct." }
+              ],
+              "requiredErrorText": "Please confirm your authorization to submit the purchase order."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Purchase order {poNumber} submitted</h3><p>The order to <b>{vendorCompany}</b> totals <b>{grandTotal}</b> with payment terms <b>{paymentTerms}</b>. A copy has been sent to <b>{vendorEmail}</b> and to <b>{buyerEmail}</b>.</p><p>Requested delivery: <b>{requestedDeliveryDate}</b>.</p>"
+}

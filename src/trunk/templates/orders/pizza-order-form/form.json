@@ -1,0 +1,318 @@
+{
+  "title": "Pizza Order Form",
+  "completedHtml": "<h3>Thank you for placing the order!</h3>",
+  "questionErrorLocation": "bottom",
+  "pages": [
+    {
+      "name": "pizzaSelection",
+      "title": "Your Pizzas",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "neapolitanPanel",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "neapolitanPrice",
+              "minWidth": "220px",
+              "title": "Pizza Neapolitan",
+              "description": "tomato sauce, mozzarella, anchovies, basil",
+              "descriptionLocation": "underTitle",
+              "expression": "5 + {neapolitanSize}",
+              "displayStyle": "currency"
+            },
+            {
+              "type": "dropdown",
+              "name": "neapolitanSize",
+              "minWidth": "220px",
+              "title": "Size",
+              "titleLocation": "left",
+              "defaultValue": 1,
+              "choices": [
+                {
+                  "value": 0,
+                  "text": "Small"
+                },
+                {
+                  "value": 1,
+                  "text": "Medium"
+                },
+                {
+                  "value": 2,
+                  "text": "Large"
+                }
+              ],
+              "allowClear": false
+            },
+            {
+              "type": "dropdown",
+              "name": "neapolitanQuantity",
+              "minWidth": "220px",
+              "startWithNewLine": false,
+              "title": "Qty",
+              "titleLocation": "left",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "pepperoniPanel",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "pepperoniPrice",
+              "title": "Pepperoni",
+              "titleLocation": "top",
+              "description": "tomato sauce, pepperoni, red peppers, onion",
+              "expression": "5 + {pepperoniSize}",
+              "displayStyle": "currency"
+            },
+            {
+              "type": "dropdown",
+              "name": "pepperoniSize",
+              "minWidth": "220px",
+              "title": "Size",
+              "titleLocation": "left",
+              "defaultValue": 1,
+              "choices": [
+                {
+                  "value": 0,
+                  "text": "Small"
+                },
+                {
+                  "value": 1,
+                  "text": "Medium"
+                },
+                {
+                  "value": 2,
+                  "text": "Large"
+                }
+              ],
+              "allowClear": false
+            },
+            {
+              "type": "dropdown",
+              "name": "pepperoniQuantity",
+              "minWidth": "220px",
+              "startWithNewLine": false,
+              "title": "Qty",
+              "titleLocation": "left",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "marinaraPanel",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "marinaraPrice",
+              "title": "Marinara",
+              "description": "tomato sauce, tuna, shrimp, mushrooms, cheese, onion",
+              "expression": "5 + {marinaraSize}",
+              "displayStyle": "currency"
+            },
+            {
+              "type": "dropdown",
+              "name": "marinaraSize",
+              "minWidth": "220px",
+              "title": "Size",
+              "titleLocation": "left",
+              "defaultValue": 1,
+              "choices": [
+                {
+                  "value": 0,
+                  "text": "Small"
+                },
+                {
+                  "value": 1,
+                  "text": "Medium"
+                },
+                {
+                  "value": 2,
+                  "text": "Large"
+                }
+              ],
+              "allowClear": false
+            },
+            {
+              "type": "dropdown",
+              "name": "marinaraQuantity",
+              "minWidth": "220px",
+              "startWithNewLine": false,
+              "title": "Qty",
+              "titleLocation": "left",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "type": "expression",
+          "name": "orderTotal",
+          "title": "Total",
+          "expression": "{neapolitanPrice} * {neapolitanQuantity} + {marinaraPrice} * {marinaraQuantity} + {pepperoniPrice} * {pepperoniQuantity}",
+          "displayStyle": "currency"
+        }
+      ]
+    },
+    {
+      "name": "toppingsAndDelivery",
+      "title": "Toppings and Delivery",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "toppingsPanel",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "toppings",
+              "title": "Toppings",
+              "choices": [
+                "Olives",
+                "Mozzarella",
+                "Mushrooms",
+                "Red pepper",
+                "Pepperoni",
+                "Shrimp"
+              ],
+              "colCount": 3
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "deliveryPanel",
+          "elements": [
+            {
+              "type": "boolean",
+              "name": "needDelivery",
+              "title": "Would you like the order delivered?",
+              "defaultValue": false
+            },
+            {
+              "type": "text",
+              "name": "pickupDate",
+              "visibleIf": "{needDelivery} = false",
+              "title": "Pickup Date",
+              "inputType": "date"
+            },
+            {
+              "type": "text",
+              "name": "pickupTime",
+              "visibleIf": "{needDelivery} = false",
+              "startWithNewLine": false,
+              "title": "Pickup Time",
+              "isRequired": true,
+              "inputType": "time"
+            },
+            {
+              "type": "text",
+              "name": "deliveryAddress",
+              "visibleIf": "{needDelivery} = true",
+              "title": "Delivery Address"
+            },
+            {
+              "type": "text",
+              "name": "deliveryDate",
+              "visibleIf": "{needDelivery} = true",
+              "title": "Delivery Date",
+              "isRequired": true,
+              "inputType": "date"
+            },
+            {
+              "type": "text",
+              "name": "deliveryTime",
+              "visibleIf": "{needDelivery} = true",
+              "startWithNewLine": false,
+              "title": "Delivery Time",
+              "isRequired": true,
+              "inputType": "time"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contactDetails",
+      "title": "Contact Details",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "contactsPanel",
+          "elements": [
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone number",
+              "autocomplete": "tel",
+              "maskType": "pattern",
+              "maskSettings": {
+                "saveMaskedValue": true,
+                "pattern": "+1 (999) 999-9999"
+              }
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "startWithNewLine": false,
+              "title": "Email",
+              "validators": [
+                {
+                  "type": "email",
+                  "text": "Please enter a valid email in the example@example.com format."
+                }
+              ],
+              "inputType": "email",
+              "autocomplete": "email",
+              "placeholder": "Enter your email to receive an order confirmation and a receipt"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "fullNamePanel",
+          "elements": [
+            {
+              "type": "multipletext",
+              "name": "fullName",
+              "title": "Full name",
+              "items": [
+                {
+                  "name": "firstName",
+                  "title": "First name"
+                },
+                {
+                  "name": "lastName",
+                  "title": "Last name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "checkErrorsMode": "onComplete",
+  "completeText": "Place Order",
+  "widthMode": "responsive"
+}

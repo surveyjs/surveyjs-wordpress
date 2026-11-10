@@ -1,0 +1,288 @@
+{
+  "title": "Payment Form",
+  "description": "Tell us what you're paying for and how you'd like to pay, and we'll take you to a secure page to complete the payment.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "textUpdateMode": "onTyping",
+  "completeText": "Continue to payment",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "paymentDetails",
+      "title": "Payment Details",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "paymentPurpose",
+          "title": "What is this payment for?",
+          "isRequired": true,
+          "choices": [
+            { "value": "invoice", "text": "Invoice payment" },
+            { "value": "deposit", "text": "Deposit" },
+            { "value": "membership-dues", "text": "Membership dues" },
+            { "value": "event-fee", "text": "Event fee" },
+            { "value": "donation", "text": "Donation" },
+            { "value": "other", "text": "Other" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "invoiceNumber",
+          "visibleIf": "{paymentPurpose} = 'invoice'",
+          "title": "Invoice number",
+          "description": "You'll find it at the top of your invoice.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "placeholder": "INV-2024-0001"
+        },
+        {
+          "type": "text",
+          "name": "paymentReference",
+          "visibleIf": "{paymentPurpose} anyof ['deposit', 'event-fee', 'other']",
+          "title": "Reference",
+          "description": "For example: the event name, a booking number, or a short description.",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "memberId",
+          "visibleIf": "{paymentPurpose} = 'membership-dues'",
+          "title": "Member ID",
+          "description": "Optional. Helps us match the payment to your membership.",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "amount",
+          "title": "Amount (USD)",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 1,
+          "step": 0.01,
+          "placeholder": "0.00",
+          "validators": [
+            {
+              "type": "numeric",
+              "minValue": 1,
+              "text": "The amount must be at least $1."
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "coverProcessingFee",
+          "title": "Add 3% to cover processing fees",
+          "description": "Optional. Card processors charge us a fee on every payment. Covering it means we receive the full amount.",
+          "labelTrue": "Yes, add it",
+          "labelFalse": "No, thanks"
+        },
+        {
+          "type": "panel",
+          "name": "chargeSummary",
+          "title": "Charge summary",
+          "visibleIf": "{amount} >= 1",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "processingFee",
+              "title": "Processing fee",
+              "expression": "iif({coverProcessingFee} = true and {amount} > 0, round({amount} * 0.03, 2), 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "totalCharge",
+              "title": "Total charge",
+              "startWithNewLine": false,
+              "expression": "round({amount} + {processingFee}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "payerDetails",
+      "title": "Payer Details",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "payer",
+          "title": "Payer",
+          "elements": [
+            {
+              "type": "text",
+              "name": "firstName",
+              "title": "First name",
+              "isRequired": true,
+              "autocomplete": "given-name"
+            },
+            {
+              "type": "text",
+              "name": "lastName",
+              "title": "Last name",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "family-name"
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email",
+              "description": "We'll send the receipt here.",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone",
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            },
+            {
+              "type": "text",
+              "name": "company",
+              "title": "Company or organization",
+              "description": "Optional. Shown on the receipt if provided.",
+              "autocomplete": "organization"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "billingAddress",
+          "title": "Billing address",
+          "description": "The address registered with your card or bank.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "stateProvince",
+              "title": "State or province",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "ZIP or postal code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "dropdown",
+              "name": "country",
+              "title": "Country",
+              "isRequired": true,
+              "autocomplete": "country-name",
+              "choices": [
+                { "value": "us", "text": "United States" },
+                { "value": "ca", "text": "Canada" },
+                { "value": "gb", "text": "United Kingdom" },
+                { "value": "au", "text": "Australia" },
+                { "value": "de", "text": "Germany" },
+                { "value": "fr", "text": "France" },
+                { "value": "nl", "text": "Netherlands" },
+                { "value": "es", "text": "Spain" },
+                { "value": "it", "text": "Italy" },
+                { "value": "ie", "text": "Ireland" }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other country",
+              "otherPlaceholder": "Type your country"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "paymentMethodPage",
+      "title": "Payment Method",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "paymentMethod",
+          "title": "How would you like to pay?",
+          "isRequired": true,
+          "choices": [
+            { "value": "card", "text": "Credit or debit card" },
+            { "value": "bank-transfer", "text": "Bank transfer" },
+            { "value": "paypal", "text": "PayPal" }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "cardNote",
+          "visibleIf": "{paymentMethod} = 'card'",
+          "html": "<p><b>Secure card payment.</b> We never ask for card details in this form. After you submit, you'll be taken to our secure payment page to enter your card number.</p>"
+        },
+        {
+          "type": "html",
+          "name": "bankTransferNote",
+          "visibleIf": "{paymentMethod} = 'bank-transfer'",
+          "html": "<p><b>Bank transfer.</b> After you submit, we'll email our bank details and a payment reference. Please include the reference so we can match your transfer.</p>"
+        },
+        {
+          "type": "html",
+          "name": "paypalNote",
+          "visibleIf": "{paymentMethod} = 'paypal'",
+          "html": "<p><b>PayPal.</b> After you submit, you'll be redirected to PayPal to approve the payment. You can pay with your PayPal balance or a linked card.</p>"
+        },
+        {
+          "type": "comment",
+          "name": "paymentNotes",
+          "title": "Notes",
+          "description": "Optional. Anything we should know about this payment.",
+          "rows": 3,
+          "maxLength": 500
+        },
+        {
+          "type": "checkbox",
+          "name": "paymentAgreement",
+          "title": "Agreement",
+          "isRequired": true,
+          "choices": [
+            { "value": "agree", "text": "I confirm the payment details are correct and I authorize the total charge shown." }
+          ],
+          "requiredErrorText": "Please confirm the payment details to continue."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {firstName}!</h3><p>Your payment of <b>{totalCharge}</b> is almost done. You're being taken to our secure payment page to finish paying by card. A receipt will be sent to <b>{email}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{paymentMethod} = 'bank-transfer'",
+      "html": "<h3>Thanks, {firstName}!</h3><p>We've recorded your payment of <b>{totalCharge}</b>. Our bank details and your payment reference are on their way to <b>{email}</b>. We'll send a receipt as soon as the transfer arrives.</p>"
+    },
+    {
+      "expression": "{paymentMethod} = 'paypal'",
+      "html": "<h3>Thanks, {firstName}!</h3><p>Your payment of <b>{totalCharge}</b> is almost done. You're being redirected to PayPal to approve it. A receipt will be sent to <b>{email}</b>.</p>"
+    }
+  ]
+}

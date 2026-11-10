@@ -1,0 +1,302 @@
+{
+  "title": "Your Work Style Quiz",
+  "description": "Everyone switches between habits during a workday. Ten short scenarios show which ones you lean on most. Pick the answer that sounds most like you on an ordinary day, not on your best one.",
+  "showQuestionNumbers": "on",
+  "questionsOnPageMode": "questionPerPage",
+  "showProgressBar": "top",
+  "completeText": "Show My Mix",
+  "pages": [
+    {
+      "name": "quizQuestions",
+      "title": "Quiz Questions",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "newProject",
+          "title": "A brand-new project lands on your desk. What do you do first?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "planner",
+              "text": "Break it into milestones and sketch a timeline"
+            },
+            {
+              "value": "spark",
+              "text": "Brainstorm a dozen possible directions"
+            },
+            {
+              "value": "crafter",
+              "text": "Study the requirements until every detail is clear"
+            },
+            {
+              "value": "weaver",
+              "text": "Find out who else is involved and set up a kickoff chat"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "usefulMeeting",
+          "title": "Which meeting sounds most useful to you?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "weaver",
+              "text": "A round table where everyone gets heard"
+            },
+            {
+              "value": "crafter",
+              "text": "A focused review of one piece of work, step by step"
+            },
+            {
+              "value": "spark",
+              "text": "An open whiteboard session where no idea is off limits"
+            },
+            {
+              "value": "planner",
+              "text": "A short check-in with a clear agenda and action items"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "deadlineMoved",
+          "title": "A deadline suddenly moves up by a week. What's your first move?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "crafter",
+              "text": "Decide what can be trimmed without lowering quality"
+            },
+            {
+              "value": "planner",
+              "text": "Rework the schedule and reassign tasks"
+            },
+            {
+              "value": "weaver",
+              "text": "Pull the team together and check how everyone is coping"
+            },
+            {
+              "value": "spark",
+              "text": "Look for a clever shortcut nobody has tried yet"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "helpfulFeedback",
+          "title": "What kind of feedback helps you most?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "spark",
+              "text": "Big-picture reactions: does the idea excite people?"
+            },
+            {
+              "value": "weaver",
+              "text": "A conversation about how the work landed with others"
+            },
+            {
+              "value": "planner",
+              "text": "Clear next steps in order of priority"
+            },
+            {
+              "value": "crafter",
+              "text": "Specific, detailed notes on what to improve"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "workspace",
+          "title": "Your desk or screen is usually...",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "planner",
+              "text": "Organized with lists, calendars, and labeled folders"
+            },
+            {
+              "value": "crafter",
+              "text": "Sparse, with only what the current task needs"
+            },
+            {
+              "value": "spark",
+              "text": "Covered in sticky notes, sketches, and open tabs"
+            },
+            {
+              "value": "weaver",
+              "text": "Full of chat windows and shared documents"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "stuckOnProblem",
+          "title": "You hit a problem you can't solve alone. You...",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "weaver",
+              "text": "Ask a colleague to talk it through with you"
+            },
+            {
+              "value": "spark",
+              "text": "Step away and let a new angle come to you"
+            },
+            {
+              "value": "crafter",
+              "text": "Dig into the root cause until it makes sense"
+            },
+            {
+              "value": "planner",
+              "text": "List the options and weigh them one by one"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "proudestMoment",
+          "title": "Your team just finished a big project. What makes you proudest?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "crafter",
+              "text": "The finished work holds up to close inspection"
+            },
+            {
+              "value": "weaver",
+              "text": "Everyone pulled together and enjoyed the process"
+            },
+            {
+              "value": "planner",
+              "text": "We delivered on time and on budget"
+            },
+            {
+              "value": "spark",
+              "text": "We tried something nobody had done before"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "energyDrain",
+          "title": "Which situation drains your energy the fastest?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "spark",
+              "text": "Doing the same routine task over and over"
+            },
+            {
+              "value": "planner",
+              "text": "Last-minute changes with no explanation"
+            },
+            {
+              "value": "crafter",
+              "text": "Being rushed into delivering sloppy work"
+            },
+            {
+              "value": "weaver",
+              "text": "Working in isolation with no one to bounce ideas off"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "colleaguesAskFor",
+          "title": "Colleagues most often come to you for...",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "planner",
+              "text": "Getting a messy situation under control"
+            },
+            {
+              "value": "spark",
+              "text": "Fresh ideas when they feel stuck"
+            },
+            {
+              "value": "weaver",
+              "text": "Advice on handling a tricky conversation"
+            },
+            {
+              "value": "crafter",
+              "text": "A careful second pair of eyes"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "perfectDayEnd",
+          "title": "Your perfect workday ends with...",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "weaver",
+              "text": "A good conversation that strengthened a working relationship"
+            },
+            {
+              "value": "crafter",
+              "text": "One piece of work polished to a high standard"
+            },
+            {
+              "value": "spark",
+              "text": "A notebook full of new possibilities"
+            },
+            {
+              "value": "planner",
+              "text": "Every item on today's list checked off"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "calculatedValues": [
+    {
+      "name": "sparkScore",
+      "expression": "iif({newProject} = 'spark', 1, 0) + iif({usefulMeeting} = 'spark', 1, 0) + iif({deadlineMoved} = 'spark', 1, 0) + iif({helpfulFeedback} = 'spark', 1, 0) + iif({workspace} = 'spark', 1, 0) + iif({stuckOnProblem} = 'spark', 1, 0) + iif({proudestMoment} = 'spark', 1, 0) + iif({energyDrain} = 'spark', 1, 0) + iif({colleaguesAskFor} = 'spark', 1, 0) + iif({perfectDayEnd} = 'spark', 1, 0)",
+      "includeIntoResult": true
+    },
+    {
+      "name": "plannerScore",
+      "expression": "iif({newProject} = 'planner', 1, 0) + iif({usefulMeeting} = 'planner', 1, 0) + iif({deadlineMoved} = 'planner', 1, 0) + iif({helpfulFeedback} = 'planner', 1, 0) + iif({workspace} = 'planner', 1, 0) + iif({stuckOnProblem} = 'planner', 1, 0) + iif({proudestMoment} = 'planner', 1, 0) + iif({energyDrain} = 'planner', 1, 0) + iif({colleaguesAskFor} = 'planner', 1, 0) + iif({perfectDayEnd} = 'planner', 1, 0)",
+      "includeIntoResult": true
+    },
+    {
+      "name": "weaverScore",
+      "expression": "iif({newProject} = 'weaver', 1, 0) + iif({usefulMeeting} = 'weaver', 1, 0) + iif({deadlineMoved} = 'weaver', 1, 0) + iif({helpfulFeedback} = 'weaver', 1, 0) + iif({workspace} = 'weaver', 1, 0) + iif({stuckOnProblem} = 'weaver', 1, 0) + iif({proudestMoment} = 'weaver', 1, 0) + iif({energyDrain} = 'weaver', 1, 0) + iif({colleaguesAskFor} = 'weaver', 1, 0) + iif({perfectDayEnd} = 'weaver', 1, 0)",
+      "includeIntoResult": true
+    },
+    {
+      "name": "crafterScore",
+      "expression": "iif({newProject} = 'crafter', 1, 0) + iif({usefulMeeting} = 'crafter', 1, 0) + iif({deadlineMoved} = 'crafter', 1, 0) + iif({helpfulFeedback} = 'crafter', 1, 0) + iif({workspace} = 'crafter', 1, 0) + iif({stuckOnProblem} = 'crafter', 1, 0) + iif({proudestMoment} = 'crafter', 1, 0) + iif({energyDrain} = 'crafter', 1, 0) + iif({colleaguesAskFor} = 'crafter', 1, 0) + iif({perfectDayEnd} = 'crafter', 1, 0)",
+      "includeIntoResult": true
+    },
+    {
+      "name": "workStyle",
+      "expression": "iif({sparkScore} >= {plannerScore} and {sparkScore} >= {weaverScore} and {sparkScore} >= {crafterScore}, 'spark', iif({plannerScore} >= {weaverScore} and {plannerScore} >= {crafterScore}, 'planner', iif({weaverScore} >= {crafterScore}, 'weaver', 'crafter')))",
+      "includeIntoResult": true
+    }
+  ],
+  "completedHtml": "<h3>All done!</h3><p><b>Your mix:</b> Idea Spark {sparkScore} · Steady Planner {plannerScore} · Team Weaver {weaverScore} · Detail Crafter {crafterScore} (out of 10). A close second score means you switch between those habits easily.</p><p><small>A conversation starter for teams, not a psychological assessment.</small></p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{workStyle} = 'spark'",
+      "html": "<h3>You lean most toward: The Idea Spark</h3><p>Blank pages don't scare you; they invite you in. You tend to reach for \"what if\" before \"how,\" and colleagues often borrow your energy when a project needs a push to get going.</p><p><b>Where you shine:</b> Turning a vague brief into several directions worth testing.</p><p><b>A habit worth trying:</b> Keep a running idea log so good thoughts survive the next new thing, and hand promising concepts to someone who enjoys the finishing stretch.</p><p><b>Your mix:</b> Idea Spark {sparkScore} · Steady Planner {plannerScore} · Team Weaver {weaverScore} · Detail Crafter {crafterScore} (out of 10). A close second score means you switch between those habits easily.</p><p><small>A conversation starter for teams, not a psychological assessment.</small></p>"
+    },
+    {
+      "expression": "{workStyle} = 'planner'",
+      "html": "<h3>You lean most toward: The Steady Planner</h3><p>You like knowing where the finish line is and how to get there. Goals turn into sequences in your head almost automatically, and teams relax a little when you hold the schedule.</p><p><b>Where you shine:</b> Untangling messy priorities and keeping commitments visible.</p><p><b>A habit worth trying:</b> Treat the plan as a draft, not a contract. Review it when facts change, and set aside time for work that has no deadline yet.</p><p><b>Your mix:</b> Idea Spark {sparkScore} · Steady Planner {plannerScore} · Team Weaver {weaverScore} · Detail Crafter {crafterScore} (out of 10). A close second score means you switch between those habits easily.</p><p><small>A conversation starter for teams, not a psychological assessment.</small></p>"
+    },
+    {
+      "expression": "{workStyle} = 'weaver'",
+      "html": "<h3>You lean most toward: The Team Weaver</h3><p>Your first instinct is to think about the people around the work. You notice who has gone quiet, who should meet whom, and how a decision will land before it is announced.</p><p><b>Where you shine:</b> Building trust, smoothing handoffs, and keeping a group talking to each other.</p><p><b>A habit worth trying:</b> Block out solo hours for your own tasks, and remember that saying \"I disagree\" kindly is also a way of looking after the team.</p><p><b>Your mix:</b> Idea Spark {sparkScore} · Steady Planner {plannerScore} · Team Weaver {weaverScore} · Detail Crafter {crafterScore} (out of 10). A close second score means you switch between those habits easily.</p><p><small>A conversation starter for teams, not a psychological assessment.</small></p>"
+    },
+    {
+      "expression": "{workStyle} = 'crafter'",
+      "html": "<h3>You lean most toward: The Detail Crafter</h3><p>You read the fine print and enjoy it. Small inconsistencies jump out at you, and when your name is on something, you want it to stand up to any question.</p><p><b>Where you shine:</b> Catching problems early and raising the bar on quality.</p><p><b>A habit worth trying:</b> Agree on a \"good enough\" line before you start, and show rough drafts sooner so feedback arrives while changes are still cheap.</p><p><b>Your mix:</b> Idea Spark {sparkScore} · Steady Planner {plannerScore} · Team Weaver {weaverScore} · Detail Crafter {crafterScore} (out of 10). A close second score means you switch between those habits easily.</p><p><small>A conversation starter for teams, not a psychological assessment.</small></p>"
+    }
+  ]
+}

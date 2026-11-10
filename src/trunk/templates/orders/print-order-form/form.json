@@ -1,0 +1,519 @@
+{
+  "title": "Print Order",
+  "description": "Choose your product and options, upload your artwork, and see an instant estimate before you place the order.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Place order",
+  "widthMode": "static",
+  "width": "760px",
+  "calculatedValues": [
+    {
+      "name": "baseUnitPrice",
+      "expression": "iif({printProduct} = 'business-cards', 0.12, iif({printProduct} = 'flyers', 0.35, iif({printProduct} = 'posters', 6.5, iif({printProduct} = 'brochures', 0.9, iif({printProduct} = 'banners', 45, iif({printProduct} = 'stickers', 0.4, iif({printProduct} = 'booklets', 3.5, 0)))))))"
+    },
+    {
+      "name": "sidesFactor",
+      "expression": "iif({printSides} = 'double', 1.3, 1)"
+    },
+    {
+      "name": "colorFactor",
+      "expression": "iif({colorMode} = 'black-and-white', 0.8, 1)"
+    },
+    {
+      "name": "stockFactor",
+      "expression": "iif({printProduct} = 'banners', 1, iif({paperStock} = 'premium-matte' or {paperStock} = 'premium-gloss', 1.15, iif({paperStock} = 'heavy-cardstock', 1.25, iif({paperStock} = 'recycled', 1.05, 1))))"
+    },
+    {
+      "name": "finishingPerUnit",
+      "expression": "iif({finishing} contains 'lamination', 0.1, 0) + iif({finishing} contains 'rounded-corners', 0.03, 0) + iif({finishing} contains 'folding', 0.05, 0) + iif({finishing} contains 'binding', 0.75, 0)"
+    },
+    {
+      "name": "quantityDiscount",
+      "expression": "iif({quantity} >= 2500, 0.85, iif({quantity} >= 1000, 0.9, iif({quantity} >= 500, 0.95, 1)))"
+    },
+    {
+      "name": "turnaroundRate",
+      "expression": "iif({turnaround} = 'same-day', 0.5, iif({turnaround} = 'rush', 0.25, 0))"
+    }
+  ],
+  "pages": [
+    {
+      "name": "product",
+      "title": "Product",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "printProduct",
+          "title": "What would you like to print?",
+          "isRequired": true,
+          "choices": [
+            { "value": "business-cards", "text": "Business cards" },
+            { "value": "flyers", "text": "Flyers" },
+            { "value": "posters", "text": "Posters" },
+            { "value": "brochures", "text": "Brochures" },
+            { "value": "banners", "text": "Banners" },
+            { "value": "stickers", "text": "Stickers" },
+            { "value": "booklets", "text": "Booklets" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "businessCardSize",
+          "visibleIf": "{printProduct} = 'business-cards'",
+          "title": "Size",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "standard-3.5x2", "text": "Standard 3.5 x 2 in" },
+            { "value": "square-2.5x2.5", "text": "Square 2.5 x 2.5 in" },
+            { "value": "slim-3.5x1.5", "text": "Slim 3.5 x 1.5 in" },
+            { "value": "euro-85x55", "text": "European 85 x 55 mm" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "sheetSize",
+          "visibleIf": "{printProduct} anyof ['flyers', 'brochures', 'booklets']",
+          "title": "Size",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "a6", "text": "A6 (105 x 148 mm)" },
+            { "value": "a5", "text": "A5 (148 x 210 mm)" },
+            { "value": "a4", "text": "A4 (210 x 297 mm)" },
+            { "value": "half-letter", "text": "Half letter (5.5 x 8.5 in)" },
+            { "value": "letter", "text": "Letter (8.5 x 11 in)" },
+            { "value": "legal", "text": "Legal (8.5 x 14 in)" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "posterSize",
+          "visibleIf": "{printProduct} = 'posters'",
+          "title": "Size",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "a3", "text": "A3 (297 x 420 mm)" },
+            { "value": "a2", "text": "A2 (420 x 594 mm)" },
+            { "value": "a1", "text": "A1 (594 x 841 mm)" },
+            { "value": "18x24", "text": "18 x 24 in" },
+            { "value": "24x36", "text": "24 x 36 in" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "bannerSize",
+          "visibleIf": "{printProduct} = 'banners'",
+          "title": "Size",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "2x4", "text": "2 x 4 ft" },
+            { "value": "3x6", "text": "3 x 6 ft" },
+            { "value": "4x8", "text": "4 x 8 ft" },
+            { "value": "roll-up-33x80", "text": "Roll-up 33 x 80 in" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "stickerSize",
+          "visibleIf": "{printProduct} = 'stickers'",
+          "title": "Size",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "circle-2", "text": "2 in circle" },
+            { "value": "circle-3", "text": "3 in circle" },
+            { "value": "square-3x3", "text": "3 x 3 in square" },
+            { "value": "rectangle-4x2", "text": "4 x 2 in rectangle" },
+            { "value": "die-cut", "text": "Custom die-cut shape" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "bookletPageCount",
+          "visibleIf": "{printProduct} = 'booklets'",
+          "title": "Number of pages",
+          "description": "Including the cover. Must be a multiple of 4.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 8,
+          "max": 120,
+          "step": 4,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{bookletPageCount} % 4 = 0",
+              "text": "The page count must be a multiple of 4."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "paperStock",
+          "visibleIf": "{printProduct} notempty and {printProduct} <> 'banners'",
+          "title": "Paper stock",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "standard", "text": "Standard" },
+            { "value": "premium-matte", "text": "Premium matte (+15%)" },
+            { "value": "premium-gloss", "text": "Premium gloss (+15%)" },
+            { "value": "heavy-cardstock", "text": "Heavy cardstock (+25%)" },
+            { "value": "recycled", "text": "Recycled (+5%)" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "bannerMaterial",
+          "visibleIf": "{printProduct} = 'banners'",
+          "title": "Material",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "vinyl", "text": "Vinyl (outdoor)" },
+            { "value": "mesh", "text": "Mesh (wind-resistant)" },
+            { "value": "fabric", "text": "Fabric (indoor)" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "printSides",
+          "title": "Printed sides",
+          "isRequired": true,
+          "colCount": 2,
+          "defaultValue": "single",
+          "choices": [
+            { "value": "single", "text": "Single-sided" },
+            { "value": "double", "text": "Double-sided (+30%)" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "colorMode",
+          "title": "Color",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "colCount": 2,
+          "defaultValue": "full-color",
+          "choices": [
+            { "value": "full-color", "text": "Full color" },
+            { "value": "black-and-white", "text": "Black and white (-20%)" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "finishing",
+          "title": "Finishing",
+          "description": "Optional. Prices are per piece.",
+          "colCount": 2,
+          "choicesVisibleIf": "({item} <> 'binding' or {printProduct} = 'booklets') and ({item} <> 'folding' or {printProduct} anyof ['flyers', 'brochures']) and ({item} <> 'rounded-corners' or {printProduct} anyof ['business-cards', 'stickers', 'flyers'])",
+          "choices": [
+            { "value": "lamination", "text": "Lamination (+$0.10)" },
+            { "value": "rounded-corners", "text": "Rounded corners (+$0.03)" },
+            { "value": "folding", "text": "Folding (+$0.05)" },
+            { "value": "binding", "text": "Saddle-stitch binding (+$0.75)" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "quantity",
+          "title": "Quantity",
+          "description": "Orders of 500 or more get a volume discount.",
+          "isRequired": true,
+          "choices": [
+            { "value": 50, "text": "50" },
+            { "value": 100, "text": "100" },
+            { "value": 250, "text": "250" },
+            { "value": 500, "text": "500 (save 5%)" },
+            { "value": 1000, "text": "1,000 (save 10%)" },
+            { "value": 2500, "text": "2,500 (save 15%)" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "artwork",
+      "title": "Artwork",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "needsDesignHelp",
+          "title": "Do you need help with the design?",
+          "description": "Our designers can create or adjust your artwork for a flat fee of $75.",
+          "labelTrue": "Yes, design it for me",
+          "labelFalse": "No, I have print-ready files"
+        },
+        {
+          "type": "file",
+          "name": "artworkFiles",
+          "visibleIf": "{needsDesignHelp} <> true",
+          "title": "Upload your print-ready artwork",
+          "description": "PDF, AI, EPS, or PNG. Include 3 mm bleed and outline all fonts. Up to 10 files, 50 MB each.",
+          "isRequired": true,
+          "allowMultiple": true,
+          "maxFiles": 10,
+          "maxSize": 52428800,
+          "acceptedTypes": ".pdf,.ai,.eps,.png,.jpg,.jpeg,.tif,.tiff"
+        },
+        {
+          "type": "comment",
+          "name": "designBrief",
+          "visibleIf": "{needsDesignHelp} = true",
+          "title": "Design brief",
+          "description": "Describe the text, colors, logo, and style you want. You can upload reference files below.",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 2000
+        },
+        {
+          "type": "file",
+          "name": "referenceFiles",
+          "visibleIf": "{needsDesignHelp} = true",
+          "title": "Logo and reference files",
+          "description": "Optional. Logos, photos, brand guidelines, or examples you like.",
+          "allowMultiple": true,
+          "maxFiles": 10,
+          "maxSize": 52428800,
+          "acceptedTypes": "image/*,.pdf,.ai,.eps,.docx"
+        },
+        {
+          "type": "boolean",
+          "name": "proofRequired",
+          "title": "Would you like to approve a digital proof before we print?",
+          "description": "Recommended. We'll email a PDF proof and wait for your approval. This adds about one business day.",
+          "defaultValue": true,
+          "labelTrue": "Yes, send me a proof",
+          "labelFalse": "No, print as submitted"
+        },
+        {
+          "type": "comment",
+          "name": "artworkNotes",
+          "title": "Notes about the artwork",
+          "description": "Optional. For example: Pantone colors to match, or which file is the front and back.",
+          "rows": 3,
+          "maxLength": 1000
+        }
+      ]
+    },
+    {
+      "name": "deliveryAndEstimate",
+      "title": "Delivery and Estimate",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "turnaround",
+          "title": "Turnaround",
+          "isRequired": true,
+          "defaultValue": "standard",
+          "choices": [
+            { "value": "standard", "text": "Standard: 5 to 7 business days" },
+            { "value": "rush", "text": "Rush: 2 to 3 business days (+25%)" },
+            { "value": "same-day", "text": "Same day: order before 10:00 (+50%)" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "neededByDate",
+          "title": "Needed by",
+          "description": "Optional. Let us know if you have a hard deadline.",
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "fulfillment",
+          "title": "How would you like to receive your order?",
+          "isRequired": true,
+          "colCount": 2,
+          "defaultValue": "pickup",
+          "choices": [
+            { "value": "pickup", "text": "Pick up in store (free)" },
+            { "value": "delivery", "text": "Courier delivery (+$15)" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "deliveryAddress",
+          "title": "Delivery address",
+          "visibleIf": "{fulfillment} = 'delivery'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "deliveryStreet",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "deliveryCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "deliveryState",
+              "title": "State or province",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "deliveryPostalCode",
+              "title": "ZIP or postal code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "deliveryInstructions",
+              "title": "Delivery instructions",
+              "description": "Optional. Floor, suite, reception desk, or safe place.",
+              "maxLength": 200
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "estimate",
+          "title": "Your estimate",
+          "visibleIf": "{printProduct} notempty and {quantity} notempty",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "unitPrice",
+              "title": "Price per piece",
+              "expression": "round({baseUnitPrice} * {sidesFactor} * {colorFactor} * {stockFactor} * {quantityDiscount} + {finishingPerUnit}, 3)",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "maximumFractionDigits": 3
+            },
+            {
+              "type": "expression",
+              "name": "printSubtotal",
+              "title": "Print subtotal",
+              "startWithNewLine": false,
+              "expression": "round({unitPrice} * {quantity}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "designFee",
+              "title": "Design service",
+              "expression": "iif({needsDesignHelp} = true, 75, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "rushSurcharge",
+              "title": "Turnaround surcharge",
+              "startWithNewLine": false,
+              "expression": "round({printSubtotal} * {turnaroundRate}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "deliveryFee",
+              "title": "Delivery",
+              "startWithNewLine": false,
+              "expression": "iif({fulfillment} = 'delivery', 15, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "estimatedTotal",
+              "title": "Estimated total",
+              "expression": "round({printSubtotal} + {designFee} + {rushSurcharge} + {deliveryFee}, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "html",
+              "name": "estimateNote",
+              "html": "<p><small>This is an estimate before tax. We confirm the final price after we check your artwork, and we'll contact you before printing if anything changes.</small></p>"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "customerContact",
+          "title": "Your contact details",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true,
+              "autocomplete": "name"
+            },
+            {
+              "type": "text",
+              "name": "company",
+              "title": "Company",
+              "startWithNewLine": false,
+              "autocomplete": "organization"
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email",
+              "description": "We'll send the proof and order updates here.",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel",
+              "autocomplete": "tel"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "orderNotes",
+          "title": "Anything else we should know?",
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "checkbox",
+          "name": "termsAccepted",
+          "title": "Terms",
+          "isRequired": true,
+          "choices": [
+            { "value": "accepted", "text": "I have checked my artwork and options, and I understand that the final price is confirmed after artwork review." }
+          ],
+          "requiredErrorText": "Please accept the terms to place your order."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {fullName}! Your order is in.</h3><p><b>{quantity}</b> x <b>{printProduct}</b>, estimated at <b>{estimatedTotal}</b> before tax.</p><p>We'll email the order confirmation to <b>{email}</b>. Your order will be ready for pickup within the selected turnaround.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{proofRequired} = true",
+      "html": "<h3>Thanks, {fullName}! Your order is in.</h3><p><b>{quantity}</b> x <b>{printProduct}</b>, estimated at <b>{estimatedTotal}</b> before tax.</p><p>We'll email a digital proof to <b>{email}</b> for your approval before we print. Production starts as soon as you approve it.</p>"
+    },
+    {
+      "expression": "{fulfillment} = 'delivery'",
+      "html": "<h3>Thanks, {fullName}! Your order is in.</h3><p><b>{quantity}</b> x <b>{printProduct}</b>, estimated at <b>{estimatedTotal}</b> before tax.</p><p>We'll email the order confirmation to <b>{email}</b> and deliver to <b>{deliveryStreet}, {deliveryCity}</b> within the selected turnaround.</p>"
+    }
+  ]
+}

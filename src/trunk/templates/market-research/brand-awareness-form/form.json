@@ -1,0 +1,263 @@
+{
+  "title": "Brand Awareness Survey",
+  "description": "We are studying how people choose products in our category. There are no right or wrong answers: we are interested in your honest opinions. The survey takes about 7 minutes.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "categoryAndRecall",
+      "title": "Brands You Know",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "lastCategoryPurchase",
+          "title": "When did you last buy a product or service in this category?",
+          "isRequired": true,
+          "choices": [
+            { "value": "pastMonth", "text": "Within the past month" },
+            { "value": "pastSixMonths", "text": "1 to 6 months ago" },
+            { "value": "pastYear", "text": "6 to 12 months ago" },
+            { "value": "overAYear", "text": "More than a year ago" },
+            { "value": "never", "text": "I have never bought one" }
+          ]
+        },
+        {
+          "type": "multipletext",
+          "name": "unaidedRecall",
+          "title": "When you think of this category, which brands come to mind first?",
+          "description": "Type up to three brand names in the order they come to mind. Please don't look them up.",
+          "items": [
+            { "name": "firstBrand", "title": "First" },
+            { "name": "secondBrand", "title": "Second" },
+            { "name": "thirdBrand", "title": "Third" }
+          ],
+          "colCount": 1
+        }
+      ]
+    },
+    {
+      "name": "familiarity",
+      "title": "Your Familiarity With Our Brand",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "aidedAwareness",
+          "title": "Before today, how familiar were you with our brand?",
+          "isRequired": true,
+          "choices": [
+            { "value": "neverHeard", "text": "I had never heard of it" },
+            { "value": "nameOnly", "text": "I had heard the name, but know nothing about it" },
+            { "value": "littleKnowledge", "text": "I know a little about it" },
+            { "value": "wellKnown", "text": "I know it well" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "brandInteractions",
+          "visibleIf": "{aidedAwareness} anyof ['nameOnly', 'littleKnowledge', 'wellKnown']",
+          "title": "Which of the following have you ever done?",
+          "description": "Select all that apply.",
+          "isRequired": true,
+          "choices": [
+            { "value": "sawAdvertising", "text": "Seen or heard our advertising" },
+            { "value": "visitedWebsite", "text": "Visited our website or app" },
+            { "value": "followedSocial", "text": "Followed us on social media" },
+            { "value": "visitedStore", "text": "Visited one of our stores or locations" },
+            { "value": "purchasedOnce", "text": "Bought from us once" },
+            { "value": "purchasedRegularly", "text": "Bought from us more than once" },
+            { "value": "recommended", "text": "Recommended us to someone" }
+          ],
+          "showNoneItem": true,
+          "noneText": "None of these"
+        },
+        {
+          "type": "checkbox",
+          "name": "awarenessSources",
+          "visibleIf": "{aidedAwareness} anyof ['nameOnly', 'littleKnowledge', 'wellKnown']",
+          "title": "Where have you seen or heard about our brand?",
+          "description": "Select all that apply.",
+          "choices": [
+            { "value": "searchEngine", "text": "Online search results" },
+            { "value": "socialMedia", "text": "Social media" },
+            { "value": "onlineAds", "text": "Online ads or videos" },
+            { "value": "tvRadio", "text": "TV, radio, or podcasts" },
+            { "value": "printOutdoor", "text": "Print or outdoor ads" },
+            { "value": "inStore", "text": "In a store" },
+            { "value": "wordOfMouth", "text": "Friends, family, or colleagues" },
+            { "value": "reviews", "text": "Reviews or news articles" },
+            { "value": "events", "text": "Events or sponsorships" }
+          ],
+          "colCount": 2,
+          "showOtherItem": true,
+          "otherText": "Somewhere else",
+          "showNoneItem": true,
+          "noneText": "I don't remember"
+        }
+      ]
+    },
+    {
+      "name": "perception",
+      "title": "Your Impressions",
+      "visibleIf": "{aidedAwareness} anyof ['littleKnowledge', 'wellKnown']",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "brandAttributes",
+          "title": "How well does each statement describe our brand?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Not at all" },
+            { "value": 2, "text": "Slightly" },
+            { "value": 3, "text": "Moderately" },
+            { "value": 4, "text": "Very well" },
+            { "value": 5, "text": "Extremely well" },
+            { "value": "dontKnow", "text": "Don't know" }
+          ],
+          "rows": [
+            { "value": "trustworthy", "text": "Is trustworthy" },
+            { "value": "highQuality", "text": "Offers high quality" },
+            { "value": "goodValue", "text": "Offers good value for money" },
+            { "value": "innovative", "text": "Is innovative" },
+            { "value": "customerFocused", "text": "Cares about its customers" },
+            { "value": "responsible", "text": "Acts responsibly toward people and the environment" },
+            { "value": "relevant", "text": "Is a brand for people like me" }
+          ],
+          "eachRowRequired": true
+        },
+        {
+          "type": "radiogroup",
+          "name": "competitiveComparison",
+          "title": "Compared with other brands in this category, our brand is…",
+          "isRequired": true,
+          "choices": [
+            { "value": "muchWorse", "text": "Much worse" },
+            { "value": "somewhatWorse", "text": "Somewhat worse" },
+            { "value": "aboutTheSame", "text": "About the same" },
+            { "value": "somewhatBetter", "text": "Somewhat better" },
+            { "value": "muchBetter", "text": "Much better" },
+            { "value": "notSure", "text": "Not sure" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "brandWords",
+          "title": "What one word or short phrase best describes our brand to you?",
+          "maxLength": 60
+        }
+      ]
+    },
+    {
+      "name": "consideration",
+      "title": "Choosing a Brand",
+      "elements": [
+        {
+          "type": "ranking",
+          "name": "choiceFactors",
+          "title": "Rank these factors by how much they matter to you when choosing a brand in this category.",
+          "description": "Drag the items into order, with the most important at the top.",
+          "choices": [
+            { "value": "price", "text": "Price" },
+            { "value": "quality", "text": "Quality" },
+            { "value": "reputation", "text": "Brand reputation" },
+            { "value": "recommendations", "text": "Recommendations from people I know" },
+            { "value": "availability", "text": "Easy to find and buy" },
+            { "value": "customerService", "text": "Customer service" },
+            { "value": "sustainability", "text": "Environmental and social impact" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "purchaseConsideration",
+          "title": "How likely are you to consider our brand the next time you buy in this category?",
+          "isRequired": true,
+          "choices": [
+            { "value": "definitelyNot", "text": "Definitely would not consider it" },
+            { "value": "probablyNot", "text": "Probably would not consider it" },
+            { "value": "mightOrMightNot", "text": "Might or might not consider it" },
+            { "value": "probably", "text": "Probably would consider it" },
+            { "value": "definitely", "text": "Definitely would consider it" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "considerationBarriers",
+          "visibleIf": "{purchaseConsideration} anyof ['definitelyNot', 'probablyNot', 'mightOrMightNot']",
+          "title": "What, if anything, holds you back from considering our brand?",
+          "description": "Select all that apply.",
+          "choices": [
+            { "value": "notFamiliar", "text": "I don't know enough about it" },
+            { "value": "price", "text": "It seems too expensive" },
+            { "value": "preferOther", "text": "I'm happy with the brand I use now" },
+            { "value": "availability", "text": "It isn't available where I shop" },
+            { "value": "pastExperience", "text": "I had a poor experience with it" },
+            { "value": "doesNotFitNeeds", "text": "It doesn't fit my needs" },
+            { "value": "notBuyingSoon", "text": "I don't plan to buy in this category soon" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other reason"
+        }
+      ]
+    },
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "description": "These questions are optional. Your answers are analyzed only in aggregate and help us understand how views differ between groups.",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "ageGroup",
+          "title": "What is your age?",
+          "choices": [
+            { "value": "18to24", "text": "18–24" },
+            { "value": "25to34", "text": "25–34" },
+            { "value": "35to44", "text": "35–44" },
+            { "value": "45to54", "text": "45–54" },
+            { "value": "55to64", "text": "55–64" },
+            { "value": "65plus", "text": "65 or older" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "gender",
+          "title": "How do you describe your gender?",
+          "choices": [
+            { "value": "woman", "text": "Woman" },
+            { "value": "man", "text": "Man" },
+            { "value": "nonBinary", "text": "Non-binary" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ],
+          "showOtherItem": true,
+          "otherText": "I prefer to self-describe"
+        },
+        {
+          "type": "radiogroup",
+          "name": "areaType",
+          "title": "Which best describes the area where you live?",
+          "choices": [
+            { "value": "urban", "text": "Urban" },
+            { "value": "suburban", "text": "Suburban" },
+            { "value": "rural", "text": "Rural" }
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "dropdown",
+          "name": "employmentStatus",
+          "title": "What is your current employment status?",
+          "choices": [
+            { "value": "fullTime", "text": "Employed full-time" },
+            { "value": "partTime", "text": "Employed part-time" },
+            { "value": "selfEmployed", "text": "Self-employed" },
+            { "value": "student", "text": "Student" },
+            { "value": "notEmployed", "text": "Not currently employed" },
+            { "value": "retired", "text": "Retired" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ]
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "completedHtml": "<h3>Thank you for taking part!</h3><p>Your answers have been recorded. They will be combined with other responses and used only for research purposes.</p>"
+}

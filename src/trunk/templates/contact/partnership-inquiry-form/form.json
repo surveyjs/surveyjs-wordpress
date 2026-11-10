@@ -1,0 +1,512 @@
+{
+  "title": "Partner With Us",
+  "description": "Have an idea for working together? Tell us what kind of partnership you're proposing and what you'd bring to it.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Send proposal",
+  "widthMode": "static",
+  "width": "720px",
+  "pages": [
+    {
+      "name": "partnershipProposal",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "partnershipType",
+          "title": "What kind of partnership are you proposing?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "reseller",
+              "text": "Reselling or distributing our offering"
+            },
+            {
+              "value": "referral",
+              "text": "Referral or affiliate program"
+            },
+            {
+              "value": "integration",
+              "text": "Technology integration"
+            },
+            {
+              "value": "co-marketing",
+              "text": "Co-marketing"
+            },
+            {
+              "value": "sponsorship",
+              "text": "Sponsorship"
+            },
+            {
+              "value": "other",
+              "text": "Something else"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "resellerDetails",
+          "visibleIf": "{partnershipType} = 'reseller'",
+          "title": "Reselling",
+          "elements": [
+            {
+              "type": "text",
+              "name": "resellerTerritory",
+              "title": "Which countries or markets would you cover?",
+              "isRequired": true,
+              "maxLength": 200
+            },
+            {
+              "type": "checkbox",
+              "name": "salesChannels",
+              "title": "How do you sell today?",
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "online-store",
+                  "text": "Own online store"
+                },
+                {
+                  "value": "marketplaces",
+                  "text": "Online marketplaces"
+                },
+                {
+                  "value": "retail-locations",
+                  "text": "Physical stores"
+                },
+                {
+                  "value": "sales-team",
+                  "text": "Direct sales team"
+                },
+                {
+                  "value": "service-projects",
+                  "text": "As part of consulting or service projects"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "referralDetails",
+          "visibleIf": "{partnershipType} = 'referral'",
+          "title": "Referrals",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "promotionChannels",
+              "title": "Where would you recommend us?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "website",
+                  "text": "Website or blog"
+                },
+                {
+                  "value": "newsletter",
+                  "text": "Email newsletter"
+                },
+                {
+                  "value": "social-media",
+                  "text": "Social media"
+                },
+                {
+                  "value": "video-podcast",
+                  "text": "Videos or podcasts"
+                },
+                {
+                  "value": "own-clients",
+                  "text": "Directly to my clients"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "dropdown",
+              "name": "audienceSize",
+              "title": "Approximate monthly audience or client base",
+              "choices": [
+                {
+                  "value": "under-1k",
+                  "text": "Fewer than 1,000 people"
+                },
+                {
+                  "value": "1k-10k",
+                  "text": "1,000–10,000 people"
+                },
+                {
+                  "value": "10k-100k",
+                  "text": "10,000–100,000 people"
+                },
+                {
+                  "value": "over-100k",
+                  "text": "More than 100,000 people"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "integrationDetails",
+          "visibleIf": "{partnershipType} = 'integration'",
+          "title": "Integration",
+          "elements": [
+            {
+              "type": "text",
+              "name": "integrationProduct",
+              "title": "Which product or platform would connect with ours?",
+              "isRequired": true,
+              "maxLength": 150
+            },
+            {
+              "type": "radiogroup",
+              "name": "integrationStage",
+              "title": "How far along is the integration?",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "idea",
+                  "text": "It's an idea we'd like to explore"
+                },
+                {
+                  "value": "planned",
+                  "text": "It's planned and we're ready to start"
+                },
+                {
+                  "value": "in-progress",
+                  "text": "We're already building it"
+                },
+                {
+                  "value": "built",
+                  "text": "It's built and we'd like to make it official"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "coMarketingDetails",
+          "visibleIf": "{partnershipType} = 'co-marketing'",
+          "title": "Co-marketing",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "campaignFormats",
+              "title": "Which formats are you thinking of?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "content",
+                  "text": "Articles or guides"
+                },
+                {
+                  "value": "webinars",
+                  "text": "Webinars or live sessions"
+                },
+                {
+                  "value": "case-study",
+                  "text": "A joint case study"
+                },
+                {
+                  "value": "events",
+                  "text": "Events or trade shows"
+                },
+                {
+                  "value": "email",
+                  "text": "Email campaigns"
+                },
+                {
+                  "value": "social",
+                  "text": "Social media campaigns"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "sponsorshipDetails",
+          "visibleIf": "{partnershipType} = 'sponsorship'",
+          "title": "Sponsorship",
+          "elements": [
+            {
+              "type": "text",
+              "name": "sponsorshipSubject",
+              "title": "What would we sponsor?",
+              "description": "For example, an event, a team, a community, or a program.",
+              "isRequired": true,
+              "maxLength": 200
+            },
+            {
+              "type": "text",
+              "name": "sponsorshipDate",
+              "title": "Start date",
+              "inputType": "date",
+              "minValueExpression": "today()"
+            },
+            {
+              "type": "text",
+              "name": "expectedReach",
+              "title": "Expected attendance or reach",
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 0,
+              "step": 1
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "aboutPartner",
+          "visibleIf": "{partnershipType} notempty",
+          "title": "About you",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "partnerType",
+              "title": "You are proposing this as",
+              "isRequired": true,
+              "colCount": 0,
+              "choices": [
+                {
+                  "value": "company",
+                  "text": "A company"
+                },
+                {
+                  "value": "nonprofit",
+                  "text": "A nonprofit or school"
+                },
+                {
+                  "value": "individual",
+                  "text": "An individual"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "organizationName",
+              "visibleIf": "{partnerType} anyof ['company', 'nonprofit']",
+              "title": "Organization name",
+              "isRequired": true,
+              "autocomplete": "organization",
+              "maxLength": 150
+            },
+            {
+              "type": "text",
+              "name": "website",
+              "title": "Website or profile link",
+              "inputType": "url",
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^(https?://)?[^\\s/$.?#]+\\.[^\\s]+$",
+                  "text": "Please enter a valid web address."
+                }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "name": "organizationSize",
+              "visibleIf": "{partnerType} anyof ['company', 'nonprofit']",
+              "title": "Team size",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "2-10",
+                  "text": "2–10 people"
+                },
+                {
+                  "value": "11-50",
+                  "text": "11–50 people"
+                },
+                {
+                  "value": "51-250",
+                  "text": "51–250 people"
+                },
+                {
+                  "value": "251-1000",
+                  "text": "251–1,000 people"
+                },
+                {
+                  "value": "over-1000",
+                  "text": "More than 1,000 people"
+                }
+              ]
+            },
+            {
+              "type": "dropdown",
+              "name": "region",
+              "title": "Where do you mainly operate?",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "choices": [
+                {
+                  "value": "north-america",
+                  "text": "North America"
+                },
+                {
+                  "value": "latin-america",
+                  "text": "Latin America"
+                },
+                {
+                  "value": "europe",
+                  "text": "Europe"
+                },
+                {
+                  "value": "middle-east-africa",
+                  "text": "Middle East and Africa"
+                },
+                {
+                  "value": "asia-pacific",
+                  "text": "Asia-Pacific"
+                },
+                {
+                  "value": "global",
+                  "text": "Several regions"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "proposal",
+          "visibleIf": "{partnershipType} notempty",
+          "title": "Your proposal",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "proposalSummary",
+              "title": "Describe the partnership in a few sentences",
+              "description": "What would we do together, and why would it work well for both sides?",
+              "isRequired": true,
+              "rows": 5,
+              "maxLength": 2000,
+              "validators": [
+                {
+                  "type": "text",
+                  "minLength": 30,
+                  "text": "Please add a bit more detail so we can evaluate your idea."
+                }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "partnerExpectations",
+              "title": "What would you expect from us?",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                {
+                  "value": "commission",
+                  "text": "Commission or revenue share"
+                },
+                {
+                  "value": "partner-pricing",
+                  "text": "Partner pricing"
+                },
+                {
+                  "value": "technical-access",
+                  "text": "Technical access and support"
+                },
+                {
+                  "value": "sales-training",
+                  "text": "Product or sales training"
+                },
+                {
+                  "value": "marketing-materials",
+                  "text": "Marketing materials"
+                },
+                {
+                  "value": "joint-promotion",
+                  "text": "Promotion on our channels"
+                },
+                {
+                  "value": "funding",
+                  "text": "Financial support"
+                },
+                {
+                  "value": "partner-listing",
+                  "text": "A listing as an official partner"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "contactDetails",
+          "visibleIf": "{partnershipType} notempty",
+          "title": "Your contact details",
+          "elements": [
+            {
+              "type": "text",
+              "name": "fullName",
+              "title": "Full name",
+              "isRequired": true,
+              "autocomplete": "name",
+              "maxLength": 100
+            },
+            {
+              "type": "text",
+              "name": "jobTitle",
+              "visibleIf": "{partnerType} anyof ['company', 'nonprofit']",
+              "title": "Job title",
+              "autocomplete": "organization-title",
+              "startWithNewLine": false,
+              "maxLength": 100
+            },
+            {
+              "type": "text",
+              "name": "email",
+              "title": "Email address",
+              "isRequired": true,
+              "inputType": "email",
+              "autocomplete": "email",
+              "validators": [
+                {
+                  "type": "email",
+                  "text": "Please enter a valid email address."
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "phone",
+              "title": "Phone number (optional)",
+              "inputType": "tel",
+              "autocomplete": "tel",
+              "startWithNewLine": false,
+              "validators": [
+                {
+                  "type": "regex",
+                  "regex": "^\\+?[0-9 ().-]{7,20}$",
+                  "text": "Please enter a valid phone number."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}.</h3><p>Our partnerships team reviews every proposal and will reply to <b>{email}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{partnershipType} = 'integration'",
+      "html": "<h3>Thank you, {fullName}.</h3><p>We've passed your integration proposal to our technical partnerships team. They'll reply to <b>{email}</b>.</p>"
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "title": "Restaurant Feedback",
+  "description": "Thank you for dining with us! Share a few thoughts about your visit so we can keep improving the food and service.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Send feedback",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "visit",
+      "title": "Your Visit",
+      "elements": [
+        {
+          "type": "text",
+          "name": "visitDate",
+          "title": "Date of your visit",
+          "isRequired": true,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "radiogroup",
+          "name": "visitType",
+          "title": "How did you enjoy your meal?",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "dine-in", "text": "Dine-in" },
+            { "value": "takeout", "text": "Takeout" },
+            { "value": "delivery", "text": "Delivery" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "partySize",
+          "visibleIf": "{visitType} = 'dine-in'",
+          "title": "How many people were in your party?",
+          "inputType": "number",
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "validators": [
+            {
+              "type": "numeric",
+              "minValue": 1,
+              "maxValue": 50,
+              "text": "Please enter a number between 1 and 50."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "serverName",
+          "visibleIf": "{visitType} = 'dine-in'",
+          "title": "Your server's name",
+          "description": "Optional. It helps us pass on your feedback to the right person.",
+          "startWithNewLine": false,
+          "maxLength": 60
+        }
+      ]
+    },
+    {
+      "name": "experience",
+      "title": "Your Experience",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "overallRating",
+          "title": "How would you rate your overall experience?",
+          "isRequired": true,
+          "rateType": "stars",
+          "rateMin": 1,
+          "rateMax": 5,
+          "minRateDescription": "Disappointing",
+          "maxRateDescription": "Excellent"
+        },
+        {
+          "type": "matrix",
+          "name": "detailedRatings",
+          "title": "How would you rate the following?",
+          "description": "Skip any row that does not apply to your visit.",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Poor" },
+            { "value": 2, "text": "Fair" },
+            { "value": 3, "text": "Good" },
+            { "value": 4, "text": "Very good" },
+            { "value": 5, "text": "Excellent" }
+          ],
+          "rows": [
+            { "value": "foodQuality", "text": "Food quality and freshness" },
+            { "value": "taste", "text": "Taste and presentation" },
+            { "value": "portionSize", "text": "Portion size" },
+            { "value": "speed", "text": "Speed of service" },
+            { "value": "friendliness", "text": "Staff friendliness" },
+            { "value": "cleanliness", "text": "Cleanliness" },
+            { "value": "value", "text": "Value for money" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "favoriteDish",
+          "title": "What was your favorite dish?",
+          "maxLength": 100
+        },
+        {
+          "type": "comment",
+          "name": "improvementComment",
+          "visibleIf": "{overallRating} <= 3",
+          "title": "We're sorry your visit wasn't great. What could we have done better?",
+          "isRequired": true,
+          "rows": 4,
+          "maxLength": 1500
+        },
+        {
+          "type": "radiogroup",
+          "name": "wouldReturn",
+          "title": "Would you dine with us again?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "definitely", "text": "Definitely" },
+            { "value": "probably", "text": "Probably" },
+            { "value": "not-sure", "text": "Not sure" },
+            { "value": "probably-not", "text": "Probably not" },
+            { "value": "definitely-not", "text": "Definitely not" }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "wouldRecommend",
+          "title": "Would you recommend us to friends or family?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    },
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "referralSource",
+          "title": "How did you hear about us?",
+          "choices": [
+            { "value": "walk-by", "text": "Walked by" },
+            { "value": "friend", "text": "Friend or family" },
+            { "value": "social-media", "text": "Social media" },
+            { "value": "review-site", "text": "Review site or app" },
+            { "value": "search", "text": "Search engine or maps" },
+            { "value": "regular", "text": "I'm a regular guest" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "boolean",
+          "name": "contactConsent",
+          "title": "May the manager contact you about your feedback?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "contactName",
+          "visibleIf": "{contactConsent} = true",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "contactEmail",
+          "visibleIf": "{contactConsent} = true",
+          "title": "Email address",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you for your feedback!</h3><p>Every comment goes straight to our kitchen and front-of-house teams. We hope to welcome you back soon.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{contactConsent} = true",
+      "html": "<h3>Thank you, {contactName}!</h3><p>Our manager will read your feedback and get in touch at <b>{contactEmail}</b> within a few days.</p>"
+    }
+  ]
+}

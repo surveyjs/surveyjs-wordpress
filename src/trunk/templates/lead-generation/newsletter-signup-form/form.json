@@ -1,0 +1,118 @@
+{
+  "title": "Join Our Newsletter",
+  "description": "Pick the topics you care about and how often you'd like to hear from us.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Subscribe",
+  "widthMode": "static",
+  "width": "600px",
+  "pages": [
+    {
+      "name": "signup",
+      "elements": [
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "description": "Optional. We'll use it to greet you.",
+          "autocomplete": "given-name",
+          "maxLength": 50
+        },
+        {
+          "type": "checkbox",
+          "name": "interests",
+          "title": "What would you like to read about?",
+          "isRequired": true,
+          "colCount": 2,
+          "showSelectAllItem": true,
+          "selectAllText": "All topics",
+          "choices": [
+            {
+              "value": "product-news",
+              "text": "Product news and updates"
+            },
+            {
+              "value": "tips",
+              "text": "Tips and how-to guides"
+            },
+            {
+              "value": "events",
+              "text": "Events and webinars"
+            },
+            {
+              "value": "industry-insights",
+              "text": "Industry trends and insights"
+            },
+            {
+              "value": "customer-stories",
+              "text": "Customer stories"
+            },
+            {
+              "value": "offers",
+              "text": "Special offers and discounts"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "frequency",
+          "title": "How often should we write?",
+          "isRequired": true,
+          "defaultValue": "weekly",
+          "choices": [
+            {
+              "value": "as-published",
+              "text": "Whenever there's something new"
+            },
+            {
+              "value": "weekly",
+              "text": "A weekly digest"
+            },
+            {
+              "value": "monthly",
+              "text": "A monthly roundup"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "subscriptionConsent",
+          "title": "Subscription consent",
+          "titleLocation": "hidden",
+          "label": "Yes, send me emails about the topics I selected.",
+          "description": "You can unsubscribe at any time with the link at the bottom of every email.",
+          "renderAs": "checkbox",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{subscriptionConsent} = true",
+              "text": "Please confirm that you'd like to receive our emails."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>You're on the list!</h3><p>Look out for our first email at <b>{email}</b>. If it doesn't arrive, check your spam or promotions folder.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{firstName} notempty",
+      "html": "<h3>You're on the list, {firstName}!</h3><p>Look out for our first email at <b>{email}</b>. If it doesn't arrive, check your spam or promotions folder.</p>"
+    }
+  ]
+}

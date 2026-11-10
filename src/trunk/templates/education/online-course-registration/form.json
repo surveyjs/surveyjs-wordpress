@@ -1,0 +1,307 @@
+{
+  "title": "Online Course Registration Form",
+  "completedHtml": "<h3>Thank you for submitting the course registration form. You will be notified about the availability by the college office staff shortly.</h3>",
+  "pages": [
+    {
+      "name": "termsConditions",
+      "elements": [
+        {
+          "type": "html",
+          "name": "intro",
+          "html": "<p><strong>Payment Disclosures: Terms and Conditions</strong></p><ul><li style=\"margin-top: 1em; text-align: justify;\">I understand that I am responsible for all charges for this registration at the college.</li><li style=\"margin-top: 1em; text-align: justify;\">I understand that it is my responsibility to read all policies and procedures as outlined in the student handbook.</li><li style=\"margin-top: 1em; text-align: justify;\">I understand the drop/add, withdrawal, and refund policies as outlined in the handbook.</li><li style=\"margin-top: 1em; text-align: justify;\">It is my total obligation to pay tuition and fees in full for all classes that I am registered for after the fifth class day of any term.</li><li style=\"margin-top: 1em; text-align: justify;\">I further understand that all tuition and fees are to be paid in full no later than the fifth day of any term unless a deferment is in effect.</li><li style=\"margin-top: 1em; text-align: justify;\">I understand that I may be subject to late fees.</li><li style=\"margin-top: 1em; text-align: justify;\">I understand that if I have an unpaid balance, no further enrollment at the college will be permitted, that my unpaid balance will be turned over to a collection agency, and that I am fully responsible for any collection costs and fees.</li></ul>"
+        }
+      ]
+    },
+    {
+      "name": "details",
+      "elements": [
+        {
+          "type": "html",
+          "name": "formInstructions",
+          "html": "<b>Complete and submit the following form:</b>"
+        },
+        {
+          "type": "dropdown",
+          "name": "term",
+          "title": "Term",
+          "titleLocation": "left",
+          "isRequired": true,
+          "choices": [
+            "Fall",
+            "Winter",
+            "Spring",
+            "May",
+            "Summer"
+          ]
+        },
+        {
+          "type": "text",
+          "name": "dob",
+          "title": "Date of birth:",
+          "titleLocation": "left",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "expression",
+              "text": "You must be 16 years old to be eligible for course registration.",
+              "expression": "age({dob}) >= 16"
+            }
+          ],
+          "inputType": "date",
+          "autocomplete": "bday"
+        },
+        {
+          "type": "text",
+          "name": "ssn",
+          "title": "Last 4 digits of SSN:",
+          "titleLocation": "left",
+          "description": "We ask for your birthdate and last 4 digits of SSN to help ensure that we don’t create duplicate accounts.",
+          "descriptionLocation": "underInput",
+          "isRequired": true,
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "9999"
+          }
+        }
+      ],
+      "questionTitleWidth": "160px",
+      "questionTitleLocation": "left"
+    },
+    {
+      "name": "ethnicityRace",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "ethnicity",
+          "title": "What is your ethnicity?",
+          "titleLocation": "top",
+          "choices": [
+            {
+              "value": "hispanic",
+              "text": "Hispanic"
+            },
+            {
+              "value": "latino",
+              "text": "Latino"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other (please specify)"
+        },
+        {
+          "type": "dropdown",
+          "name": "race",
+          "title": "What's your racial background?",
+          "titleLocation": "top",
+          "choices": [
+            "American Indian or Alaskan Native",
+            "Black or African American",
+            "Native Hawaiian or Other Pacific Islander",
+            "Asian",
+            "White"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contactInfo",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "startWithNewLine": false,
+          "title": "Last name"
+        },
+        {
+          "type": "text",
+          "name": "address",
+          "title": "Street Address"
+        },
+        {
+          "type": "text",
+          "name": "city",
+          "title": "City"
+        },
+        {
+          "type": "text",
+          "name": "zipCode",
+          "startWithNewLine": false,
+          "title": "Zip Code",
+          "description": "MN zip codes range from 55001 to 56763.",
+          "autocomplete": "postal-code",
+          "min": 55001,
+          "max": 56763,
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "99999"
+          }
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone Number w/Area Code",
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "+1(999)-999-99-99"
+          }
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "startWithNewLine": false,
+          "title": "Email Address",
+          "autocomplete": "email",
+          "placeholder": "example@gmail.com"
+        }
+      ],
+      "questionTitleLocation": "top"
+    },
+    {
+      "name": "residency",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "resident",
+          "title": "Are you a resident of the U.S.?"
+        },
+        {
+          "type": "text",
+          "name": "sinceDate",
+          "visibleIf": "{resident} = true",
+          "startWithNewLine": false,
+          "title": "Since when?",
+          "resetValueIf": "{resident} = false",
+          "inputType": "date"
+        },
+        {
+          "type": "text",
+          "name": "residenceDuration",
+          "visibleIf": "{sinceDate} notempty and {resident} = true",
+          "title": "How long",
+          "setValueIf": "{sinceDate} notempty",
+          "setValueExpression": "dateDiff({sinceDate}, today(), 'years') + ' years' + ' ' + dateDiff({sinceDate}, today(), 'months') % 12 + ' months'",
+          "readOnly": true
+        },
+        {
+          "type": "text",
+          "name": "countryResidency",
+          "visibleIf": "{resident} = false",
+          "title": "Of which country are you a resident?"
+        },
+        {
+          "type": "boolean",
+          "name": "citizenship",
+          "title": "Do you hold U.S. citizenship?"
+        },
+        {
+          "type": "dropdown",
+          "name": "status",
+          "visibleIf": "{citizenship} = false",
+          "title": "Do you have status as:",
+          "choices": [
+            "Resident alien",
+            "Refugee/asylee",
+            "Temporary protected status"
+          ],
+          "showNoneItem": true,
+          "noneText": "None of these"
+        },
+        {
+          "type": "boolean",
+          "name": "visa",
+          "visibleIf": "{status} = 'none'",
+          "title": "Do you have or intend to apply for a visa?"
+        },
+        {
+          "type": "html",
+          "name": "comment",
+          "visibleIf": "{visa} = true",
+          "html": "You must contact the international student office at the college or university you wish to attend to determine whether a separate application is required."
+        }
+      ]
+    },
+    {
+      "name": "courseSelection",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "courses",
+          "title": "Please specify the courses you want to register for.",
+          "description": "You are allowed to register for a minimum of 3 and up to 6 courses at once.",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "id",
+              "title": "Course ID",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "subject",
+              "startWithNewLine": false,
+              "title": "Subj/Number"
+            },
+            {
+              "type": "text",
+              "name": "title",
+              "title": "Title",
+              "isRequired": true,
+              "textUpdateMode": "onTyping"
+            },
+            {
+              "type": "text",
+              "name": "credits",
+              "startWithNewLine": false,
+              "title": "Credits"
+            }
+          ],
+          "templateTabTitle": "{panel.title}",
+          "tabTitlePlaceholder": "New Course",
+          "panelCount": 3,
+          "minPanelCount": 3,
+          "maxPanelCount": 6,
+          "addPanelText": "Add a course",
+          "displayMode": "tab"
+        }
+      ]
+    },
+    {
+      "name": "signature",
+      "elements": [
+        {
+          "type": "signaturepad",
+          "name": "signForm",
+          "title": "Signature"
+        },
+        {
+          "type": "expression",
+          "name": "date",
+          "startWithNewLine": false,
+          "title": "Date",
+          "expression": "today()",
+          "displayStyle": "date"
+        }
+      ]
+    }
+  ],
+  "calculatedValues": [
+    {
+      "name": "residenceYears",
+      "expression": "dateDiff({sinceDate}, today(), 'years')"
+    },
+    {
+      "name": "residenceMonths",
+      "expression": "dateDiff({sinceDate}, today(), 'months') % 12"
+    }
+  ],
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Submit",
+  "firstPageIsStartPage": true,
+  "widthMode": "static",
+  "width": "1000"
+}

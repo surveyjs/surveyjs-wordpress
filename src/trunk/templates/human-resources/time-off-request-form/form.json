@@ -1,0 +1,202 @@
+{
+  "title": "Time Off Request Form",
+  "description": "Submit this form to request leave. Your manager will review it and reply by email.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Submit Request",
+  "pages": [
+    {
+      "name": "employeeDetails",
+      "title": "Your Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "employeeName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "employeeId",
+          "title": "Employee ID",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title"
+        },
+        {
+          "type": "text",
+          "name": "department",
+          "title": "Department or team",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "workEmail",
+          "title": "Work email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "leaveDetails",
+      "title": "Leave Details",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "leaveType",
+          "title": "Type of leave",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "vacation", "text": "Vacation" },
+            { "value": "sick", "text": "Sick leave" },
+            { "value": "personal", "text": "Personal day" },
+            { "value": "familyCare", "text": "Family care" },
+            { "value": "bereavement", "text": "Bereavement" },
+            { "value": "civicDuty", "text": "Jury duty or civic service" },
+            { "value": "parental", "text": "Parental leave" },
+            { "value": "unpaid", "text": "Unpaid leave" }
+          ],
+          "showOtherItem": true
+        },
+        {
+          "type": "text",
+          "name": "startDate",
+          "title": "First day of leave",
+          "isRequired": true,
+          "inputType": "date"
+        },
+        {
+          "type": "text",
+          "name": "endDate",
+          "title": "Last day of leave",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "minValueExpression": "{startDate}",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{endDate} >= {startDate}",
+              "text": "The last day of leave can't be earlier than the first day."
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "halfDays",
+          "visibleIf": "{startDate} notempty and {endDate} notempty",
+          "title": "Half days",
+          "description": "Select if you'll work part of the day.",
+          "choices": [
+            { "value": "firstDayHalf", "text": "Half day on the first (or only) day" },
+            {
+              "value": "lastDayHalf",
+              "text": "Half day on the last day",
+              "visibleIf": "diffDays({startDate}, {endDate}) > 0"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "nonWorkingDays",
+          "visibleIf": "{startDate} notempty and {endDate} notempty",
+          "title": "Non-working days within these dates",
+          "description": "Weekends, public holidays, or regular days off that fall between your first and last day of leave.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0,
+          "step": 1,
+          "defaultValue": 0,
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{nonWorkingDays} <= diffDays({startDate}, {endDate})",
+              "text": "Non-working days can't cover the whole period."
+            }
+          ]
+        },
+        {
+          "type": "expression",
+          "name": "requestedDays",
+          "visibleIf": "{startDate} notempty and {endDate} notempty",
+          "title": "Working days requested",
+          "expression": "iif({startDate} notempty and {endDate} notempty and {endDate} >= {startDate}, diffDays({startDate}, {endDate}) + 1 - iif({nonWorkingDays} notempty, {nonWorkingDays}, 0) - iif({halfDays} contains 'firstDayHalf', 0.5, 0) - iif({halfDays} contains 'lastDayHalf' and diffDays({startDate}, {endDate}) > 0, 0.5, 0), 0)",
+          "displayStyle": "decimal",
+          "minimumFractionDigits": 0,
+          "maximumFractionDigits": 1
+        },
+        {
+          "type": "comment",
+          "name": "leaveNotes",
+          "title": "Additional details",
+          "description": "Optional. Please don't include medical details here; HR will contact you privately if documentation is needed."
+        }
+      ]
+    },
+    {
+      "name": "coverageAndApproval",
+      "title": "Coverage and Approval",
+      "elements": [
+        {
+          "type": "text",
+          "name": "coveringColleague",
+          "title": "Who will cover your responsibilities?",
+          "description": "Name the colleague who has agreed to cover, if any."
+        },
+        {
+          "type": "comment",
+          "name": "handoverPlan",
+          "title": "How will ongoing work and deadlines be handled while you're away?",
+          "isRequired": true
+        },
+        {
+          "type": "radiogroup",
+          "name": "availabilityDuringLeave",
+          "title": "Will you be reachable during your leave?",
+          "isRequired": true,
+          "choices": [
+            { "value": "notReachable", "text": "No, I won't be reachable" },
+            { "value": "urgentOnly", "text": "Only for urgent matters" },
+            { "value": "reachable", "text": "Yes, I'll check messages occasionally" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "manager",
+          "title": "Approving manager",
+          "elements": [
+            {
+              "type": "text",
+              "name": "managerName",
+              "title": "Manager's name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "managerEmail",
+              "title": "Manager's email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Your request has been submitted</h3><p>You've requested <b>{requestedDays}</b> working day(s) of leave from <b>{startDate}</b> to <b>{endDate}</b>. {managerName} will review it and reply to {workEmail}.</p><p>We recommend waiting for approval before making non-refundable plans.</p>"
+}

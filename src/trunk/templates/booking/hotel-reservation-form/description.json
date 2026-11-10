@@ -1,0 +1,10 @@
+{
+  "title": "Hotel Reservation Form",
+  "description": "A three-page hotel booking form that captures stay dates, guests, room type, and extras, then calculates nights, room subtotal, extras, taxes, and an estimated total automatically. Includes date validation, loyalty member fields, and a cancellation policy acknowledgement.",
+  "tags": [
+    "booking",
+    "calculator",
+    "payment",
+    "request"
+  ]
+}

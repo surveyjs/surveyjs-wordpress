@@ -1,0 +1,231 @@
+{
+  "title": "Geography Quiz",
+  "completedHtml": "<h4>You got {correctAnswers} out of {questionCount} correct answers.</h4>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{correctAnswers} == 0",
+      "html": "<h4>Unfortunately, none of your answers is correct. Please try again.</h4>"
+    },
+    {
+      "expression": "{correctAnswers} == {questionCount}",
+      "html": "<h4>Congratulations! You answered all the questions correctly!</h4>"
+    }
+  ],
+  "pages": [
+    {
+      "name": "intro",
+      "elements": [
+        {
+          "type": "html",
+          "name": "introText",
+          "html": "<p style=\"margin-top: 1em; text-align: justify;\">\n  <strong>Welcome to the Geography Quiz!</strong>\n</p>\n<p style=\"margin-top: 1em; text-align: justify;\">This quiz is designed to challenge your knowledge of various geographical facts and locations around the world. You will be presented with a series of multiple-choice questions, each with four possible answers. Carefully read each question and select the answer you believe is correct.\n<br>\n<br>\nBefore you begin, please enter your name in the field below. This will help us keep track of your results. Then, click <b>Start Quiz</b>.\n<br>\n<br>\nGood luck, and enjoy testing your geography knowledge!</p>"
+        },
+        {
+          "type": "text",
+          "name": "username",
+          "title": "Name",
+          "titleLocation": "hidden",
+          "isRequired": true,
+          "maxLength": 25,
+          "placeholder": "Enter your name"
+        }
+      ]
+    },
+    {
+      "name": "questions",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "capitalAustralia",
+          "title": "What is the capital city of Australia?",
+          "correctAnswer": "Canberra",
+          "choices": [
+            "Sydney",
+            "Melbourne",
+            "Canberra",
+            "Brisbane"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "longestRiver",
+          "title": "Which river is the longest in the world?",
+          "correctAnswer": "Nile River",
+          "choices": [
+            {
+              "value": "Amazon River",
+              "text": "The Amazon River"
+            },
+            {
+              "value": "Nile River",
+              "text": "The Nile River"
+            },
+            {
+              "value": "Yangtze River",
+              "text": "The Yangtze River"
+            },
+            {
+              "value": "Mississippi River",
+              "text": "The Mississippi River"
+            }
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "mountainEverest",
+          "title": "Mount Everest is located in which two countries?",
+          "correctAnswer": "Nepal and China",
+          "choices": [
+            "India and China",
+            "Nepal and India",
+            "China and Bhutan",
+            "Nepal and China"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "largestDesert",
+          "title": "What is the largest desert in the world?",
+          "correctAnswer": "The Antarctic Desert",
+          "choices": [
+            "The Sahara Desert",
+            "The Arabian Desert",
+            "The Gobi Desert",
+            "The Antarctic Desert"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "largestPopulation",
+          "title": "Which country has the largest population in the world?",
+          "correctAnswer": "India",
+          "choices": [
+            "India",
+            {
+              "value": "United States",
+              "text": "The United States"
+            },
+            "Indonesia",
+            "China"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "greatBarrierReef",
+          "title": "The Great Barrier Reef is located off the coast of which country?",
+          "correctAnswer": "Australia",
+          "choices": [
+            "Brazil",
+            "Australia",
+            "Indonesia",
+            "South Africa"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "continentSahara",
+          "title": "On which continent is the Sahara Desert located?",
+          "correctAnswer": "Africa",
+          "choices": [
+            "Asia",
+            "Africa",
+            "South America",
+            "Australia"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "smallestCountry",
+          "title": "What is the smallest country in the world by area?",
+          "correctAnswer": "Vatican City",
+          "choices": [
+            "Monaco",
+            "San Marino",
+            "Vatican City",
+            "Liechtenstein"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "sunshineState",
+          "title": "Which U.S. state is known as the Sunshine State?",
+          "correctAnswer": "Florida",
+          "choices": [
+            "California",
+            "Texas",
+            "Florida",
+            "Arizona"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "landRisingSun",
+          "title": "Which country is known as the Land of the Rising Sun?",
+          "correctAnswer": "Japan",
+          "choices": [
+            "China",
+            "Japan",
+            "South Korea",
+            "Thailand"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "danubeRiver",
+          "title": "The Danube River flows through how many countries?",
+          "correctAnswer": "10",
+          "choices": [
+            "4",
+            "6",
+            "10",
+            "12"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        },
+        {
+          "type": "radiogroup",
+          "name": "largestOcean",
+          "title": "Which ocean is the largest in the world?",
+          "correctAnswer": "Pacific Ocean",
+          "choices": [
+            "Atlantic Ocean",
+            "Indian Ocean",
+            "Arctic Ocean",
+            "Pacific Ocean"
+          ],
+          "choicesOrder": "random",
+          "colCount": 2
+        }
+      ]
+    }
+  ],
+  "showProgressBar": true,
+  "progressBarType": "questions",
+  "autoAdvanceAllowComplete": false,
+  "startSurveyText": "Start Quiz",
+  "firstPageIsStartPage": true,
+  "questionsOnPageMode": "questionPerPage",
+  "timeLimit": 120,
+  "showTimer": true
+}

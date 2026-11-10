@@ -1,0 +1,237 @@
+{
+  "title": "Dental Appointment Request",
+  "completedHtml": "<h3>Thank you for submitting the dental appointment request. Our scheduling coordinator will contact you shortly.</h3>",
+  "pages": [
+    {
+      "name": "appointmentRequest",
+      "elements": [
+        {
+          "type": "html",
+          "name": "introduction",
+          "html": "<p style=\"text-align: justify;\">The first step towards a beautiful, healthy smile is to schedule an appointment. Please contact our office by phone or complete the appointment request form below. Our scheduling coordinator will contact you to confirm your appointment.</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\">Please do not use this form to cancel or change an existing appointment.</p>\n\n<p style=\"margin-top: 1em; text-align: justify;\"><b>*Items marked with asterisks (*) are required.</b></p>"
+        },
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "middleName",
+          "title": "Middle name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "placeholder": "example@gmail.com"
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Contact phone",
+          "isRequired": true,
+          "inputType": "tel",
+          "maskType": "pattern",
+          "maskSettings": {
+            "pattern": "+1 (999) 999-9999"
+          }
+        },
+        {
+          "type": "boolean",
+          "name": "firstVisit",
+          "title": "Is this your first visit to our clinic?",
+          "titleLocation": "left"
+        },
+        {
+          "type": "radiogroup",
+          "name": "bestContactTimes",
+          "title": "Best Contact Times",
+          "titleLocation": "top",
+          "description": "If we need to reach you, what would be the best time?",
+          "choices": [
+            {
+              "value": "Morning",
+              "text": "Morning 09:00-12:00"
+            },
+            {
+              "value": "Afternoons",
+              "text": "Afternoons 12:00-17:00"
+            },
+            {
+              "value": "Evening",
+              "text": "Evening 17:00-20:00"
+            }
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "checkbox",
+          "name": "daysOfAppointment",
+          "title": "Preferred day(s) of the week for an appointment?",
+          "titleLocation": "top",
+          "description": "When would you like to come in?",
+          "valueName": "dayTime",
+          "choices": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+          ],
+          "noneText": "Any day of the week",
+          "colCount": 3,
+          "valuePropertyName": "day"
+        },
+        {
+          "type": "matrixdynamic",
+          "name": "preferredAppointmentTimes",
+          "visibleIf": "{dayTime} anyof ['Monday', 'Thursday', 'Tuesday', 'Friday', 'Wednesday', 'Saturday']",
+          "title": "Preferred time(s) for an appointment?",
+          "titleLocation": "top",
+          "valueName": "dayTime",
+          "columns": [
+            {
+              "name": "day",
+              "title": "Day of a week",
+              "cellType": "expression",
+              "minWidth": "300px",
+              "width": "300px"
+            },
+            {
+              "name": "time",
+              "title": "From",
+              "cellType": "text",
+              "inputType": "time",
+              "min": "09:00",
+              "max": "19:00"
+            },
+            {
+              "name": "timeTo",
+              "title": "To",
+              "cellType": "text",
+              "inputType": "time"
+            }
+          ],
+          "choices": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "allowAddRows": false,
+          "allowRemoveRows": false,
+          "rowCount": 1
+        },
+        {
+          "type": "boolean",
+          "name": "insurance",
+          "title": "Do you have dental insurance?",
+          "titleLocation": "top",
+          "isRequired": true,
+          "labelTrue": "Yes, I do have insurance",
+          "labelFalse": "No, I don't have insurance"
+        },
+        {
+          "type": "panel",
+          "name": "insuranceDetails",
+          "elements": [
+            {
+              "type": "text",
+              "name": "companyName",
+              "title": "Company name"
+            },
+            {
+              "type": "text",
+              "name": "memberId",
+              "startWithNewLine": false,
+              "title": "Member ID"
+            },
+            {
+              "type": "text",
+              "name": "primaryPolicyHolder",
+              "title": "Primary policy holder"
+            },
+            {
+              "type": "text",
+              "name": "dateOfBirth",
+              "startWithNewLine": false,
+              "title": "Date of birth",
+              "inputType": "date"
+            }
+          ],
+          "visibleIf": "{insurance} = true",
+          "questionTitleWidth": "100px",
+          "questionTitleLocation": "left",
+          "title": "Insurance details"
+        },
+        {
+          "type": "radiogroup",
+          "name": "typeOfVisit",
+          "title": "Type of Visit:",
+          "titleLocation": "top",
+          "choices": [
+            {
+              "value": "checkup",
+              "text": "Routine check-up and cleaning"
+            },
+            {
+              "value": "emergency",
+              "text": "Emergency"
+            },
+            {
+              "value": "restorative",
+              "text": "Restorative"
+            }
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "comment",
+          "name": "describeEmergency",
+          "visibleIf": "{typeOfVisit} = 'emergency'",
+          "title": "Please describe your emergency",
+          "titleLocation": "bottom",
+          "resetValueIf": "{typeOfVisit} anyof ['checkup', 'restorative']",
+          "maxLength": 200,
+          "rows": 2,
+          "autoGrow": true
+        },
+        {
+          "type": "radiogroup",
+          "name": "typeOfSpecialist",
+          "title": "Which type of dental specialist are you looking to make an appointment with?",
+          "titleLocation": "top",
+          "choices": [
+            "General Dentist",
+            "Orthodontist",
+            "Periodontist",
+            "Endodontist",
+            "Pediatric Dentist (Pedodontist)",
+            "Prosthodontist",
+            "Oral and Maxillofacial Surgeon"
+          ],
+          "colCount": 3
+        }
+      ],
+      "questionTitleWidth": "170px",
+      "questionTitleLocation": "left"
+    }
+  ],
+  "questionTitleLocation": "left",
+  "completeText": "Submit request",
+  "widthMode": "static",
+  "width": "900"
+}

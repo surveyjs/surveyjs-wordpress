@@ -1,0 +1,10 @@
+{
+  "title": "Customer Referral Form",
+  "description": "A referral program form that collects the referrer's details, the referred contact's information, product interest, and reward preference. Email validation prevents self-referrals, and a required permission confirmation protects the referee's consent.",
+  "tags": [
+    "lead-generation",
+    "marketing",
+    "contact",
+    "consent"
+  ]
+}

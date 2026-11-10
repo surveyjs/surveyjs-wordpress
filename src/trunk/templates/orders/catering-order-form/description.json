@@ -1,0 +1,10 @@
+{
+  "title": "Catering Order Form",
+  "description": "A catering request form for caterers and restaurants: clients describe the event and venue, pick a menu package and service style, count special-diet meals, add staff, rentals, and delivery, and see an estimated total with a deposit. Replace the sample packages and prices with your own.",
+  "tags": [
+    "order",
+    "event",
+    "calculator",
+    "catering"
+  ]
+}

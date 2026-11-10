@@ -1,0 +1,91 @@
+{
+  "title": "Cancellation Survey",
+  "description": "Thank you for using our service. We would highly appreciate it if you would take the time to fill out our cancellation survey. This would help us improve the service.",
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "usingDuration",
+          "title": "How long have you been using the service?",
+          "choices": [
+            "Less than a month",
+            "1-6 months",
+            "7-12 months",
+            "1-3 years",
+            "Over 3 years"
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "usingFrequency",
+          "title": "How often did you use the service?",
+          "choices": [
+            "Once a week",
+            "2 or 3 times a month",
+            "Once a month",
+            "Less than once a month"
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "cancelReason",
+          "title": "What was the main reason for cancelling the service?",
+          "showOtherItem": true,
+          "choices": [
+            "No longer need it",
+            "It didn't meet my needs",
+            "Found a better alternative",
+            "Found a cheaper alternative",
+            "Quality was less than expected",
+            "Ease of use was less than expected",
+            "Access to the service was less than expected",
+            "Customer service was less than expected"
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "satisfaction",
+          "title": "Overall, how satisfied were you with the service?",
+          "choices": [
+            "Very Satisfied",
+            "Satisfied",
+            "Neutral",
+            "Unsatisfied",
+            "Very Unsatisfied"
+          ]
+        },
+        {
+          "type": "matrix",
+          "name": "futureUsing",
+          "title": "Future use",
+          "titleLocation": "hidden",
+          "columns": [
+            "Definitely",
+            "Probably",
+            "Not Sure",
+            "Probably Not",
+            "Definitely Not"
+          ],
+          "rows": [
+            {
+              "value": "useInFuture",
+              "text": "Will you use our service in the future?"
+            },
+            {
+              "value": "recommend",
+              "text": "Will you recommend our service to others?"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "serviceImprovements",
+          "title": "How can we improve our service?",
+          "maxLength": 500
+        }
+      ]
+    }
+  ]
+}

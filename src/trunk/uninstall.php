@@ -13,7 +13,7 @@ function surveyjs_uninstall_site() {
         return;
     }
 
-    $form_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s", 'sjs_form' ) );
+    $form_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( %s, %s )", 'sjs_form', 'sjs_template' ) );
     foreach ( $form_ids as $form_id ) {
         wp_delete_post( (int) $form_id, true );
     }

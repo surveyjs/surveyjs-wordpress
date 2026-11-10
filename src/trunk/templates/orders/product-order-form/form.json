@@ -1,0 +1,275 @@
+{
+  "title": "Product Order Form",
+  "description": "Choose your products and quantities, then tell us how you'd like to receive your order. We'll confirm availability and send payment details by email.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Place Order",
+  "pages": [
+    {
+      "name": "products",
+      "title": "Products",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "orderItems",
+          "title": "Select quantities",
+          "description": "Enter a quantity for each product you want. Leave the rest blank.",
+          "columns": [
+            {
+              "name": "unitPrice",
+              "title": "Unit price ($)",
+              "cellType": "text",
+              "inputType": "number",
+              "readOnly": true
+            },
+            {
+              "name": "quantity",
+              "title": "Quantity",
+              "cellType": "text",
+              "inputType": "number",
+              "min": 0,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "name": "lineTotal",
+              "title": "Line total",
+              "cellType": "expression",
+              "expression": "iif({row.quantity} > 0, {row.quantity} * {row.unitPrice}, 0)",
+              "displayStyle": "currency",
+              "currency": "USD",
+              "totalType": "sum",
+              "totalDisplayStyle": "currency",
+              "totalCurrency": "USD"
+            }
+          ],
+          "rows": [
+            { "value": "houseBlend", "text": "House blend coffee, 12 oz bag" },
+            { "value": "darkRoast", "text": "Dark roast coffee, 12 oz bag" },
+            { "value": "decaf", "text": "Decaf coffee, 12 oz bag" },
+            { "value": "singleOrigin", "text": "Seasonal single-origin coffee, 12 oz bag" },
+            { "value": "tastingSampler", "text": "Tasting sampler, four 4 oz bags" },
+            { "value": "coldBrew", "text": "Cold brew concentrate, 32 oz bottle" },
+            { "value": "stonewareMug", "text": "Stoneware mug" }
+          ],
+          "defaultValue": {
+            "houseBlend": { "unitPrice": 16 },
+            "darkRoast": { "unitPrice": 16 },
+            "decaf": { "unitPrice": 17 },
+            "singleOrigin": { "unitPrice": 19 },
+            "tastingSampler": { "unitPrice": 24 },
+            "coldBrew": { "unitPrice": 14 },
+            "stonewareMug": { "unitPrice": 18 }
+          },
+          "totalText": "Subtotal",
+          "rowTitleWidth": "40%",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{orderSubtotal} > 0",
+              "text": "Please enter a quantity for at least one product."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "grindPreference",
+          "visibleIf": "{orderItems.houseBlend.quantity} > 0 or {orderItems.darkRoast.quantity} > 0 or {orderItems.decaf.quantity} > 0 or {orderItems.singleOrigin.quantity} > 0 or {orderItems.tastingSampler.quantity} > 0",
+          "title": "How should we grind your coffee?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "wholeBean", "text": "Whole bean" },
+            { "value": "drip", "text": "Drip machine" },
+            { "value": "pourOver", "text": "Pour-over" },
+            { "value": "frenchPress", "text": "French press" },
+            { "value": "espresso", "text": "Espresso" }
+          ]
+        },
+        {
+          "type": "expression",
+          "name": "orderSubtotal",
+          "title": "Products subtotal",
+          "expression": "{orderItems-total.lineTotal}",
+          "displayStyle": "currency",
+          "currency": "USD"
+        }
+      ]
+    },
+    {
+      "name": "delivery",
+      "title": "Delivery",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "fulfillmentMethod",
+          "title": "How would you like to receive your order?",
+          "description": "Shipping is a flat $8 and free on orders of $50 or more. Pickup is always free.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "shipping", "text": "Ship to my address" },
+            { "value": "pickup", "text": "Pick up at the shop" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "shippingAddress",
+          "title": "Shipping address",
+          "visibleIf": "{fulfillmentMethod} = 'shipping'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "addressLine2",
+              "title": "Apartment, suite, or unit",
+              "autocomplete": "address-line2"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "title": "State",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "pickupDate",
+          "visibleIf": "{fulfillmentMethod} = 'pickup'",
+          "title": "Preferred pickup date",
+          "description": "Most orders are ready the next business day. We'll email you when yours is ready.",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today()"
+        },
+        {
+          "type": "panel",
+          "name": "orderSummary",
+          "title": "Order summary",
+          "visibleIf": "{fulfillmentMethod} notempty",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "summarySubtotal",
+              "title": "Products",
+              "expression": "{orderSubtotal}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "shippingCost",
+              "title": "Shipping",
+              "startWithNewLine": false,
+              "expression": "iif({fulfillmentMethod} = 'shipping' and {orderSubtotal} < 50, 8, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "orderTotal",
+              "title": "Order total",
+              "startWithNewLine": false,
+              "expression": "{orderSubtotal} + {shippingCost}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contactAndPayment",
+      "title": "Contact and Payment",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "description": "We'll only call if there's a problem with your order.",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "radiogroup",
+          "name": "paymentPreference",
+          "title": "How would you like to pay?",
+          "isRequired": true,
+          "choices": [
+            { "value": "paymentLink", "text": "Email me a secure payment link" },
+            { "value": "bankTransfer", "text": "Bank transfer (we'll email the details)" },
+            {
+              "value": "payAtPickup",
+              "text": "Pay in person at pickup",
+              "visibleIf": "{fulfillmentMethod} = 'pickup'"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "isGift",
+          "title": "Is this order a gift?",
+          "description": "Gift orders ship without a receipt in the box."
+        },
+        {
+          "type": "comment",
+          "name": "giftMessage",
+          "visibleIf": "{isGift} = true",
+          "title": "Gift message",
+          "description": "We'll print it on a card and include it with the order.",
+          "maxLength": 300
+        },
+        {
+          "type": "comment",
+          "name": "orderNotes",
+          "title": "Order notes",
+          "description": "Delivery instructions or anything else we should know."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you for your order, {fullName}!</h3><p>Your order total is <b>{orderTotal}</b>. We'll check availability and email a confirmation with payment details to <b>{email}</b> within one business day.</p><p>Your order isn't final until you receive that confirmation.</p>"
+}

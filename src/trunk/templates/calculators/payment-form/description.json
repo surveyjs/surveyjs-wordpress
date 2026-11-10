@@ -1,0 +1,10 @@
+{
+  "title": "Payment Form",
+  "description": "A simple payment form for invoices, deposits, membership dues, event fees, and donations: payers choose the purpose, enter the amount, optionally add 3% to cover processing fees, and provide payer and billing details. The total charge updates live, the reference fields adapt to the payment purpose, and the confirmation page changes with the selected payment method.",
+  "tags": [
+    "payment",
+    "calculator",
+    "finance",
+    "order"
+  ]
+}

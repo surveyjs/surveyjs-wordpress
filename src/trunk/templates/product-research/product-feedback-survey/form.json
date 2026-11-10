@@ -1,0 +1,190 @@
+{
+  "title": "Product Feedback Survey",
+  "description": "Your opinion matters to us!",
+  "pages": [
+    {
+      "name": "discovery",
+      "title": "How You Found Us",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "discoverySource",
+          "title": "How did you first hear about us?",
+          "choices": [
+            "Search engine (Google, Bing, etc.)",
+            "Online newsletter",
+            "Blog post",
+            "Word of mouth",
+            "Social media"
+          ],
+          "showOtherItem": true,
+          "otherPlaceholder": "Please specify...",
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "socialMediaPlatform",
+          "visibleIf": "{discoverySource} = 'Social media'",
+          "title": "Which platform?",
+          "choices": [
+            "YouTube",
+            "Facebook",
+            "Instagram",
+            "TikTok",
+            "LinkedIn"
+          ],
+          "showOtherItem": true,
+          "otherPlaceholder": "Please specify...",
+          "otherText": "Other"
+        }
+      ]
+    },
+    {
+      "name": "productSatisfaction",
+      "title": "Product Satisfaction",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "quality",
+          "title": "To what extent do you agree with the following statements?",
+          "columns": [
+            "Strongly disagree",
+            "Disagree",
+            "Undecided",
+            "Agree",
+            "Strongly agree"
+          ],
+          "rows": [
+            {
+              "text": "The product meets my needs",
+              "value": "needs-are-met"
+            },
+            {
+              "text": "Overall, I am satisfied with the product",
+              "value": "satisfaction"
+            },
+            {
+              "text": "Some product features require improvement",
+              "value": "improvements-required"
+            }
+          ],
+          "columnMinWidth": "40px",
+          "rowTitleWidth": "300px"
+        }
+      ]
+    },
+    {
+      "name": "buyingExperience",
+      "title": "Buying Experience",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "buyingExperienceRating",
+          "title": "How would you rate the buying experience?",
+          "minRateDescription": "Hated it!",
+          "maxRateDescription": "Loved it!"
+        },
+        {
+          "type": "comment",
+          "name": "lowScoreReason",
+          "visibleIf": "{buyingExperienceRating} <= 3",
+          "title": "What's the main reason for your score?",
+          "titleLocation": "hidden",
+          "showNumber": false,
+          "placeholder": "What's the main reason for your score?",
+          "maxLength": 500
+        },
+        {
+          "type": "boolean",
+          "name": "usedSimilarProducts",
+          "title": "Have you used similar products before?"
+        },
+        {
+          "type": "text",
+          "name": "similarProducts",
+          "visibleIf": "{usedSimilarProducts} = true",
+          "title": "Similar products",
+          "titleLocation": "hidden",
+          "showNumber": false,
+          "placeholder": "Please specify the similar products..."
+        }
+      ]
+    },
+    {
+      "name": "priorities",
+      "title": "Your Priorities",
+      "elements": [
+        {
+          "type": "ranking",
+          "name": "productAspectsRanking",
+          "title": "These are some important aspects of the product. Rank them in terms of your priority.",
+          "description": "From the highest (the most important) to the lowest (the least important).",
+          "choices": [
+            "Technical support",
+            "Price",
+            "Delivery option",
+            "Quality",
+            "Ease of use",
+            "Product warranties"
+          ]
+        },
+        {
+          "type": "text",
+          "name": "missingFeature",
+          "title": "What's the ONE thing our product is missing?"
+        }
+      ]
+    },
+    {
+      "name": "valueAndComments",
+      "title": "Value and Final Thoughts",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "worthTheCost",
+          "title": "Do you feel our product is worth the cost?",
+          "choices": [
+            {
+              "value": 5,
+              "text": "Definitely"
+            },
+            {
+              "value": 4,
+              "text": "Probably"
+            },
+            {
+              "value": 3,
+              "text": "Maybe"
+            },
+            {
+              "value": 2,
+              "text": "Probably not"
+            },
+            {
+              "value": 1,
+              "text": "Definitely not"
+            }
+          ],
+          "allowClear": false
+        },
+        {
+          "type": "boolean",
+          "name": "haveAdditionalThoughts",
+          "title": "Is there anything you'd like to add?"
+        },
+        {
+          "type": "comment",
+          "name": "additionalThoughts",
+          "visibleIf": "{haveAdditionalThoughts} = true",
+          "title": "Additional thoughts",
+          "titleLocation": "hidden",
+          "placeholder": "Please share your thoughts..."
+        }
+      ]
+    }
+  ],
+  "showProgressBar": true,
+  "progressBarType": "questions",
+  "widthMode": "static",
+  "width": "864px"
+}

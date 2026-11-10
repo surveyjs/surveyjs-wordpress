@@ -14,7 +14,7 @@ class SurveyJS_Welcome {
     }
 
     public static function add_form_url() {
-        return wp_nonce_url( add_query_arg( array( 'page' => 'surveyjs-main-menu', 'action' => 'add' ), admin_url( 'admin.php' ) ), 'surveyjs-add-survey' );
+        return SurveyJS_Templates::url();
     }
 
     public static function maybe_redirect() {
@@ -100,7 +100,7 @@ JS
             array(
                 'done'        => (bool) $form_ids,
                 'title'       => __( 'Create a form', 'surveyjs' ),
-                'description' => __( 'Start with a blank form and add questions in the JSON editor or the visual UI Builder.', 'surveyjs' ),
+                'description' => __( 'Start with a ready-made template or a blank form and edit the questions in the JSON editor or the visual UI Builder.', 'surveyjs' ),
                 'url'         => self::add_form_url(),
                 'action'      => __( 'Create a form', 'surveyjs' ),
             ),

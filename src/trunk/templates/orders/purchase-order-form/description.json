@@ -1,0 +1,11 @@
+{
+  "title": "Purchase Order Form",
+  "description": "A B2B purchase order for procurement and operations teams: capture buyer and vendor details, add line items with quantities and unit prices, set shipping and billing addresses, and approve the order. Line totals, subtotal, tax, shipping, and the grand total calculate live, the order date defaults to today, and the billing block appears only when it differs from the shipping address.",
+  "tags": [
+    "order",
+    "finance",
+    "payment",
+    "calculator",
+    "operations"
+  ]
+}

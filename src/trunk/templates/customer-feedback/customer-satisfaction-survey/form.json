@@ -1,0 +1,181 @@
+{
+  "title": "Customer Satisfaction Survey",
+  "description": "Tell us about your recent experience with us. The survey takes about 5 minutes, and your answers help us decide what to improve first.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "overallExperience",
+      "title": "Your Overall Experience",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "customerTenure",
+          "title": "When did you first order from us?",
+          "isRequired": true,
+          "choices": [
+            { "value": "justNow", "text": "Just now: the order I'm rating is my first" },
+            { "value": "withinSixMonths", "text": "Within the last six months" },
+            { "value": "sixMonthsToTwoYears", "text": "Between six months and two years ago" },
+            { "value": "overTwoYears", "text": "Over two years ago" }
+          ]
+        },
+        {
+          "type": "rating",
+          "name": "overallSatisfaction",
+          "title": "Overall, how satisfied are you with your experience with us?",
+          "isRequired": true,
+          "rateValues": [
+            { "value": 1, "text": "Very dissatisfied" },
+            { "value": 2, "text": "Dissatisfied" },
+            { "value": 3, "text": "Neither satisfied nor dissatisfied" },
+            { "value": 4, "text": "Satisfied" },
+            { "value": 5, "text": "Very satisfied" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "dissatisfactionReason",
+          "visibleIf": "{overallSatisfaction} <= 2",
+          "title": "We're sorry we fell short. What was the main reason for your rating?",
+          "description": "The more specific you are, the faster we can fix it.",
+          "rows": 4
+        },
+        {
+          "type": "comment",
+          "name": "satisfactionHighlight",
+          "visibleIf": "{overallSatisfaction} >= 4",
+          "title": "What did we do especially well?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "experienceDetails",
+      "title": "Your Experience in Detail",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "experienceRatings",
+          "title": "How satisfied are you with each of the following?",
+          "description": "Select \"Not applicable\" for anything you did not experience.",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Very dissatisfied" },
+            { "value": 2, "text": "Dissatisfied" },
+            { "value": 3, "text": "Neutral" },
+            { "value": 4, "text": "Satisfied" },
+            { "value": 5, "text": "Very satisfied" },
+            { "value": "notApplicable", "text": "Not applicable" }
+          ],
+          "rows": [
+            { "value": "productQuality", "text": "Quality of the product or service" },
+            { "value": "valueForMoney", "text": "Value for money" },
+            { "value": "easeOfPurchase", "text": "Ease of ordering or booking" },
+            { "value": "speedOfService", "text": "Speed of delivery or service" },
+            { "value": "staffHelpfulness", "text": "Helpfulness of our staff" },
+            { "value": "communication", "text": "Clarity of our communication" }
+          ],
+          "eachRowRequired": true
+        },
+        {
+          "type": "rating",
+          "name": "customerEffort",
+          "title": "How easy was it to get what you needed from us?",
+          "isRequired": true,
+          "rateCount": 7,
+          "rateMin": 1,
+          "rateMax": 7,
+          "minRateDescription": "Very difficult",
+          "maxRateDescription": "Very easy"
+        },
+        {
+          "type": "boolean",
+          "name": "contactedSupport",
+          "title": "Did you contact our customer support during this experience?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "radiogroup",
+          "name": "issueResolved",
+          "visibleIf": "{contactedSupport} = true",
+          "title": "Was your question or issue resolved?",
+          "isRequired": true,
+          "choices": [
+            { "value": "firstContact", "text": "Yes, on the first contact" },
+            { "value": "multipleContacts", "text": "Yes, but it took more than one contact" },
+            { "value": "notYet", "text": "Not yet, it is still in progress" },
+            { "value": "no", "text": "No" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "unresolvedIssueDetails",
+          "visibleIf": "{issueResolved} anyof ['notYet', 'no']",
+          "title": "Please describe what is still unresolved so we can follow up.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "lookingAhead",
+      "title": "Looking Ahead",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "returnLikelihood",
+          "title": "How likely are you to choose us again the next time you need a similar product or service?",
+          "isRequired": true,
+          "rateValues": [
+            { "value": 1, "text": "Very unlikely" },
+            { "value": 2, "text": "Unlikely" },
+            { "value": 3, "text": "Not sure" },
+            { "value": 4, "text": "Likely" },
+            { "value": 5, "text": "Very likely" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "returnBarrier",
+          "visibleIf": "{returnLikelihood} <= 3",
+          "title": "What would make you more likely to choose us again?",
+          "rows": 3
+        },
+        {
+          "type": "comment",
+          "name": "improvementSuggestion",
+          "title": "If you could change one thing about your experience with us, what would it be?",
+          "rows": 3
+        },
+        {
+          "type": "boolean",
+          "name": "followUpConsent",
+          "title": "May we contact you about your feedback?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "contactEmail",
+          "visibleIf": "{followUpConsent} = true",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email", "text": "Please enter a valid email address." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "completedHtml": "<h3>Thank you for your feedback!</h3><p>We read every response and use it to decide what to improve next.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{followUpConsent} = true",
+      "html": "<h3>Thank you for your feedback!</h3><p>We read every response. A member of our team will contact you at {contactEmail} if we need more details or have an update for you.</p>"
+    }
+  ]
+}

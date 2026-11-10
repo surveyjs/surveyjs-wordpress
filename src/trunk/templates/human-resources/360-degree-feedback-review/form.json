@@ -1,0 +1,461 @@
+{
+  "title": "360 Degree Feedback Review Form",
+  "completedHtml": "<div style=\"max-width: 1000px; width: 100%; padding: 32px; margin: 0 auto;\">    <p style=\"text-align: justify\">Dear {completedBy},</p><br>    <p style=\"text-align: justify\">We sincerely appreciate your time and feedback. Your input is invaluable in helping us foster growth and development within our team. Thank you for your contribution!</p><br>    <p style=\"text-align: justify\">Best regards,</p><br>    <p style=\"text-align: justify\">Human Resources Team</p></div>",
+  "pages": [
+    {
+      "name": "pageOne",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "intro",
+          "elements": [
+            {
+              "type": "text",
+              "name": "employeeName",
+              "title": "Employee Name:",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "completedBy",
+              "startWithNewLine": false,
+              "title": "Completed By:",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "date",
+              "title": "Date Completed:",
+              "isRequired": true,
+              "inputType": "date"
+            },
+            {
+              "type": "text",
+              "name": "role",
+              "startWithNewLine": false,
+              "title": "Role:",
+              "isRequired": true,
+              "placeholder": "e.g. Self/Supervisor/Peer/Direct Report etc."
+            }
+          ],
+          "questionTitleWidth": "145px",
+          "questionTitleLocation": "left",
+          "requiredErrorText": "A response is required for each question in this section."
+        },
+        {
+          "type": "panel",
+          "name": "instructions",
+          "elements": [
+            {
+              "type": "html",
+              "name": "instructionsText",
+              "html": "<p style=\"margin-top: 1em; text-align: justify;\">  <strong>Instructions</strong></p><p style=\"margin-top: 1em; text-align: justify;\">In keeping with our organization’s goal to continuously improve, we are asking for your candid feedback on the performance of the above individual <u>this past year</u>. A confidential summary of all feedback received will be prepared for each individual so that he or she can use the feedback to learn and develop. </p><p style=\"margin-top: 0.5em; text-align: justify;\">Your individual feedback will be averaged into all the responses received in order to protect your anonymity and ensure that the results each individual receives are completely confidential. Our Human Resources team may also prepare an overall summary to assess areas for additional company-provided training.</p><p style=\"margin-top: 0.5em; text-align: justify;\">Select a numerical rating and use the space provided at the end of each section to offer commentary and contextual insights to support and substantiate your rating, as well as to facilitate conversation as part of the recipient’s formal performance evaluation. </p><p style=\"margin-top: 0.5em; text-align: justify;\">We recommend rating employee effectiveness using the conversational 4-point scale below. If you do not feel you have sufficient insight to score the employee on a particular measure, please select N/A. </p><p style=\"margin-top: 0.5em; text-align: justify;\">Thank you for your contribution. </p>"
+            },
+            {
+              "type": "html",
+              "name": "scoreDefinitions",
+              "html": "<p style=\"margin-top: 1em; text-align: justify;\">  <strong>Scoring definitions </strong></p>   <ul><li style=\"margin-top: 1em; text-align: justify;\"><b>1 = Unsatisfactory:</b> Performance consistently fails to meet minimum position requirements; employee lacks skills required or fails to utilize necessary skills.</li><li style=\"margin-top: 1em; text-align: justify;\"><b>2 = Inconsistent:</b> Performance meets some, but not all position requirements.</li><li style=\"margin-top: 1em; text-align: justify;\"><b>3 = Proficient:</b> Performance consistently meets position requirements.</li><li style=\"margin-top: 1em; text-align: justify;\"><b>4 = Highly Effective:</b> Performance frequently exceeds position requirements.</li><li style=\"margin-top: 1em; text-align: justify;\"><b>NA = New / Not Applicable:</b> Employee has not been in position long enough to have demonstrated the essential elements of the position and will be reviewed at a later agreed-upon date.</li></ul>"
+            }
+          ]
+        }
+      ],
+      "title": "Introduction"
+    },
+    {
+      "name": "customerService",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "customerServiceSkills",
+          "title": "Customer Service Skills",
+          "showCommentArea": true,
+          "commentText": "Comments",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "rating",
+              "cellType": "rating",
+              "width": "30%",
+              "resetValueIf": "{row.checkbox} notempty",
+              "totalType": "avg",
+              "totalFormat": "Avg score: {0}",
+              "totalDisplayStyle": "decimal",
+              "autoGenerate": false,
+              "rateCount": 4,
+              "rateValues": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "name": "checkbox",
+              "cellType": "checkbox",
+              "colCount": 0,
+              "width": "5%",
+              "resetValueIf": "{row.rating} notempty",
+              "totalType": "count",
+              "totalFormat": "Total: {0}",
+              "choices": [
+                {
+                  "value": "n-a",
+                  "text": "N/A"
+                }
+              ]
+            }
+          ],
+          "rows": [
+            {
+              "value": "client-relations",
+              "text": "Develops meaningful client relationships"
+            },
+            {
+              "value": "listen-understand",
+              "text": "Makes an effort to listen to and understand the client"
+            },
+            {
+              "value": "eagerness",
+              "text": "Shows eagerness when working with clients"
+            },
+            {
+              "value": "satisfaction",
+              "text": "Prioritizes client’s satisfaction and looks to provide solutions"
+            },
+            {
+              "value": "fix-problems",
+              "text": "Focuses on fixing problems rather than finding someone to blame"
+            }
+          ],
+          "rowTitleWidth": "65%"
+        }
+      ],
+      "title": "Customer Service Skills"
+    },
+    {
+      "name": "communicationInterpersonalSkills",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "communication",
+          "title": "Communication & Interpersonal Skills",
+          "showCommentArea": true,
+          "commentText": "Comments",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "rating",
+              "cellType": "rating",
+              "width": "30%",
+              "resetValueIf": "{row.checkbox} notempty",
+              "totalType": "avg",
+              "totalFormat": "Avg score: {0}",
+              "totalDisplayStyle": "decimal",
+              "autoGenerate": false,
+              "rateCount": 4,
+              "rateValues": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "name": "checkbox",
+              "cellType": "checkbox",
+              "colCount": 0,
+              "width": "5%",
+              "resetValueIf": "{row.rating} notempty",
+              "totalType": "count",
+              "totalFormat": "Total: {0}",
+              "choices": [
+                {
+                  "value": "n-a",
+                  "text": "N/A"
+                }
+              ]
+            }
+          ],
+          "rows": [
+            {
+              "value": "active",
+              "text": "Is an engaging and active participant during meetings"
+            },
+            {
+              "value": "relations",
+              "text": "Develops meaningful relationships with co-workers and peers"
+            },
+            {
+              "value": "follows",
+              "text": "Informs, listens and follows direction regularly"
+            },
+            {
+              "value": "clear-communication",
+              "text": "Provides clear written and verbal communication"
+            },
+            {
+              "value": "reliable",
+              "text": "Demonstrates thoroughness, reliability and trustworthiness"
+            }
+          ],
+          "rowTitleWidth": "65%"
+        }
+      ],
+      "title": "Communication & Interpersonal Skills"
+    },
+    {
+      "name": "workQuality",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "quality",
+          "title": "Quality of Work",
+          "showCommentArea": true,
+          "commentText": "Comments",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "rating",
+              "cellType": "rating",
+              "width": "30%",
+              "resetValueIf": "{row.checkbox} notempty",
+              "totalType": "avg",
+              "totalFormat": "Avg score: {0}",
+              "totalDisplayStyle": "decimal",
+              "autoGenerate": false,
+              "rateCount": 4,
+              "rateValues": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "name": "checkbox",
+              "cellType": "checkbox",
+              "colCount": 0,
+              "width": "5%",
+              "resetValueIf": "{row.rating} notempty",
+              "totalType": "count",
+              "totalFormat": "Total: {0}",
+              "choices": [
+                {
+                  "value": "n-a",
+                  "text": "N/A"
+                }
+              ]
+            }
+          ],
+          "rows": [
+            {
+              "value": "accurate",
+              "text": "Consistently provides thorough and accurate work"
+            },
+            {
+              "value": "pressure",
+              "text": "Ability to work under pressure and learn from previous mistakes"
+            },
+            {
+              "value": "issues",
+              "text": "Accurately checks processes and tasks, handles issues in a timely manner"
+            },
+            {
+              "value": "timely",
+              "text": "Ability to work quickly and submit deliverables in a timely manner"
+            },
+            {
+              "value": "details",
+              "text": "Manages work details; organized and detailed in work product"
+            }
+          ],
+          "rowTitleWidth": "65%"
+        }
+      ],
+      "title": "Quality of Work"
+    },
+    {
+      "name": "judgementsDecisions",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "decisions",
+          "title": "Judgement & Decision-Making Skills",
+          "showCommentArea": true,
+          "commentText": "Comments",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "rating",
+              "cellType": "rating",
+              "width": "30%",
+              "resetValueIf": "{row.checkbox} notempty",
+              "totalType": "avg",
+              "totalFormat": "Avg score: {0}",
+              "totalDisplayStyle": "decimal",
+              "autoGenerate": false,
+              "rateCount": 4,
+              "rateValues": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "name": "checkbox",
+              "cellType": "checkbox",
+              "colCount": 0,
+              "width": "5%",
+              "resetValueIf": "{row.rating} notempty",
+              "totalType": "count",
+              "totalFormat": "Total: {0}",
+              "choices": [
+                {
+                  "value": "n-a",
+                  "text": "N/A"
+                }
+              ]
+            }
+          ],
+          "rows": [
+            {
+              "value": "logical-thinking",
+              "text": "Thinks logically and practically before making decisions"
+            },
+            {
+              "value": "independent",
+              "text": "Works well independently and with little direction"
+            },
+            {
+              "value": "confidential-information",
+              "text": "Ability to handle confidential information"
+            },
+            {
+              "value": "independent-thought",
+              "text": "Uses independent thought, reasoning and originality"
+            },
+            {
+              "value": "concise-clear",
+              "text": "Makes concise and clear decisions under pressure"
+            }
+          ],
+          "rowTitleWidth": "65%"
+        }
+      ],
+      "title": "Judgement & Decision-Making Skills"
+    },
+    {
+      "name": "otherCompetences",
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "competencies",
+          "title": "Other Competencies",
+          "showCommentArea": true,
+          "commentText": "Comments",
+          "showHeader": false,
+          "alternateRows": true,
+          "columns": [
+            {
+              "name": "rating",
+              "cellType": "rating",
+              "width": "30%",
+              "resetValueIf": "{row.checkbox} notempty",
+              "totalType": "avg",
+              "totalFormat": "Avg score: {0}",
+              "totalDisplayStyle": "decimal",
+              "autoGenerate": false,
+              "rateCount": 4,
+              "rateValues": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "name": "checkbox",
+              "cellType": "checkbox",
+              "colCount": 0,
+              "width": "5%",
+              "resetValueIf": "{row.rating} notempty",
+              "totalType": "count",
+              "totalFormat": "Total: {0}",
+              "choices": [
+                {
+                  "value": "n-a",
+                  "text": "N/A"
+                }
+              ]
+            }
+          ],
+          "rows": [
+            {
+              "value": "contributions",
+              "text": "Demonstrates willingness to make significant contributions to the team"
+            },
+            {
+              "value": "proactive",
+              "text": "Proactive and self-starter"
+            },
+            {
+              "value": "company-activities",
+              "text": "Encourages and supports involvement in company activities and events"
+            },
+            {
+              "value": "changes",
+              "text": "Encourages and embraces changes; maintains positivity in times of change"
+            },
+            {
+              "value": "respect-fairness",
+              "text": "Treats everyone with respect and fairness"
+            }
+          ],
+          "rowTitleWidth": "65%"
+        },
+        {
+          "type": "panel",
+          "name": "totals",
+          "readOnly": true,
+          "title": "FOR HR TEAM ONLY",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "totalAverage",
+              "title": "Total average score:",
+              "titleLocation": "left",
+              "expression": "iif(countInArray({customerServiceSkills}, 'rating') + countInArray({communication}, 'rating') + countInArray({quality}, 'rating') + countInArray({decisions}, 'rating') + countInArray({competencies}, 'rating') > 0, (sumInArray({customerServiceSkills}, 'rating') + sumInArray({communication}, 'rating') + sumInArray({quality}, 'rating') + sumInArray({decisions}, 'rating') + sumInArray({competencies}, 'rating')) / (countInArray({customerServiceSkills}, 'rating') + countInArray({communication}, 'rating') + countInArray({quality}, 'rating') + countInArray({decisions}, 'rating') + countInArray({competencies}, 'rating')), 0)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 2,
+              "minimumFractionDigits": 2
+            },
+            {
+              "type": "expression",
+              "name": "totalNotApplicable",
+              "startWithNewLine": false,
+              "title": "Total 'N/A' answers:",
+              "titleLocation": "left",
+              "expression": "countInArray({customerServiceSkills}, 'checkbox') + countInArray({communication}, 'checkbox') + countInArray({quality}, 'checkbox') + countInArray({decisions}, 'checkbox') + countInArray({competencies}, 'checkbox')",
+              "maximumFractionDigits": 2,
+              "minimumFractionDigits": 2
+            }
+          ]
+        }
+      ],
+      "title": "Other Competencies"
+    }
+  ],
+  "showPageTitles": false,
+  "showProgressBar": true,
+  "progressBarLocation": "belowheader",
+  "progressBarShowNavigationText": true,
+  "progressBarShowPageNumbers": true,
+  "firstPageIsStartPage": true,
+  "widthMode": "static",
+  "width": "1200"
+}

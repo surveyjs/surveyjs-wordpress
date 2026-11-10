@@ -1,0 +1,294 @@
+{
+  "title": "Donation Form",
+  "description": "Your gift helps us continue our work. Choose an amount, tell us a little about yourself, and we'll send you a secure way to complete your donation.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "completeText": "Submit Pledge",
+  "pages": [
+    {
+      "name": "yourGift",
+      "title": "Your Gift",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "giftFrequency",
+          "title": "How would you like to give?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "oneTime", "text": "One-time gift" },
+            { "value": "monthly", "text": "Monthly gift" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "giftAmount",
+          "title": "Gift amount",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": 25, "text": "$25" },
+            { "value": 50, "text": "$50" },
+            { "value": 100, "text": "$100" },
+            { "value": 250, "text": "$250" },
+            { "value": 500, "text": "$500" },
+            { "value": "otherAmount", "text": "Other amount" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "customAmount",
+          "visibleIf": "{giftAmount} = 'otherAmount'",
+          "title": "Enter your gift amount (USD)",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 1,
+          "step": 1
+        },
+        {
+          "type": "expression",
+          "name": "donationAmount",
+          "visibleIf": "{giftFrequency} notempty and {giftAmount} notempty",
+          "title": "Your gift",
+          "expression": "iif({giftAmount} = 'otherAmount', {customAmount}, {giftAmount})",
+          "displayStyle": "currency",
+          "currency": "USD"
+        },
+        {
+          "type": "expression",
+          "name": "annualTotal",
+          "visibleIf": "{giftFrequency} = 'monthly' and {donationAmount} > 0",
+          "title": "Your monthly gift over a year",
+          "startWithNewLine": false,
+          "expression": "{donationAmount} * 12",
+          "displayStyle": "currency",
+          "currency": "USD"
+        },
+        {
+          "type": "dropdown",
+          "name": "giftDesignation",
+          "title": "Where should your gift go?",
+          "isRequired": true,
+          "defaultValue": "greatestNeed",
+          "choices": [
+            { "value": "greatestNeed", "text": "Where it's needed most" },
+            { "value": "programs", "text": "Programs and services" },
+            { "value": "emergencyFund", "text": "Emergency relief fund" },
+            { "value": "capitalProjects", "text": "Buildings and equipment" }
+          ],
+          "showOtherItem": true,
+          "otherText": "A specific program or fund"
+        },
+        {
+          "type": "boolean",
+          "name": "isDedicated",
+          "title": "Would you like to dedicate this gift to someone?"
+        },
+        {
+          "type": "panel",
+          "name": "dedication",
+          "title": "Dedication",
+          "visibleIf": "{isDedicated} = true",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "dedicationType",
+              "title": "This gift is",
+              "isRequired": true,
+              "colCount": 2,
+              "choices": [
+                { "value": "inHonor", "text": "In honor of someone" },
+                { "value": "inMemory", "text": "In memory of someone" }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "honoreeName",
+              "title": "Name of the person you're honoring",
+              "isRequired": true
+            },
+            {
+              "type": "boolean",
+              "name": "notifyAboutDedication",
+              "title": "Should we let someone know about your dedication?",
+              "description": "We'll mention your name and the dedication, but not the amount."
+            },
+            {
+              "type": "text",
+              "name": "notificationRecipientName",
+              "visibleIf": "{notifyAboutDedication} = true",
+              "title": "Recipient's name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "notificationRecipientEmail",
+              "visibleIf": "{notifyAboutDedication} = true",
+              "title": "Recipient's email",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "email",
+              "validators": [
+                { "type": "email" }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "dedicationMessage",
+              "visibleIf": "{notifyAboutDedication} = true",
+              "title": "Personal message",
+              "maxLength": 500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "donorInformation",
+      "title": "Your Information",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "description": "We'll send your gift acknowledgment here.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "panel",
+          "name": "mailingAddress",
+          "title": "Mailing address",
+          "description": "Optional. Add it if you'd like your acknowledgment by mail.",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "title": "State",
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "ZIP code",
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "employerMatches",
+          "title": "Does your employer match charitable gifts?",
+          "description": "Many employers match their employees' donations. We can help you with the paperwork."
+        },
+        {
+          "type": "text",
+          "name": "employerName",
+          "visibleIf": "{employerMatches} = true",
+          "title": "Employer's name",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "name": "preferencesAndPayment",
+      "title": "Preferences and Payment",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "isAnonymous",
+          "title": "Would you like to give anonymously?",
+          "description": "Anonymous gifts are left out of public donor lists. We still need your details to send your acknowledgment."
+        },
+        {
+          "type": "text",
+          "name": "recognitionName",
+          "visibleIf": "{isAnonymous} <> true",
+          "title": "How should your name appear in donor lists?",
+          "description": "For example, your full name, a family name, or a business name."
+        },
+        {
+          "type": "radiogroup",
+          "name": "paymentPreference",
+          "title": "How would you like to complete your gift?",
+          "description": "We never ask for card details in this form.",
+          "isRequired": true,
+          "choices": [
+            { "value": "paymentLink", "text": "Email me a secure payment link" },
+            { "value": "bankTransfer", "text": "Bank transfer (we'll email the details)" },
+            { "value": "check", "text": "I'll mail a check" },
+            { "value": "phoneCall", "text": "Please call me to complete my gift" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "callbackPhone",
+          "visibleIf": "{paymentPreference} = 'phoneCall'",
+          "title": "Best phone number to reach you",
+          "isRequired": true,
+          "inputType": "tel",
+          "defaultValueExpression": "{phone}"
+        },
+        {
+          "type": "boolean",
+          "name": "newsletterOptIn",
+          "title": "Would you like to receive our newsletter with updates on the impact of your gift?",
+          "description": "You can unsubscribe at any time."
+        },
+        {
+          "type": "comment",
+          "name": "donorComments",
+          "title": "Comments or questions"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}!</h3><p>We've received your pledge of <b>{donationAmount}</b>. We'll email you at <b>{email}</b> with the next steps to complete your gift.</p><p>Your generosity makes our work possible.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{giftFrequency} = 'monthly'",
+      "html": "<h3>Thank you, {firstName}!</h3><p>We've received your pledge of <b>{donationAmount}</b> a month. We'll email you at <b>{email}</b> with the next steps to set up your monthly gift.</p><p>Monthly supporters give us the steady footing to plan ahead. Thank you for being one of them.</p>"
+    }
+  ]
+}

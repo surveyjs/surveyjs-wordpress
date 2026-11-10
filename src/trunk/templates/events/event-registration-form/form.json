@@ -1,0 +1,289 @@
+{
+  "title": "Event Registration",
+  "description": "Reserve your place at the conference. Pick your ticket, choose the sessions you want to attend, and tell us how we can make your visit comfortable.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Complete registration",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "attendee",
+      "title": "Attendee",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "description": "Your ticket and event updates will be sent here.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Mobile phone",
+          "description": "Used only for urgent updates on the event day.",
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "text",
+          "name": "organization",
+          "title": "Company or organization",
+          "autocomplete": "organization"
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title",
+          "startWithNewLine": false,
+          "autocomplete": "organization-title"
+        },
+        {
+          "type": "dropdown",
+          "name": "referralSource",
+          "title": "How did you hear about the event?",
+          "choices": [
+            { "value": "email", "text": "Email newsletter" },
+            { "value": "social-media", "text": "Social media" },
+            { "value": "colleague", "text": "A colleague or friend" },
+            { "value": "search", "text": "Search engine" },
+            { "value": "previous-attendee", "text": "I attended a previous edition" },
+            { "value": "partner", "text": "A partner or sponsor" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        }
+      ]
+    },
+    {
+      "name": "ticketsAndSessions",
+      "title": "Tickets and Sessions",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "ticketType",
+          "title": "Ticket type",
+          "description": "All prices are per person and include lunch and coffee breaks on both conference days.",
+          "isRequired": true,
+          "choices": [
+            { "value": "standard", "text": "Standard — $249" },
+            { "value": "student", "text": "Student — $99 (valid student ID required at check-in)" },
+            { "value": "vip", "text": "VIP — $449 (front-row seating, speaker lounge, and recordings)" },
+            { "value": "virtual", "text": "Virtual — $79 (live stream and recordings)" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "ticketQuantity",
+          "title": "Number of tickets",
+          "description": "Register up to 10 people of the same ticket type. We will ask for their names by email.",
+          "isRequired": true,
+          "inputType": "number",
+          "defaultValue": 1,
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "validators": [
+            {
+              "type": "numeric",
+              "minValue": 1,
+              "maxValue": 10,
+              "text": "Please enter a number between 1 and 10."
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "addOns",
+          "visibleIf": "{ticketType} <> 'virtual'",
+          "title": "Optional add-ons",
+          "description": "Add-on prices are per ticket.",
+          "choices": [
+            { "value": "workshop-day", "text": "Hands-on workshop day — $150" },
+            { "value": "dinner", "text": "Networking dinner — $85" },
+            { "value": "recording-access", "text": "Session recordings — $49 (included with VIP)", "visibleIf": "{ticketType} <> 'vip'" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "sessionTracks",
+          "title": "Which session tracks are you interested in?",
+          "description": "This helps us size the rooms. You can still switch tracks on the day.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "product", "text": "Product and design" },
+            { "value": "engineering", "text": "Engineering" },
+            { "value": "data", "text": "Data and AI" },
+            { "value": "leadership", "text": "Leadership" },
+            { "value": "marketing", "text": "Marketing and growth" },
+            { "value": "startups", "text": "Startups and funding" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "tshirtSize",
+          "visibleIf": "{ticketType} <> 'virtual'",
+          "title": "T-shirt size",
+          "description": "Every in-person attendee receives an event T-shirt.",
+          "isRequired": true,
+          "choices": [
+            { "value": "xs", "text": "XS" },
+            { "value": "s", "text": "S" },
+            { "value": "m", "text": "M" },
+            { "value": "l", "text": "L" },
+            { "value": "xl", "text": "XL" },
+            { "value": "xxl", "text": "XXL" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "needs",
+      "title": "Your Needs",
+      "visibleIf": "{ticketType} <> 'virtual'",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "dietaryRequirements",
+          "title": "Dietary requirements",
+          "description": "Select all that apply so our caterers can prepare suitable meals.",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "vegetarian", "text": "Vegetarian" },
+            { "value": "vegan", "text": "Vegan" },
+            { "value": "gluten-free", "text": "Gluten-free" },
+            { "value": "halal", "text": "Halal" },
+            { "value": "kosher", "text": "Kosher" },
+            { "value": "allergy", "text": "Food allergy" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other",
+          "showNoneItem": true,
+          "noneText": "No dietary requirements"
+        },
+        {
+          "type": "comment",
+          "name": "dietaryDetails",
+          "visibleIf": "{dietaryRequirements} anyof ['allergy', 'other']",
+          "title": "Please describe your allergy or requirement",
+          "description": "Include how severe the allergy is so the kitchen can take proper care.",
+          "isRequired": true,
+          "rows": 3,
+          "maxLength": 500
+        },
+        {
+          "type": "boolean",
+          "name": "accessibilityNeeded",
+          "title": "Do you need any accessibility accommodations?",
+          "description": "For example, step-free access, reserved seating, live captions, or a sign language interpreter.",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "accessibilityDetails",
+          "visibleIf": "{accessibilityNeeded} = true",
+          "title": "How can we help?",
+          "isRequired": true,
+          "rows": 3,
+          "maxLength": 500
+        }
+      ]
+    },
+    {
+      "name": "summaryAndConsent",
+      "title": "Summary and Consent",
+      "elements": [
+        {
+          "type": "expression",
+          "name": "ticketsSubtotal",
+          "title": "Tickets",
+          "expression": "iif({ticketType} = 'standard', 249, iif({ticketType} = 'student', 99, iif({ticketType} = 'vip', 449, iif({ticketType} = 'virtual', 79, 0)))) * iif({ticketQuantity} notempty, {ticketQuantity}, 1)",
+          "displayStyle": "currency",
+          "currency": "USD"
+        },
+        {
+          "type": "expression",
+          "name": "addOnsTotal",
+          "title": "Add-ons",
+          "startWithNewLine": false,
+          "expression": "(iif({addOns} contains 'workshop-day', 150, 0) + iif({addOns} contains 'dinner', 85, 0) + iif({addOns} contains 'recording-access' and {ticketType} <> 'vip', 49, 0)) * iif({ticketQuantity} notempty, {ticketQuantity}, 1)",
+          "displayStyle": "currency",
+          "currency": "USD"
+        },
+        {
+          "type": "expression",
+          "name": "orderTotal",
+          "title": "Order total",
+          "startWithNewLine": false,
+          "expression": "{ticketsSubtotal} + {addOnsTotal}",
+          "displayStyle": "currency",
+          "currency": "USD"
+        },
+        {
+          "type": "text",
+          "name": "promoCode",
+          "title": "Promo code",
+          "description": "Optional. Discounts are applied on the payment page.",
+          "maxLength": 20
+        },
+        {
+          "type": "checkbox",
+          "name": "termsAgreement",
+          "title": "Terms",
+          "titleLocation": "hidden",
+          "isRequired": true,
+          "requiredErrorText": "You must accept the terms to register.",
+          "choices": [
+            { "value": "accepted", "text": "I agree to the event terms and conditions and the cancellation policy." }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "photoConsent",
+          "title": "May we use photos or video of you taken at the event in our marketing materials?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "boolean",
+          "name": "newsletterOptIn",
+          "title": "Send me news about future events and early-bird offers.",
+          "defaultValue": false,
+          "renderAs": "checkbox"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {firstName}! Your registration has been received.</h3><p>Your order total is <b>{orderTotal}</b>. We will send a confirmation and a secure payment link to <b>{email}</b>. Your tickets are issued once payment is complete.</p>"
+}

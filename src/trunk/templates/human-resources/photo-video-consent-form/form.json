@@ -1,0 +1,63 @@
+{
+  "title": "Photo and Video Consent Form",
+  "pages": [
+    {
+      "name": "consent",
+      "elements": [
+        {
+          "type": "html",
+          "name": "consentInformation",
+          "html": "<p>During the event you may be photographed or filmed. Having requested your consent by written or oral statement, we may disclose, publish, transmit or quote such material in activities intended for the public. You can withdraw consent any time and object to the processing indicating it to the organizers. In addition to personal data that we process for the purpose of organizing the event/meeting to enable your participation, in this consent form you have the option to provide consent to either one or more personal data processing activities.</p>"
+        },
+        {
+          "type": "checkbox",
+          "name": "consentChoices",
+          "title": "For photos/videos and publishing personal data you are requested to give consent, as follows:",
+          "titleLocation": "top",
+          "choices": [
+            {
+              "value": "photosAndVideos",
+              "text": "I consent that video(s) and/or photo(s) are taken of me during the event/meeting and used in communication activities."
+            },
+            {
+              "value": "participantList",
+              "text": "I consent that my name and contact details are published in the list of participants of the event/meeting."
+            }
+          ]
+        },
+        {
+          "type": "multipletext",
+          "name": "participantDetails",
+          "title": "Participant details",
+          "items": [
+            {
+              "name": "fullName",
+              "title": "Full name"
+            },
+            {
+              "name": "department",
+              "title": "Department"
+            },
+            {
+              "name": "date",
+              "inputType": "date",
+              "title": "Date"
+            }
+          ],
+          "itemTitleWidth": "100px"
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "startWithNewLine": false,
+          "title": "Signature",
+          "isRequired": true,
+          "penColor": "#4C6489"
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "widthMode": "static",
+  "width": "800px"
+}

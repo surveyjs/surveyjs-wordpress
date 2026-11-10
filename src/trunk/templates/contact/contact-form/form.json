@@ -1,0 +1,94 @@
+{
+  "title": "Contact Us",
+  "description": "Send us a message and we'll get back to you.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Send message",
+  "widthMode": "static",
+  "width": "640px",
+  "pages": [
+    {
+      "name": "contact",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "message",
+          "title": "How can we help?",
+          "isRequired": true,
+          "rows": 6,
+          "maxLength": 2000,
+          "validators": [
+            {
+              "type": "text",
+              "minLength": 10,
+              "text": "Please tell us a little more so we can help."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How would you like us to reply?",
+          "defaultValue": "email",
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "email",
+              "text": "By email"
+            },
+            {
+              "value": "phone",
+              "text": "By phone"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "visibleIf": "{preferredContactMethod} = 'phone'",
+          "title": "Phone number",
+          "description": "Include the country code if you are outside the country.",
+          "isRequired": true,
+          "inputType": "tel",
+          "autocomplete": "tel",
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^\\+?[0-9 ().-]{7,20}$",
+              "text": "Please enter a valid phone number."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}!</h3><p>We've received your message and will reply to <b>{email}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{preferredContactMethod} = 'phone'",
+      "html": "<h3>Thank you, {fullName}!</h3><p>We've received your message and will call you at <b>{phone}</b>.</p>"
+    }
+  ]
+}

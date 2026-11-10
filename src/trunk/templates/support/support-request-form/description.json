@@ -1,0 +1,10 @@
+{
+  "title": "Support Request Form",
+  "description": "A customer support ticket form for software products. It collects the product area, issue type, and severity, then asks for reproduction steps, environment details, or feature goals depending on the issue.",
+  "tags": [
+    "support",
+    "request",
+    "customer-experience",
+    "operations"
+  ]
+}

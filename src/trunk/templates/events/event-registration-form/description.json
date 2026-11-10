@@ -1,0 +1,10 @@
+{
+  "title": "Event Registration Form",
+  "description": "An attendee registration form for conferences, workshops, and meetups. It collects contact details, ticket type and quantity, add-ons, session tracks, and dietary and accessibility needs, then calculates the order total and records consent before payment.",
+  "tags": [
+    "event",
+    "registration",
+    "payment",
+    "calculator"
+  ]
+}

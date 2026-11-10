@@ -1,0 +1,10 @@
+{
+  "title": "IT Help Desk Ticket",
+  "description": "An internal ticket form for employees to report IT problems: follow-up questions adapt to the issue category, the form records the affected device and asset tag, and impact and urgency answers produce a suggested priority. Adjust the departments and categories to match your organization.",
+  "tags": [
+    "support",
+    "request",
+    "operations",
+    "it-support"
+  ]
+}

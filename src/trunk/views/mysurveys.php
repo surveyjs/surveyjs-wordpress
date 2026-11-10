@@ -18,17 +18,6 @@ class SurveyJS_MySurveys {
             $action = sanitize_key( wp_unslash( $_REQUEST['action2'] ?? '' ) );
         }
 
-        if ( 'add' === $action ) {
-            check_admin_referer( 'surveyjs-add-survey' );
-            $name = 'New Survey';
-            $id = SurveyJS_Forms::create( array( 'name' => $name ) );
-            if ( ! $id ) {
-                wp_die( esc_html__( 'The form could not be created.', 'surveyjs' ) );
-            }
-            wp_safe_redirect( SurveyJS_Surveys_List_Table::page_url( 'surveyjs_editor', array( 'id' => $id, 'name' => $name ) ) );
-            exit;
-        }
-
         if ( 'clone' === $action ) {
             $id = absint( $_GET['id'] ?? 0 );
             check_admin_referer( 'surveyjs-clone-survey_' . $id );
@@ -82,11 +71,10 @@ class SurveyJS_MySurveys {
             'deleted' => sprintf( _n( '%s form deleted.', '%s forms deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
             'cloned'  => __( 'Form cloned.', 'surveyjs' ),
         );
-        $add_url = wp_nonce_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu', array( 'action' => 'add' ) ), 'surveyjs-add-survey' );
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e( 'Forms', 'surveyjs' ); ?></h1>
-            <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
+            <a href="<?php echo esc_url( SurveyJS_Templates::url() ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
             <?php foreach ( SurveyJS_Import::sources() as $source => $info ) : ?>
                 <?php if ( $info['importer']::forms() ) : ?>
                     <a href="<?php echo esc_url( SurveyJS_Import::url( $source ) ); ?>" class="page-title-action"><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), $info['title'] ) ); ?></a>

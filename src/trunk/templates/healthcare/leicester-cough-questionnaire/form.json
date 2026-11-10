@@ -1,0 +1,142 @@
+{
+  "title": "Leicester Cough Questionnaire",
+  "pages": [
+    {
+      "name": "coughImpact",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "chestOrStomachPain",
+          "title": "In the last 2 weeks, have you had chest or stomach pains as a result of your cough?",
+          "rateMax": 7,
+          "minRateDescription": "All of the time",
+          "maxRateDescription": "None of the time"
+        },
+        {
+          "type": "rating",
+          "name": "sputumProduction",
+          "title": "In the last 2 weeks, have you been bothered by sputum (phlegm) production when you cough?",
+          "rateMax": 7,
+          "minRateDescription": "All of the time",
+          "maxRateDescription": "None of the time"
+        },
+        {
+          "type": "rating",
+          "name": "tiredness",
+          "title": "In the last 2 weeks, have you been tired because of your cough?",
+          "rateMax": 7,
+          "minRateDescription": "All of the time",
+          "maxRateDescription": "None of the time"
+        },
+        {
+          "type": "rating",
+          "name": "coughControl",
+          "title": "In the last 2 weeks, have you felt in control of your cough?",
+          "rateMax": 7,
+          "minRateDescription": "All of the time",
+          "maxRateDescription": "None of the time"
+        },
+        {
+          "type": "boolean",
+          "name": "socialDistress",
+          "title": "In the last 2 weeks, has your coughing been bad enough to cause you social distress?"
+        },
+        {
+          "type": "panel",
+          "name": "socialDistressDetails",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "embarrassment",
+              "title": "How often during the last 2 weeks have you felt embarrassed by your coughing?",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            },
+            {
+              "type": "rating",
+              "name": "anxiety",
+              "title": "In the last 2 weeks, my cough has made me feel anxious",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            },
+            {
+              "type": "rating",
+              "name": "dailyTasksInterference",
+              "title": "In the last 2 weeks, my cough has interfered with my job, or other daily tasks",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            },
+            {
+              "type": "rating",
+              "name": "lifeEnjoyment",
+              "title": "In the last 2 weeks, I felt that my cough interfered with the overall enjoyment of my life",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            },
+            {
+              "type": "rating",
+              "name": "othersConcern",
+              "title": "In the last 2 weeks, have you been concerned that other people think something is wrong with you, because of your cough?",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            },
+            {
+              "type": "rating",
+              "name": "conversationInterruption",
+              "title": "In the last 2 weeks, my cough has interrupted conversation or phone calls",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            },
+            {
+              "type": "rating",
+              "name": "othersAnnoyed",
+              "title": "In the last 2 weeks, my cough has annoyed my partner, family, or friends",
+              "rateMax": 7,
+              "minRateDescription": "All of the time",
+              "maxRateDescription": "None of the time"
+            }
+          ],
+          "visible": false,
+          "visibleIf": "{socialDistress} = true",
+          "title": "Social Distress"
+        },
+        {
+          "type": "rating",
+          "name": "paintsOrFumes",
+          "title": "In the last 2 weeks, exposure to paints or fumes has made me cough",
+          "rateMax": 7,
+          "minRateDescription": "All of the time",
+          "maxRateDescription": "None of the time"
+        },
+        {
+          "type": "rating",
+          "name": "coughingBouts",
+          "title": "In the last 2 weeks, how many times a day have you had coughing bouts?",
+          "rateMax": 7,
+          "minRateDescription": "Continuously",
+          "maxRateDescription": "None"
+        },
+        {
+          "type": "rating",
+          "name": "energy",
+          "title": "In the last 2 weeks, have you had a lot of energy?",
+          "rateMax": 7,
+          "minRateDescription": "All of the time",
+          "maxRateDescription": "None of the time"
+        },
+        {
+          "type": "boolean",
+          "name": "wheezing",
+          "visibleIf": "{chestOrStomachPain} <= 3 and {sputumProduction} <= 3 and {coughingBouts} <= 3 and {energy} >= 5",
+          "title": "In the last 2 weeks, has your coughing been accompanied by wheezing as well?"
+        }
+      ]
+    }
+  ]
+}

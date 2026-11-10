@@ -1,0 +1,206 @@
+{
+  "title": "Contact Us",
+  "description": "Three quick steps, and your message is on its way.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Send message",
+  "widthMode": "static",
+  "width": "680px",
+  "pages": [
+    {
+      "name": "aboutYou",
+      "title": "About You",
+      "elements": [
+        {
+          "type": "text",
+          "name": "firstName",
+          "title": "First name",
+          "isRequired": true,
+          "autocomplete": "given-name",
+          "maxLength": 50
+        },
+        {
+          "type": "text",
+          "name": "lastName",
+          "title": "Last name",
+          "autocomplete": "family-name",
+          "startWithNewLine": false,
+          "maxLength": 50
+        },
+        {
+          "type": "radiogroup",
+          "name": "contactType",
+          "title": "Which best describes you?",
+          "isRequired": true,
+          "colCount": 1,
+          "choices": [
+            {
+              "value": "individual",
+              "text": "I'm contacting you as an individual"
+            },
+            {
+              "value": "organization",
+              "text": "I represent a company or organization"
+            },
+            {
+              "value": "customer",
+              "text": "I'm already a customer"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "organizationName",
+          "visibleIf": "{contactType} = 'organization'",
+          "title": "Company or organization",
+          "isRequired": true,
+          "autocomplete": "organization",
+          "maxLength": 100
+        },
+        {
+          "type": "text",
+          "name": "accountReference",
+          "visibleIf": "{contactType} = 'customer'",
+          "title": "Account or order number",
+          "description": "Optional, but it helps us find your details faster.",
+          "maxLength": 40
+        }
+      ]
+    },
+    {
+      "name": "yourMessage",
+      "title": "Your Message",
+      "elements": [
+        {
+          "type": "text",
+          "name": "subject",
+          "title": "Subject",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "comment",
+          "name": "message",
+          "title": "How can we help?",
+          "isRequired": true,
+          "rows": 6,
+          "maxLength": 3000
+        },
+        {
+          "type": "radiogroup",
+          "name": "replyUrgency",
+          "title": "How soon do you need a reply?",
+          "defaultValue": "few-days",
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "no-rush",
+              "text": "No rush"
+            },
+            {
+              "value": "few-days",
+              "text": "Within a few days"
+            },
+            {
+              "value": "urgent",
+              "text": "As soon as possible"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "howToReachYou",
+      "title": "How to Reach You",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How would you like us to get back to you?",
+          "isRequired": true,
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "email",
+              "text": "Email"
+            },
+            {
+              "value": "phone",
+              "text": "Phone call"
+            },
+            {
+              "value": "text",
+              "text": "Text message"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "requiredIf": "{preferredContactMethod} = 'email'",
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone number",
+          "description": "Include the country code if you are outside the country.",
+          "requiredIf": "{preferredContactMethod} anyof ['phone', 'text']",
+          "inputType": "tel",
+          "autocomplete": "tel",
+          "startWithNewLine": false,
+          "validators": [
+            {
+              "type": "regex",
+              "regex": "^\\+?[0-9 ().-]{7,20}$",
+              "text": "Please enter a valid phone number."
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "bestTimeToCall",
+          "visibleIf": "{preferredContactMethod} = 'phone'",
+          "title": "Best time to call",
+          "colCount": 0,
+          "choices": [
+            {
+              "value": "morning",
+              "text": "Morning"
+            },
+            {
+              "value": "afternoon",
+              "text": "Afternoon"
+            },
+            {
+              "value": "evening",
+              "text": "Evening"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {firstName}!</h3><p>Your message has been sent. We'll reply by email at <b>{email}</b>.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{preferredContactMethod} = 'phone'",
+      "html": "<h3>Thank you, {firstName}!</h3><p>Your message has been sent. We'll call you at <b>{phone}</b>.</p>"
+    },
+    {
+      "expression": "{preferredContactMethod} = 'text'",
+      "html": "<h3>Thank you, {firstName}!</h3><p>Your message has been sent. We'll text you at <b>{phone}</b>.</p>"
+    }
+  ]
+}

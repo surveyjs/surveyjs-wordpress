@@ -1,0 +1,216 @@
+{
+  "title": "Customer Complaint",
+  "description": "We're sorry something went wrong. Tell us what happened and how you'd like it resolved, and a member of our team will respond within two business days.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit complaint",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "contact",
+      "title": "Your Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email address",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "customerReference",
+          "title": "Customer or account number",
+          "description": "You can find it on your invoice or in your account settings.",
+          "maxLength": 30
+        },
+        {
+          "type": "text",
+          "name": "orderReference",
+          "title": "Order or invoice number",
+          "description": "If your complaint concerns a specific order.",
+          "startWithNewLine": false,
+          "maxLength": 30
+        }
+      ]
+    },
+    {
+      "name": "complaint",
+      "title": "Your Complaint",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "complaintCategory",
+          "title": "What is your complaint about?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "product-quality", "text": "Product quality" },
+            { "value": "service", "text": "Customer service" },
+            { "value": "billing", "text": "Billing or charges" },
+            { "value": "delivery", "text": "Delivery" },
+            { "value": "staff-conduct", "text": "Staff conduct" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "text",
+          "name": "incidentDate",
+          "title": "Date of the incident",
+          "isRequired": true,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "dropdown",
+          "name": "channel",
+          "title": "Where did it happen?",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "store", "text": "In a store or branch" },
+            { "value": "website", "text": "On the website" },
+            { "value": "mobile-app", "text": "In the mobile app" },
+            { "value": "phone", "text": "On the phone" },
+            { "value": "email", "text": "By email or chat" },
+            { "value": "delivery", "text": "During delivery" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "branchName",
+          "visibleIf": "{channel} = 'store'",
+          "title": "Store or branch name and location",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "comment",
+          "name": "complaintDescription",
+          "title": "Describe what happened",
+          "description": "Include names, times, and any reference numbers you were given.",
+          "isRequired": true,
+          "rows": 6,
+          "maxLength": 4000
+        },
+        {
+          "type": "boolean",
+          "name": "previousContact",
+          "title": "Have you already contacted us about this?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "previousReference",
+          "visibleIf": "{previousContact} = true",
+          "title": "Previous case or ticket number",
+          "description": "Leave blank if you did not receive one.",
+          "startWithNewLine": false,
+          "maxLength": 30
+        },
+        {
+          "type": "rating",
+          "name": "impactRating",
+          "title": "How much has this affected you?",
+          "isRequired": true,
+          "rateMin": 1,
+          "rateMax": 5,
+          "minRateDescription": "Minor inconvenience",
+          "maxRateDescription": "Serious impact"
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Supporting documents",
+          "description": "Optional. Receipts, photos, screenshots, or correspondence. Up to 5 files, 10 MB each.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 10485760,
+          "acceptedTypes": "image/*,.pdf,.doc,.docx,.txt,.eml"
+        }
+      ]
+    },
+    {
+      "name": "resolution",
+      "title": "Resolution",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "desiredResolution",
+          "title": "How would you like us to resolve this?",
+          "isRequired": true,
+          "choices": [
+            { "value": "refund", "text": "A refund" },
+            { "value": "replacement", "text": "A replacement or redelivery" },
+            { "value": "apology", "text": "An apology" },
+            { "value": "explanation", "text": "An explanation of what went wrong" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else"
+        },
+        {
+          "type": "comment",
+          "name": "resolutionDetails",
+          "visibleIf": "{desiredResolution} notempty",
+          "title": "Anything else we should know about the outcome you expect?",
+          "rows": 3,
+          "maxLength": 1000
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How should we contact you?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "contactPhone",
+          "visibleIf": "{preferredContactMethod} = 'phone'",
+          "title": "Phone number",
+          "description": "We call between 9 am and 6 pm on business days.",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "checkbox",
+          "name": "contactConsent",
+          "title": "Consent",
+          "titleLocation": "hidden",
+          "isRequired": true,
+          "requiredErrorText": "We need your consent to contact you about this complaint.",
+          "choices": [
+            { "value": "agreed", "text": "I agree that you may contact me and process the details above to investigate my complaint." }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}. We have received your complaint.</h3><p>We take every complaint seriously. A member of our customer relations team will review it and respond within two business days using your preferred contact method. A copy of this submission has been sent to <b>{email}</b>.</p>"
+}

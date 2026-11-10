@@ -1,0 +1,517 @@
+{
+  "title": "Event Hosting Request",
+  "showTitle": false,
+  "pages": [
+    {
+      "name": "importantInfo",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "info",
+          "elements": [
+            {
+              "type": "html",
+              "name": "warning",
+              "html": "<p style=\"margin-top: 1em; text-align: justify;\"><strong>Event Registration</strong></p><p style=\"margin-top: 1em; text-align: justify;\">Events, activities and meetings may not be registered more than four months in advance of the current date.</p><p style=\"margin-top: 0.5em; text-align: justify;\">Recurring events (consisting of the same activities, equipment and location) may be registered within this form, provided they are no more than four months in advance of the current date.</p><p style=\"margin-top: 0.5em; text-align: justify;\">Please note that while we endeavor to process your request as soon as possible, these applications are completed during business hours only. Please see below for the <u>minimum</u> timeframes for submitting this form. Complex events and events with a large projected attendance should be registered with as much notice as possible to ensure your event can proceed.</p><ul><li style=\"margin-top: 1em; text-align: justify;\">Meetings (that require Room/Club Space Hire): 2 business days (bookings subject to availability)</li><li style=\"margin-top: 0.5em; text-align: justify;\">Event Registration (including Outdoor/Plaza/Hub bookings): 5 business days (bookings subject to availability).</li><li style=\"margin-top: 0.5em; text-align: justify;\">Equipment requiring staff assistance (e.g: Super Screen use, BBQ delivery, etc.): 10 business days, subject to approval.</li><li style=\"margin-top: 0.5em; text-align: justify;\">Sale of food your group has cooked/baked/prepared: 10 business days.</li><li style=\"margin-top: 0.5em; text-align: justify;\">Events operating on campus with an attendance of more than 150 guests: 10 business days (plus 2 business days per additional 50 guests).</li>        <li style=\"margin-top: 0.5em; text-align: justify;\">Events involving intrastate/interstate travel (e.g. camping, excursions, etc.): 15 business days.</li><li style=\"margin-top: 0.5em; text-align: justify;\">Specialized and/or high risk activities (e.g. rock climbing, off-road mountain biking, etc.): 15 business days.</li></ul><p style=\"margin-top: 1em; text-align: justify;\">Any events that do not provide notice within this timeframe will not be approved. For any changes to your event (location, equipment, room hire, etc.) a new Event Registration Form must be submitted within the minimum timeframes listed above. Requests to change details or requirements to your event without the minimum notice will be rejected.</p>"
+            },
+            {
+              "type": "checkbox",
+              "name": "introConsent",
+              "title": "Confirmation",
+              "titleLocation": "hidden",
+              "choices": [
+                {
+                  "value": "confirmed",
+                  "text": "I confirm that I have read and understand the above information."
+                }
+              ]
+            }
+          ],
+          "title": "Important information regarding this form",
+          "description": "Please read all the information carefully and confirm that it is clear to you.",
+          "state": "collapsed"
+        },
+        {
+          "type": "panel",
+          "name": "generalDetails",
+          "elements": [
+            {
+              "type": "text",
+              "name": "nameHost",
+              "title": "Name of Host/Organization(s)",
+              "description": "Using acronyms will result in the rejection of this application, the full name must be used."
+            },
+            {
+              "type": "panel",
+              "name": "panelHost",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "hostOrgEmail",
+                  "title": "Host/Organization email",
+                  "titleLocation": "hidden",
+                  "description": "Enter email",
+                  "descriptionLocation": "underInput",
+                  "inputType": "email",
+                  "autocomplete": "email"
+                },
+                {
+                  "type": "text",
+                  "name": "confirmEmail",
+                  "title": "Confirm host/organization email",
+                  "startWithNewLine": false,
+                  "titleLocation": "hidden",
+                  "description": "Confirm email",
+                  "descriptionLocation": "underInput",
+                  "errorLocation": "bottom",
+                  "validators": [
+                    {
+                      "type": "expression",
+                      "text": "The confirmation email does not match the email entered. Please ensure that both email fields contain the same email address.",
+                      "expression": "{confirmEmail}={hostOrgEmail}"
+                    }
+                  ],
+                  "inputType": "email",
+                  "autocomplete": "email"
+                }
+              ],
+              "title": "Host/Organization email"
+            },
+            {
+              "type": "panel",
+              "name": "panelManager",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "firstName",
+                  "title": "First name",
+                  "titleLocation": "hidden",
+                  "description": "First",
+                  "descriptionLocation": "underInput"
+                },
+                {
+                  "type": "text",
+                  "name": "lastName",
+                  "title": "Last name",
+                  "startWithNewLine": false,
+                  "titleLocation": "hidden",
+                  "description": "Last",
+                  "descriptionLocation": "underInput"
+                }
+              ],
+              "title": "Event/Activity Manager"
+            },
+            {
+              "type": "panel",
+              "name": "panelManagerEmail",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "enterEmailManager",
+                  "title": "Event/activity manager email",
+                  "titleLocation": "hidden",
+                  "description": "Enter Email",
+                  "descriptionLocation": "underInput",
+                  "inputType": "email",
+                  "autocomplete": "email"
+                },
+                {
+                  "type": "text",
+                  "name": "confirmEmailManager",
+                  "title": "Confirm event/activity manager email",
+                  "startWithNewLine": false,
+                  "titleLocation": "hidden",
+                  "description": "Confirm Email",
+                  "descriptionLocation": "underInput",
+                  "validators": [
+                    {
+                      "type": "expression",
+                      "text": "The confirmation email does not match the email entered. Please ensure that both email fields contain the same email address.",
+                      "expression": "{confirmEmailManager}={enterEmailManager}"
+                    }
+                  ],
+                  "inputType": "email",
+                  "autocomplete": "email"
+                }
+              ],
+              "title": "Event/Activity Manager Email"
+            },
+            {
+              "type": "panel",
+              "name": "phoneStudentNumber",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "phone",
+                  "title": "Event/Activity Manager Mobile Number",
+                  "maskType": "pattern",
+                  "maskSettings": {
+                    "pattern": "+1(999)-999-99-99"
+                  }
+                },
+                {
+                  "type": "text",
+                  "name": "studentNumber",
+                  "startWithNewLine": false,
+                  "title": "Student Number",
+                  "maskType": "pattern",
+                  "maskSettings": {
+                    "pattern": "aa999999"
+                  }
+                },
+                {
+                  "type": "boolean",
+                  "name": "presence",
+                  "title": "Will the person listed above be at this event or activity at all times?"
+                }
+              ]
+            }
+          ],
+          "title": "General Details",
+          "description": "In this section, please provide the details of your event/activity/meeting manager.",
+          "state": "collapsed"
+        },
+        {
+          "type": "panel",
+          "name": "activityDetails",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "nameEvent",
+              "title": "Name/Type of Event",
+              "choices": [
+                "Orientation Week",
+                "Homecoming",
+                "Graduation Ceremony",
+                "Fresher's Ball",
+                "Sports Day",
+                "Cultural Festival",
+                "Academic Conference",
+                "Career Fair",
+                "Charity Event",
+                "Art Exhibition"
+              ],
+              "showOtherItem": true,
+              "otherText": "Other (please specify)"
+            },
+            {
+              "type": "text",
+              "name": "titleEvent",
+              "title": "Title of Event, Activity, etc.",
+              "maxLength": 50
+            },
+            {
+              "type": "text",
+              "name": "location",
+              "title": "Location"
+            },
+            {
+              "type": "radiogroup",
+              "name": "attendance",
+              "title": "Expected Attendance",
+              "choices": [
+                "1-50",
+                "51-100",
+                "101-200",
+                "201-500",
+                ">500"
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "description",
+              "title": "Description of Event/Activity/Meeting",
+              "description": "Please provide a description of this event/stall/meeting, outlining the intended activities.",
+              "maxLength": 500,
+              "autoGrow": true
+            },
+            {
+              "type": "text",
+              "name": "url",
+              "title": "Event/Activity URL (Web or Social Media)",
+              "description": "e.g: Facebook event, ticket portal, Instagram tile, Eventbrite, etc.",
+              "inputType": "url",
+              "placeholder": "http://"
+            },
+            {
+              "type": "matrixdynamic",
+              "name": "datesTimes",
+              "title": "Enter the dates & times for this activity",
+              "alternateRows": true,
+              "columns": [
+                {
+                  "name": "date",
+                  "title": "Date",
+                  "cellType": "text",
+                  "isUnique": true,
+                  "validators": [
+                    {
+                      "type": "expression",
+                      "text": "Events, activities and meetings may not be registered more than four months in advance of the current date.",
+                      "expression": "diffDays({row.date}, today()) < 120 and {row.date} > today()"
+                    }
+                  ],
+                  "inputType": "date"
+                },
+                {
+                  "name": "startTimeColumn",
+                  "title": "Start Time",
+                  "cellType": "text",
+                  "inputType": "time"
+                },
+                {
+                  "name": "endTimeColumn",
+                  "title": "End Time",
+                  "cellType": "text",
+                  "inputType": "time"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rowCount": 1,
+              "minRowCount": 1,
+              "maxRowCount": 10,
+              "confirmDelete": true,
+              "addRowText": "Add a Date",
+              "allowRowReorder": true
+            },
+            {
+              "type": "checkbox",
+              "name": "requirements",
+              "title": "Please select your requirements for this activity",
+              "titleLocation": "top",
+              "choices": [
+                {
+                  "value": "bookRoom",
+                  "text": "I need to book a room or space for this activity"
+                },
+                {
+                  "value": "hireEquipment",
+                  "text": "I need to hire equipment for this activity"
+                },
+                {
+                  "value": "promotion",
+                  "text": "I would like the university to promote this activity"
+                }
+              ]
+            },
+            {
+              "type": "checkbox",
+              "name": "acknowledgement",
+              "visibleIf": "{requirements} empty",
+              "title": "As you have not selected any requirements above, please acknowledge the following",
+              "choices": [
+                {
+                  "value": "acknowledged",
+                  "text": "I acknowledge that I do not require equipment hire, room/space bookings or promotion. Please note that all spaces must be booked in advance to be used. I understand that I must complete a new form within the required minimum notice should my requirements change."
+                }
+              ]
+            }
+          ],
+          "title": "Event/Activity Details",
+          "description": "In this section, please provide the details of your event/activity/meeting.",
+          "state": "collapsed"
+        },
+        {
+          "type": "panel",
+          "name": "compliancePanel",
+          "elements": [
+            {
+              "type": "boolean",
+              "name": "alcohol",
+              "title": "Will you be serving alcohol?"
+            },
+            {
+              "type": "panel",
+              "name": "alcoholStatement",
+              "elements": [
+                {
+                  "type": "html",
+                  "name": "statementContents",
+                  "html": "<em>Outdoor events with alcohol must use a tent with sides. Events targeting undergraduate students may not mention alcohol in any PR or advertising materials. You may state \"Valid ID Required\" on PR or advertising materials.</em>"
+                },
+                {
+                  "type": "checkbox",
+                  "name": "alcoholStatementConfirmation",
+                  "title": "Alcohol statement confirmation",
+                  "titleLocation": "hidden",
+                  "isRequired": true,
+                  "requiredErrorText": "Confirmation required",
+                  "choices": [
+                    {
+                      "value": "confirmed",
+                      "text": "I confirm that I have read and understand the above statement."
+                    }
+                  ]
+                }
+              ],
+              "visibleIf": "{alcohol} = true"
+            },
+            {
+              "type": "boolean",
+              "name": "food",
+              "title": "Will you be serving food?"
+            },
+            {
+              "type": "panel",
+              "name": "snacksStatement",
+              "elements": [
+                {
+                  "type": "html",
+                  "name": "snacksStatementContents",
+                  "html": "<em>Snacks and water/non-alcoholic beverages must be served if alcohol is served.</em>"
+                },
+                {
+                  "type": "checkbox",
+                  "name": "snacksStatementConfirmation",
+                  "title": "Snacks statement confirmation",
+                  "titleLocation": "hidden",
+                  "isRequired": true,
+                  "requiredErrorText": "Confirmation required",
+                  "choices": [
+                    {
+                      "value": "confirmed",
+                      "text": "I confirm that I have read and understand the above statement."
+                    }
+                  ]
+                }
+              ],
+              "visibleIf": "{alcohol} = true and {food} = false"
+            },
+            {
+              "type": "boolean",
+              "name": "speakerCandidate",
+              "title": "Will the event involve any speaker who is a candidate for a political office?"
+            },
+            {
+              "type": "boolean",
+              "name": "againstCandidate",
+              "title": "Is the event expected to result in any statements being made for or against any candidate or incumbent for any political office?"
+            },
+            {
+              "type": "boolean",
+              "name": "speaker",
+              "title": "Will the event involve any other third party speaker, entertainer, presenter, etc.?"
+            },
+            {
+              "type": "text",
+              "name": "nameSpeaker",
+              "visibleIf": "{speaker} = true",
+              "title": "Please provide the name of the speaker, entertainer, presenter, etc.",
+              "isRequired": true
+            },
+            {
+              "type": "boolean",
+              "name": "amplifiedMusic",
+              "title": "Will the event have live or amplified music?"
+            },
+            {
+              "type": "panel",
+              "name": "amplifiedSoundStatement",
+              "elements": [
+                {
+                  "type": "html",
+                  "name": "permit",
+                  "html": "<em>If your event is being held outdoors, you will need to secure an Amplified Sound Permit from the Police Department in City Hall to show at your event.<b>You’ll need an approved copy of this form to obtain the Permit.</b></em>"
+                },
+                {
+                  "type": "checkbox",
+                  "name": "amplifiedSoundStatementConfirmation",
+                  "title": "Amplified sound statement confirmation",
+                  "titleLocation": "hidden",
+                  "isRequired": true,
+                  "requiredErrorText": "Confirmation required",
+                  "choices": [
+                    {
+                      "value": "confirmed",
+                      "text": "I confirm that I have read and understand the above statement."
+                    }
+                  ]
+                }
+              ],
+              "visibleIf": "{amplifiedMusic} = true"
+            },
+            {
+              "type": "boolean",
+              "name": "displays",
+              "title": "Will the event have any signage or promotional displays?"
+            },
+            {
+              "type": "html",
+              "name": "promotionalDisplaysStatement",
+              "visibleIf": "{displays} = true",
+              "html": "<em>No signage or promotional displays related to Activities/Events may be affixed to any University building. All signage and promotional displays related to Activities/Events must be approved in advance as part of the Event Registration.</em>"
+            },
+            {
+              "type": "checkbox",
+              "name": "promotionalDisplaysStatementConfirmation",
+              "visibleIf": "{displays} = true",
+              "title": "Promotional displays statement confirmation",
+              "titleLocation": "hidden",
+              "isRequired": true,
+              "requiredErrorText": "Confirmation required",
+              "choices": [
+                {
+                  "value": "confirmed",
+                  "text": "I confirm that I have read and understand the above statement."
+                }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "promotionalDisplaysContents",
+              "visibleIf": "{displays} = true",
+              "title": "Please detail the type and content of the signage and promotional displays.",
+              "isRequired": true,
+              "maxLength": 300
+            },
+            {
+              "type": "boolean",
+              "name": "insurance",
+              "title": "Have you met the insurance requirements for this event?"
+            }
+          ],
+          "questionTitleLocation": "top",
+          "title": "Event/Activity Setup and Compliance Information",
+          "description": "In this section, please provide information about pre-event compliance and preparation.",
+          "state": "collapsed"
+        },
+        {
+          "type": "panel",
+          "name": "declaration",
+          "elements": [
+            {
+              "type": "html",
+              "name": "declarationContents",
+              "html": "<p style=\"margin-top: 1em; text-align: justify;\">  <strong>Declaration</strong></p><p style=\"margin-top: 1em; text-align: justify;\">As the Event/Activity/Meeting manager, I agree to ensure all required guidelines listed above and any other applicable health and safety requirements are adhered to throughout the course of this event. I understand that changes to equipment and room requirements may not be catered for at late notice.</p>"
+            },
+            {
+              "type": "checkbox",
+              "name": "declarationConfirmation",
+              "title": "Declaration confirmation",
+              "titleLocation": "hidden",
+              "isRequired": true,
+              "requiredErrorText": "Consent Required: Please confirm your agreement.",
+              "choices": [
+                {
+                  "value": "agreed",
+                  "text": "As the representative of the listed Host/Organization within this form, I have read, understand and agree to the above."
+                }
+              ]
+            }
+          ],
+          "title": "Declaration",
+          "state": "collapsed"
+        }
+      ]
+    }
+  ],
+  "checkErrorsMode": "onValueChanged",
+  "widthMode": "static",
+  "width": "900"
+}

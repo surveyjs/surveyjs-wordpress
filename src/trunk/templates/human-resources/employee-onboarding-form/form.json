@@ -1,0 +1,358 @@
+{
+  "title": "Employee Onboarding Form",
+  "description": "Welcome aboard! Share a few details so we can set up your workspace, accounts, and records before your first day.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit onboarding form",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "personalDetails",
+      "title": "Personal Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "legalFirstName",
+          "title": "Legal first name",
+          "description": "As it appears on your government-issued ID.",
+          "isRequired": true,
+          "autocomplete": "given-name"
+        },
+        {
+          "type": "text",
+          "name": "legalLastName",
+          "title": "Legal last name",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "autocomplete": "family-name"
+        },
+        {
+          "type": "text",
+          "name": "preferredName",
+          "title": "Preferred name",
+          "description": "The name you'd like colleagues to use. Leave blank if it matches your legal name."
+        },
+        {
+          "type": "text",
+          "name": "dateOfBirth",
+          "title": "Date of birth",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "text",
+          "name": "personalEmail",
+          "title": "Personal email",
+          "description": "We'll send your first-day instructions here before your work account is ready.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "mobilePhone",
+          "title": "Mobile phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "panel",
+          "name": "homeAddress",
+          "title": "Home address",
+          "elements": [
+            {
+              "type": "text",
+              "name": "streetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "street-address"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "title": "State or province",
+              "isRequired": true,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "postalCode",
+              "title": "Postal code",
+              "isRequired": true,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "text",
+              "name": "country",
+              "title": "Country",
+              "isRequired": true,
+              "startWithNewLine": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "emergencyContact",
+      "title": "Emergency Contact",
+      "elements": [
+        {
+          "type": "text",
+          "name": "emergencyContactName",
+          "title": "Contact's full name",
+          "isRequired": true
+        },
+        {
+          "type": "dropdown",
+          "name": "emergencyContactRelationship",
+          "title": "Relationship to you",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "spouse-partner", "text": "Spouse or partner" },
+            { "value": "parent", "text": "Parent" },
+            { "value": "sibling", "text": "Sibling" },
+            { "value": "child", "text": "Child" },
+            { "value": "friend", "text": "Friend" }
+          ],
+          "showOtherItem": true
+        },
+        {
+          "type": "text",
+          "name": "emergencyContactPhone",
+          "title": "Primary phone",
+          "isRequired": true,
+          "inputType": "tel"
+        },
+        {
+          "type": "text",
+          "name": "emergencyContactAltPhone",
+          "title": "Alternative phone",
+          "startWithNewLine": false,
+          "inputType": "tel"
+        }
+      ]
+    },
+    {
+      "name": "employmentAndEquipment",
+      "title": "Role and Equipment",
+      "elements": [
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title",
+          "isRequired": true
+        },
+        {
+          "type": "dropdown",
+          "name": "department",
+          "title": "Department",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "engineering", "text": "Engineering" },
+            { "value": "product", "text": "Product" },
+            { "value": "design", "text": "Design" },
+            { "value": "sales", "text": "Sales" },
+            { "value": "marketing", "text": "Marketing" },
+            { "value": "customer-success", "text": "Customer Success" },
+            { "value": "finance", "text": "Finance" },
+            { "value": "people-ops", "text": "People Operations" },
+            { "value": "operations", "text": "Operations" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "managerName",
+          "title": "Manager's name",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "startDate",
+          "title": "Start date",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date"
+        },
+        {
+          "type": "radiogroup",
+          "name": "employmentType",
+          "title": "Employment type",
+          "isRequired": true,
+          "colCount": 4,
+          "choices": [
+            { "value": "full-time", "text": "Full-time" },
+            { "value": "part-time", "text": "Part-time" },
+            { "value": "contractor", "text": "Contractor" },
+            { "value": "intern", "text": "Intern" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "workLocation",
+          "title": "Where will you work?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "office", "text": "In the office" },
+            { "value": "hybrid", "text": "Hybrid" },
+            { "value": "remote", "text": "Fully remote" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "officeLocation",
+          "visibleIf": "{workLocation} notempty and {workLocation} <> 'remote'",
+          "title": "Office location",
+          "isRequired": true,
+          "choices": [
+            { "value": "new-york", "text": "New York" },
+            { "value": "austin", "text": "Austin" },
+            { "value": "san-francisco", "text": "San Francisco" },
+            { "value": "london", "text": "London" },
+            { "value": "berlin", "text": "Berlin" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "tShirtSize",
+          "title": "T-shirt size",
+          "description": "For your welcome kit.",
+          "choices": [
+            { "value": "xs", "text": "XS" },
+            { "value": "s", "text": "S" },
+            { "value": "m", "text": "M" },
+            { "value": "l", "text": "L" },
+            { "value": "xl", "text": "XL" },
+            { "value": "xxl", "text": "XXL" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "equipmentNeeds",
+          "title": "Which equipment do you need?",
+          "colCount": 3,
+          "choices": [
+            { "value": "laptop", "text": "Laptop" },
+            { "value": "monitor", "text": "External monitor" },
+            { "value": "keyboard-mouse", "text": "Keyboard and mouse" },
+            { "value": "headset", "text": "Headset" },
+            { "value": "phone", "text": "Work phone" }
+          ],
+          "showNoneItem": true,
+          "noneText": "I already have everything I need"
+        },
+        {
+          "type": "radiogroup",
+          "name": "laptopPreference",
+          "visibleIf": "{equipmentNeeds} contains 'laptop'",
+          "title": "Laptop preference",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "macbook", "text": "MacBook Pro" },
+            { "value": "windows", "text": "Windows laptop" },
+            { "value": "linux", "text": "Linux laptop" }
+          ]
+        },
+        {
+          "type": "tagbox",
+          "name": "softwareAccess",
+          "title": "Which tools do you need access to on day one?",
+          "description": "Your manager can request additional tools later.",
+          "choices": [
+            { "value": "email", "text": "Email and calendar" },
+            { "value": "slack", "text": "Slack" },
+            { "value": "crm", "text": "CRM" },
+            { "value": "github", "text": "GitHub" },
+            { "value": "figma", "text": "Figma" },
+            { "value": "hr-portal", "text": "HR portal" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "dietaryRestrictions",
+          "title": "Dietary restrictions or allergies",
+          "description": "Helps us plan team lunches and events."
+        },
+        {
+          "type": "comment",
+          "name": "accessibilityNeeds",
+          "title": "Accessibility needs or workplace adjustments",
+          "description": "Optional. Tell us about anything that would help you do your best work.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "acknowledgements",
+      "title": "Acknowledgements",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "policyAcknowledgements",
+          "title": "I have read and agree to the following policies",
+          "description": "All four policies must be acknowledged before your start date.",
+          "isRequired": true,
+          "choices": [
+            { "value": "employee-handbook", "text": "Employee handbook" },
+            { "value": "code-of-conduct", "text": "Code of conduct" },
+            { "value": "it-acceptable-use", "text": "IT acceptable use policy" },
+            { "value": "data-protection", "text": "Data protection policy" }
+          ],
+          "validators": [
+            {
+              "type": "answercount",
+              "minCount": 4,
+              "text": "Please acknowledge all four policies."
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "directDepositNote",
+          "html": "<p><b>Banking details:</b> for security reasons we don't collect bank account information on this form. You'll receive a separate invitation to the payroll portal, where you can enter your direct deposit details.</p>"
+        },
+        {
+          "type": "boolean",
+          "name": "photoConsent",
+          "title": "May we use your photo in the internal staff directory and team pages?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "title": "Signature",
+          "description": "By signing, you confirm that the information above is accurate.",
+          "isRequired": true
+        },
+        {
+          "type": "text",
+          "name": "signatureDate",
+          "title": "Date",
+          "inputType": "date",
+          "readOnly": true,
+          "defaultValueExpression": "today()"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Welcome to the team, {legalFirstName}!</h3><p>Your onboarding form has been submitted. {managerName} and the People team will prepare your accounts and equipment for your start date on <b>{startDate}</b>.</p><p>Watch <b>{personalEmail}</b> for your payroll portal invitation and first-day instructions.</p>"
+}

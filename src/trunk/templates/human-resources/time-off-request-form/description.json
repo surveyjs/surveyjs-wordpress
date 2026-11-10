@@ -1,0 +1,10 @@
+{
+  "title": "Time Off Request Form",
+  "description": "An employee leave request with leave types, date range validation, half-day options, an automatic count of working days requested, and a coverage plan for the manager to review.",
+  "tags": [
+    "hr",
+    "request",
+    "operations",
+    "leave"
+  ]
+}

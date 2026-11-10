@@ -1,0 +1,10 @@
+{
+  "title": "Complaint Form",
+  "description": "A customer complaint form for retailers and service businesses. It records contact and order references, the complaint category, date, and channel, a description with supporting files, the impact, and the resolution the customer expects, with conditional fields for branch, previous case number, and callback phone.",
+  "tags": [
+    "support",
+    "feedback",
+    "customer-experience",
+    "request"
+  ]
+}

@@ -1,0 +1,245 @@
+{
+  "title": "BMI Calculator",
+  "description": "Enter your height and weight to see your body mass index and the weight range considered healthy for your height.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "textUpdateMode": "onTyping",
+  "completeText": "Get my results",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "bmiCalculator",
+      "title": "Your Measurements",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "unitSystem",
+          "title": "Units",
+          "isRequired": true,
+          "colCount": 2,
+          "defaultValue": "metric",
+          "choices": [
+            { "value": "metric", "text": "Metric (cm, kg)" },
+            { "value": "imperial", "text": "Imperial (ft, in, lb)" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "metricMeasurements",
+          "visibleIf": "{unitSystem} = 'metric'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "heightCm",
+              "title": "Height (cm)",
+              "isRequired": true,
+              "inputType": "number",
+              "min": 50,
+              "max": 250,
+              "step": 0.5,
+              "placeholder": "175"
+            },
+            {
+              "type": "text",
+              "name": "weightKg",
+              "title": "Weight (kg)",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 10,
+              "max": 400,
+              "step": 0.1,
+              "placeholder": "70"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "imperialMeasurements",
+          "visibleIf": "{unitSystem} = 'imperial'",
+          "elements": [
+            {
+              "type": "text",
+              "name": "heightFeet",
+              "title": "Height (feet)",
+              "isRequired": true,
+              "inputType": "number",
+              "min": 1,
+              "max": 8,
+              "step": 1,
+              "placeholder": "5"
+            },
+            {
+              "type": "text",
+              "name": "heightInches",
+              "title": "Height (inches)",
+              "description": "Leave empty for 0 inches.",
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 0,
+              "max": 11,
+              "step": 1,
+              "placeholder": "9"
+            },
+            {
+              "type": "text",
+              "name": "weightLbs",
+              "title": "Weight (lb)",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "number",
+              "min": 20,
+              "max": 900,
+              "step": 0.1,
+              "placeholder": "154"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "age",
+          "title": "Age",
+          "description": "Optional. BMI categories below apply to adults aged 20 and over.",
+          "inputType": "number",
+          "min": 2,
+          "max": 120,
+          "step": 1
+        },
+        {
+          "type": "radiogroup",
+          "name": "sex",
+          "title": "Sex",
+          "description": "Optional.",
+          "startWithNewLine": false,
+          "colCount": 2,
+          "choices": [
+            { "value": "female", "text": "Female" },
+            { "value": "male", "text": "Male" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "bmiResults",
+          "title": "Your results",
+          "visibleIf": "{heightMeters} > 0 and {weightKilograms} > 0",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "heightMeters",
+              "title": "Height",
+              "expression": "iif({unitSystem} = 'imperial', iif({heightFeet} > 0, round(({heightFeet} * 12 + iif({heightInches} > 0, {heightInches}, 0)) * 0.0254, 3), 0), iif({heightCm} > 0, {heightCm} / 100, 0))",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 2,
+              "format": "{0} m"
+            },
+            {
+              "type": "expression",
+              "name": "weightKilograms",
+              "title": "Weight",
+              "startWithNewLine": false,
+              "expression": "iif({unitSystem} = 'imperial', iif({weightLbs} > 0, round({weightLbs} * 0.45359237, 1), 0), iif({weightKg} > 0, {weightKg}, 0))",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} kg"
+            },
+            {
+              "type": "expression",
+              "name": "bmi",
+              "title": "Body mass index (BMI)",
+              "expression": "iif({heightMeters} > 0, round({weightKilograms} / ({heightMeters} * {heightMeters}), 1), 0)",
+              "displayStyle": "decimal",
+              "minimumFractionDigits": 1,
+              "maximumFractionDigits": 1
+            },
+            {
+              "type": "expression",
+              "name": "bmiCategory",
+              "title": "Category",
+              "startWithNewLine": false,
+              "expression": "iif({bmi} < 18.5, 'Underweight', iif({bmi} < 25, 'Normal weight', iif({bmi} < 30, 'Overweight', 'Obesity')))"
+            },
+            {
+              "type": "expression",
+              "name": "healthyWeightMin",
+              "title": "Healthy weight range for your height: from",
+              "description": "Based on a BMI of 18.5 to 24.9.",
+              "expression": "round(18.5 * {heightMeters} * {heightMeters}, 1)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} kg"
+            },
+            {
+              "type": "expression",
+              "name": "healthyWeightMax",
+              "title": "to",
+              "startWithNewLine": false,
+              "expression": "round(24.9 * {heightMeters} * {heightMeters}, 1)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} kg"
+            },
+            {
+              "type": "expression",
+              "name": "healthyWeightMinLbs",
+              "visibleIf": "{unitSystem} = 'imperial'",
+              "title": "In pounds: from",
+              "expression": "round({healthyWeightMin} / 0.45359237, 1)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} lb"
+            },
+            {
+              "type": "expression",
+              "name": "healthyWeightMaxLbs",
+              "visibleIf": "{unitSystem} = 'imperial'",
+              "title": "to",
+              "startWithNewLine": false,
+              "expression": "round({healthyWeightMax} / 0.45359237, 1)",
+              "displayStyle": "decimal",
+              "maximumFractionDigits": 1,
+              "format": "{0} lb"
+            },
+            {
+              "type": "html",
+              "name": "youthNote",
+              "visibleIf": "{age} > 0 and {age} < 20",
+              "html": "<p><b>Note for ages 2 to 19:</b> for children and teens, BMI is interpreted with age- and sex-specific growth charts, so the adult categories above may not apply. Please talk to a pediatrician for an accurate assessment.</p>"
+            }
+          ]
+        },
+        {
+          "type": "html",
+          "name": "bmiDisclaimer",
+          "html": "<p><small>BMI is a general screening measure and does not account for muscle mass, bone density, or body composition. It is not a diagnosis. Please consult a healthcare professional before making changes to your diet or exercise routine.</small></p>"
+        },
+        {
+          "type": "boolean",
+          "name": "wantsResultsByEmail",
+          "title": "Would you like a copy of your results by email?",
+          "labelTrue": "Yes, please",
+          "labelFalse": "No, thanks"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "visibleIf": "{wantsResultsByEmail} = true",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Your BMI is {bmi}</h3><p>Category: <b>{bmiCategory}</b></p><p>For your height, a weight between <b>{healthyWeightMin}</b> and <b>{healthyWeightMax}</b> is considered healthy.</p><p><small>BMI is a screening measure, not a diagnosis. Please consult a healthcare professional for personal advice.</small></p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{wantsResultsByEmail} = true",
+      "html": "<h3>Your BMI is {bmi}</h3><p>Category: <b>{bmiCategory}</b></p><p>For your height, a weight between <b>{healthyWeightMin}</b> and <b>{healthyWeightMax}</b> is considered healthy.</p><p>We've sent a copy of these results to <b>{email}</b>.</p><p><small>BMI is a screening measure, not a diagnosis. Please consult a healthcare professional for personal advice.</small></p>"
+    }
+  ]
+}

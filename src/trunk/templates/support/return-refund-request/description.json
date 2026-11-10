@@ -1,0 +1,10 @@
+{
+  "title": "Return and Refund Request",
+  "description": "A return and refund request form for online stores. Customers enter the order details, list each item with quantity and reason in a dynamic table, describe the condition, attach photos, and choose a refund, store credit, or exchange, with conditional exchange details and a courier pickup address.",
+  "tags": [
+    "support",
+    "order",
+    "request",
+    "ecommerce"
+  ]
+}

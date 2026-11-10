@@ -1,0 +1,210 @@
+{
+  "title": "Feature Request Form",
+  "description": "Have an idea that would make our product work better for you? Start with the problem you want to solve: understanding the need helps us find the best solution.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "theProblem",
+      "title": "The Problem",
+      "elements": [
+        {
+          "type": "text",
+          "name": "requestSummary",
+          "title": "Summarize your request in one sentence",
+          "isRequired": true,
+          "maxLength": 120
+        },
+        {
+          "type": "dropdown",
+          "name": "productArea",
+          "title": "Which part of the product does this relate to?",
+          "isRequired": true,
+          "choices": [
+            { "value": "dashboardReports", "text": "Dashboards and reports" },
+            { "value": "dataManagement", "text": "Data entry and management" },
+            { "value": "collaboration", "text": "Sharing and collaboration" },
+            { "value": "notifications", "text": "Notifications and alerts" },
+            { "value": "integrations", "text": "Integrations and API" },
+            { "value": "mobile", "text": "Mobile experience" },
+            { "value": "accountSettings", "text": "Account, users, and permissions" },
+            { "value": "billing", "text": "Billing and plans" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other area"
+        },
+        {
+          "type": "comment",
+          "name": "problemDescription",
+          "title": "What problem are you trying to solve?",
+          "description": "Describe what you are trying to accomplish and what makes it difficult today.",
+          "isRequired": true,
+          "rows": 5
+        },
+        {
+          "type": "radiogroup",
+          "name": "problemFrequency",
+          "title": "How often do you run into this problem?",
+          "isRequired": true,
+          "choices": [
+            { "value": "daily", "text": "Daily" },
+            { "value": "weekly", "text": "Weekly" },
+            { "value": "monthly", "text": "Monthly" },
+            { "value": "rarely", "text": "A few times a year" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "workaroundStatus",
+          "title": "Do you currently have a way to work around this problem?",
+          "isRequired": true,
+          "choices": [
+            { "value": "noWorkaround", "text": "No, I can't get it done" },
+            { "value": "manualWorkaround", "text": "Yes, but it takes manual effort" },
+            { "value": "otherTool", "text": "Yes, I use another tool for it" },
+            { "value": "acceptableWorkaround", "text": "Yes, and it works reasonably well" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "workaroundDescription",
+          "visibleIf": "{workaroundStatus} anyof ['manualWorkaround', 'otherTool', 'acceptableWorkaround']",
+          "title": "Please describe your workaround.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "yourIdea",
+      "title": "Your Idea",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "proposedSolution",
+          "title": "How would you like this to work?",
+          "description": "Describe the ideal experience from your point of view. Sketch out the steps if that helps.",
+          "rows": 5
+        },
+        {
+          "type": "comment",
+          "name": "successCriteria",
+          "title": "How would you know the problem is solved?",
+          "description": "For example, a task becomes faster, an error stops happening, or a report shows the data you need.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "impactAndPriority",
+      "title": "Impact and Priority",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "importance",
+          "title": "How important is this feature to you?",
+          "isRequired": true,
+          "rateValues": [
+            { "value": 1, "text": "Nice to have" },
+            { "value": 2, "text": "Somewhat important" },
+            { "value": 3, "text": "Important" },
+            { "value": 4, "text": "Very important" },
+            { "value": 5, "text": "Critical" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "affectedUsers",
+          "title": "Who is affected by this problem?",
+          "isRequired": true,
+          "choices": [
+            { "value": "justMe", "text": "Only me" },
+            { "value": "myTeam", "text": "My team" },
+            { "value": "wholeOrganization", "text": "My whole organization" },
+            { "value": "ourCustomers", "text": "Our customers or end users" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "expectedBenefits",
+          "title": "What would this feature help you achieve?",
+          "description": "Select all that apply.",
+          "choices": [
+            { "value": "saveTime", "text": "Save time" },
+            { "value": "reduceErrors", "text": "Reduce mistakes" },
+            { "value": "betterDecisions", "text": "Make better decisions" },
+            { "value": "collaborate", "text": "Work better with others" },
+            { "value": "compliance", "text": "Meet a policy or compliance requirement" },
+            { "value": "reduceCosts", "text": "Reduce costs" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Something else"
+        },
+        {
+          "type": "boolean",
+          "name": "isBlocker",
+          "title": "Is the lack of this feature preventing you from adopting or expanding your use of the product?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    },
+    {
+      "name": "followUp",
+      "title": "Follow-Up",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "followUpConsent",
+          "title": "May our product team contact you to learn more about your request?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "boolean",
+          "name": "earlyAccessInterest",
+          "visibleIf": "{followUpConsent} = true",
+          "title": "Would you like to try an early version if we build this feature?",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "text",
+          "name": "fullName",
+          "visibleIf": "{followUpConsent} = true",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "visibleIf": "{followUpConsent} = true",
+          "title": "Email address",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email", "text": "Please enter a valid email address." }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "organization",
+          "visibleIf": "{followUpConsent} = true",
+          "title": "Organization",
+          "autocomplete": "organization"
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit Request",
+  "completedHtml": "<h3>Thank you for your request!</h3><p>Our product team reviews every request and uses them to plan what to build next. Requests that describe the underlying problem are the easiest for us to act on, so thank you for taking the time.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{followUpConsent} = true",
+      "html": "<h3>Thank you for your request!</h3><p>Our product team reviews every request and uses them to plan what to build next. If we need more details, we will contact you at {email}.</p>"
+    }
+  ]
+}

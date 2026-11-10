@@ -1,0 +1,373 @@
+{
+  "title": "Support Request",
+  "description": "Describe the problem and we'll get it to the right specialist. Clear steps and screenshots help us solve it faster.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "questionErrorLocation": "bottom",
+  "completeText": "Submit request",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "overview",
+      "title": "Overview",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Your name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "accountEmail",
+          "title": "Account email",
+          "description": "The email address you use to sign in.",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "startWithNewLine": false,
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "productArea",
+          "title": "Which area does this concern?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "web-app",
+              "text": "Web app"
+            },
+            {
+              "value": "mobile-app",
+              "text": "Mobile app"
+            },
+            {
+              "value": "desktop-app",
+              "text": "Desktop app"
+            },
+            {
+              "value": "api",
+              "text": "API and integrations"
+            },
+            {
+              "value": "account",
+              "text": "Account and sign-in"
+            },
+            {
+              "value": "billing",
+              "text": "Billing and subscription"
+            }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "radiogroup",
+          "name": "issueCategory",
+          "title": "What kind of issue is it?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            {
+              "value": "bug",
+              "text": "Something isn't working"
+            },
+            {
+              "value": "performance",
+              "text": "It's slow or unstable"
+            },
+            {
+              "value": "access",
+              "text": "I can't sign in or access something"
+            },
+            {
+              "value": "data",
+              "text": "Data is wrong or missing"
+            },
+            {
+              "value": "how-to",
+              "text": "I have a how-to question"
+            },
+            {
+              "value": "feature-request",
+              "text": "I'd like to suggest a feature"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "severity",
+          "visibleIf": "{issueCategory} anyof ['bug', 'performance', 'access', 'data']",
+          "title": "How much is this holding you back?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "critical",
+              "text": "Work has stopped: nobody on my team can use the product, or records are disappearing"
+            },
+            {
+              "value": "high",
+              "text": "A key task is blocked for me or my team, and getting around it takes real effort"
+            },
+            {
+              "value": "medium",
+              "text": "Something misbehaves, but I've found another way to get the job done"
+            },
+            {
+              "value": "low",
+              "text": "Barely noticeable: a typo, layout glitch, or small annoyance"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "subject",
+          "title": "Summary",
+          "description": "One line that describes the issue.",
+          "isRequired": true,
+          "maxLength": 120
+        }
+      ]
+    },
+    {
+      "name": "details",
+      "title": "Details",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "issueDescription",
+          "title": "Describe the issue",
+          "isRequired": true,
+          "rows": 5,
+          "maxLength": 5000
+        },
+        {
+          "type": "panel",
+          "name": "bugDetails",
+          "visibleIf": "{issueCategory} anyof ['bug', 'data']",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "stepsToReproduce",
+              "title": "Steps to reproduce",
+              "description": "List the exact actions that lead to the problem, one per line.",
+              "isRequired": true,
+              "rows": 4,
+              "placeholder": "1. \n2. \n3. "
+            },
+            {
+              "type": "comment",
+              "name": "expectedResult",
+              "title": "What did you expect to happen?",
+              "rows": 2
+            },
+            {
+              "type": "comment",
+              "name": "actualResult",
+              "title": "What happened instead?",
+              "rows": 2,
+              "startWithNewLine": false
+            },
+            {
+              "type": "text",
+              "name": "errorMessage",
+              "title": "Error message or code, if any"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "performanceDetails",
+          "visibleIf": "{issueCategory} = 'performance'",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "occurrence",
+              "title": "How often does it happen?",
+              "isRequired": true,
+              "colCount": 3,
+              "choices": [
+                {
+                  "value": "always",
+                  "text": "Every time"
+                },
+                {
+                  "value": "intermittent",
+                  "text": "From time to time"
+                },
+                {
+                  "value": "once",
+                  "text": "It happened once"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "slowActions",
+              "title": "Which pages or actions are affected?"
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "accessDetails",
+          "visibleIf": "{issueCategory} = 'access'",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "signInMethod",
+              "title": "How do you usually sign in?",
+              "choices": [
+                {
+                  "value": "password",
+                  "text": "Email and password"
+                },
+                {
+                  "value": "sso",
+                  "text": "Single sign-on through my organization"
+                },
+                {
+                  "value": "magic-link",
+                  "text": "A sign-in link sent by email"
+                }
+              ],
+              "showOtherItem": true,
+              "otherText": "Other"
+            },
+            {
+              "type": "boolean",
+              "name": "passwordResetTried",
+              "visibleIf": "{signInMethod} = 'password'",
+              "title": "Have you already tried resetting your password?",
+              "startWithNewLine": false
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "affectedUsers",
+          "visibleIf": "{issueCategory} anyof ['bug', 'performance', 'access', 'data']",
+          "title": "Who is affected?",
+          "colCount": 3,
+          "choices": [
+            {
+              "value": "only-me",
+              "text": "Only me"
+            },
+            {
+              "value": "some-users",
+              "text": "Some people on my team"
+            },
+            {
+              "value": "everyone",
+              "text": "Everyone"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "firstNoticed",
+          "visibleIf": "{issueCategory} anyof ['bug', 'performance', 'access', 'data']",
+          "title": "When did you first notice it?",
+          "inputType": "date",
+          "maxValueExpression": "today()"
+        },
+        {
+          "type": "panel",
+          "name": "featureRequestDetails",
+          "visibleIf": "{issueCategory} = 'feature-request'",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "problemToSolve",
+              "title": "What would this feature help you do?",
+              "description": "Describing your goal helps us more than describing a specific solution.",
+              "isRequired": true,
+              "rows": 3
+            },
+            {
+              "type": "rating",
+              "name": "featureImportance",
+              "title": "How important is this to you?",
+              "rateMin": 1,
+              "rateMax": 5,
+              "minRateDescription": "Nice to have",
+              "maxRateDescription": "Essential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "environmentAndFiles",
+      "title": "Environment and Attachments",
+      "elements": [
+        {
+          "type": "multipletext",
+          "name": "environment",
+          "visibleIf": "{productArea} anyof ['web-app', 'mobile-app', 'desktop-app', 'api'] and {issueCategory} anyof ['bug', 'performance', 'data']",
+          "title": "Your environment",
+          "description": "Fill in what you know. You'll usually find the app version under Settings or About.",
+          "colCount": 2,
+          "items": [
+            {
+              "name": "operatingSystem",
+              "title": "Operating system and version"
+            },
+            {
+              "name": "browser",
+              "title": "Browser and version"
+            },
+            {
+              "name": "device",
+              "title": "Device model"
+            },
+            {
+              "name": "appVersion",
+              "title": "App or API version"
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "name": "attachments",
+          "title": "Screenshots, recordings, or log files",
+          "description": "Optional. Up to 5 files, 20 MB each. Remove passwords and personal data before uploading.",
+          "allowMultiple": true,
+          "maxFiles": 5,
+          "maxSize": 20971520,
+          "acceptedTypes": "image/*,video/*,.pdf,.txt,.log,.json,.har,.zip"
+        },
+        {
+          "type": "boolean",
+          "name": "accountAccessConsent",
+          "visibleIf": "{issueCategory} anyof ['bug', 'performance', 'access', 'data']",
+          "title": "May a support specialist access your account to investigate?",
+          "description": "Access is used only for this request and ends when it is resolved.",
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thanks, {fullName}. Your request has been submitted.</h3><p>A support specialist will review it and reply to <b>{accountEmail}</b>. If you remember more details, reply to our email and they'll be added to your request.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{severity} = 'critical'",
+      "html": "<h3>Thanks, {fullName}. Your request has been marked as critical.</h3><p>Critical requests go to the front of our queue, and a specialist will contact you at <b>{accountEmail}</b> as soon as possible.</p>"
+    },
+    {
+      "expression": "{issueCategory} = 'feature-request'",
+      "html": "<h3>Thanks for the suggestion, {fullName}!</h3><p>Our product team reviews every request. We'll let you know at <b>{accountEmail}</b> if we have questions or news about it.</p>"
+    }
+  ]
+}

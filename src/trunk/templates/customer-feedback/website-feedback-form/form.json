@@ -1,0 +1,206 @@
+{
+  "title": "Website Feedback",
+  "description": "Help us make this website better. Tell us why you visited, how it went, and anything that got in your way.",
+  "showQuestionNumbers": "off",
+  "showProgressBar": true,
+  "questionErrorLocation": "bottom",
+  "completeText": "Send feedback",
+  "widthMode": "static",
+  "width": "760px",
+  "pages": [
+    {
+      "name": "yourVisit",
+      "title": "Your Visit",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "visitPurpose",
+          "title": "What was the main purpose of your visit today?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "learn-about-products", "text": "Learn about products or services" },
+            { "value": "make-purchase", "text": "Make a purchase" },
+            { "value": "pricing", "text": "Check prices or plans" },
+            { "value": "support", "text": "Get help or support" },
+            { "value": "account", "text": "Manage my account" },
+            { "value": "contact", "text": "Contact the company" },
+            { "value": "careers", "text": "Look at job openings" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "boolean",
+          "name": "taskCompleted",
+          "title": "Were you able to complete what you came to do?",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "comment",
+          "name": "taskBlocker",
+          "visibleIf": "{taskCompleted} = false",
+          "title": "What stopped you?",
+          "description": "Tell us what you were looking for and where you got stuck.",
+          "isRequired": true,
+          "rows": 4,
+          "maxLength": 1500
+        },
+        {
+          "type": "rating",
+          "name": "easeOfUse",
+          "title": "How easy was the website to use?",
+          "isRequired": true,
+          "rateMin": 1,
+          "rateMax": 5,
+          "minRateDescription": "Very difficult",
+          "maxRateDescription": "Very easy"
+        },
+        {
+          "type": "matrix",
+          "name": "siteRatings",
+          "title": "How would you rate the following?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Poor" },
+            { "value": 2, "text": "Fair" },
+            { "value": 3, "text": "Good" },
+            { "value": 4, "text": "Very good" },
+            { "value": 5, "text": "Excellent" }
+          ],
+          "rows": [
+            { "value": "navigation", "text": "Navigation and finding pages" },
+            { "value": "speed", "text": "Page loading speed" },
+            { "value": "design", "text": "Visual design and layout" },
+            { "value": "contentClarity", "text": "Clarity of the content" },
+            { "value": "search", "text": "Site search" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "technicalDetails",
+      "title": "Technical Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "pageUrl",
+          "title": "Which page is your feedback about?",
+          "description": "Optional. Paste the page address if your feedback concerns a specific page.",
+          "inputType": "url",
+          "placeholder": "https://",
+          "maxLength": 500
+        },
+        {
+          "type": "radiogroup",
+          "name": "device",
+          "title": "Which device are you using?",
+          "isRequired": true,
+          "colCount": 3,
+          "choices": [
+            { "value": "desktop", "text": "Desktop or laptop" },
+            { "value": "tablet", "text": "Tablet" },
+            { "value": "phone", "text": "Mobile phone" }
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "browser",
+          "title": "Which browser are you using?",
+          "startWithNewLine": false,
+          "choices": [
+            { "value": "chrome", "text": "Google Chrome" },
+            { "value": "safari", "text": "Safari" },
+            { "value": "firefox", "text": "Mozilla Firefox" },
+            { "value": "edge", "text": "Microsoft Edge" },
+            { "value": "samsung-internet", "text": "Samsung Internet" },
+            { "value": "opera", "text": "Opera" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "boolean",
+          "name": "issueEncountered",
+          "title": "Did you run into a technical problem?",
+          "description": "For example, a broken link, an error message, or a page that did not display correctly.",
+          "isRequired": true,
+          "labelTrue": "Yes",
+          "labelFalse": "No"
+        },
+        {
+          "type": "panel",
+          "name": "issueDetails",
+          "visibleIf": "{issueEncountered} = true",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "issueDescription",
+              "title": "Describe the problem",
+              "description": "What did you do, and what happened?",
+              "isRequired": true,
+              "rows": 4,
+              "maxLength": 2000
+            },
+            {
+              "type": "file",
+              "name": "screenshot",
+              "title": "Screenshot",
+              "description": "Optional. Up to 3 images, 10 MB each.",
+              "allowMultiple": true,
+              "maxFiles": 3,
+              "maxSize": 10485760,
+              "acceptedTypes": "image/*"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finalThoughts",
+      "title": "Final Thoughts",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "suggestions",
+          "title": "What would make the website better for you?",
+          "rows": 4,
+          "maxLength": 2000
+        },
+        {
+          "type": "rating",
+          "name": "recommendScore",
+          "title": "How likely are you to recommend this website to a friend or colleague?",
+          "isRequired": true,
+          "rateMin": 0,
+          "rateMax": 10,
+          "minRateDescription": "Not at all likely",
+          "maxRateDescription": "Extremely likely"
+        },
+        {
+          "type": "text",
+          "name": "followUpEmail",
+          "title": "Email address",
+          "description": "Optional. Leave your email if you'd like us to follow up on your feedback.",
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            {
+              "type": "email",
+              "text": "Please enter a valid email address."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you for your feedback!</h3><p>Your comments help us improve the website for everyone.</p>",
+  "completedHtmlOnCondition": [
+    {
+      "expression": "{followUpEmail} notempty",
+      "html": "<h3>Thank you for your feedback!</h3><p>We have noted your comments and will follow up at <b>{followUpEmail}</b> if we have questions or news.</p>"
+    }
+  ]
+}

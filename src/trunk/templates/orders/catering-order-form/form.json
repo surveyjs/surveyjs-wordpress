@@ -1,0 +1,434 @@
+{
+  "title": "Catering Order Form",
+  "description": "Tell us about your event and the menu you have in mind. You'll see an estimate as you go, and we'll follow up with a detailed quote and menu options.",
+  "showQuestionNumbers": "off",
+  "checkErrorsMode": "onValueChanged",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "completeText": "Send Order Request",
+  "calculatedValues": [
+    {
+      "name": "menuPricePerGuest",
+      "expression": "iif({menuPackage} = 'essentials', 22, iif({menuPackage} = 'classic', 34, iif({menuPackage} = 'premium', 52, 0)))"
+    },
+    {
+      "name": "servicePricePerGuest",
+      "expression": "iif({serviceStyle} = 'buffet', 6, iif({serviceStyle} = 'familyStyle', 10, iif({serviceStyle} = 'plated', 16, 0)))"
+    },
+    {
+      "name": "menuExtrasPerGuest",
+      "expression": "iif({menuExtras} contains 'appetizers', 8, 0) + iif({menuExtras} contains 'desserts', 7, 0) + iif({menuExtras} contains 'beverages', 4, 0) + iif({menuExtras} contains 'coffeeService', 3, 0)"
+    },
+    {
+      "name": "rentalsPerGuest",
+      "expression": "iif({rentals} contains 'tablesChairs', 10, 0) + iif({rentals} contains 'linens', 4, 0) + iif({rentals} contains 'tableware', 6, 0)"
+    },
+    {
+      "name": "dietaryTotal",
+      "expression": "sum({dietaryCounts.vegetarian}, {dietaryCounts.vegan}, {dietaryCounts.glutenFree}, {dietaryCounts.dairyFree}, {dietaryCounts.nutFree}, {dietaryCounts.otherDiet})"
+    }
+  ],
+  "pages": [
+    {
+      "name": "event",
+      "title": "Event Details",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "eventType",
+          "title": "Type of event",
+          "isRequired": true,
+          "choices": [
+            { "value": "businessMeeting", "text": "Business meeting or training" },
+            { "value": "companyParty", "text": "Company party or celebration" },
+            { "value": "conference", "text": "Conference or trade show" },
+            { "value": "wedding", "text": "Wedding or rehearsal dinner" },
+            { "value": "privateParty", "text": "Birthday or private party" },
+            { "value": "memorial", "text": "Memorial or reception" },
+            { "value": "community", "text": "Community or fundraising event" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        },
+        {
+          "type": "text",
+          "name": "eventDate",
+          "title": "Event date",
+          "description": "Please order at least 7 days ahead. For larger events, earlier is better.",
+          "isRequired": true,
+          "inputType": "date",
+          "minValueExpression": "today(7)"
+        },
+        {
+          "type": "text",
+          "name": "mealTime",
+          "title": "When should food be ready to serve?",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "text",
+          "name": "eventEndTime",
+          "title": "Event end time",
+          "startWithNewLine": false,
+          "inputType": "time"
+        },
+        {
+          "type": "text",
+          "name": "guestCount",
+          "title": "Number of guests",
+          "description": "Your best estimate. You can confirm the final count up to 3 days before the event.",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 10,
+          "max": 1000,
+          "step": 1
+        },
+        {
+          "type": "panel",
+          "name": "venue",
+          "title": "Venue",
+          "elements": [
+            {
+              "type": "text",
+              "name": "venueName",
+              "title": "Venue name",
+              "description": "Leave blank if it's a private home."
+            },
+            {
+              "type": "text",
+              "name": "venueStreetAddress",
+              "title": "Street address",
+              "isRequired": true,
+              "autocomplete": "address-line1"
+            },
+            {
+              "type": "text",
+              "name": "venueCity",
+              "title": "City",
+              "isRequired": true,
+              "autocomplete": "address-level2"
+            },
+            {
+              "type": "text",
+              "name": "venueState",
+              "title": "State",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "address-level1"
+            },
+            {
+              "type": "text",
+              "name": "venuePostalCode",
+              "title": "ZIP code",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "autocomplete": "postal-code"
+            },
+            {
+              "type": "radiogroup",
+              "name": "venueSetting",
+              "title": "Will food be served indoors or outdoors?",
+              "colCount": 3,
+              "choices": [
+                { "value": "indoors", "text": "Indoors" },
+                { "value": "outdoors", "text": "Outdoors" },
+                { "value": "both", "text": "Both" }
+              ]
+            },
+            {
+              "type": "radiogroup",
+              "name": "kitchenAccess",
+              "title": "What kitchen facilities does the venue have?",
+              "choices": [
+                { "value": "fullKitchen", "text": "A full kitchen we can use" },
+                { "value": "prepArea", "text": "A prep area with power and water, but no stove" },
+                { "value": "none", "text": "No kitchen or prep area" },
+                { "value": "unsure", "text": "I'm not sure" }
+              ]
+            },
+            {
+              "type": "comment",
+              "name": "venueAccessNotes",
+              "title": "Access and parking notes",
+              "description": "For example: loading dock, stairs or elevator, parking for a delivery van, or the earliest time we can arrive.",
+              "rows": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "title": "Menu and Service",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "menuPackage",
+          "title": "Menu package",
+          "description": "Prices are per guest. We'll send the seasonal menu for your package so you can choose dishes.",
+          "isRequired": true,
+          "choices": [
+            { "value": "essentials", "text": "Essentials ($22): two main dishes, two sides, salad, and bread" },
+            { "value": "classic", "text": "Classic ($34): three main dishes, three sides, salad, bread, and one appetizer" },
+            { "value": "premium", "text": "Premium ($52): chef-attended carving or pasta station, three main dishes, four sides, salad, bread, and two appetizers" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "serviceStyle",
+          "title": "Service style",
+          "isRequired": true,
+          "choices": [
+            { "value": "dropOff", "text": "Drop-off: food arrives ready to serve in disposable trays (no extra charge)" },
+            { "value": "buffet", "text": "Staffed buffet: we set up, replenish, and clear the buffet (+$6 per guest)" },
+            { "value": "familyStyle", "text": "Family style: shared platters served to each table (+$10 per guest)" },
+            { "value": "plated", "text": "Plated: individual courses served to seated guests (+$16 per guest)" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "menuExtras",
+          "title": "Add to the menu",
+          "description": "Optional. Prices are per guest.",
+          "colCount": 2,
+          "choices": [
+            { "value": "appetizers", "text": "Extra appetizers (+$8)" },
+            { "value": "desserts", "text": "Dessert selection (+$7)" },
+            { "value": "beverages", "text": "Soft drinks, juice, and water (+$4)" },
+            { "value": "coffeeService", "text": "Coffee and tea service (+$3)" }
+          ]
+        },
+        {
+          "type": "multipletext",
+          "name": "dietaryCounts",
+          "title": "How many guests need special meals?",
+          "description": "Enter the number of guests for each need. Leave blank if none.",
+          "colCount": 3,
+          "items": [
+            { "name": "vegetarian", "title": "Vegetarian", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0 } ] },
+            { "name": "vegan", "title": "Vegan", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0 } ] },
+            { "name": "glutenFree", "title": "Gluten-free", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0 } ] },
+            { "name": "dairyFree", "title": "Dairy-free", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0 } ] },
+            { "name": "nutFree", "title": "Nut-free", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0 } ] },
+            { "name": "otherDiet", "title": "Other", "inputType": "number", "validators": [ { "type": "numeric", "minValue": 0 } ] }
+          ],
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{dietaryTotal} <= {guestCount}",
+              "text": "The number of special meals can't be more than the number of guests."
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "dietaryDetails",
+          "visibleIf": "{dietaryTotal} > 0",
+          "title": "Details about special meals and allergies",
+          "description": "Describe any severe allergies and the \"Other\" needs, so our kitchen can plan safely.",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "extrasAndEstimate",
+      "title": "Staff, Rentals, and Delivery",
+      "elements": [
+        {
+          "type": "text",
+          "name": "additionalServers",
+          "title": "Additional servers",
+          "description": "$175 per server for up to 5 hours on site. Staffed service styles already include the staff needed to run the service; add servers for passed appetizers, bussing, or cleanup.",
+          "inputType": "number",
+          "min": 0,
+          "max": 30,
+          "step": 1
+        },
+        {
+          "type": "checkbox",
+          "name": "rentals",
+          "title": "Rentals",
+          "description": "Optional. Prices are per guest and include setup and pickup.",
+          "choices": [
+            { "value": "tablesChairs", "text": "Tables and chairs (+$10)" },
+            { "value": "linens", "text": "Tablecloths and napkins (+$4)" },
+            { "value": "tableware", "text": "China, glassware, and flatware instead of disposables (+$6)" }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "fulfillment",
+          "title": "Delivery",
+          "description": "Delivery covers addresses within 20 miles of our kitchen. We'll quote longer distances separately.",
+          "isRequired": true,
+          "choices": [
+            { "value": "pickup", "text": "I'll pick up the order from your kitchen (free)" },
+            { "value": "delivery", "text": "Deliver to the venue ($65)" },
+            { "value": "deliverySetup", "text": "Deliver, set up the serving area, and collect equipment afterward ($140)" }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "estimate",
+          "title": "Estimated cost",
+          "visibleIf": "{guestCount} > 0 and {menuPackage} notempty and {serviceStyle} notempty",
+          "elements": [
+            {
+              "type": "expression",
+              "name": "foodAndServiceCost",
+              "title": "Food and service",
+              "expression": "{guestCount} * ({menuPricePerGuest} + {servicePricePerGuest} + {menuExtrasPerGuest})",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "staffCost",
+              "title": "Additional staff",
+              "startWithNewLine": false,
+              "expression": "iif({additionalServers} > 0, {additionalServers} * 175, 0)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "rentalsCost",
+              "title": "Rentals",
+              "startWithNewLine": false,
+              "expression": "{guestCount} * {rentalsPerGuest}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "deliveryFee",
+              "title": "Delivery",
+              "expression": "iif({fulfillment} = 'delivery', 65, iif({fulfillment} = 'deliverySetup', 140, 0))",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "serviceCharge",
+              "title": "Service charge (18%)",
+              "description": "Applies to food, service, and staff.",
+              "startWithNewLine": false,
+              "expression": "round(({foodAndServiceCost} + {staffCost}) * 0.18, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "estimatedTotal",
+              "title": "Estimated total",
+              "startWithNewLine": false,
+              "expression": "{foodAndServiceCost} + {staffCost} + {rentalsCost} + {deliveryFee} + {serviceCharge}",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "expression",
+              "name": "depositAmount",
+              "title": "Deposit to reserve your date (25%)",
+              "expression": "round({estimatedTotal} * 0.25, 2)",
+              "displayStyle": "currency",
+              "currency": "USD"
+            },
+            {
+              "type": "html",
+              "name": "estimateNote",
+              "html": "<p><small>Sales tax is not included. Your final price depends on the confirmed guest count and the dishes you choose, and we'll confirm it in your quote.</small></p>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contactDetails",
+      "title": "Contact Details",
+      "elements": [
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "organization",
+          "title": "Company or organization",
+          "description": "Optional. Needed if the invoice should be issued to an organization.",
+          "startWithNewLine": false,
+          "autocomplete": "organization"
+        },
+        {
+          "type": "text",
+          "name": "email",
+          "title": "Email",
+          "isRequired": true,
+          "inputType": "email",
+          "autocomplete": "email",
+          "validators": [
+            { "type": "email" }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "phone",
+          "title": "Phone",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "tel",
+          "autocomplete": "tel"
+        },
+        {
+          "type": "boolean",
+          "name": "hasOnSiteContact",
+          "title": "Will someone else be our contact at the venue on the day?"
+        },
+        {
+          "type": "panel",
+          "name": "onSiteContact",
+          "visibleIf": "{hasOnSiteContact} = true",
+          "elements": [
+            {
+              "type": "text",
+              "name": "onSiteContactName",
+              "title": "On-site contact name",
+              "isRequired": true
+            },
+            {
+              "type": "text",
+              "name": "onSiteContactPhone",
+              "title": "On-site contact phone",
+              "isRequired": true,
+              "startWithNewLine": false,
+              "inputType": "tel"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "preferredContactMethod",
+          "title": "How should we send your quote?",
+          "isRequired": true,
+          "colCount": 2,
+          "choices": [
+            { "value": "email", "text": "Email" },
+            { "value": "phone", "text": "Phone call" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "eventNotes",
+          "title": "Anything else we should know?",
+          "description": "For example: a theme or color scheme, timing of speeches, or dishes you'd love to include."
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h3>Thank you, {fullName}!</h3><p>We've received your catering request. Your estimated total is <b>{estimatedTotal}</b>. We'll check our availability for your date and send a detailed quote with menu options within two business days.</p><p>Your date is reserved only after you approve the quote and pay the deposit.</p>"
+}

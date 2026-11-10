@@ -36,6 +36,8 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 * Form answers stay on your site and are sent only in the emails you set up. The optional CAPTCHA services and the free online UI Builder never receive form answers (see External services below).
 
 = Form builder =
+* **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. Every new form comes with the email notification turned on and Reply-To set to the respondent's email.
+* **Save as Template**: save any form as your own template and reuse it from My Templates.
 * Describe your form in JSON with validation hints, formatting and a live preview.
 * Add a logo and images to the form from the WordPress Media Library.
 * **Adaptive theme**: by default the form takes the colors, fonts, buttons and fields of your site's theme.

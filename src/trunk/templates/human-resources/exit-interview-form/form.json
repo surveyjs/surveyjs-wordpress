@@ -1,0 +1,261 @@
+{
+  "title": "Exit Interview Form",
+  "description": "Thank you for your time with us. Your honest feedback about your experience helps us understand what works well and what we need to change. It takes about 10 minutes.",
+  "showProgressBar": "top",
+  "progressBarType": "pages",
+  "pages": [
+    {
+      "name": "aboutYourRole",
+      "title": "About Your Role",
+      "elements": [
+        {
+          "type": "html",
+          "name": "confidentialityNotice",
+          "html": "<p>Your answers are read by the HR team and are used to improve the workplace. They will not affect your final pay, benefits, or references. At the end of the form, you can choose how your feedback may be shared.</p>"
+        },
+        {
+          "type": "text",
+          "name": "fullName",
+          "title": "Full name",
+          "isRequired": true,
+          "autocomplete": "name"
+        },
+        {
+          "type": "text",
+          "name": "jobTitle",
+          "title": "Job title",
+          "isRequired": true,
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "department",
+          "title": "Department or team"
+        },
+        {
+          "type": "text",
+          "name": "managerName",
+          "title": "Manager's name",
+          "startWithNewLine": false
+        },
+        {
+          "type": "text",
+          "name": "startDate",
+          "title": "Start date",
+          "inputType": "date"
+        },
+        {
+          "type": "text",
+          "name": "lastWorkingDay",
+          "title": "Last working day",
+          "isRequired": true,
+          "startWithNewLine": false,
+          "inputType": "date",
+          "validators": [
+            {
+              "type": "expression",
+              "expression": "{startDate} empty or {lastWorkingDay} >= {startDate}",
+              "text": "The last working day cannot be earlier than the start date."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "departureType",
+          "title": "Which best describes your departure?",
+          "isRequired": true,
+          "choices": [
+            { "value": "resignation", "text": "Resignation" },
+            { "value": "retirement", "text": "Retirement" },
+            { "value": "contractEnd", "text": "End of a fixed-term contract" },
+            { "value": "mutualAgreement", "text": "Mutual agreement" }
+          ],
+          "showOtherItem": true,
+          "otherText": "Other"
+        }
+      ]
+    },
+    {
+      "name": "reasonsForLeaving",
+      "title": "Reasons for Leaving",
+      "elements": [
+        {
+          "type": "checkbox",
+          "name": "leavingReasons",
+          "title": "Which of the following influenced your decision to leave?",
+          "description": "Select all that apply.",
+          "isRequired": true,
+          "choices": [
+            { "value": "careerGrowth", "text": "Better career growth elsewhere" },
+            { "value": "compensation", "text": "Pay" },
+            { "value": "benefits", "text": "Benefits" },
+            { "value": "manager", "text": "Relationship with my manager" },
+            { "value": "workload", "text": "Workload" },
+            { "value": "workLifeBalance", "text": "Work-life balance or schedule" },
+            { "value": "jobContent", "text": "The work itself" },
+            { "value": "culture", "text": "Organizational culture" },
+            { "value": "recognition", "text": "Lack of recognition" },
+            { "value": "remoteWork", "text": "Remote or flexible work options" },
+            { "value": "relocation", "text": "Relocation" },
+            { "value": "personal", "text": "Personal or family reasons" },
+            { "value": "education", "text": "Returning to education" },
+            { "value": "retirement", "text": "Retirement" }
+          ],
+          "colCount": 2,
+          "showOtherItem": true,
+          "otherText": "Other reason"
+        },
+        {
+          "type": "dropdown",
+          "name": "primaryReason",
+          "visibleIf": "{leavingReasons} notempty",
+          "title": "Which of these was the main reason?",
+          "choicesFromQuestion": "leavingReasons",
+          "choicesFromQuestionMode": "selected"
+        },
+        {
+          "type": "comment",
+          "name": "reasonDetails",
+          "title": "Is there anything you'd like to add about why you are leaving?",
+          "rows": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "nextStep",
+          "title": "What are you doing next?",
+          "choices": [
+            { "value": "similarRole", "text": "A similar role at another organization" },
+            { "value": "higherRole", "text": "A more senior role at another organization" },
+            { "value": "careerChange", "text": "A change of career" },
+            { "value": "selfEmployment", "text": "Self-employment" },
+            { "value": "education", "text": "Education or training" },
+            { "value": "break", "text": "Taking a break" },
+            { "value": "retirement", "text": "Retirement" },
+            { "value": "undecided", "text": "Not decided yet" },
+            { "value": "preferNotToSay", "text": "Prefer not to say" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "retentionOpportunity",
+          "title": "Looking back, which change on our side might have made you reconsider leaving?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "yourExperience",
+      "title": "Your Experience",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "jobAspects",
+          "title": "How would you rate the following aspects of working here?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Very poor" },
+            { "value": 2, "text": "Poor" },
+            { "value": 3, "text": "Fair" },
+            { "value": 4, "text": "Good" },
+            { "value": 5, "text": "Excellent" }
+          ],
+          "rows": [
+            { "value": "jobContent", "text": "The work itself" },
+            { "value": "compensation", "text": "Pay" },
+            { "value": "benefits", "text": "Benefits" },
+            { "value": "workload", "text": "Workload" },
+            { "value": "workLifeBalance", "text": "Work-life balance" },
+            { "value": "training", "text": "Training and onboarding" },
+            { "value": "careerDevelopment", "text": "Career development opportunities" },
+            { "value": "colleagues", "text": "Relationships with colleagues" },
+            { "value": "leadershipCommunication", "text": "Communication from leadership" },
+            { "value": "toolsResources", "text": "Tools and resources" }
+          ],
+          "eachRowRequired": true
+        },
+        {
+          "type": "matrix",
+          "name": "managerRelationship",
+          "title": "How much do you agree with the following statements about your manager?",
+          "alternateRows": true,
+          "columns": [
+            { "value": 1, "text": "Strongly disagree" },
+            { "value": 2, "text": "Disagree" },
+            { "value": 3, "text": "Neither agree nor disagree" },
+            { "value": 4, "text": "Agree" },
+            { "value": 5, "text": "Strongly agree" }
+          ],
+          "rows": [
+            { "value": "clearDirection", "text": "My manager gave me clear direction." },
+            { "value": "regularFeedback", "text": "My manager gave me regular, constructive feedback." },
+            { "value": "recognizedWork", "text": "My manager recognized my contributions." },
+            { "value": "supportedGrowth", "text": "My manager supported my professional growth." },
+            { "value": "treatedFairly", "text": "My manager treated me fairly." }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "managerFeedback",
+          "title": "What could your manager have done differently?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "name": "lookingAhead",
+      "title": "Looking Ahead",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "wouldReturn",
+          "title": "Would you consider working here again in the future?",
+          "isRequired": true,
+          "choices": [
+            { "value": "yes", "text": "Yes" },
+            { "value": "maybe", "text": "Maybe" },
+            { "value": "no", "text": "No" }
+          ],
+          "colCount": 3
+        },
+        {
+          "type": "rating",
+          "name": "recommendEmployer",
+          "title": "How likely are you to recommend this organization to a friend as a place to work?",
+          "isRequired": true,
+          "rateValues": [
+            { "value": 1, "text": "Very unlikely" },
+            { "value": 2, "text": "Unlikely" },
+            { "value": 3, "text": "Not sure" },
+            { "value": 4, "text": "Likely" },
+            { "value": 5, "text": "Very likely" }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "keepDoing",
+          "title": "What should we keep doing?",
+          "rows": 3
+        },
+        {
+          "type": "comment",
+          "name": "suggestions",
+          "title": "What should we change to make this a better place to work?",
+          "rows": 3
+        },
+        {
+          "type": "radiogroup",
+          "name": "feedbackSharing",
+          "title": "How may we share your feedback?",
+          "isRequired": true,
+          "choices": [
+            { "value": "withName", "text": "You may share it with my name" },
+            { "value": "anonymously", "text": "You may share it without my name" },
+            { "value": "hrOnly", "text": "Please keep it within the HR team" }
+          ]
+        }
+      ]
+    }
+  ],
+  "completeText": "Submit",
+  "completedHtml": "<h3>Thank you, and all the best in what comes next!</h3><p>Your feedback has been sent to the HR team and will be handled as you requested. If you have questions about your final pay, benefits, or returning equipment, please contact HR.</p>"
+}

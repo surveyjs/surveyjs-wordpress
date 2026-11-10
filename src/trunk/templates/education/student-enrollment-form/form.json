@@ -1,0 +1,182 @@
+{
+  "title": "Student Enrollment Form",
+  "pages": [
+    {
+      "name": "studentInformation",
+      "elements": [
+        {
+          "type": "panel",
+          "name": "studentInfoPanel",
+          "elements": [
+            {
+              "type": "text",
+              "name": "studentName",
+              "title": "Student Name",
+              "titleLocation": "left",
+              "description": "First name",
+              "descriptionLocation": "underInput"
+            },
+            {
+              "type": "text",
+              "name": "studentLastName",
+              "title": "Student last name",
+              "startWithNewLine": false,
+              "titleLocation": "hidden",
+              "description": "Last Name",
+              "descriptionLocation": "underInput"
+            },
+            {
+              "type": "text",
+              "name": "dob",
+              "title": "Birth Date",
+              "inputType": "date",
+              "autocomplete": "bday",
+              "min": "2007-01-01"
+            },
+            {
+              "type": "radiogroup",
+              "name": "gender",
+              "startWithNewLine": false,
+              "title": "Gender",
+              "choices": [
+                {
+                  "value": "female",
+                  "text": "Female"
+                },
+                {
+                  "value": "male",
+                  "text": "Male"
+                },
+                {
+                  "value": "other",
+                  "text": "Other"
+                }
+              ],
+              "colCount": 3
+            }
+          ],
+          "questionTitleWidth": "120px"
+        }
+      ],
+      "title": "Student Information"
+    },
+    {
+      "name": "parentsInformation",
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "parents",
+          "title": "Parents",
+          "titleLocation": "hidden",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "parentName",
+              "title": "Parent Name",
+              "titleLocation": "left",
+              "description": "First name",
+              "descriptionLocation": "underInput"
+            },
+            {
+              "type": "text",
+              "name": "parentLastName",
+              "title": "Parent last name",
+              "startWithNewLine": false,
+              "titleLocation": "hidden",
+              "description": "Last Name",
+              "descriptionLocation": "underInput"
+            },
+            {
+              "type": "text",
+              "name": "address",
+              "title": "Address",
+              "titleLocation": "left"
+            },
+            {
+              "type": "text",
+              "name": "city",
+              "title": "City",
+              "titleLocation": "left"
+            },
+            {
+              "type": "text",
+              "name": "state",
+              "startWithNewLine": false,
+              "title": "State/Province",
+              "titleLocation": "left"
+            },
+            {
+              "type": "text",
+              "name": "phoneNumber",
+              "title": "Phone Number",
+              "titleLocation": "left",
+              "maskType": "pattern",
+              "maskSettings": {
+                "pattern": "+1 (999) 999-99-99"
+              }
+            },
+            {
+              "type": "text",
+              "name": "emailAddress",
+              "startWithNewLine": false,
+              "title": "Email Address",
+              "titleLocation": "left",
+              "autocomplete": "email"
+            }
+          ],
+          "panelCount": 1,
+          "minPanelCount": 1,
+          "maxPanelCount": 2,
+          "addPanelText": "Add a parent"
+        },
+        {
+          "type": "radiogroup",
+          "name": "acknowledgement",
+          "title": "Acknowledgement",
+          "titleLocation": "hidden",
+          "choices": [
+            {
+              "value": "accurate",
+              "text": "The information above is true and accurate to the best of my knowledge."
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "date",
+          "maxWidth": "30%",
+          "title": "Date:",
+          "inputType": "date"
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "title": "Signature",
+          "maxWidth": "30%",
+          "titleLocation": "hidden",
+          "signatureWidth": 335
+        },
+        {
+          "type": "html",
+          "name": "divider",
+          "maxWidth": "30%",
+          "html": "________________________________________________"
+        },
+        {
+          "type": "text",
+          "name": "printedName",
+          "title": "Printed name",
+          "maxWidth": "30%",
+          "titleLocation": "hidden",
+          "placeholder": "Printed Name"
+        }
+      ],
+      "title": "Parents Information"
+    }
+  ],
+  "questionTitleLocation": "left",
+  "completeText": "Submit",
+  "questionsOnPageMode": "singlePage",
+  "widthMode": "static",
+  "width": "1200"
+}

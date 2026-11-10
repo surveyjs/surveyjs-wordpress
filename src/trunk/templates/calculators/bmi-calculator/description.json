@@ -1,0 +1,9 @@
+{
+  "title": "BMI Calculator",
+  "description": "A body mass index calculator for clinics, gyms, and wellness sites: visitors enter height and weight in metric or imperial units and instantly see their BMI, weight category, and the healthy weight range for their height. Includes an age-based note for children and teens and an optional email capture for the results.",
+  "tags": [
+    "calculator",
+    "healthcare",
+    "assessment"
+  ]
+}

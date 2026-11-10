@@ -17,6 +17,7 @@ function listUrl(search) {
 async function addSurvey(page) {
   await page.goto(LIST_URL);
   await page.locator("#wpbody-content").getByRole("link", { name: "Add New Form" }).click();
+  await page.getByRole("button", { name: "Create blank form" }).click();
   await expect(page).toHaveURL(/page=surveyjs_editor/);
   await expect(page.locator(".monaco-editor")).toBeVisible();
   return Number(new URL(page.url()).searchParams.get("id"));

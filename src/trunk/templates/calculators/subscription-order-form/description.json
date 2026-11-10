@@ -1,0 +1,10 @@
+{
+  "title": "Subscription Order Form",
+  "description": "An order form for software or service subscriptions: customers choose a plan tier, seat count, billing cycle, and add-ons, see the price per period with the annual discount, enter billing details, and accept the subscription terms. Replace the sample plans and prices with your own.",
+  "tags": [
+    "order",
+    "payment",
+    "calculator",
+    "subscription"
+  ]
+}

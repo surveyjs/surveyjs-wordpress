@@ -1,0 +1,123 @@
+{
+  "title": "Create Your Account",
+  "description": "Fill in a few details to set up your account. It takes less than a minute.",
+  "showQuestionNumbers": "off",
+  "questionErrorLocation": "bottom",
+  "completeText": "Create account",
+  "widthMode": "static",
+  "width": "760px",
+  "elements": [
+    {
+      "type": "text",
+      "name": "firstName",
+      "title": "First name",
+      "isRequired": true,
+      "autocomplete": "given-name"
+    },
+    {
+      "type": "text",
+      "name": "lastName",
+      "title": "Last name",
+      "isRequired": true,
+      "startWithNewLine": false,
+      "autocomplete": "family-name"
+    },
+    {
+      "type": "text",
+      "name": "email",
+      "title": "Email address",
+      "description": "We will send a confirmation link to this address.",
+      "isRequired": true,
+      "inputType": "email",
+      "autocomplete": "email",
+      "validators": [
+        {
+          "type": "email",
+          "text": "Please enter a valid email address."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "password",
+      "title": "Password",
+      "description": "At least 8 characters with at least one letter and one number.",
+      "isRequired": true,
+      "inputType": "password",
+      "autocomplete": "new-password",
+      "validators": [
+        {
+          "type": "regex",
+          "regex": "^(?=.*[A-Za-z])(?=.*\\d).{8,}$",
+          "text": "Password must be at least 8 characters and contain a letter and a number."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "confirmPassword",
+      "title": "Confirm password",
+      "isRequired": true,
+      "startWithNewLine": false,
+      "inputType": "password",
+      "autocomplete": "new-password",
+      "validators": [
+        {
+          "type": "expression",
+          "expression": "{confirmPassword} = {password}",
+          "text": "Passwords do not match."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "phone",
+      "title": "Phone number",
+      "description": "Optional. Used for account recovery and security alerts.",
+      "inputType": "tel",
+      "autocomplete": "tel"
+    },
+    {
+      "type": "dropdown",
+      "name": "referralSource",
+      "title": "How did you hear about us?",
+      "choices": [
+        { "value": "search", "text": "Search engine" },
+        { "value": "social-media", "text": "Social media" },
+        { "value": "friend", "text": "Friend or colleague" },
+        { "value": "advertisement", "text": "Online advertisement" },
+        { "value": "blog", "text": "Blog or article" },
+        { "value": "event", "text": "Event or conference" }
+      ],
+      "showOtherItem": true,
+      "otherText": "Other"
+    },
+    {
+      "type": "checkbox",
+      "name": "agreements",
+      "title": "Agreements",
+      "titleLocation": "hidden",
+      "isRequired": true,
+      "requiredErrorText": "You must accept both documents to create an account.",
+      "choices": [
+        { "value": "terms", "text": "I agree to the Terms of Service." },
+        { "value": "privacy", "text": "I have read the Privacy Policy." }
+      ],
+      "validators": [
+        {
+          "type": "answercount",
+          "minCount": 2,
+          "text": "Please accept both the Terms of Service and the Privacy Policy."
+        }
+      ]
+    },
+    {
+      "type": "boolean",
+      "name": "marketingOptIn",
+      "title": "Send me product news, tips, and special offers by email.",
+      "defaultValue": false,
+      "renderAs": "checkbox"
+    }
+  ],
+  "completedHtml": "<h3>Welcome, {firstName}!</h3><p>Your account has been created. We sent a confirmation link to <b>{email}</b>. Open it to activate your account and sign in.</p>"
+}

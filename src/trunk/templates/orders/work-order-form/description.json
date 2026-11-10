@@ -1,0 +1,10 @@
+{
+  "title": "Work Order Form",
+  "description": "A service and maintenance work order for facilities and field service teams: requesters describe the problem, location, asset, and priority; technicians add schedule, labor hours, rate, and a materials table. Labor, materials, and total costs are calculated, an approval section appears for estimates above $500, and the requester signs to authorize the work.",
+  "tags": [
+    "order",
+    "request",
+    "operations",
+    "calculator"
+  ]
+}

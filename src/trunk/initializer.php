@@ -9,6 +9,8 @@ if ( is_admin() ) {
     include( "views/results.php" );
     include( "views/import.php" );
     include( "views/welcome.php" );
+    include( "views/templates.php" );
+    add_action( 'init', array( 'SurveyJS_Templates', 'register_post_type' ) );
 }
 
 class SurveyJS_SurveyJS {
@@ -53,6 +55,8 @@ class SurveyJS_SurveyJS {
         add_action('wp_ajax_surveyjs_import', array('SurveyJS_Import', 'handle_ajax'));
         add_action('wp_ajax_surveyjs_entry_read', array('SurveyJS_Results', 'handle_mark_read'));
         add_action('admin_enqueue_scripts', array('SurveyJS_Welcome', 'enqueue_assets'));
+        add_action('admin_enqueue_scripts', array('SurveyJS_Templates', 'enqueue_assets'));
+        add_action('wp_ajax_surveyjs_template', array('SurveyJS_Templates', 'handle_ajax'));
     }
 
     public function register_surveyjs_gutenberg_block() {
@@ -352,6 +356,8 @@ class SurveyJS_SurveyJS {
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         // Registering the parent slug first stops WordPress from adding a duplicate "SurveyJS Forms" submenu item.
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'All Forms', 'surveyjs' ), esc_html__( 'All Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
+        $templates_hook = add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Add New Form', 'surveyjs' ), esc_html__( 'Add New Form', 'surveyjs' ), 'manage_options', SurveyJS_Templates::PAGE, array( 'SurveyJS_Templates', 'render' ), 0 );
+        add_action( 'load-' . $templates_hook, array( 'SurveyJS_Templates', 'handle_actions' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ), 0 );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
