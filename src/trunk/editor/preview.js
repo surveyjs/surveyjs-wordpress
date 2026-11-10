@@ -19,6 +19,7 @@
     function render(message) {
         lastMessage = message;
         const model = new Survey.Model(message.json);
+        model.showInvisibleElements = Boolean(message.showInvisibleElements);
         model.onTextMarkdown.add(SurveyJSMarkdown.handler(message.markdown));
         model.onComplete.add(() => {
             const runAgain = document.createElement("button");

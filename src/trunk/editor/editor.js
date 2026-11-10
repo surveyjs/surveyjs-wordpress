@@ -94,6 +94,7 @@
     let previewTimer = null;
     let saveNotice = null;
     let previewFocusName = null;
+    let previewShowInvisibleElements = false;
     let previewReady = false;
     let fullPreviewReady = false;
     let fullPreviewOpen = false;
@@ -681,7 +682,8 @@
             transparentBackground: transparentBackgroundCheckbox.checked,
             markdown: markdownCheckbox.checked,
             checkContrast: false,
-            focusName: focusName
+            focusName: focusName,
+            showInvisibleElements: previewShowInvisibleElements
         };
         if (fullPreviewReady) fullPreviewElement.contentWindow.postMessage(message, previewOrigin);
         if (previewReady) {
@@ -1462,7 +1464,12 @@
         },
         isDirty: isDirty,
         save: save,
-        isFullPreviewOpen: () => fullPreviewOpen
+        isFullPreviewOpen: () => fullPreviewOpen,
+        setPreviewShowInvisibleElements: (show) => {
+            if (previewShowInvisibleElements === Boolean(show)) return;
+            previewShowInvisibleElements = Boolean(show);
+            renderPreview();
+        }
     };
     document.dispatchEvent(new CustomEvent("surveyjs:editor-ready", { detail: window.surveyjsEditor }));
 
