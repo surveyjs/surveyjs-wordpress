@@ -548,3 +548,9 @@ body.wp-sjs-editor-full-preview-open {
 .wp-sjs-editor--preview-loading .wp-sjs-editor__preview-frame--full {
     visibility: hidden;
 }
+
+@media screen and (max-width: 782px) {
+    .wp-sjs-editor__tabs {
+        flex-wrap: wrap;
+    }
+}
