@@ -184,7 +184,7 @@ class SurveyJS_Results {
         <a href="<?php echo esc_url( self::export_url( $survey ) ); ?>" class="page-title-action"><?php esc_html_e( 'Export CSV', 'surveyjs' ); ?></a>
         <?php do_action( 'surveyjs_results_title_actions', $survey, $current_view ); ?>
         <hr class="wp-header-end">
-        <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>">&larr; <?php esc_html_e( 'Back to Forms', 'surveyjs' ); ?></a></p>
+        <p><a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs-main-menu' ) ); ?>"><?php echo is_rtl() ? '&rarr;' : '&larr;'; ?> <?php esc_html_e( 'Back to Forms', 'surveyjs' ); ?></a></p>
         <?php if ( count( $views ) > 1 ) : ?>
             <nav class="nav-tab-wrapper wp-sjs-results__views">
                 <?php foreach ( $views as $view => $label ) : ?>

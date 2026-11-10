@@ -4,6 +4,7 @@ var ComboboxControl = wp.components.ComboboxControl;
 var Placeholder = wp.components.Placeholder;
 var InspectorControls = wp.blockEditor.InspectorControls;
 var ExternalLink = wp.components.ExternalLink;
+var __ = wp.i18n.__;
 var blockIcon = "welcome-write-blog";
 var surveysArray = this.surveys;
 var editFormUrl = this.surveyjsBlock.editUrl;
@@ -55,7 +56,7 @@ registerBlockType("sjs/gutenberg-block", {
     function formSelector(label) {
       return el(ComboboxControl, {
         label: label,
-        placeholder: "Search forms...",
+        placeholder: __("Search forms…", "surveyjs"),
         value: selected,
         options: options,
         onChange: onSurveyChange,
@@ -66,19 +67,19 @@ registerBlockType("sjs/gutenberg-block", {
     var inspectorControl = el(
       InspectorControls,
       {},
-      el("h4", {}, "Embed a form on your site"),
+      el("h4", {}, __("Embed a form on your site", "surveyjs")),
       el("hr"),
-      formSelector("Choose form to insert"),
+      formSelector(__("Choose form to insert", "surveyjs")),
       selected && el(
         "p",
         {},
-        el(ExternalLink, { href: editFormUrl + "&id=" + encodeURIComponent(selected) }, "Edit this form")
+        el(ExternalLink, { href: editFormUrl + "&id=" + encodeURIComponent(selected) }, __("Edit this form", "surveyjs"))
       )
     );
 
     return el(
       Placeholder,
-      { icon: blockIcon, label: "SurveyJS", instructions: "Choose form to insert" },
+      { icon: blockIcon, label: "SurveyJS", instructions: __("Choose form to insert", "surveyjs") },
       formSelector(),
       inspectorControl
     );

@@ -28,7 +28,11 @@ class SurveyJS_Notification {
 
         $value = function ( $key, $tags, $html = false ) use ( $settings ) {
             $template = SurveyJS_Form_Settings::value( $settings, $key );
-            return $html ? strtr( wpautop( $template ), $tags['html'] ) : strtr( $template, $tags['text'] );
+            if ( ! $html ) {
+                return strtr( $template, $tags['text'] );
+            }
+            $body = strtr( wpautop( $template ), $tags['html'] );
+            return is_rtl() ? '<div dir="rtl">' . $body . '</div>' : $body;
         };
 
         $to = self::recipients( strtr( SurveyJS_Form_Settings::value( $settings, 'notificationTo' ), $value_tags ) );

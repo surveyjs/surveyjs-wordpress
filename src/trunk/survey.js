@@ -143,6 +143,9 @@
         const config = JSON.parse(configElement.textContent);
         const honeypot = configElement.parentElement.querySelector(".wp-sjs-hp input");
         const survey = new Survey.Model(config.json);
+        if (config.locale && !config.json.locale) {
+            survey.locale = config.locale;
+        }
         survey.onTextMarkdown.add(SurveyJSMarkdown.handler(config.markdown));
         // SurveyJS keeps files as base64 in the answer by default; upload them so they can be attached to emails.
         survey.getAllQuestions().filter((question) => question.getType() === "file").forEach((question) => {

@@ -20,6 +20,9 @@
         lastMessage = message;
         const model = new Survey.Model(message.json);
         model.showInvisibleElements = Boolean(message.showInvisibleElements);
+        if (surveyjsPreview.locale && !(message.json && message.json.locale)) {
+            model.locale = surveyjsPreview.locale;
+        }
         model.onTextMarkdown.add(SurveyJSMarkdown.handler(message.markdown));
         model.onComplete.add(() => {
             const runAgain = document.createElement("button");

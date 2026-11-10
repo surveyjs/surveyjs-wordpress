@@ -74,6 +74,7 @@ class SurveyJS_SurveyJS {
             self::asset_version('block/block.js'),
             true
         );
+        wp_set_script_translations( $blockscriptname, 'surveyjs' );
 
         register_block_type(
             $blockname,
@@ -129,7 +130,8 @@ class SurveyJS_SurveyJS {
         if ( 'surveyjs_editor' === $page ) {
             wp_enqueue_media();
             wp_enqueue_script('wps-adm--survey.linter.min.js', plugins_url('libs/library/survey.linter.min.js', __FILE__), array(self::CORE_SCRIPT));
-            wp_enqueue_script(self::EDITOR_SCRIPT, plugins_url('editor/editor.js', __FILE__), array(self::UI_SCRIPT, 'wps-adm--survey.linter.min.js'), self::asset_version('editor/editor.js'), true);
+            wp_enqueue_script(self::EDITOR_SCRIPT, plugins_url('editor/editor.js', __FILE__), array(self::UI_SCRIPT, 'wps-adm--survey.linter.min.js', 'wp-i18n'), self::asset_version('editor/editor.js'), true);
+            wp_set_script_translations(self::EDITOR_SCRIPT, 'surveyjs');
             wp_enqueue_style('wps-adm--editor.css', plugins_url('editor/editor.css', __FILE__), array('dashicons'), self::asset_version('editor/editor.css'));
         }
 
@@ -142,6 +144,21 @@ class SurveyJS_SurveyJS {
             self::$library_version = preg_match( '/ v(\d+\.\d+\.\d+\S*)/', $header, $match ) ? $match[1] : '';
         }
         return self::$library_version;
+    }
+
+    public static function survey_locale( $wp_locale = null ) {
+        $wp_locale = null === $wp_locale ? determine_locale() : $wp_locale;
+        $full = strtolower( str_replace( '_', '-', (string) $wp_locale ) );
+        $aliases = array( 'nb' => 'no', 'nn' => 'no', 'te' => 'tel', 'my' => 'mm', 'tl' => 'fil', 'zh-hk' => 'zh-tw', 'zh-sg' => 'zh-cn' );
+        $locale = '';
+        foreach ( array( $full, strtok( $full, '-' ) ) as $code ) {
+            $code = $aliases[ $code ] ?? $code;
+            if ( preg_match( '/^[a-z-]+$/', $code ) && file_exists( __DIR__ . '/libs/library/i18n/' . $code . '.min.js' ) ) {
+                $locale = $code;
+                break;
+            }
+        }
+        return (string) apply_filters( 'surveyjs_form_locale', $locale, $wp_locale );
     }
 
     public function render_preview_page() {
@@ -237,6 +254,7 @@ class SurveyJS_SurveyJS {
         wp_localize_script('wps-front--preview.js', 'surveyjsPreview', array(
             'editorUrl' => admin_url(),
             'runAgain'  => __( 'Run again', 'surveyjs' ),
+            'locale'    => self::survey_locale(),
         ));
     }
 
@@ -303,7 +321,7 @@ class SurveyJS_SurveyJS {
                 $surveyScript->deps[] = 'wps-front--wordpress.js';
             }
         }
-        $locales = array();
+        $locales = array( self::survey_locale() );
         if ( isset($json->locale) && is_string($json->locale) ) {
             $locales[] = strtolower($json->locale);
         }
@@ -409,6 +427,7 @@ class SurveyJS_SurveyJS {
             'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
             'draft' => SurveyJS_Drafts::client_config($row),
             'markdown' => SurveyJS_Form_Settings::get( $row )['markdown'],
+            'locale' => self::survey_locale(),
         );
         if ( SurveyJS_Entries::partial_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['partial'] = array(

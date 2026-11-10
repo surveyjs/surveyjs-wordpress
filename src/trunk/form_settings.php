@@ -42,10 +42,13 @@ class SurveyJS_Form_Settings {
             'notificationTo'        => get_option( 'admin_email' ),
             'notificationFromName'  => '{site_name}',
             'notificationFromEmail' => self::default_from_email(),
-            'notificationSubject'   => 'New entry: {form_name}',
+            /* translators: Default email subject. Keep {form_name} as is: it is replaced with the form name. */
+            'notificationSubject'   => __( 'New entry: {form_name}', 'surveyjs' ),
             'notificationMessage'   => '{all_fields}',
-            'autoReplySubject'      => 'Thanks for contacting {site_name}',
-            'autoReplyMessage'      => "Thanks for your message. We received it and will get back to you soon.\n\nYour answers:\n{all_fields}",
+            /* translators: Default auto-reply subject. Keep {site_name} as is: it is replaced with the site title. */
+            'autoReplySubject'      => __( 'Thanks for contacting {site_name}', 'surveyjs' ),
+            /* translators: Default auto-reply message. Keep {all_fields} as is: it is replaced with the answers. */
+            'autoReplyMessage'      => __( "Thanks for your message. We received it and will get back to you soon.\n\nYour answers:\n{all_fields}", 'surveyjs' ),
         );
     }
 

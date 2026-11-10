@@ -2,6 +2,7 @@
     const LINT_DEBOUNCE_MS = 300;
     const PREVIEW_DEBOUNCE_MS = 400;
     const COPIED_LABEL_MS = 2000;
+    const { __, _n, sprintf } = wp.i18n;
 
     const config = JSON.parse(document.getElementById("wp-sjs-editor-config").textContent);
     const nameInput = document.getElementById("wp-sjs-survey-name");
@@ -49,8 +50,8 @@
     const aiNotice = document.getElementById("wp-sjs-ai-notice");
     const testEmailButton = document.getElementById("wp-sjs-send-test-email");
     const testEmailResult = document.getElementById("wp-sjs-test-email-result");
-    const REPLY_TO_QUESTION ={ type: "text", title: "Leave your email so we can get back to you", inputType: "email", placeholder: "john.doe@example.com" };
-    const FILE_QUESTION = { type: "file", title: "Attach files", allowMultiple: true };
+    const REPLY_TO_QUESTION ={ type: "text", title: __("Leave your email so we can get back to you", "surveyjs"), inputType: "email", placeholder: "john.doe@example.com" };
+    const FILE_QUESTION = { type: "file", title: __("Attach files", "surveyjs"), allowMultiple: true };
     const emailPicker = (id) => ({
         id: id,
         baseName: "reply_to_email",
@@ -210,7 +211,7 @@
         const names = formQuestionNames(json);
         document.querySelectorAll(".wp-sjs-field-tags").forEach((target) => {
             target.hidden = names.length === 0;
-            target.replaceChildren("Tags of this form: ", ...names.flatMap((name, index) => (index ? [" "] : []).concat(element("code", "", "{field:" + name + "}"))));
+            target.replaceChildren(__("Tags of this form:", "surveyjs") + " ", ...names.flatMap((name, index) => (index ? [" "] : []).concat(element("code", "", "{field:" + name + "}"))));
         });
     }
 
@@ -271,7 +272,7 @@
         try {
             const parsed = JSON.parse(source);
             if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-                return { error: "The JSON must be an object." };
+                return { error: __("The JSON must be an object.", "surveyjs") };
             }
             return { json: parsed };
         } catch (error) {
@@ -429,20 +430,16 @@
             const values = reproduction.steps.flatMap((step) =>
                 "set" in step ? Object.entries(step.set).map(([name, value]) => name + " = " + JSON.stringify(value)) : []
             );
-            const trigger = values.length ? "Answer " + values.join(", ") + " — " : "";
+            const trigger = values.length ? sprintf(__("Answer %s", "surveyjs"), values.join(", ")) + " — " : "";
             return (trigger + (reproduction.description ?? "")).trim();
         }
         if (finding.suggestion) {
-            return "Nothing resolves this reference. Closest known name: \"" + finding.suggestion + "\".";
+            return sprintf(__("Nothing resolves this reference. Closest known name: \"%s\".", "surveyjs"), finding.suggestion);
         }
         if (finding.related?.length) {
-            return "Also involves " + finding.related.map((item) => item.elementName ?? item.path).join(", ") + ".";
+            return sprintf(__("Also involves %s.", "surveyjs"), finding.related.map((item) => item.elementName ?? item.path).join(", "));
         }
         return null;
-    }
-
-    function plural(count, one, many) {
-        return count + " " + (count === 1 ? one : many);
     }
 
     function element(tag, className, text) {
@@ -592,16 +589,16 @@
         const bar = element("div", "wp-sjs-lint__bar");
         bar.append(icon(waiting ? "marker" : failed ? "warning" : "yes", failed ? "wp-sjs-lint__icon-warning" : ""));
         bar.append(element("span", "wp-sjs-lint__summary", waiting
-            ? "Static analysis: waiting for valid JSON"
-            : failed ? "Static analysis: " + plural(issueCount, "issue", "issues") : "Static analysis: all checks passed"));
+            ? __("Static analysis: waiting for valid JSON", "surveyjs")
+            : failed ? sprintf(_n("Static analysis: %d issue", "Static analysis: %d issues", issueCount, "surveyjs"), issueCount) : __("Static analysis: all checks passed", "surveyjs")));
         if (!waiting) {
-            bar.append(element("span", "wp-sjs-lint__meta", rules.length + " checks · " + Math.round(analysis.durationMs) + "ms"));
+            bar.append(element("span", "wp-sjs-lint__meta", sprintf(_n("%1$d check · %2$d ms", "%1$d checks · %2$d ms", rules.length, "surveyjs"), rules.length, Math.round(analysis.durationMs))));
         }
         const toggle = element("button", "button-link wp-sjs-lint__toggle");
         toggle.type = "button";
         toggle.setAttribute("aria-expanded", String(expanded));
         toggle.setAttribute("aria-controls", "wp-sjs-lint-details");
-        toggle.append(document.createTextNode(failed ? "View issues" : "View checks"), icon(expanded ? "arrow-up-alt2" : "arrow-down-alt2"));
+        toggle.append(document.createTextNode(failed ? __("View issues", "surveyjs") : __("View checks", "surveyjs")), icon(expanded ? "arrow-up-alt2" : "arrow-down-alt2"));
         toggle.addEventListener("click", () => {
             expanded = !expanded;
             renderLint();
@@ -612,10 +609,10 @@
         if (expanded) {
             const details = element("div", "wp-sjs-lint__details");
             details.id = "wp-sjs-lint-details";
-            details.append(element("h3", "wp-sjs-lint__heading", "Checks performed"));
+            details.append(element("h3", "wp-sjs-lint__heading", __("Checks performed", "surveyjs")));
             details.append(element("p", "description", waiting
-                ? "The form JSON does not parse yet, so no check has run."
-                : rules.length + " checks over " + analysis.elementCount + " named elements."));
+                ? __("The form JSON does not parse yet, so no check has run.", "surveyjs")
+                : sprintf(_n("%1$d checks over %2$d named element.", "%1$d checks over %2$d named elements.", analysis.elementCount, "surveyjs"), rules.length, analysis.elementCount)));
 
             const findingsByRule = new Map();
             if (!waiting) {
@@ -629,7 +626,7 @@
                 const items = findingsByRule.get(rule.id);
                 const group = element("div", "wp-sjs-lint__rule");
                 const title = element("p", "wp-sjs-lint__rule-title");
-                title.append(icon("warning", "wp-sjs-lint__severity-" + items[0].finding.severity), element("code", "", rule.id), element("span", "description", plural(items.length, "finding", "findings")));
+                title.append(icon("warning", "wp-sjs-lint__severity-" + items[0].finding.severity), element("code", "", rule.id), element("span", "description", sprintf(_n("%d finding", "%d findings", items.length, "surveyjs"), items.length)));
                 group.append(title);
                 const list = element("ul", "wp-sjs-lint__findings");
                 items.forEach((item) => {
@@ -709,7 +706,7 @@
             renderPreview();
         } else if (event.data && event.data.type === "surveyjs-preview-contrast" && event.data.issues.length > 0) {
             const issues = event.data.issues.map((issue) => issue.element + " " + issue.ratio + ":1");
-            aiMessage("warning", "Some text may be hard to read (contrast below 4.5:1):", issues, true);
+            aiMessage("warning", __("Some text may be hard to read (contrast below 4.5:1):", "surveyjs"), issues, true);
         } else if (event.data && event.data.type === "surveyjs-preview-escape") {
             setFullPreview(false);
         }
@@ -914,8 +911,8 @@
         renderAllPickerOptions();
         renderFieldTags();
         saveNotice = add
-            ? { type: "info", message: "The GDPR agreement was added at the end of the form. Press Save to keep it." }
-            : { type: "info", message: "The GDPR agreement was removed from the form. Press Save to keep the change." };
+            ? { type: "info", message: __("The GDPR agreement was added at the end of the form. Press Save to keep it.", "surveyjs") }
+            : { type: "info", message: __("The GDPR agreement was removed from the form. Press Save to keep the change.", "surveyjs") };
         updateState();
     }
 
@@ -939,15 +936,15 @@
         })
             .then((response) => response.ok ? response.json() : Promise.reject(new Error(response.statusText)))
             .then((data) => {
-                if (data.IsSuccess !== 1) throw new Error("The form was not saved.");
+                if (data.IsSuccess !== 1) throw new Error(__("The form was not saved.", "surveyjs"));
                 Object.assign(saved, snapshot);
                 saveNotice = issueCount > 0
-                    ? { type: "warning", message: "Form saved with " + plural(issueCount, "issue", "issues") + "." }
-                    : { type: "success", message: "Form saved." };
+                    ? { type: "warning", message: sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issueCount, "surveyjs"), issueCount) }
+                    : { type: "success", message: __("Form saved.", "surveyjs") };
                 document.dispatchEvent(new CustomEvent("surveyjs:editor-saved", { detail: { id: config.id, json: survey.json, theme: theme.json, settings: settings } }));
             })
             .catch((error) => {
-                saveNotice = { type: "error", message: "Save failed: " + error.message };
+                saveNotice = { type: "error", message: sprintf(__("Save failed: %s", "surveyjs"), error.message) };
             })
             .finally(updateState);
     }
@@ -971,11 +968,11 @@
         })
             .then((response) => response.ok ? response.json() : Promise.reject(new Error(response.statusText)))
             .then((data) => {
-                if (data.IsSuccess !== 1) throw new Error("The name was not saved.");
+                if (data.IsSuccess !== 1) throw new Error(__("The name was not saved.", "surveyjs"));
                 saved.name = name;
                 showName();
             })
-            .catch((error) => showNotice("error", "Save failed: " + error.message))
+            .catch((error) => showNotice("error", sprintf(__("Save failed: %s", "surveyjs"), error.message)))
             .finally(() => {
                 nameSaveButton.disabled = false;
             });
@@ -994,7 +991,7 @@
             body: new URLSearchParams({ Id: config.id, Settings: JSON.stringify(readSettings()), _wpnonce: config.saveNonce })
         })
             .then((response) => response.json())
-            .then((result) => showResult(result.success ? "success" : "error", result.data?.message || "The test email could not be sent."))
+            .then((result) => showResult(result.success ? "success" : "error", result.data?.message || __("The test email could not be sent.", "surveyjs")))
             .catch((error) => showResult("error", error.message))
             .finally(() => {
                 testEmailButton.disabled = !document.querySelector('input[data-setting="notificationEnabled"]').checked;
@@ -1039,7 +1036,7 @@
         } else if (message.type === "save" && message.surveyId === config.id && isJsonObject(message.json)) {
             replaceSource("survey", message.json);
             if (isJsonObject(message.theme)) replaceSource("theme", message.theme);
-            saveNotice = { type: "info", message: "Changes from the UI Builder are in the editor. Press Save to keep them." };
+            saveNotice = { type: "info", message: __("Changes from the UI Builder are in the editor. Press Save to keep them.", "surveyjs") };
             updateState();
             renderPreview();
             runLint();
@@ -1260,7 +1257,7 @@
         area.select();
         const copied = document.execCommand("copy");
         area.remove();
-        return copied ? Promise.resolve() : Promise.reject(new Error("The browser blocked the clipboard."));
+        return copied ? Promise.resolve() : Promise.reject(new Error(__("The browser blocked the clipboard.", "surveyjs")));
     }
 
     const copiedTimers = new Map();
@@ -1277,10 +1274,10 @@
         copyText(prompt)
             .then(() => {
                 showCopied(aiPromptButton);
-                aiMessage("info", "Prompt copied (" + prompt.length + " characters). Paste it into your AI chat, then paste the answer below and press Apply theme.");
+                aiMessage("info", sprintf(_n("Prompt copied (%d character). Paste it into your AI chat, then paste the answer below and press Apply theme.", "Prompt copied (%d characters). Paste it into your AI chat, then paste the answer below and press Apply theme.", prompt.length, "surveyjs"), prompt.length));
                 toggleAiForm(true);
             })
-            .catch((error) => aiMessage("error", "The prompt was not copied: " + error.message));
+            .catch((error) => aiMessage("error", sprintf(__("The prompt was not copied: %s", "surveyjs"), error.message)));
     }
 
     function toggleAiForm(open) {
@@ -1356,7 +1353,7 @@
     function applyAiAnswer() {
         const parsed = parseAnswer(aiAnswerInput.value);
         if (!parsed.json) {
-            aiMessage("error", "The AI answer is not valid JSON: " + parsed.error);
+            aiMessage("error", sprintf(__("The AI answer is not valid JSON: %s", "surveyjs"), parsed.error));
             return;
         }
         loadThemeTokens()
@@ -1364,21 +1361,21 @@
                 const result = sanitizeTheme(parsed.json, tokens);
                 const count = Object.keys(result.theme.cssVariables).length;
                 if (count === 0) {
-                    aiMessage("error", "The AI answer has no known SurveyJS tokens, so the theme was not changed.", result.dropped);
+                    aiMessage("error", __("The AI answer has no known SurveyJS tokens, so the theme was not changed.", "surveyjs"), result.dropped);
                     return;
                 }
                 contrastCheckPending = true;
                 useTheme(result.theme);
                 toggleAiForm(false);
                 aiAnswerInput.value = "";
-                const applied = "Theme applied with " + plural(count, "token", "tokens") + ". Adaptive is off. Press Save to keep it.";
+                const applied = sprintf(_n("Theme applied with %d token. Adaptive is off. Press Save to keep it.", "Theme applied with %d tokens. Adaptive is off. Press Save to keep it.", count, "surveyjs"), count);
                 if (result.dropped.length > 0) {
-                    aiMessage("warning", applied + " Dropped " + plural(result.dropped.length, "key", "keys") + " that SurveyJS themes do not support:", result.dropped);
+                    aiMessage("warning", applied + " " + sprintf(_n("Dropped %d key that SurveyJS themes do not support:", "Dropped %d keys that SurveyJS themes do not support:", result.dropped.length, "surveyjs"), result.dropped.length), result.dropped);
                 } else {
                     aiMessage("success", applied);
                 }
             })
-            .catch((error) => aiMessage("error", "The token list could not be loaded: " + error.message));
+            .catch((error) => aiMessage("error", sprintf(__("The token list could not be loaded: %s", "surveyjs"), error.message)));
     }
 
     function isDarkColor(color) {
@@ -1391,7 +1388,7 @@
     function convertAdaptive() {
         const background = adaptiveTheme["--sjs2-color-utility-body"];
         useTheme({ themeName: "default", colorPalette: isDarkColor(background) ? "dark" : "light", isPanelless: true, cssVariables: Object.assign({}, adaptiveTheme) });
-        aiMessage("success", "The Adaptive look is now in the theme JSON (" + plural(Object.keys(adaptiveTheme).length, "token", "tokens") + "). Adaptive is off. Edit the JSON or press Save to keep it.");
+        aiMessage("success", sprintf(_n("The Adaptive look is now in the theme JSON (%d token). Adaptive is off. Edit the JSON or press Save to keep it.", "The Adaptive look is now in the theme JSON (%d tokens). Adaptive is off. Edit the JSON or press Save to keep it.", Object.keys(adaptiveTheme).length, "surveyjs"), Object.keys(adaptiveTheme).length));
     }
 
     aiPromptButton.addEventListener("click", copyPrompt);

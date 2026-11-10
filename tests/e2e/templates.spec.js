@@ -71,7 +71,7 @@ test.describe("form templates", () => {
     const ids = await cards.evaluateAll(items => items.map(item => item.dataset.template));
     expect(new Set(ids).size).toBe(ids.length);
     await expect(page.locator(".wp-sjs-templates__category[data-category=''] .count")).toHaveText(String(ids.length));
-    await expect(page.locator(".wp-sjs-template[data-template=business-inquiry-form]")).toHaveCount(1);
+    await expect(page.locator(".wp-sjs-template[data-template=product-order-form]")).toHaveCount(1);
 
     await page.getByRole("button", { name: /^Contact Forms/ }).click();
     await expect(visible.first()).toBeVisible();
@@ -79,8 +79,10 @@ test.describe("form templates", () => {
       expect(categories.split(" ")).toContain("contact");
     }
     await expect(page.locator(".wp-sjs-template[data-template=business-inquiry-form]")).toBeVisible();
-    await page.getByRole("button", { name: /^Lead Generation/ }).click();
-    await expect(page.locator(".wp-sjs-template[data-template=business-inquiry-form]")).toBeVisible();
+    await page.getByRole("button", { name: /^Calculators/ }).click();
+    await expect(page.locator(".wp-sjs-template[data-template=product-order-form]")).toBeVisible();
+    await page.getByRole("button", { name: /^Orders/ }).click();
+    await expect(page.locator(".wp-sjs-template[data-template=product-order-form]")).toBeVisible();
 
     await page.getByRole("button", { name: /^All Templates/ }).click();
     await page.getByLabel("Search templates").fill("pizza order");
