@@ -2,7 +2,6 @@
   "title": "Product Order Form",
   "description": "Choose your products and quantities, then tell us how you'd like to receive your order. We'll confirm availability and send payment details by email.",
   "showQuestionNumbers": "off",
-  "checkErrorsMode": "onValueChanged",
   "completeText": "Place Order",
   "pages": [
     {

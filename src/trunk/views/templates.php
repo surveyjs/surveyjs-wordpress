@@ -69,6 +69,7 @@ class SurveyJS_Templates {
                 'tags'        => array_map( 'strval', (array) ( $description['tags'] ?? array() ) ),
                 'categories'  => array( $category ),
                 'files'       => array( 'form' => $file, 'theme' => $dir . '/theme.json' ),
+                'thumbnail'   => file_exists( $dir . '/thumbnail.webp' ) ? plugins_url( 'templates/' . basename( dirname( $dir ) ) . '/' . basename( $dir ) . '/thumbnail.webp', __DIR__ ) : '',
             );
         }
         return $templates;
@@ -381,8 +382,8 @@ class SurveyJS_Templates {
                     <div class="wp-sjs-templates__main">
                         <ul class="wp-sjs-templates__grid">
                             <li class="wp-sjs-template wp-sjs-template--blank">
+                                <div class="wp-sjs-template__thumbnail wp-sjs-template__thumbnail--empty"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span></div>
                                 <div class="wp-sjs-template__body">
-                                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                                     <h2 class="wp-sjs-template__name"><?php esc_html_e( 'Blank Form', 'surveyjs' ); ?></h2>
                                     <p class="wp-sjs-template__description"><?php esc_html_e( 'Start from scratch and add questions in the JSON editor or the visual UI Builder.', 'surveyjs' ); ?></p>
                                 </div>
@@ -398,6 +399,11 @@ class SurveyJS_Templates {
                                 $search = implode( ' ', array_merge( array( $template['title'], $template['description'] ), $template['tags'], $labels ) );
                                 ?>
                                 <li class="wp-sjs-template<?php echo self::is_user( $template ) ? ' wp-sjs-template--mine' : ''; ?>" data-template="<?php echo esc_attr( $id ); ?>" data-categories="<?php echo esc_attr( implode( ' ', $template['categories'] ) ); ?>" data-search="<?php echo esc_attr( strtolower( $search ) ); ?>">
+                                    <?php if ( ! empty( $template['thumbnail'] ) ) : ?>
+                                        <img class="wp-sjs-template__thumbnail" src="<?php echo esc_url( $template['thumbnail'] ); ?>" width="600" height="400" alt="" loading="lazy" decoding="async" />
+                                    <?php else : ?>
+                                        <div class="wp-sjs-template__thumbnail wp-sjs-template__thumbnail--empty"><?php esc_html_e( 'No preview', 'surveyjs' ); ?></div>
+                                    <?php endif; ?>
                                     <div class="wp-sjs-template__body">
                                         <span class="wp-sjs-template__category"><?php echo esc_html( implode( ', ', $labels ) ); ?></span>
                                         <h2 class="wp-sjs-template__name"><?php echo esc_html( $template['title'] ); ?></h2>

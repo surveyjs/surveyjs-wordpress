@@ -98,6 +98,25 @@
     border-color: #8c8f94;
 }
 
+.wp-sjs-template__thumbnail {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: top;
+    border-bottom: 1px solid #dcdcde;
+    border-radius: 4px 4px 0 0;
+    background: #f6f7f7;
+}
+
+.wp-sjs-template__thumbnail--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #646970;
+}
+
 .wp-sjs-template__body {
     flex: 1;
     padding: 16px 16px 8px;
@@ -134,7 +153,7 @@
     background: #f6f7f7;
 }
 
-.wp-sjs-template--blank .wp-sjs-template__body > .dashicons {
+.wp-sjs-template--blank .wp-sjs-template__thumbnail .dashicons {
     width: 32px;
     height: 32px;
     font-size: 32px;
