@@ -79,6 +79,7 @@ class SurveyJS_SurveyJS {
         register_block_type(
             $blockname,
             array(
+                'api_version'     => 3,
                 'attributes'      => array(
                     'shortcode'          => array(
                         'type' => 'string',

@@ -3,6 +3,7 @@ var registerBlockType = wp.blocks.registerBlockType;
 var ComboboxControl = wp.components.ComboboxControl;
 var Placeholder = wp.components.Placeholder;
 var InspectorControls = wp.blockEditor.InspectorControls;
+var useBlockProps = wp.blockEditor.useBlockProps;
 var ExternalLink = wp.components.ExternalLink;
 var __ = wp.i18n.__;
 var blockIcon = "welcome-write-blog";
@@ -34,6 +35,8 @@ function getShortcode(surveyid) {
 }
 
 registerBlockType("sjs/gutenberg-block", {
+  apiVersion: 3,
+
   title: "SurveyJS Forms",
 
   icon: blockIcon,
@@ -78,10 +81,14 @@ registerBlockType("sjs/gutenberg-block", {
     );
 
     return el(
-      Placeholder,
-      { icon: blockIcon, label: "SurveyJS", instructions: __("Choose form to insert", "surveyjs") },
-      formSelector(),
-      inspectorControl
+      "div",
+      useBlockProps(),
+      el(
+        Placeholder,
+        { icon: blockIcon, label: "SurveyJS", instructions: __("Choose form to insert", "surveyjs") },
+        formSelector(),
+        inspectorControl
+      )
     );
   },
 

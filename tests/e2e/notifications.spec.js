@@ -39,11 +39,15 @@ test.describe("email notification", () => {
     const settingsTab = page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true });
     const addQuestion = page.getByLabel("Add a Reply-To question (email) to the form");
     const replyTo = page.getByLabel("Reply-To", { exact: true });
+    const notification = page.getByLabel("Send an email when the form is submitted");
     const editorJson = async () => JSON.parse(await page.evaluate(() => window.monaco.editor.getEditors()[0].getModel().getValue()));
 
     await settingsTab.click();
+    await expect(notification).toBeChecked();
+    await expect(addQuestion).toBeEnabled();
+    await notification.uncheck();
     await expect(addQuestion).toBeDisabled();
-    await page.getByLabel("Send an email when the form is submitted").check();
+    await notification.check();
     await addQuestion.check();
     await expect(replyTo).toHaveValue("reply_to_email");
     await expect(replyTo.locator("option:checked")).toHaveText("reply_to_email");
