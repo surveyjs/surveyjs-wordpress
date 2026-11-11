@@ -95,7 +95,7 @@ class SurveyJS_Results {
         }
 
         if ( ! empty( $_GET['_wp_http_referer'] ) ) {
-            wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+            wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) ) );
             exit;
         }
     }
@@ -110,8 +110,7 @@ class SurveyJS_Results {
             wp_send_json_error( null, 404 );
         }
         global $wpdb;
-        $table = SurveyJS_Entries::table();
-        $wpdb->query( $wpdb->prepare( "UPDATE $table SET status = 'read' WHERE form_id = %d AND id = %d AND status = 'unread'", $survey->id, absint( $_POST['entry'] ?? 0 ) ) );
+        $wpdb->query( $wpdb->prepare( "UPDATE %i SET status = 'read' WHERE form_id = %d AND id = %d AND status = 'unread'", SurveyJS_Entries::table(), $survey->id, absint( $_POST['entry'] ?? 0 ) ) );
         SurveyJS_Entries::flush_counts();
         wp_send_json_success();
     }
@@ -121,15 +120,16 @@ class SurveyJS_Results {
         $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
         $table = SurveyJS_Entries::table();
         $partial = SurveyJS_Entries::PARTIAL === SurveyJS_Results_List_Table::current_status();
-        $where = $partial ? "status = 'partial'" : "status NOT IN ( 'spam', 'partial' )";
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, json, status, created_at, last_page FROM $table WHERE form_id = %d AND $where ORDER BY created_at, id", $survey->id ) );
+        $rows = $partial
+            ? $wpdb->get_results( $wpdb->prepare( "SELECT id, json, status, created_at, last_page FROM %i WHERE form_id = %d AND status = 'partial' ORDER BY created_at, id", $table, $survey->id ) )
+            : $wpdb->get_results( $wpdb->prepare( "SELECT id, json, status, created_at, last_page FROM %i WHERE form_id = %d AND status NOT IN ( 'spam', 'partial' ) ORDER BY created_at, id", $table, $survey->id ) );
         $file_name = $partial ? $survey->name . '-partial-results.csv' : $survey->name . '-results.csv';
 
         header( 'Content-Type: text/csv; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $file_name ) . '"' );
+        echo "\xEF\xBB\xBF";
         $output = fopen( 'php://output', 'w' );
-        fwrite( $output, "\xEF\xBB\xBF" );
-        fputcsv( $output, array_merge( array( 'ID', __( 'Date', 'surveyjs' ), __( 'Status', 'surveyjs' ) ), array_map( array( 'SurveyJS_Survey_Values', 'question_title' ), $questions ) ) );
+        fputcsv( $output, array_merge( array( 'ID', __( 'Date', 'surveyjs' ), __( 'Status', 'surveyjs' ) ), array_map( array( 'SurveyJS_Survey_Values', 'question_title' ), $questions ) ), ',', '"', '\\' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv -- writes to php://output (the HTTP response), not the filesystem.
         foreach ( $rows as $row ) {
             $data = SurveyJS_Client::decode_survey_json( $row->json );
             $line = array( $row->id, SurveyJS_Entries::format_date( $row->created_at ), SurveyJS_Entries::status_label( $row->status, (int) $row->last_page ) );
@@ -138,9 +138,8 @@ class SurveyJS_Results {
                 $links = SurveyJS_Uploaded_Files::links( $value );
                 $line[] = $links ? SurveyJS_Uploaded_Files::links_text( $links ) : SurveyJS_Survey_Values::display_value( $question, $value );
             }
-            fputcsv( $output, $line );
+            fputcsv( $output, $line, ',', '"', '\\' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv -- writes to php://output (the HTTP response), not the filesystem.
         }
-        fclose( $output );
     }
 
     public static function views( $survey ) {

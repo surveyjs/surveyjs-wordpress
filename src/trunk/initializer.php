@@ -1,15 +1,15 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include( "views/settings.php" );
+include( __DIR__ . "/views/settings.php" );
 
 if ( is_admin() ) {
-    include( "views/mysurveys.php" );
-    include( "views/editor.php" );
-    include( "views/results.php" );
-    include( "views/import.php" );
-    include( "views/welcome.php" );
-    include( "views/templates.php" );
+    include( __DIR__ . "/views/mysurveys.php" );
+    include( __DIR__ . "/views/editor.php" );
+    include( __DIR__ . "/views/results.php" );
+    include( __DIR__ . "/views/import.php" );
+    include( __DIR__ . "/views/welcome.php" );
+    include( __DIR__ . "/views/templates.php" );
     add_action( 'init', array( 'SurveyJS_Templates', 'register_post_type' ) );
 }
 
@@ -34,7 +34,7 @@ class SurveyJS_SurveyJS {
 
     function __construct() {
         add_action('admin_menu', array( $this, 'wps_add_menu'));
-        add_filter('media_buttons', array($this, 'wps_media_button'));
+        add_action('media_buttons', array($this, 'wps_media_button'));
         add_shortcode('surveyjs', array($this, 'wps_process_shortcode'));
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
 
@@ -169,7 +169,7 @@ class SurveyJS_SurveyJS {
             wp_die( esc_html__( 'Sorry, you are not allowed to preview forms.', 'surveyjs' ), 403 );
         }
         nocache_headers();
-        show_admin_bar( false );
+        show_admin_bar( false ); // phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected -- hidden only on the admin-only preview page shown in the editor iframe; not removed site-wide.
         add_filter( 'wp_robots', 'wp_robots_no_robots' );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_preview_assets' ) );
         include plugin_dir_path( __FILE__ ) . 'views/preview.php';
@@ -217,7 +217,7 @@ class SurveyJS_SurveyJS {
             wp_die( esc_html__( 'Sorry, you are not allowed to preview forms.', 'surveyjs' ), 403 );
         }
         nocache_headers();
-        show_admin_bar( false );
+        show_admin_bar( false ); // phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected -- hidden only on the admin-only preview page shown in the editor iframe; not removed site-wide.
         add_filter( 'wp_robots', 'wp_robots_no_robots' );
         add_filter( 'private_title_format', array( $this, 'full_preview_title_format' ) );
         add_filter( 'the_content', array( $this, 'full_preview_content' ), PHP_INT_MAX );

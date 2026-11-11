@@ -76,13 +76,11 @@ class SurveyJS_Forms {
     }
 
     public static function all() {
-        $posts = get_posts( array(
+        $posts = surveyjs_get_all_posts( array(
             'post_type'        => self::POST_TYPE,
             'post_status'      => 'publish',
-            'numberposts'      => -1,
             'orderby'          => 'ID',
             'order'            => 'DESC',
-            'suppress_filters' => true,
         ) );
         return array_map( array( __CLASS__, 'row' ), $posts );
     }

@@ -1,7 +1,7 @@
 === SurveyJS Forms - Contact Forms, Survey & Form Builder & More ===
 Contributors: DevSoft Baltic
 Tags: contact form, form builder, survey, forms, quiz
-Requires at least: 6.4
+Requires at least: 6.5
 Tested up to: 7.1
 Stable tag: 2.5.6
 Requires PHP: 8.2
@@ -43,6 +43,7 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 * **Adaptive theme**: by default the form takes the colors, fonts, buttons and fields of your site's theme.
 * **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme that matches your site. The plugin checks the theme and warns about hard-to-read text.
 * Prefer a visual editor? Open the form in the **free online SurveyJS UI Builder** with drag & drop, a logic editor and a theme editor. When you save there, the form comes back to WordPress. Optional: the plugin works fully without it (see External services below).
+* **Survey Creator**, the visual form designer, is now in the free SurveyJS Forms Pro add-on.
 
 = Flexible Configuration Options =
 **Every single element of your form is fully customizable**, from titles and helper texts to placeholder texts and error messages&mdash;all to make sure you can provide your respondents with tailored guides and instructions and ensure high-quality user experience.
@@ -140,18 +141,29 @@ Files that respondents upload are saved to `wp-content/uploads/surveyjs/`. On Ap
 
 Administrators still open the files through the plugin, so links in the entries, the CSV export and emails keep working.
 
+== Frequently Asked Questions ==
+
+= Where is the visual form designer? =
+Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component. Your forms and entries are not affected. Without Pro, edit forms in the built-in JSON editor or click **Open in free UI Builder** in the form editor.
+
 == Release Notes ==
 Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-notes) to keep yourself informed about our latest enhancements and new features introduced every week.
 
 == Changelog ==
-Check out SurveyJS [Changelog](https://surveyjs.io/changelog).
 
+= 2.5.6 =
+Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
 
 = v2.5.6 =
 Security: added permission checks to the file upload and file delete handlers. Survey respondents can attach files again: an upload is only accepted when the survey really has a file question, only allowed file types go through, there is a size limit, and files are saved to a separate folder where PHP cannot run.
 
 
 = v2.5.5 =
+
+== Upgrade Notice ==
+
+= 2.5.6 =
+Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
 
 == Support ==
 

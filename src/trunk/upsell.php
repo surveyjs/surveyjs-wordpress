@@ -42,7 +42,7 @@ class SurveyJS_Upsell {
         global $submenu;
         if ( ! empty( $submenu[ $parent_slug ] ) ) {
             end( $submenu[ $parent_slug ] );
-            $submenu[ $parent_slug ][ key( $submenu[ $parent_slug ] ) ][4] = 'wp-sjs-upgrade-pro';
+            $submenu[ $parent_slug ][ key( $submenu[ $parent_slug ] ) ][4] = 'wp-sjs-upgrade-pro'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress has no API to add a class to a submenu item.
         }
     }
 

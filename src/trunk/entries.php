@@ -37,11 +37,11 @@ class SurveyJS_Entries {
         if ( $max_age > 0 ) {
             $cutoff = gmdate( 'Y-m-d H:i:s', time() - $max_age );
             do {
-                $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, form_id, json FROM $table WHERE status = %s AND token_hash IS NOT NULL AND kept = 0 AND created_at < %s ORDER BY id LIMIT %d", self::PARTIAL, $cutoff, self::BATCH ) );
+                $rows = $wpdb->get_results( $wpdb->prepare( 'SELECT id, form_id, json FROM %i WHERE status = %s AND token_hash IS NOT NULL AND kept = 0 AND created_at < %s ORDER BY id LIMIT %d', $table, self::PARTIAL, $cutoff, self::BATCH ) );
                 self::delete_rows( $rows );
             } while ( count( $rows ) === self::BATCH );
         }
-        if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table WHERE status = %s AND token_hash IS NOT NULL AND kept = 0 LIMIT 1", self::PARTIAL ) ) ) {
+        if ( ! $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i WHERE status = %s AND token_hash IS NOT NULL AND kept = 0 LIMIT 1', $table, self::PARTIAL ) ) ) {
             self::unschedule_partial_cleanup();
         }
     }
@@ -122,10 +122,11 @@ class SurveyJS_Entries {
             global $wpdb;
             $table = self::table();
             $rows = $wpdb->get_results( $wpdb->prepare(
-                "SELECT r.form_id, COUNT(*) AS total FROM $table r
+                "SELECT r.form_id, COUNT(*) AS total FROM %i r
                 INNER JOIN {$wpdb->posts} p ON p.ID = r.form_id AND p.post_type = %s AND p.post_status = 'publish'
                 WHERE r.status = %s AND r.token_hash IS NOT NULL AND r.kept = 0 AND r.created_at < %s
                 GROUP BY r.form_id",
+                $table,
                 SurveyJS_Forms::POST_TYPE,
                 self::PARTIAL,
                 gmdate( 'Y-m-d H:i:s', time() - $max_age + self::PARTIAL_WARNING )
@@ -144,10 +145,11 @@ class SurveyJS_Entries {
         if ( ! $ids ) {
             return 0;
         }
-        $table = self::table();
-        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         self::flush_counts();
-        $updated = (int) $wpdb->query( $wpdb->prepare( "UPDATE $table SET kept = %d WHERE form_id = %d AND token_hash IS NOT NULL AND id IN ( $in )", array_merge( array( $kept ? 1 : 0, (int) $form_id ), $ids ) ) );
+        $updated = (int) $wpdb->query( $wpdb->prepare(
+            'UPDATE %i SET kept = %d WHERE form_id = %d AND token_hash IS NOT NULL AND id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )',
+            array_merge( array( self::table(), $kept ? 1 : 0, (int) $form_id ), $ids )
+        ) );
         if ( ! $kept ) {
             self::schedule_partial_cleanup();
         }
@@ -205,9 +207,8 @@ class SurveyJS_Entries {
 
     public static function mark_finished( $id ) {
         global $wpdb;
-        $table = self::table();
         self::flush_counts();
-        return (int) $wpdb->query( $wpdb->prepare( "UPDATE $table SET status = IF( status = 'spam', 'spam', 'read' ), token_hash = NULL WHERE id = %d AND token_hash IS NOT NULL", (int) $id ) );
+        return (int) $wpdb->query( $wpdb->prepare( "UPDATE %i SET status = IF( status = 'spam', 'spam', 'read' ), token_hash = NULL WHERE id = %d AND token_hash IS NOT NULL", self::table(), (int) $id ) );
     }
 
     public static function complete_partial( $form_id, $id, $token, $json, $args ) {
@@ -239,8 +240,7 @@ class SurveyJS_Entries {
         if ( ! $id || ! is_string( $token ) || '' === $token ) {
             return null;
         }
-        $table = self::table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status, token_hash FROM $table WHERE id = %d AND form_id = %d AND token_hash IS NOT NULL", (int) $id, (int) $form_id ) );
+        $row = $wpdb->get_row( $wpdb->prepare( 'SELECT id, status, token_hash FROM %i WHERE id = %d AND form_id = %d AND token_hash IS NOT NULL', self::table(), (int) $id, (int) $form_id ) );
         return $row && hash_equals( $row->token_hash, self::hash_token( $token ) ) ? $row : null;
     }
 
@@ -284,11 +284,11 @@ class SurveyJS_Entries {
         if ( ! $ids || ! in_array( $status, self::STATUSES, true ) || self::PARTIAL === $status ) {
             return 0;
         }
-        $table = self::table();
-        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $where = 'spam' === $status ? '' : ' AND token_hash IS NULL';
         self::flush_counts();
-        return (int) $wpdb->query( $wpdb->prepare( "UPDATE $table SET status = %s WHERE form_id = %d AND id IN ( $in )$where", array_merge( array( $status, (int) $form_id ), $ids ) ) );
+        return (int) $wpdb->query( $wpdb->prepare(
+            'UPDATE %i SET status = %s WHERE form_id = %d AND id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' ) AND ( %d = 1 OR token_hash IS NULL )',
+            array_merge( array( self::table(), $status, (int) $form_id ), $ids, array( 'spam' === $status ? 1 : 0 ) )
+        ) );
     }
 
     public static function unspam( $form_id, $ids ) {
@@ -297,10 +297,11 @@ class SurveyJS_Entries {
         if ( ! $ids ) {
             return 0;
         }
-        $table = self::table();
-        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         self::flush_counts();
-        return (int) $wpdb->query( $wpdb->prepare( "UPDATE $table SET status = IF( token_hash IS NULL, 'read', %s ) WHERE form_id = %d AND status = 'spam' AND id IN ( $in )", array_merge( array( self::PARTIAL, (int) $form_id ), $ids ) ) );
+        return (int) $wpdb->query( $wpdb->prepare(
+            "UPDATE %i SET status = IF( token_hash IS NULL, 'read', %s ) WHERE form_id = %d AND status = 'spam' AND id IN ( " . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )',
+            array_merge( array( self::table(), self::PARTIAL, (int) $form_id ), $ids )
+        ) );
     }
 
     public static function delete( $form, $ids ) {
@@ -309,9 +310,10 @@ class SurveyJS_Entries {
         if ( ! $ids ) {
             return 0;
         }
-        $table = self::table();
-        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, form_id, json FROM $table WHERE form_id = %d AND id IN ( $in )", array_merge( array( (int) $form->id ), $ids ) ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            'SELECT id, form_id, json FROM %i WHERE form_id = %d AND id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )',
+            array_merge( array( self::table(), (int) $form->id ), $ids )
+        ) );
         return self::delete_rows( $rows );
     }
 
@@ -320,7 +322,7 @@ class SurveyJS_Entries {
         $table = self::table();
         $deleted = 0;
         do {
-            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, form_id, json FROM $table WHERE form_id = %d ORDER BY id LIMIT %d", (int) $form->id, self::BATCH ) );
+            $rows = $wpdb->get_results( $wpdb->prepare( 'SELECT id, form_id, json FROM %i WHERE form_id = %d ORDER BY id LIMIT %d', $table, (int) $form->id, self::BATCH ) );
             $deleted += self::delete_rows( $rows );
         } while ( count( $rows ) === self::BATCH );
         return $deleted;
@@ -336,10 +338,11 @@ class SurveyJS_Entries {
             $file_names = array_merge( $file_names, SurveyJS_Uploaded_Files::referenced_names( SurveyJS_Client::decode_survey_json( $row->json ) ) );
         }
         $ids = array_map( 'intval', wp_list_pluck( $rows, 'id' ) );
-        $table = self::table();
-        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         self::flush_counts();
-        $deleted = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE id IN ( $in )", $ids ) );
+        $deleted = (int) $wpdb->query( $wpdb->prepare(
+            'DELETE FROM %i WHERE id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )',
+            array_merge( array( self::table() ), $ids )
+        ) );
         SurveyJS_Uploaded_Files::delete_unreferenced( $file_names );
         return $deleted;
     }
@@ -359,28 +362,34 @@ class SurveyJS_Entries {
         if ( ! $statuses ) {
             return array();
         }
-        $where = 'form_id = %d AND status IN ( ' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ' )';
-        $values = array_merge( array( (int) $form_id ), $statuses );
         $ids = array_filter( array_map( 'absint', (array) $args['ids'] ) );
-        if ( $ids ) {
-            $where .= ' AND id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )';
-            $values = array_merge( $values, $ids );
-        }
-        foreach ( array( 'after' => '>=', 'before' => '<' ) as $key => $operator ) {
-            if ( '' !== (string) $args[ $key ] ) {
-                $where .= " AND created_at $operator %s";
-                $values[] = (string) $args[ $key ];
-            }
-        }
+        $id_list = $ids ? $ids : array( 0 );
         $order = 'ASC' === strtoupper( (string) $args['order'] ) ? 'ASC' : 'DESC';
-        $limit = '';
-        if ( absint( $args['limit'] ) ) {
-            $limit = ' LIMIT %d OFFSET %d';
-            $values[] = absint( $args['limit'] );
-            $values[] = absint( $args['offset'] );
-        }
-        $table = self::table();
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, form_id, json, status, user_id, ip, created_at, last_page, kept FROM $table WHERE $where ORDER BY created_at $order, id $order$limit", $values ) );
+        $limit = absint( $args['limit'] );
+        $values = array_merge(
+            array( self::table(), (int) $form_id ),
+            $statuses,
+            array( $ids ? 1 : 0 ),
+            $id_list,
+            array(
+                (string) $args['after'],
+                (string) $args['after'],
+                (string) $args['before'],
+                (string) $args['before'],
+                $limit ? $limit : PHP_INT_MAX,
+                $limit ? absint( $args['offset'] ) : 0,
+            )
+        );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            'SELECT id, form_id, json, status, user_id, ip, created_at, last_page, kept FROM %i
+            WHERE form_id = %d AND status IN ( ' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ' )
+            AND ( %d = 0 OR id IN ( ' . implode( ',', array_fill( 0, count( $id_list ), '%d' ) ) . " ) )
+            AND ( %s = '' OR created_at >= %s )
+            AND ( %s = '' OR created_at < %s )
+            ORDER BY " . sanitize_sql_orderby( 'created_at ' . $order . ', id ' . $order ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
+            ' LIMIT %d OFFSET %d',
+            $values
+        ) );
         return array_map( array( __CLASS__, 'entry' ), $rows );
     }
 
@@ -406,8 +415,7 @@ class SurveyJS_Entries {
 
     public static function counts( $form_id ) {
         global $wpdb;
-        $table = self::table();
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT status, COUNT(*) AS total FROM $table WHERE form_id = %d GROUP BY status", (int) $form_id ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( 'SELECT status, COUNT(*) AS total FROM %i WHERE form_id = %d GROUP BY status', self::table(), (int) $form_id ) );
         $counts = array_fill_keys( self::STATUSES, 0 );
         foreach ( $rows as $row ) {
             if ( isset( $counts[ $row->status ] ) ) {
@@ -423,12 +431,12 @@ class SurveyJS_Entries {
             return $counts;
         }
         global $wpdb;
-        $table = self::table();
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT r.form_id, COUNT(*) AS total FROM $table r
+            "SELECT r.form_id, COUNT(*) AS total FROM %i r
             INNER JOIN {$wpdb->posts} p ON p.ID = r.form_id AND p.post_type = %s AND p.post_status = 'publish'
             WHERE r.status = 'unread'
             GROUP BY r.form_id",
+            self::table(),
             SurveyJS_Forms::POST_TYPE
         ) );
         $counts = array();
@@ -446,15 +454,14 @@ class SurveyJS_Entries {
 
     public static function exists() {
         global $wpdb;
-        $table = self::table();
-        return (bool) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table WHERE status <> %s LIMIT 1", self::PARTIAL ) );
+        return (bool) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i WHERE status <> %s LIMIT 1', self::table(), self::PARTIAL ) );
     }
 
     public static function client_ip() {
         if ( ! SurveyJS_SettingsPage::option( 'store_ip' ) ) {
             return null;
         }
-        $ip = apply_filters( 'surveyjs_entry_ip', isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' );
+        $ip = apply_filters( 'surveyjs_entry_ip', isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' ); // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders -- validated with FILTER_VALIDATE_IP on the next line
         return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : null;
     }
 

@@ -23,6 +23,7 @@ class SurveyJS_Themes {
         foreach ( array_keys( self::presets() ) as $slug ) {
             $panelless = str_ends_with( $slug, '-panelless' );
             $label = ucwords( str_replace( '-', ' ', preg_replace( '/-panelless$/', '', $slug ) ) );
+            /* translators: %s: theme name */
             $labels[ $slug ] = $panelless ? sprintf( __( '%s (panelless)', 'surveyjs' ), $label ) : $label;
         }
         return $labels;

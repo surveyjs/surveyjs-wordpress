@@ -93,7 +93,7 @@ class SurveyJS_Captcha {
             ? 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
             : 'https://www.google.com/recaptcha/api/siteverify';
         $response = wp_remote_post( $url, array(
-            'timeout' => 10,
+            'timeout' => 3,
             'body'    => array(
                 'secret'   => $captcha['secretKey'],
                 'response' => $token,

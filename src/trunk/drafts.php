@@ -66,7 +66,7 @@ class SurveyJS_Drafts {
             wp_send_json_error( array( 'message' => 'Form not found' ), 404 );
         }
 
-        $raw = (string) wp_unslash( $_POST['Data'] ?? '' );
+        $raw = (string) wp_unslash( $_POST['Data'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- decoded below and every string goes through sanitize_value() via map_deep().
         if ( strlen( $raw ) > self::MAX_BYTES ) {
             wp_send_json_error( array( 'message' => 'Draft is too large' ), 413 );
         }
@@ -80,7 +80,7 @@ class SurveyJS_Drafts {
             'currentPageNo' => absint( wp_unslash( $_POST['CurrentPageNo'] ?? 0 ) ),
             'savedAt'       => time(),
         );
-        $partial = json_decode( (string) wp_unslash( $_POST['Partial'] ?? '' ) );
+        $partial = json_decode( (string) wp_unslash( $_POST['Partial'] ?? '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only id (absint) and the hex-filtered token are kept below.
         if ( $partial instanceof stdClass && isset( $partial->id, $partial->token ) && is_string( $partial->token ) ) {
             $draft['partial'] = array(
                 'id'    => absint( $partial->id ),

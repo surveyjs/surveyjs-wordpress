@@ -19,7 +19,7 @@ class SurveyJS_Welcome {
 
     public static function maybe_redirect() {
         $user_id = (int) get_transient( self::REDIRECT_TRANSIENT );
-        if ( ! $user_id || get_current_user_id() !== $user_id || wp_doing_ajax() || 'GET' !== $_SERVER['REQUEST_METHOD'] ) {
+        if ( ! $user_id || get_current_user_id() !== $user_id || wp_doing_ajax() || ! isset( $_SERVER['REQUEST_METHOD'] ) || 'GET' !== $_SERVER['REQUEST_METHOD'] ) {
             return;
         }
         delete_transient( self::REDIRECT_TRANSIENT );
@@ -203,6 +203,8 @@ JS
                 <a href="<?php echo esc_url( self::DOCS_URL ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Documentation', 'surveyjs' ); ?></a>
                 &nbsp;|&nbsp; <a href="<?php echo esc_url( SurveyJS_Editor::ui_builder_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'UI Builder', 'surveyjs' ); ?></a>
             </p>
+
+            <?php SurveyJS_Upgrade_Notice::render_card(); ?>
 
             <?php foreach ( $import_sources as $source => $source_forms ) : ?>
                 <div class="card wp-sjs-welcome-import">

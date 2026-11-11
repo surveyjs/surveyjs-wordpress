@@ -19,6 +19,9 @@ class SurveyJS_Install {
         }
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         SurveyJS_Forms::register_post_type();
+        if ( false === get_option( self::VERSION_OPTION ) && self::legacy_forms_exist() ) {
+            SurveyJS_Upgrade_Notice::flag_legacy_update();
+        }
         $legacy_ids = self::migrate_forms();
         self::upgrade_entries_table( $legacy_ids );
         update_option( self::VERSION_OPTION, SURVEYJS_DB_VERSION );
@@ -41,6 +44,12 @@ class SurveyJS_Install {
         return $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
     }
 
+    private static function legacy_forms_exist() {
+        global $wpdb;
+        $legacy_table = $wpdb->prefix . 'sjs_my_surveys';
+        return self::table_exists( $legacy_table ) && $wpdb->get_var( $wpdb->prepare( 'SELECT 1 FROM %i LIMIT 1', $legacy_table ) );
+    }
+
     // Forms from the pre-3 table become sjs_form posts. A form keeps its old ID as the post ID when that ID is free,
     // so existing [surveyjs id="N"] shortcodes and blocks keep working without a lookup; otherwise the old ID
     // goes to SurveyJS_Forms::LEGACY_MAP_OPTION. Free IDs are taken first: every post created after that gets a
@@ -59,14 +68,14 @@ class SurveyJS_Install {
         }
 
         $pending = array();
-        foreach ( $wpdb->get_results( "SELECT * FROM $legacy_table ORDER BY id" ) as $row ) {
+        foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY id', $legacy_table ) ) as $row ) {
             if ( ! isset( $map[ (int) $row->id ] ) ) {
                 $pending[ (int) $row->id ] = $row;
             }
         }
 
         if ( $pending ) {
-            $taken = array_map( 'intval', $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ID IN (" . implode( ',', array_keys( $pending ) ) . ')' ) );
+            $taken = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ID IN ( " . implode( ',', array_fill( 0, count( $pending ), '%d' ) ) . ' )', array_keys( $pending ) ) ) );
             $free = array_diff_key( $pending, array_flip( $taken ) );
             $busy = array_intersect_key( $pending, array_flip( $taken ) );
             foreach ( array( $free, $busy ) as $pass => $rows ) {
@@ -99,21 +108,21 @@ class SurveyJS_Install {
     private static function upgrade_entries_table( $legacy_ids ) {
         global $wpdb;
         $table = SurveyJS_Entries::table();
-        $legacy_column = self::table_exists( $table ) && $wpdb->get_var( "SHOW COLUMNS FROM $table LIKE 'surveyId'" );
+        $legacy_column = self::table_exists( $table ) && $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM %i WHERE Field = 'surveyId'", $table ) );
         if ( $legacy_column ) {
-            $wpdb->query( "ALTER TABLE $table MODIFY surveyId mediumint(9) NOT NULL DEFAULT 0" );
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i MODIFY surveyId mediumint(9) NOT NULL DEFAULT 0', $table ) );
         }
 
         dbDelta( SurveyJS_Entries::schema() );
 
         if ( $legacy_column ) {
             foreach ( $legacy_ids as $old_id => $new_id ) {
-                $wpdb->query( $wpdb->prepare( "UPDATE $table SET form_id = %d, status = 'read' WHERE surveyId = %d AND form_id = 0", $new_id, $old_id ) );
+                $wpdb->query( $wpdb->prepare( "UPDATE %i SET form_id = %d, status = 'read' WHERE surveyId = %d AND form_id = 0", $table, $new_id, $old_id ) );
             }
-            $wpdb->query( "ALTER TABLE $table DROP COLUMN surveyId" );
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i DROP COLUMN surveyId', $table ) );
         }
-        if ( $wpdb->get_var( "SHOW INDEX FROM $table WHERE Key_name = 'id'" ) ) {
-            $wpdb->query( "ALTER TABLE $table DROP INDEX id" );
+        if ( $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = 'id'", $table ) ) ) {
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i DROP INDEX id', $table ) );
         }
         SurveyJS_Entries::flush_counts();
     }

@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include_once("ajax_handler.php");
+include_once( __DIR__ . "/ajax_handler.php");
 
 class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
 
@@ -15,7 +15,7 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
         if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) return;
         check_ajax_referer( 'surveyjs-save-result' );
 
-        if ( '' !== trim( (string) wp_unslash( $_POST['Website'] ?? '' ) ) ) {
+        if ( '' !== sanitize_text_field( wp_unslash( $_POST['Website'] ?? '' ) ) ) {
             wp_send_json_success();
         }
 
@@ -24,7 +24,7 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
             wp_send_json_error( array( 'message' => 'Form not found' ), 404 );
         }
 
-        $raw_json = (string) wp_unslash( $_POST['Json'] ?? '' );
+        $raw_json = (string) wp_unslash( $_POST['Json'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only measured here; sanitize_result_json() below decodes it and sanitizes every value.
         if ( strlen( $raw_json ) > self::MAX_BYTES ) {
             wp_send_json_error( array( 'message' => 'Form result is too large' ), 413 );
         }
@@ -36,7 +36,7 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
         $saved = SurveyJS_Entries::save_partial(
             $survey->id,
             absint( wp_unslash( $_POST['PartialId'] ?? 0 ) ),
-            (string) wp_unslash( $_POST['PartialToken'] ?? '' ),
+            sanitize_text_field( wp_unslash( $_POST['PartialToken'] ?? '' ) ),
             $json,
             absint( wp_unslash( $_POST['Page'] ?? 0 ) ),
             array(

@@ -1,16 +1,18 @@
 <?php
 // Runs inside the WordPress container (php reads it from stdin): WPForms Lite has no entries table, so the e2e tests create one with entries and files.
-require '/var/www/html/wp-load.php';
-global $wpdb;
+require '/var/www/html/wp-load.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- the path is absolute; php reads this script from stdin, so __DIR__ is the working directory, not this folder.
+require_once ABSPATH . 'wp-admin/includes/file.php';
+global $wpdb, $wp_filesystem;
 
 $command = $argv[1] ?? '';
 $table = $wpdb->prefix . 'wpforms_entries';
 $uploads = wp_upload_dir();
+WP_Filesystem( false, $uploads['basedir'], true );
 
 if ( 'create' === $command ) {
-    $title = $argv[2];
+    $form_title = $argv[2];
     $count = (int) $argv[3];
-    $wpdb->query( "CREATE TABLE IF NOT EXISTS $table (
+    $wpdb->query( $wpdb->prepare( "CREATE TABLE IF NOT EXISTS %i (
         entry_id bigint(20) NOT NULL AUTO_INCREMENT,
         form_id bigint(20) NOT NULL,
         status varchar(30) NOT NULL DEFAULT '',
@@ -20,8 +22,8 @@ if ( 'create' === $command ) {
         date_modified datetime NOT NULL,
         PRIMARY KEY  (entry_id),
         KEY form_id (form_id)
-    )" );
-    $form_id = wp_insert_post( array( 'post_type' => 'wpforms', 'post_status' => 'publish', 'post_title' => $title, 'post_content' => '{}' ) );
+    )", $table ) );
+    $form_id = wp_insert_post( array( 'post_type' => 'wpforms', 'post_status' => 'publish', 'post_title' => $form_title, 'post_content' => '{}' ) );
     $form = array(
         'id'       => $form_id,
         'fields'   => array(
@@ -29,7 +31,7 @@ if ( 'create' === $command ) {
             2 => array( 'id' => 2, 'type' => 'file-upload', 'label' => 'Documents', 'max_file_number' => '2' ),
             3 => array( 'id' => 3, 'type' => 'gdpr-checkbox', 'label' => 'GDPR Agreement', 'required' => '1', 'choices' => array( 1 => array( 'label' => 'I consent to data storage.' ) ) ),
         ),
-        'settings' => array( 'form_title' => $title ),
+        'settings' => array( 'form_title' => $form_title ),
     );
     wp_update_post( array( 'ID' => $form_id, 'post_content' => wp_slash( wp_json_encode( $form ) ) ) );
 
@@ -38,16 +40,16 @@ if ( 'create' === $command ) {
     $files = array();
     for ( $i = 1; $i <= $count; $i++ ) {
         $name = "doc-$i.txt";
-        file_put_contents( $uploads['basedir'] . "$subdir/$name", "E2E file $i of $title" );
-        $url = $uploads['baseurl'] . "$subdir/$name";
+        $wp_filesystem->put_contents( $uploads['basedir'] . "$subdir/$name", "E2E file $i of $form_title" );
+        $file_url = $uploads['baseurl'] . "$subdir/$name";
         if ( 2 === $i ) {
-            $url = 'http://old-host.example' . wp_parse_url( $url, PHP_URL_PATH );
+            $file_url = 'http://old-host.example' . wp_parse_url( $file_url, PHP_URL_PATH );
         }
-        $raw = array( array( 'name' => $name, 'value' => $url, 'file' => $name, 'file_original' => $name, 'file_user_name' => "Document $i.txt", 'type' => 'text/plain' ) );
+        $raw = array( array( 'name' => $name, 'value' => $file_url, 'file' => $name, 'file_original' => $name, 'file_user_name' => "Document $i.txt", 'type' => 'text/plain' ) );
         if ( $count === $i ) {
             $raw[] = array( 'name' => 'missing.txt', 'value' => $uploads['baseurl'] . "$subdir/missing.txt", 'file_original' => 'missing.txt', 'type' => 'text/plain' );
         }
-        $files[] = $url;
+        $files[] = $file_url;
         $fields = array(
             1 => array( 'name' => 'Name', 'value' => "Person $i", 'id' => 1, 'type' => 'text' ),
             2 => array( 'name' => 'Documents', 'value' => implode( "\n", wp_list_pluck( $raw, 'value' ) ), 'value_raw' => $raw, 'id' => 2, 'type' => 'file-upload' ),
@@ -72,12 +74,12 @@ if ( 'create' === $command ) {
         $wpdb->delete( $table, array( 'form_id' => $form_id ) );
     }
     array_map( 'wp_delete_file', glob( $uploads['basedir'] . '/wpforms/' . $form_id . '-e2e/*' ) ?: array() );
-    @rmdir( $uploads['basedir'] . '/wpforms/' . $form_id . '-e2e' );
-    foreach ( (array) ( get_option( 'surveyjs_imported_forms', array() )[ 'wpforms:' . $form_id ]['files'] ?? array() ) as $url ) {
-        wp_delete_file( $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $url, PHP_URL_PATH ) ) );
+    $wp_filesystem->rmdir( $uploads['basedir'] . '/wpforms/' . $form_id . '-e2e' );
+    foreach ( (array) ( get_option( 'surveyjs_imported_forms', array() )[ 'wpforms:' . $form_id ]['files'] ?? array() ) as $file_url ) {
+        wp_delete_file( $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $file_url, PHP_URL_PATH ) ) );
     }
     echo '{}';
 } elseif ( 'stored-file' === $command ) {
-    $path = $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $argv[2], PHP_URL_PATH ) );
-    echo wp_json_encode( array( 'content' => is_file( $path ) ? file_get_contents( $path ) : null ) );
+    $stored_path = $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $argv[2], PHP_URL_PATH ) );
+    echo wp_json_encode( array( 'content' => is_file( $stored_path ) ? file_get_contents( $stored_path ) : null ) );
 }

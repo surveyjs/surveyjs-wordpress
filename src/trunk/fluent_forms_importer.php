@@ -64,8 +64,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
     // Fluent Forms keeps created_at in the site time zone.
     protected static function entry_dates( $form_id, $entry_ids ) {
         global $wpdb;
-        $in = implode( ', ', array_fill( 0, count( $entry_ids ), '%d' ) );
-        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, created_at FROM {$wpdb->prefix}fluentform_submissions WHERE id IN ( $in )", array_map( 'intval', $entry_ids ) ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, created_at FROM {$wpdb->prefix}fluentform_submissions WHERE id IN ( " . implode( ', ', array_fill( 0, count( $entry_ids ), '%d' ) ) . ' )', array_map( 'intval', $entry_ids ) ) );
         $dates = array();
         foreach ( $rows as $row ) {
             $dates[ (int) $row->id ] = self::gmt_date( $row->created_at, false );
@@ -76,9 +75,8 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
     protected static function entries( $form_id, $form ) {
         global $wpdb;
         $questions = array_column( SurveyJS_Survey_Values::survey_questions( $form['json'] ), null, 'name' );
-        $statuses = implode( ', ', array_fill( 0, count( self::SKIPPED_ENTRY_STATUSES ), '%s' ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, response FROM {$wpdb->prefix}fluentform_submissions WHERE form_id = %d AND ( status IS NULL OR status NOT IN ( $statuses ) ) ORDER BY id",
+            "SELECT id, response FROM {$wpdb->prefix}fluentform_submissions WHERE form_id = %d AND ( status IS NULL OR status NOT IN ( " . implode( ', ', array_fill( 0, count( self::SKIPPED_ENTRY_STATUSES ), '%s' ) ) . ' ) ) ORDER BY id',
             array_merge( array( $form_id ), self::SKIPPED_ENTRY_STATUSES )
         ) );
         $entries = array();

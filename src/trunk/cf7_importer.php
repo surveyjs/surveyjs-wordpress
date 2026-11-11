@@ -18,9 +18,15 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
         if ( ! self::is_available() ) {
             return $forms;
         }
-        foreach ( WPCF7_ContactForm::find( array( 'posts_per_page' => -1 ) ) as $form ) {
-            $forms[ $form->id() ] = $form->title();
-        }
+        $page_size = 100;
+        $offset = 0;
+        do {
+            $page = WPCF7_ContactForm::find( array( 'posts_per_page' => $page_size, 'offset' => $offset ) );
+            foreach ( $page as $form ) {
+                $forms[ $form->id() ] = $form->title();
+            }
+            $offset += $page_size;
+        } while ( count( $page ) === $page_size );
         return $forms;
     }
 
@@ -349,6 +355,7 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             if ( $field ) {
                 $settings['notificationReplyTo'] = $field;
             } else {
+                /* translators: %s: Reply-To value from the Contact Form 7 mail settings */
                 $notes[] = sprintf( __( 'Reply-To "%s" was not imported: Reply-To can only be a form field.', 'surveyjs' ), trim( $reply_to[1] ) );
             }
         }
@@ -382,6 +389,7 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             if ( in_array( $match[1], $names, true ) ) {
                 return '{field:' . $match[1] . '}';
             }
+            /* translators: %s: Contact Form 7 mail tag, e.g. [your-name] */
             $notes[] = sprintf( __( 'Email tag %s has no equivalent and was kept as text.', 'surveyjs' ), $match[0] );
             return $match[0];
         }, $text );

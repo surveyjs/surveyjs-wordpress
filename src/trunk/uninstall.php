@@ -32,6 +32,7 @@ function surveyjs_uninstall_site() {
     ) );
     wp_cache_delete( 'alloptions', 'options' );
     wp_cache_delete( 'notoptions', 'options' );
+    delete_metadata( 'user', 0, 'surveyjs_upgrade_notice_dismissed', '', true );
 
     $upload_dir = wp_upload_dir( null, false );
     if ( empty( $upload_dir['error'] ) ) {
@@ -40,18 +41,27 @@ function surveyjs_uninstall_site() {
 }
 
 function surveyjs_uninstall_remove_dir( $dir ) {
+    global $wp_filesystem;
     if ( ! is_dir( $dir ) || is_link( $dir ) ) {
         return;
     }
+    if ( ! function_exists( 'WP_Filesystem' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    $can_rmdir = WP_Filesystem();
     $items = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir, FilesystemIterator::SKIP_DOTS ), RecursiveIteratorIterator::CHILD_FIRST );
     foreach ( $items as $item ) {
         if ( $item->isDir() && ! $item->isLink() ) {
-            @rmdir( $item->getPathname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+            if ( $can_rmdir ) {
+                $wp_filesystem->rmdir( $item->getPathname() );
+            }
         } else {
             wp_delete_file( $item->getPathname() );
         }
     }
-    @rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+    if ( $can_rmdir ) {
+        $wp_filesystem->rmdir( $dir );
+    }
 }
 
 if ( is_multisite() ) {

@@ -146,7 +146,7 @@ abstract class SurveyJS_Importer {
         $map = self::map();
         $imported = (array) ( $map[ $key ]['entries'] ?? array() );
         $files = (array) ( $map[ $key ]['files'] ?? array() );
-        $existing = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $table WHERE form_id = %d", $survey_id ) ) );
+        $existing = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i WHERE form_id = %d', $table, $survey_id ) ) );
         $dates = $entries ? static::entry_dates( $source_id, array_keys( $entries ) ) : array();
         $partial = $entries ? array_map( 'intval', static::partial_entry_ids( $source_id, array_keys( $entries ) ) ) : array();
         $file_questions = array();
@@ -232,11 +232,9 @@ abstract class SurveyJS_Importer {
         SurveyJS_UploadFiles::protect_upload_dir();
         $dir = $upload_dir['basedir'] . SurveyJS_UploadFiles::SUBDIR;
         $name = uniqid( (string) wp_rand(), true ) . '.' . $ext;
-        if ( ! is_dir( $dir ) || ! @copy( $source, $dir . '/' . $name ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        if ( ! is_dir( $dir ) || ! is_readable( $source ) || ! wp_is_writable( $dir ) || ! copy( $source, $dir . '/' . $name ) ) {
             return '';
         }
-        $stat = stat( $dir );
-        chmod( $dir . '/' . $name, $stat['mode'] & 0000666 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
         return $upload_dir['baseurl'] . SurveyJS_UploadFiles::SUBDIR . '/' . $name;
     }
 

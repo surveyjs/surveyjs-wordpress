@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include_once("ajax_handler.php");
+include_once( __DIR__ . "/ajax_handler.php");
 
 class SurveyJS_DownloadFile extends SurveyJS_AJAX_Handler {
 
@@ -15,5 +15,3 @@ class SurveyJS_DownloadFile extends SurveyJS_AJAX_Handler {
         SurveyJS_Uploaded_Files::serve();
     }
 }
-
-?>

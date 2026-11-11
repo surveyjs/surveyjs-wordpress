@@ -21,5 +21,3 @@ abstract class SurveyJS_AJAX_Handler {
     abstract public function callback();
 
 }
-
-?>

@@ -77,11 +77,10 @@ class SurveyJS_Templates {
 
     private static function user_templates() {
         $templates = array();
-        $posts = get_posts( array(
+        $posts = surveyjs_get_all_posts( array(
             'post_type'        => self::POST_TYPE,
             'post_status'      => 'publish',
-            'numberposts'      => -1,
-            'suppress_filters' => true,
+            'orderby'          => array( 'date' => 'DESC', 'ID' => 'DESC' ),
         ) );
         foreach ( $posts as $post ) {
             $id = self::USER_PREFIX . $post->ID;
@@ -276,7 +275,7 @@ class SurveyJS_Templates {
     }
 
     private static function handle_save() {
-        $form_id = absint( wp_unslash( $_POST['save_template'] ) );
+        $form_id = absint( wp_unslash( $_POST['save_template'] ?? 0 ) );
         check_admin_referer( 'surveyjs-save-template_' . $form_id );
         $survey = SurveyJS_Forms::get( $form_id );
         $id = $survey ? self::save(

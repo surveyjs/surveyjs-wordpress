@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include_once("ajax_handler.php");
+include_once( __DIR__ . "/ajax_handler.php");
 
 class SurveyJS_DeleteFile extends SurveyJS_AJAX_Handler {
 
@@ -10,7 +10,7 @@ class SurveyJS_DeleteFile extends SurveyJS_AJAX_Handler {
     }
 
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] !== 'GET') return;
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'GET' !== $_SERVER['REQUEST_METHOD'] ) return;
 
         if(!check_ajax_referer( 'surveyjs-delete-file' )) exit;
 
@@ -61,5 +61,3 @@ class SurveyJS_DeleteFile extends SurveyJS_AJAX_Handler {
         return preg_replace( '#^(?:https?:)?//#i', '', $url );
     }
 }
-
-?>

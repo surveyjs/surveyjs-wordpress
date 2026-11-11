@@ -44,29 +44,35 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         global $wpdb;
 
         $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
-        $orderby_columns = array( 'name' => 'p.post_title', 'results' => 'results' );
-        $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 'p.ID';
+        $orderby_columns = array( 'name' => 'name', 'results' => 'results' );
+        $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 'id';
         $order = 'desc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'DESC' : 'ASC';
 
-        $where = "WHERE p.post_type = %s AND p.post_status = 'publish'";
-        $args = array( SurveyJS_Forms::POST_TYPE );
-        if ( '' !== $search ) {
-            $where .= ' AND p.post_title LIKE %s';
-            $args[] = '%' . $wpdb->esc_like( $search ) . '%';
-        }
+        $like = '%' . $wpdb->esc_like( $search ) . '%';
 
-        $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p $where", $args ) );
+        $total = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->posts} p
+            WHERE p.post_type = %s AND p.post_status = 'publish' AND ( %s = '' OR p.post_title LIKE %s )",
+            SurveyJS_Forms::POST_TYPE,
+            $search,
+            $like
+        ) );
 
         $entries = SurveyJS_Entries::table();
         $this->items = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results
             FROM {$wpdb->posts} p
-            LEFT JOIN $entries r ON r.form_id = p.ID
-            $where
+            LEFT JOIN %i r ON r.form_id = p.ID
+            WHERE p.post_type = %s AND p.post_status = 'publish' AND ( %s = '' OR p.post_title LIKE %s )
             GROUP BY p.ID, p.post_title
-            ORDER BY $orderby $order
-            LIMIT %d OFFSET %d",
-            array_merge( $args, array( self::PER_PAGE, ( $this->get_pagenum() - 1 ) * self::PER_PAGE ) )
+            ORDER BY " . sanitize_sql_orderby( $orderby . ' ' . $order ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
+            ' LIMIT %d OFFSET %d',
+            $entries,
+            SurveyJS_Forms::POST_TYPE,
+            $search,
+            $like,
+            self::PER_PAGE,
+            ( $this->get_pagenum() - 1 ) * self::PER_PAGE
         ) );
 
         $this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns(), 'name' );

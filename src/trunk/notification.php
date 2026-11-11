@@ -96,7 +96,9 @@ class SurveyJS_Notification {
         add_action( 'wp_mail_failed', $catch_error );
         $sent = wp_mail(
             $to,
+            /* translators: %s: site name */
             sprintf( __( 'Test email from %s', 'surveyjs' ), $tags['{site_name}'] ),
+            /* translators: %s: form name */
             sprintf( __( "This is a test email from the form \"%s\". If you received it, emails from this form are delivered.", 'surveyjs' ), $survey->name ),
             self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) )
         );

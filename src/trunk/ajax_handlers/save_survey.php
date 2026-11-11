@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include_once("ajax_handler.php");
+include_once( __DIR__ . "/ajax_handler.php");
 
 class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
 
@@ -10,7 +10,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
     }
 
     function callback() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && current_user_can( 'manage_options' )) {
+        if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && current_user_can( 'manage_options' ) ) {
             if(!check_ajax_referer( 'surveyjs-save-survey' )) exit;
 
             $id = absint( wp_unslash( $_POST['Id'] ?? 0 ) );
@@ -18,8 +18,8 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
             if ( ! $survey ) {
                 wp_send_json( array('IsSuccess' => 0) );
             }
-            $raw_json = wp_unslash( $_POST['Json'] ?? '' );
-            $raw_theme = wp_unslash( $_POST['Theme'] ?? '' );
+            $raw_json = wp_unslash( $_POST['Json'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- kept raw only for users with unfiltered_html, as core does for post content; everyone else gets wp_kses_post() below.
+            $raw_theme = wp_unslash( $_POST['Theme'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- kept raw only for users with unfiltered_html, as core does for post content; everyone else gets wp_kses_post() below.
             $json = current_user_can( 'unfiltered_html' ) ? $raw_json : wp_kses_post( $raw_json );
             $theme = current_user_can( 'unfiltered_html' ) ? $raw_theme : wp_kses_post( $raw_theme );
 
@@ -32,7 +32,7 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
                 $data['name'] = sanitize_text_field( wp_unslash( $_POST['Name'] ) );
             }
             if ( isset( $_POST['Settings'] ) ) {
-                $data['settings'] = wp_json_encode( SurveyJS_Form_Settings::sanitize( json_decode( wp_unslash( $_POST['Settings'] ), true ), $survey ) );
+                $data['settings'] = wp_json_encode( SurveyJS_Form_Settings::sanitize( json_decode( wp_unslash( $_POST['Settings'] ), true ), $survey ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- SurveyJS_Form_Settings::sanitize() keeps only known keys and sanitizes each value.
             }
 
             if ( ! empty( $data ) ) {
@@ -41,5 +41,3 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
         }
     }
 }
-
-?>

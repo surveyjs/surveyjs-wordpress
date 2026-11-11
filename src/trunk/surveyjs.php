@@ -4,7 +4,7 @@ Plugin Name: SurveyJS Forms
 Plugin URI: https://wordpress.org/plugins/surveyjs
 Description: Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries stored in WordPress — free.
 Version: 2.5.6
-Requires at least: 6.4
+Requires at least: 6.5
 Requires PHP: 8.2
 Author: Devsoft Baltic OÜ
 Author URI: http://devsoftbaltic.com/
@@ -20,6 +20,21 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     function surveyjs_site_url( $path = '' ) {
         $site = apply_filters( 'surveyjs_site_url', defined( 'SURVEYJS_SITE_URL' ) ? SURVEYJS_SITE_URL : 'https://surveyjs.io' );
         return untrailingslashit( $site ) . $path;
+    }
+
+    function surveyjs_get_all_posts( $args ) {
+        $page_size = 100;
+        $items = array();
+        do {
+            $query = new WP_Query( array_merge( $args, array(
+                'ignore_sticky_posts' => true,
+                'no_found_rows'       => true,
+                'posts_per_page'      => $page_size,
+                'offset'              => count( $items ),
+            ) ) );
+            $items = array_merge( $items, $query->posts );
+        } while ( count( $query->posts ) === $page_size );
+        return $items;
     }
 
     function wps_install() {
@@ -50,50 +65,51 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     }
     register_activation_hook( __FILE__, 'wps_activate');
 
-    include_once("service_client.php");
+    include_once( __DIR__ . "/service_client.php" );
     include_once( __DIR__ . "/forms.php" );
     include_once( __DIR__ . "/entries.php" );
     include_once( __DIR__ . "/db_install.php" );
     include_once( __DIR__ . "/privacy.php" );
     include_once( __DIR__ . "/admin_bar.php" );
     include_once( __DIR__ . "/upsell.php" );
-    include("survey_values.php");
-    include("form_settings.php");
-    include("surveyjs_themes.php");
-    include("uploaded_files.php");
-    include("notification.php");
-    include("captcha.php");
-    include("importer.php");
-    include("cf7_importer.php");
-    include("wpforms_importer.php");
-    include("ninja_forms_importer.php");
-    include("fluent_forms_importer.php");
+    include_once( __DIR__ . "/upgrade_notice.php" );
+    include( __DIR__ . "/survey_values.php" );
+    include( __DIR__ . "/form_settings.php" );
+    include( __DIR__ . "/surveyjs_themes.php" );
+    include( __DIR__ . "/uploaded_files.php" );
+    include( __DIR__ . "/notification.php" );
+    include( __DIR__ . "/captcha.php" );
+    include( __DIR__ . "/importer.php" );
+    include( __DIR__ . "/cf7_importer.php" );
+    include( __DIR__ . "/wpforms_importer.php" );
+    include( __DIR__ . "/ninja_forms_importer.php" );
+    include( __DIR__ . "/fluent_forms_importer.php" );
 
-    include("drafts.php");
+    include( __DIR__ . "/drafts.php" );
     new SurveyJS_Drafts();
 
-    include("ajax_handlers/insert_survey.php");
+    include( __DIR__ . "/ajax_handlers/insert_survey.php" );
     new SurveyJS_InsertSurveyHandler();
 
-    include("ajax_handlers/save_survey.php");
+    include( __DIR__ . "/ajax_handlers/save_survey.php" );
     new SurveyJS_SaveSurvey();
 
-    include("ajax_handlers/save_result.php");
+    include( __DIR__ . "/ajax_handlers/save_result.php" );
     new SurveyJS_SaveResult();
 
-    include("ajax_handlers/save_partial_result.php");
+    include( __DIR__ . "/ajax_handlers/save_partial_result.php" );
     new SurveyJS_SavePartialResult();
 
-    include("ajax_handlers/send_test_email.php");
+    include( __DIR__ . "/ajax_handlers/send_test_email.php" );
     new SurveyJS_SendTestEmail();
 
-    include("ajax_handlers/upload_files.php");
+    include( __DIR__ . "/ajax_handlers/upload_files.php" );
     new SurveyJS_UploadFiles();
 
-    include("ajax_handlers/delete_file.php");
+    include( __DIR__ . "/ajax_handlers/delete_file.php" );
     new SurveyJS_DeleteFile();
 
-    include("ajax_handlers/download_file.php");
+    include( __DIR__ . "/ajax_handlers/download_file.php" );
     new SurveyJS_DownloadFile();
 
     add_action( SurveyJS_Uploaded_Files::CLEANUP_HOOK, array( 'SurveyJS_Uploaded_Files', 'cleanup' ) );
@@ -104,7 +120,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     SurveyJS_Privacy::init();
     SurveyJS_Admin_Bar::init();
     SurveyJS_Upsell::init();
+    SurveyJS_Upgrade_Notice::init();
 
-    include("initializer.php");
+    include( __DIR__ . "/initializer.php" );
     new SurveyJS_SurveyJS();
-?>

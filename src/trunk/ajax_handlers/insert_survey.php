@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include_once("ajax_handler.php");
+include_once( __DIR__ . "/ajax_handler.php");
 include_once( __DIR__ . "/../service_client.php");
 
 class SurveyJS_InsertSurveyHandler extends SurveyJS_AJAX_Handler {

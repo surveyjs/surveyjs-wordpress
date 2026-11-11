@@ -69,5 +69,3 @@ class SurveyJS_Client {
     }
 
 }
-
-?>

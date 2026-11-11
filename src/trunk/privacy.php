@@ -66,14 +66,17 @@ class SurveyJS_Privacy {
         if ( ! is_email( $email ) ) {
             return array();
         }
-        $table = SurveyJS_Entries::table();
         $user = get_user_by( 'email', $email );
-        $where = $wpdb->prepare( 'json LIKE %s', '%' . $wpdb->esc_like( trim( wp_json_encode( $email ), '"' ) ) . '%' );
-        if ( $user ) {
-            $where .= $wpdb->prepare( ' OR user_id = %d', $user->ID );
-        }
-        $paging = $limit ? $wpdb->prepare( ' LIMIT %d OFFSET %d', $limit, $offset ) : '';
-        return $wpdb->get_results( "SELECT id, form_id, json, status, user_id, ip, created_at FROM $table WHERE $where ORDER BY id$paging" );
+        $user_id = $user ? (int) $user->ID : 0;
+        return $wpdb->get_results( $wpdb->prepare(
+            'SELECT id, form_id, json, status, user_id, ip, created_at FROM %i WHERE json LIKE %s OR ( %d > 0 AND user_id = %d ) ORDER BY id LIMIT %d OFFSET %d',
+            SurveyJS_Entries::table(),
+            '%' . $wpdb->esc_like( trim( wp_json_encode( $email ), '"' ) ) . '%',
+            $user_id,
+            $user_id,
+            $limit ? $limit : PHP_INT_MAX,
+            $limit ? $offset : 0
+        ) );
     }
 
     private static function matching( $rows, $email ) {

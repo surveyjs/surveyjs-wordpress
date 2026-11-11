@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-include_once("ajax_handler.php");
+include_once( __DIR__ . "/ajax_handler.php");
 include_once( __DIR__ . "/../service_client.php");
 if ( ! function_exists( 'wp_handle_upload' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/file.php' );
@@ -23,7 +23,8 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
 
         if(!check_ajax_referer( 'surveyjs-upload-files' )) exit;
 
-        if ( ! $this->is_upload_allowed() ) {
+        $survey_id = isset( $_POST['SurveyId'] ) ? absint( wp_unslash( $_POST['SurveyId'] ) ) : 0;
+        if ( ! $this->is_upload_allowed( $survey_id ) ) {
             wp_send_json( array( 'error' => 'forbidden' ), 403 );
         }
 
@@ -100,12 +101,11 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         return $dirs;
     }
 
-    private function is_upload_allowed() {
+    private function is_upload_allowed( $survey_id ) {
         if ( current_user_can( 'upload_files' ) ) {
             return true;
         }
 
-        $survey_id = isset( $_POST['SurveyId'] ) ? absint( wp_unslash( $_POST['SurveyId'] ) ) : 0;
         if ( ! $survey_id ) {
             return false;
         }
@@ -198,5 +198,3 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         update_option( 'surveyjs_upload_guard_version', self::GUARD_VERSION );
     }
 }
-
-?>

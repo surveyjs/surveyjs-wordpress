@@ -53,7 +53,7 @@ class SurveyJS_MySurveys {
         }
 
         if ( ! empty( $_GET['_wp_http_referer'] ) ) {
-            wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+            wp_safe_redirect( remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'action', 'action2' ), esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ) ) );
             exit;
         }
     }

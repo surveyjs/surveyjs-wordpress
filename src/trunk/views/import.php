@@ -39,7 +39,7 @@ class SurveyJS_Import {
     }
 
     public static function handle_actions() {
-        if ( ! current_user_can( 'manage_options' ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+        if ( ! current_user_can( 'manage_options' ) || ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
             return;
         }
         $source = self::source();
@@ -58,7 +58,7 @@ class SurveyJS_Import {
 
     public static function handle_ajax() {
         $source = sanitize_key( wp_unslash( $_POST['source'] ?? '' ) );
-        if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || ! current_user_can( 'manage_options' ) || ! isset( self::sources()[ $source ] ) ) {
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] || ! current_user_can( 'manage_options' ) || ! isset( self::sources()[ $source ] ) ) {
             wp_send_json_error( array( 'message' => __( 'Not allowed.', 'surveyjs' ) ), 403 );
         }
         check_ajax_referer( 'surveyjs-import-' . $source );

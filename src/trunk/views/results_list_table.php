@@ -106,27 +106,40 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
         $status = self::current_status();
         $entry = absint( $_REQUEST['entry'] ?? 0 );
 
-        $where = 'WHERE form_id = %d';
-        $args = array( $this->survey_id );
-        if ( $entry ) {
-            $where .= ' AND id = %d';
-            $args[] = $entry;
-        } elseif ( '' !== $status ) {
-            $where .= ' AND status = %s';
-            $args[] = $status;
-        } else {
-            $where .= " AND status NOT IN ( 'spam', 'partial' )";
-        }
-        if ( '' !== $search ) {
-            $where .= ' AND json LIKE %s';
-            $args[] = '%' . $wpdb->esc_like( $search ) . '%';
-        }
-
         $table = SurveyJS_Entries::table();
-        $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table $where", $args ) );
+        $filter_by_status = ! $entry && '' !== $status ? 1 : 0;
+        $hide_spam_and_partial = ! $entry && '' === $status ? 1 : 0;
+        $like = '%' . $wpdb->esc_like( $search ) . '%';
+
+        $total = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM %i
+            WHERE form_id = %d AND ( %d = 0 OR id = %d ) AND ( %d = 0 OR status = %s ) AND ( %d = 0 OR status NOT IN ( 'spam', 'partial' ) ) AND ( %s = '' OR json LIKE %s )",
+            $table,
+            $this->survey_id,
+            $entry,
+            $entry,
+            $filter_by_status,
+            $status,
+            $hide_spam_and_partial,
+            $search,
+            $like
+        ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, json, status, user_id, ip, created_at, last_page, kept, token_hash IS NOT NULL AS unfinished FROM $table $where ORDER BY $orderby LIMIT %d OFFSET %d",
-            array_merge( $args, array( self::PER_PAGE, ( $this->get_pagenum() - 1 ) * self::PER_PAGE ) )
+            "SELECT id, json, status, user_id, ip, created_at, last_page, kept, token_hash IS NOT NULL AS unfinished FROM %i
+            WHERE form_id = %d AND ( %d = 0 OR id = %d ) AND ( %d = 0 OR status = %s ) AND ( %d = 0 OR status NOT IN ( 'spam', 'partial' ) ) AND ( %s = '' OR json LIKE %s )
+            ORDER BY " . sanitize_sql_orderby( $orderby ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
+            ' LIMIT %d OFFSET %d',
+            $table,
+            $this->survey_id,
+            $entry,
+            $entry,
+            $filter_by_status,
+            $status,
+            $hide_spam_and_partial,
+            $search,
+            $like,
+            self::PER_PAGE,
+            ( $this->get_pagenum() - 1 ) * self::PER_PAGE
         ) );
 
         $this->items = array_map( function ( $row ) {
