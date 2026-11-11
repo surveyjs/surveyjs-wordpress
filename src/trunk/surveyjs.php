@@ -3,7 +3,7 @@
 Plugin Name: SurveyJS Forms
 Plugin URI: https://wordpress.org/plugins/surveyjs
 Description: Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries stored in WordPress — free.
-Version: 2.5.6
+Version: 3.2.4
 Requires at least: 6.5
 Requires PHP: 8.2
 Author: Devsoft Baltic OÜ
@@ -14,7 +14,7 @@ License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=Lic
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
-    define( 'SURVEYJS_VERSION', '2.5.6' );
+    define( 'SURVEYJS_VERSION', '3.2.4' );
     define( 'SURVEYJS_DB_VERSION', '4' );
 
     function surveyjs_site_url( $path = '' ) {

@@ -3,7 +3,7 @@ Contributors: DevSoft Baltic
 Tags: contact form, form builder, survey, forms, quiz
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 2.5.6
+Stable tag: 3.2.4
 Requires PHP: 8.2
 
 Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, file uploads, entries and AI themes that match your site — free.
@@ -151,7 +151,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 
 == Changelog ==
 
-= 2.5.6 =
+= 3.2.4 =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
 
 = v2.5.6 =
@@ -162,7 +162,7 @@ Security: added permission checks to the file upload and file delete handlers. S
 
 == Upgrade Notice ==
 
-= 2.5.6 =
+= 3.2.4 =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
 
 == Support ==
