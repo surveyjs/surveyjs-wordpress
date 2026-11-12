@@ -33,8 +33,8 @@
 
 /* Same control reset as themes/wordpress.css, for forms with a SurveyJS theme: the site theme styles
    input[type="text"] and button too, and its rules outrank the single-class survey-core ones. */
-.wp-sjs-survey .sjs-theme-overrides .sd-formbox__input,
-.wp-sjs-survey .sjs-theme-overrides .sd-dropdown__filter-string-input {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-formbox__input,
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-dropdown__filter-string-input {
     height: auto;
     margin: 0;
     border: none;
@@ -46,7 +46,7 @@
     text-transform: none;
 }
 
-.wp-sjs-survey .sjs-theme-overrides .sd-formbox__input {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-formbox__input {
     min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
     padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
     color: var(--sjs2-color-component-input-default-value);
@@ -56,13 +56,13 @@
     line-height: var(--sjs2-typography-line-height-component-input-content);
 }
 
-.wp-sjs-survey .sjs-theme-overrides .sd-dropdown__filter-string-input {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-dropdown__filter-string-input {
     padding: 0;
     color: inherit;
     font: inherit;
 }
 
-.wp-sjs-survey .sjs-theme-overrides .sd-action {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-action {
     width: auto;
     height: auto;
     min-height: 0;
@@ -76,16 +76,16 @@
     text-transform: none;
 }
 
-.wp-sjs-survey .sjs-theme-overrides .sd-action--border {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-action--border {
     box-shadow: var(--sd-action-boxshadow);
 }
 
-.wp-sjs-survey .sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
-.wp-sjs-survey .sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
     background: var(--sd-action-hover-background);
 }
 
-.wp-sjs-survey .sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
+.wp-sjs-survey .sd-root-modern.sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
     box-shadow: var(--sd-action-hover-box-shadow);
 }
 

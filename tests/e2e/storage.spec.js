@@ -137,6 +137,7 @@ test.describe("entry storage", () => {
   let name;
   let posts;
   let legacyId;
+  let legacyRowId;
   let privacyEmail;
   let storeIp;
 
@@ -154,6 +155,7 @@ test.describe("entry storage", () => {
     name = null;
     posts = [];
     legacyId = null;
+    legacyRowId = null;
     privacyEmail = null;
     storeIp = null;
   });
@@ -161,6 +163,9 @@ test.describe("entry storage", () => {
   test.afterEach(async ({ page }) => {
     if (legacyId) {
       storageFixture("legacy-cleanup", legacyId);
+    }
+    if (legacyRowId) {
+      storageFixture("legacy-row-cleanup", legacyRowId);
     }
     if (privacyEmail) {
       await deletePrivacyRequests(page, privacyEmail);
@@ -412,6 +417,34 @@ test.describe("entry storage", () => {
 
     await page.goto(resultsUrl(surveyId));
     await expect(entryRow(page, "E2E legacy answer")).toBeVisible();
+  });
+
+  test("migrates a form saved by the old plugin after a rollback, even when its ID matches a newer form", async ({ page }) => {
+    test.skip(!WP_CONTAINER, "Set WP_CONTAINER to the WordPress container name to add a row to the old forms table");
+    name = uniqueName("E2E rollback");
+    const surveyId = await createSurvey(page, name);
+    const oldJson = { elements: [{ type: "text", name: "old_question", title: "Old plugin question" }] };
+    storageFixture("legacy-row", surveyId, `${name} old`, JSON.stringify(oldJson));
+    legacyRowId = surveyId;
+
+    await page.goto(listUrl(`${name} old`));
+    await expect(page.locator("#the-list tr")).toHaveCount(1);
+
+    const legacyShortcode = `[Survey id=\\u0022${surveyId}\\u0022 name=\\u0022${name} old\\u0022] `;
+    const legacyPosts = [
+      await createPost(page, `${name} old shortcode`, `[Survey id="${surveyId}" name="${name} old"]`),
+      await createPost(page, `${name} old block`, `<!-- wp:sjs/gutenberg-block {"surveyid":"${surveyId}","shortcode":"${legacyShortcode}"} /-->`)
+    ];
+    for (const post of legacyPosts) {
+      await page.goto(post.link);
+      await expect(page.getByLabel("Old plugin question")).toBeVisible();
+      await expect(page.locator(".wp-sjs-plugin")).not.toHaveAttribute("id", `surveyContainer-${surveyId}`);
+    }
+
+    const newPost = await createPost(page, `${name} new shortcode`, `[surveyjs id="${surveyId}"]`);
+    await page.goto(newPost.link);
+    await expect(page.locator(".wp-sjs-plugin")).toHaveAttribute("id", `surveyContainer-${surveyId}`);
+    await expect(page.getByLabel("What is your name?")).toBeVisible();
   });
 
   test("exports and erases the entries found by the email answer", async ({ page }) => {

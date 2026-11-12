@@ -138,9 +138,11 @@
 }
 
 /* Themes style every input and button on the page (input[type="text"], button, [type="button"], :hover),
-   which outranks the single-class survey-core rules, so the survey's own controls get them back here. */
-.wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input,
-.wp-sjs-adaptive .sjs-theme-overrides .sd-dropdown__filter-string-input {
+   which outranks the single-class survey-core rules, so the survey's own controls get them back here.
+   .sd-root-modern lifts these rules above :not() chains such as Twenty Twenty-One's
+   button:not(:hover):not(:active):not(.has-background). */
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-formbox__input,
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-dropdown__filter-string-input {
   height: auto;
   margin: 0;
   border: none;
@@ -152,7 +154,7 @@
   text-transform: none;
 }
 
-.wp-sjs-adaptive .sjs-theme-overrides .sd-formbox__input {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-formbox__input {
   min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
   padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
   color: var(--sjs2-color-component-input-default-value);
@@ -162,13 +164,13 @@
   line-height: var(--sjs2-typography-line-height-component-input-content);
 }
 
-.wp-sjs-adaptive .sjs-theme-overrides .sd-dropdown__filter-string-input {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-dropdown__filter-string-input {
   padding: 0;
   color: inherit;
   font: inherit;
 }
 
-.wp-sjs-adaptive .sjs-theme-overrides .sd-action {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action {
   width: auto;
   height: auto;
   min-height: 0;
@@ -182,16 +184,16 @@
   text-transform: none;
 }
 
-.wp-sjs-adaptive .sjs-theme-overrides .sd-action--border {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border {
   box-shadow: var(--sd-action-boxshadow);
 }
 
-.wp-sjs-adaptive .sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
-.wp-sjs-adaptive .sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
   background: var(--sd-action-hover-background);
 }
 
-.wp-sjs-adaptive .sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
   box-shadow: var(--sd-action-hover-box-shadow);
 }
 

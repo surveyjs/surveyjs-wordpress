@@ -26,8 +26,14 @@ var options = surveysArray.map(function(survey) {
   };
 });
 
-function resolveSurveyId(surveyid) {
-  return surveys[surveyid] || !legacyIds[surveyid] ? surveyid : String(legacyIds[surveyid]);
+function resolveSurveyId(attributes) {
+  var surveyid = attributes.surveyid;
+  var legacyId = legacyIds[surveyid];
+  var isLegacyBlock = /^\s*\[Survey\s/.test(attributes.shortcode || "");
+  if (legacyId && (isLegacyBlock || !surveys[surveyid])) {
+    return String(legacyId);
+  }
+  return surveyid;
 }
 
 function getShortcode(surveyid) {
@@ -46,7 +52,7 @@ registerBlockType("sjs/gutenberg-block", {
   edit: function(props) {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
-    var surveyid = resolveSurveyId(attributes.surveyid);
+    var surveyid = resolveSurveyId(attributes);
     var selected = surveys[surveyid] ? String(surveyid) : null;
 
     function onSurveyChange(value) {

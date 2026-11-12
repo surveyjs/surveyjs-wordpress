@@ -61,6 +61,13 @@ class SurveyJS_Forms {
         return $new_id && self::POST_TYPE === get_post_type( $new_id ) ? $new_id : 0;
     }
 
+    // An old ID can match a form created after the migration, so [Survey] shortcodes from the pre-3 plugin
+    // check the old-ID map before treating the ID as a post ID.
+    public static function resolve_legacy_id( $id ) {
+        $new_id = absint( self::legacy_map()[ absint( $id ) ] ?? 0 );
+        return $new_id && self::POST_TYPE === get_post_type( $new_id ) ? $new_id : self::resolve_id( $id );
+    }
+
     public static function legacy_map() {
         $map = get_option( self::LEGACY_MAP_OPTION, array() );
         return is_array( $map ) ? $map : array();

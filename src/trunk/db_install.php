@@ -6,11 +6,27 @@ class SurveyJS_Install {
     const VERSION_OPTION = 'surveyjs_db_version';
     const LOCK_OPTION = 'surveyjs_upgrade_lock';
     const LOCK_TIMEOUT = 600;
+    const LEGACY_MAX_ID_OPTION = 'surveyjs_legacy_max_id';
 
     public static function maybe_upgrade() {
-        if ( get_option( self::VERSION_OPTION ) !== SURVEYJS_DB_VERSION ) {
+        if ( get_option( self::VERSION_OPTION ) !== SURVEYJS_DB_VERSION || self::legacy_forms_added() ) {
             self::install();
         }
+    }
+
+    // After a rollback to the pre-3 plugin, its new forms land in the old table while the DB version stays current.
+    // The check costs a query, so it runs on admin pages only: the admin who put the plugin back is there right after.
+    private static function legacy_forms_added() {
+        if ( ! is_admin() || wp_doing_ajax() ) {
+            return false;
+        }
+        return self::legacy_max_id() > (int) get_option( self::LEGACY_MAX_ID_OPTION, 0 );
+    }
+
+    private static function legacy_max_id() {
+        global $wpdb;
+        $legacy_table = $wpdb->prefix . 'sjs_my_surveys';
+        return self::table_exists( $legacy_table ) ? (int) $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(id) FROM %i', $legacy_table ) ) : 0;
     }
 
     public static function install() {
@@ -24,6 +40,7 @@ class SurveyJS_Install {
         }
         $legacy_ids = self::migrate_forms();
         self::upgrade_entries_table( $legacy_ids );
+        update_option( self::LEGACY_MAX_ID_OPTION, self::legacy_max_id() );
         update_option( self::VERSION_OPTION, SURVEYJS_DB_VERSION );
         delete_option( self::LOCK_OPTION );
     }

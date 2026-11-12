@@ -138,7 +138,7 @@ JS
         }
         $posts = $wpdb->get_results( "SELECT ID, post_content FROM {$wpdb->posts} WHERE post_status = 'publish' AND ( post_content LIKE '%wp:sjs/gutenberg-block%' OR post_content LIKE '%[survey%' ) ORDER BY ID DESC LIMIT 50" );
         foreach ( $posts as $post ) {
-            if ( array_intersect( array_map( array( 'SurveyJS_Forms', 'resolve_id' ), SurveyJS_SurveyJS::content_survey_ids( $post->post_content ) ), $form_ids ) ) {
+            if ( array_intersect( SurveyJS_SurveyJS::content_survey_ids( $post->post_content ), $form_ids ) ) {
                 return (int) $post->ID;
             }
         }

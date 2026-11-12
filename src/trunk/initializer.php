@@ -290,21 +290,31 @@ class SurveyJS_SurveyJS {
     }
 
     public static function content_survey_ids($content) {
-        $ids = array();
-        if ( preg_match_all('/' . get_shortcode_regex(array('surveyjs', 'Survey')) . '/', $content, $matches) ) {
-            foreach ( $matches[3] as $shortcodeAttrs ) {
-                $attrs = shortcode_parse_atts($shortcodeAttrs);
-                $ids[] = absint($attrs['id'] ?? 0);
-            }
-        }
+        $ids = self::shortcode_survey_ids($content);
         self::collect_block_survey_ids(parse_blocks($content), $ids);
         return array_unique(array_filter($ids));
+    }
+
+    public static function shortcode_form_id($attrs, $tag) {
+        $id = is_array($attrs) ? ($attrs['id'] ?? 0) : 0;
+        return 'Survey' === $tag ? SurveyJS_Forms::resolve_legacy_id($id) : SurveyJS_Forms::resolve_id($id);
+    }
+
+    private static function shortcode_survey_ids($content) {
+        $ids = array();
+        if ( preg_match_all('/' . get_shortcode_regex(array('surveyjs', 'Survey')) . '/', $content, $matches, PREG_SET_ORDER) ) {
+            foreach ( $matches as $match ) {
+                $ids[] = self::shortcode_form_id(shortcode_parse_atts($match[3]), $match[2]);
+            }
+        }
+        return $ids;
     }
 
     private static function collect_block_survey_ids($blocks, &$ids) {
         foreach ( $blocks as $block ) {
             if ( 'sjs/gutenberg-block' === $block['blockName'] ) {
-                $ids[] = absint($block['attrs']['surveyid'] ?? 0);
+                $block_ids = self::shortcode_survey_ids((string) ($block['attrs']['shortcode'] ?? ''));
+                $ids = array_merge($ids, $block_ids ? $block_ids : array(SurveyJS_Forms::resolve_id($block['attrs']['surveyid'] ?? 0)));
             }
             self::collect_block_survey_ids($block['innerBlocks'], $ids);
         }
@@ -401,9 +411,8 @@ class SurveyJS_SurveyJS {
         <?php
     }
 
-    function wps_process_shortcode($attrs) {
-        $client = new SurveyJS_Client();
-        $row = $client->getSurvey(absint($attrs["id"] ?? 0));
+    function wps_process_shortcode($attrs, $content = null, $tag = '') {
+        $row = SurveyJS_Forms::find(self::shortcode_form_id($attrs, $tag));
         if ( ! $row ) {
             return '';
         }
