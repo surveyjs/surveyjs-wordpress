@@ -447,7 +447,7 @@ JS;
     function wps_add_menu() {
         $hook = add_menu_page( 'Forms', 'SurveyJS Forms', self::CAPABILITY, self::MENU_SLUG, array(
                         "SurveyJS_MySurveys", 'render'
-                        ), plugins_url('images/logo_20х20.png', __FILE__), '30.5' );
+                        ), plugins_url('images/logo_20x20.png', __FILE__), '30.5' );
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         // Registering the parent slug first stops WordPress from adding a duplicate "SurveyJS Forms" submenu item.
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'All Forms', 'surveyjs' ), esc_html__( 'All Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
@@ -455,14 +455,19 @@ JS;
         add_action( 'load-' . $templates_hook, array( 'SurveyJS_Templates', 'handle_actions' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
-        add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
-        $results_hook = add_submenu_page('', '', '', 'manage_options', 'surveyjs_results', array('SurveyJS_Results', 'render'));
+        add_submenu_page( '', esc_html__( 'Edit Form', 'surveyjs' ), '', 'manage_options', 'surveyjs_editor', array( 'SurveyJS_Editor', 'render' ) );
+        $results_hook = add_submenu_page( '', esc_html__( 'Entries', 'surveyjs' ), '', 'manage_options', 'surveyjs_results', array( 'SurveyJS_Results', 'render' ) );
         add_action( 'load-' . $results_hook, array( 'SurveyJS_Results', 'handle_actions' ) );
-        $import_hook = add_submenu_page('', '', '', 'manage_options', 'surveyjs_import', array('SurveyJS_Import', 'render'));
+        $import_hook = add_submenu_page( '', esc_html__( 'Import', 'surveyjs' ), '', 'manage_options', 'surveyjs_import', array( 'SurveyJS_Import', 'render' ) );
         add_action( 'load-' . $import_hook, array( 'SurveyJS_Import', 'handle_actions' ) );
         // WordPress resolves the menu parent from these '' entries after the parent_file filter, which would undo highlight_menu().
+        // Removing them also hides the page title from get_admin_page_title(), so it is set directly.
+        global $plugin_page, $title;
         foreach ( self::HIDDEN_PAGES as $hidden_page ) {
-            remove_submenu_page( '', $hidden_page );
+            $removed = remove_submenu_page( '', $hidden_page );
+            if ( $removed && $hidden_page === $plugin_page ) {
+                $title = $removed[3]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- core reads the admin page title from this global.
+            }
         }
 
         do_action( 'surveyjs_admin_menu', self::MENU_SLUG, self::CAPABILITY );

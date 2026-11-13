@@ -380,12 +380,13 @@ class SurveyJS_Entries {
                 $limit ? absint( $args['offset'] ) : 0,
             )
         );
+        // MySQL 8 rejects comparing a DATETIME column with '' even when that branch is never needed, so NULLIF() turns '' into NULL.
         $rows = $wpdb->get_results( $wpdb->prepare(
             'SELECT id, form_id, json, status, user_id, ip, created_at, last_page, kept FROM %i
             WHERE form_id = %d AND status IN ( ' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . ' )
             AND ( %d = 0 OR id IN ( ' . implode( ',', array_fill( 0, count( $id_list ), '%d' ) ) . " ) )
-            AND ( %s = '' OR created_at >= %s )
-            AND ( %s = '' OR created_at < %s )
+            AND ( %s = '' OR created_at >= NULLIF( %s, '' ) )
+            AND ( %s = '' OR created_at < NULLIF( %s, '' ) )
             ORDER BY " . sanitize_sql_orderby( 'created_at ' . $order . ', id ' . $order ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
             ' LIMIT %d OFFSET %d',
             $values

@@ -293,7 +293,7 @@ class SurveyJS_Uploaded_Files {
     }
 
     public static function is_valid_name( $name ) {
-        return is_string( $name ) && 'index.php' !== $name && 1 === preg_match( '/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $name );
+        return is_string( $name ) && 'index.php' !== $name && ! str_contains( $name, '..' ) && 1 === preg_match( '/^[A-Za-z0-9][A-Za-z0-9._-]*$/D', $name );
     }
 
     private static function dir() {
@@ -301,7 +301,7 @@ class SurveyJS_Uploaded_Files {
         if ( ! empty( $upload_dir['error'] ) ) {
             return null;
         }
-        $dir = realpath( $upload_dir['basedir'] . SurveyJS_UploadFiles::SUBDIR );
-        return false === $dir ? null : $dir;
+        $dir = $upload_dir['basedir'] . SurveyJS_UploadFiles::SUBDIR;
+        return is_dir( $dir ) ? $dir : null;
     }
 }

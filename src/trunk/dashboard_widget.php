@@ -119,7 +119,7 @@ JS
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.ID AS id, p.post_title AS name, COUNT(*) AS total FROM %i r
             INNER JOIN {$wpdb->posts} p ON p.ID = r.form_id AND p.post_type = %s AND p.post_status = 'publish'
-            WHERE r.status IN ( %s, %s ) AND ( %s = '' OR r.created_at >= %s )
+            WHERE r.status IN ( %s, %s ) AND ( %s = '' OR r.created_at >= NULLIF( %s, '' ) )
             GROUP BY p.ID, p.post_title
             ORDER BY total DESC, p.post_title, p.ID",
             SurveyJS_Entries::table(),
