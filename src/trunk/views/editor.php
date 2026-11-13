@@ -11,6 +11,13 @@ class SurveyJS_Editor {
         return surveyjs_site_url( '/wordpress-ui-builder' );
     }
 
+    public static function full_preview_url( $id ) {
+        if ( ! SurveyJS_SurveyJS::full_preview_url() ) {
+            return '';
+        }
+        return add_query_arg( array( 'page' => 'surveyjs_editor', 'id' => (int) $id, 'full_preview' => 1 ), admin_url( 'admin.php' ) );
+    }
+
     public static function tabs( $survey ) {
         $tabs = array(
             'survey'  => __( 'Config', 'surveyjs' ),

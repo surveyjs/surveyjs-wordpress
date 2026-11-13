@@ -24,6 +24,10 @@
             model.locale = surveyjsPreview.locale;
         }
         model.onTextMarkdown.add(SurveyJSMarkdown.handler(message.markdown));
+        // The preview saves nothing, so its files stay in the browser instead of being uploaded to the site.
+        model.onUploadFiles.add((_, options) => {
+            options.callback(options.files.map((file) => ({ file: file, content: URL.createObjectURL(file) })));
+        });
         model.onComplete.add(() => {
             const runAgain = document.createElement("button");
             runAgain.type = "button";

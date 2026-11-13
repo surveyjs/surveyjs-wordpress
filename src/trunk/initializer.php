@@ -17,6 +17,7 @@ class SurveyJS_SurveyJS {
     const BLOCK_SCRIPT = 'surveyjs-block-js';
     const MENU_SLUG = 'surveyjs-main-menu';
     const CAPABILITY = 'manage_options';
+    const HIDDEN_PAGES = array( 'surveyjs_editor', 'surveyjs_results', 'surveyjs_import' );
     const FULL_PREVIEW_PAGE_OPTION = 'surveyjs_full_preview_page_id';
     const CORE_SCRIPT = 'wps-front--survey.core.min.js';
     const UI_SCRIPT = 'wps-front--survey-js-ui.min.js';
@@ -24,6 +25,17 @@ class SurveyJS_SurveyJS {
     const MARKDOWN_SCRIPT = 'wps-front--markdown-it.min.js';
     const MARKDOWN_HANDLER_SCRIPT = 'wps-front--markdown.js';
     const EDITOR_SCRIPT = 'wps-adm--editor.js';
+    // File answers are uploaded and stored as links: base64 in entries bloats the database and breaks size limits.
+    // The value in a form's JSON is ignored, not only defaulted, so an old "storeDataAsText": true cannot bring base64 back.
+    const FILE_STORAGE_SCRIPT = <<<'JS'
+(function () {
+    var property = Survey.Serializer.findProperty("file", "storeDataAsText");
+    if (!property) return;
+    property.defaultValue = false;
+    property.visible = false;
+    property.onSetValue = function () {};
+})();
+JS;
 
     private static $library_version = null;
 
@@ -34,6 +46,8 @@ class SurveyJS_SurveyJS {
 
     function __construct() {
         add_action('admin_menu', array( $this, 'wps_add_menu'));
+        add_filter('parent_file', array( $this, 'highlight_menu'));
+        add_filter('submenu_file', array( $this, 'highlight_submenu'));
         add_action('media_buttons', array($this, 'wps_media_button'));
         add_shortcode('surveyjs', array($this, 'wps_process_shortcode'));
         add_shortcode('Survey', array($this, 'wps_process_shortcode'));
@@ -263,6 +277,7 @@ class SurveyJS_SurveyJS {
         wp_register_style('wps-survey-override-css', plugins_url('/survey.css', __FILE__), array(self::CORE_STYLE), self::asset_version('survey.css'));
         wp_register_style(self::CORE_STYLE, plugins_url('libs/library/survey-core.min.css', __FILE__));
         wp_register_script(self::CORE_SCRIPT, plugins_url('libs/library/survey.core.min.js', __FILE__), array());
+        wp_add_inline_script(self::CORE_SCRIPT, self::FILE_STORAGE_SCRIPT);
         wp_register_script(self::UI_SCRIPT, plugins_url('libs/library/survey-js-ui.min.js', __FILE__), array(self::CORE_SCRIPT));
         wp_register_script(self::MARKDOWN_SCRIPT, plugins_url('libs/markdown-it/markdown-it.min.js', __FILE__), array());
         wp_register_script(self::MARKDOWN_HANDLER_SCRIPT, plugins_url('markdown.js', __FILE__), array(), self::asset_version('markdown.js'));
@@ -385,17 +400,34 @@ class SurveyJS_SurveyJS {
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         // Registering the parent slug first stops WordPress from adding a duplicate "SurveyJS Forms" submenu item.
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'All Forms', 'surveyjs' ), esc_html__( 'All Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
-        $templates_hook = add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Add New Form', 'surveyjs' ), esc_html__( 'Add New Form', 'surveyjs' ), 'manage_options', SurveyJS_Templates::PAGE, array( 'SurveyJS_Templates', 'render' ), 0 );
+        $templates_hook = add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Add New Form', 'surveyjs' ), esc_html__( 'Add New Form', 'surveyjs' ), 'manage_options', SurveyJS_Templates::PAGE, array( 'SurveyJS_Templates', 'render' ) );
         add_action( 'load-' . $templates_hook, array( 'SurveyJS_Templates', 'handle_actions' ) );
-        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ), 0 );
+        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
         add_submenu_page('', '', '', 'manage_options', 'surveyjs_editor', array('SurveyJS_Editor', 'render'));
         $results_hook = add_submenu_page('', '', '', 'manage_options', 'surveyjs_results', array('SurveyJS_Results', 'render'));
         add_action( 'load-' . $results_hook, array( 'SurveyJS_Results', 'handle_actions' ) );
         $import_hook = add_submenu_page('', '', '', 'manage_options', 'surveyjs_import', array('SurveyJS_Import', 'render'));
         add_action( 'load-' . $import_hook, array( 'SurveyJS_Import', 'handle_actions' ) );
+        // WordPress resolves the menu parent from these '' entries after the parent_file filter, which would undo highlight_menu().
+        foreach ( self::HIDDEN_PAGES as $hidden_page ) {
+            remove_submenu_page( '', $hidden_page );
+        }
 
         do_action( 'surveyjs_admin_menu', self::MENU_SLUG, self::CAPABILITY );
+    }
+
+    private static function on_hidden_page() {
+        global $plugin_page;
+        return in_array( $plugin_page, self::HIDDEN_PAGES, true );
+    }
+
+    public function highlight_menu( $parent_file ) {
+        return self::on_hidden_page() ? self::MENU_SLUG : $parent_file;
+    }
+
+    public function highlight_submenu( $submenu_file ) {
+        return self::on_hidden_page() ? self::MENU_SLUG : $submenu_file;
     }
   
     // function wps_mysurveys_page() {

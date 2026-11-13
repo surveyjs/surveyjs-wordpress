@@ -57,6 +57,99 @@ test.describe("uploaded files", () => {
     expect((await page.request.get(href)).status()).toBe(404);
   });
 
+  test("are uploaded and stored as links, even when the JSON asks for text and in dynamic panels", async ({ page, browser }) => {
+    name = uniqueName("E2E file links");
+    const surveyId = await createSurvey(page, name, {
+      elements: [
+        { type: "file", name: "plain", title: "Plain" },
+        { type: "file", name: "as_text", title: "As text", storeDataAsText: true },
+        { type: "paneldynamic", name: "items", title: "Items", panelCount: 1, templateElements: [{ type: "file", name: "nested", title: "Nested" }] }
+      ]
+    });
+    restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
+    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+      headers: { "X-WP-Nonce": restNonce },
+      data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
+    })).json();
+    postId = post.id;
+
+    const visitor = await browser.newPage({ storageState: { cookies: [], origins: [] } });
+    await visitor.goto(post.link);
+    const chooseButtons = visitor.locator(".wp-sjs-survey .sd-file__choose-btn");
+    await expect(chooseButtons).toHaveCount(3);
+    for (const [index, fileName] of ["plain.png", "as-text.png", "nested.png"].entries()) {
+      const uploaded = visitor.waitForResponse(r => r.url().includes("action=SurveyJS_UploadFiles"));
+      const fileChooser = visitor.waitForEvent("filechooser");
+      await chooseButtons.nth(index).click();
+      await (await fileChooser).setFiles({ name: fileName, mimeType: "image/png", buffer: PNG });
+      expect((await uploaded).ok()).toBe(true);
+    }
+
+    const saved = visitor.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
+    await visitor.getByRole("button", { name: "Complete" }).click();
+    const response = await saved;
+    expect(response.ok()).toBe(true);
+    const data = JSON.parse(new URLSearchParams(response.request().postData()).get("Json"));
+    const stored = /\/wp-content\/uploads\/surveyjs\/[a-z0-9]+\.png$/;
+    expect(data.plain[0]).toMatchObject({ name: "plain.png", content: expect.stringMatching(stored) });
+    expect(data.as_text[0]).toMatchObject({ name: "as-text.png", content: expect.stringMatching(stored) });
+    expect(data.items[0].nested[0]).toMatchObject({ name: "nested.png", content: expect.stringMatching(stored) });
+    await visitor.close();
+
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
+    for (const fileName of ["plain.png", "as-text.png"]) {
+      const href = await page.locator("#the-list a", { hasText: fileName }).getAttribute("href");
+      expect((await page.request.get(href)).headers()["content-type"]).toBe("image/png");
+    }
+  });
+
+  test("keep showing and downloading answers stored as text before", async ({ page }) => {
+    name = uniqueName("E2E file text");
+    const surveyId = await createSurvey(page, name, { elements: [{ type: "file", name: "photo", title: "Photo" }] });
+    restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
+    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+      headers: { "X-WP-Nonce": restNonce },
+      data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
+    })).json();
+    postId = post.id;
+    const html = await (await page.request.get(post.link)).text();
+    const config = JSON.parse(html.match(/<script type="application\/json" class="wp-sjs-survey-config">([\s\S]*?)<\/script>/)[1]);
+    const dataUrl = `data:image/png;base64,${PNG.toString("base64")}`;
+    const submitted = await page.request.post(config.saveResultUrl, {
+      form: { SurveyId: String(config.id), Json: JSON.stringify({ photo: [{ name: "old.png", type: "image/png", content: dataUrl }] }), Website: "", _wpnonce: config.saveResultNonce }
+    });
+    expect(submitted.ok()).toBe(true);
+
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
+    const row = page.locator("#the-list tr").first();
+    await expect(row).toContainText("old.png");
+    await row.hover();
+    await row.getByRole("link", { name: "View", exact: true }).click();
+    const popup = page.locator("#wp-sjs-result-popup");
+    await expect(popup.locator(".sd-file img")).toHaveAttribute("src", dataUrl);
+    await expect(popup.locator("a[download='old.png']").first()).toHaveAttribute("href", dataUrl);
+
+    const csv = await page.request.get(await page.getByRole("link", { name: "Export CSV" }).getAttribute("href"));
+    expect(csv.headers()["content-type"]).toContain("text/csv");
+    expect(await csv.text()).toContain("old.png");
+  });
+
+  test("stay in the browser in the editor preview", async ({ page }) => {
+    name = uniqueName("E2E file preview");
+    await createSurvey(page, name, { elements: [{ type: "file", name: "photo", title: "Photo" }] });
+    let uploads = 0;
+    page.on("request", request => {
+      if (request.url().includes("action=SurveyJS_UploadFiles")) uploads++;
+    });
+    const preview = page.frameLocator("#wp-sjs-preview");
+    const fileChooser = page.waitForEvent("filechooser");
+    await preview.locator(".sd-file__choose-btn").first().click();
+    await (await fileChooser).setFiles({ name: "preview.png", mimeType: "image/png", buffer: PNG });
+    await expect(preview.locator(".sd-file img")).toHaveAttribute("src", /^blob:/);
+    await expect(preview.locator(".sd-question__erbox")).toHaveCount(0);
+    expect(uploads).toBe(0);
+  });
+
   test("inserts a Media Library image as the form logo", async ({ page }) => {
     name = uniqueName("E2E logo");
     await createSurvey(page, name);

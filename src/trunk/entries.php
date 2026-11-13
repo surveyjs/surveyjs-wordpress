@@ -450,6 +450,7 @@ class SurveyJS_Entries {
     public static function flush_counts() {
         wp_cache_delete( 'unread_by_form', self::CACHE_GROUP );
         wp_cache_delete( 'partial_deleted_soon_by_form', self::CACHE_GROUP );
+        wp_cache_set_last_changed( self::CACHE_GROUP );
     }
 
     public static function exists() {

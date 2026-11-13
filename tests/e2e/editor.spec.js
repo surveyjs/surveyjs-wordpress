@@ -116,3 +116,35 @@ test.describe("JSON editor", () => {
     expect(warned).toBe(false);
   });
 });
+
+test.describe("admin menu", () => {
+  let name;
+
+  test.afterEach(async ({ page }) => {
+    await deleteSurveys(page, name);
+  });
+
+  test("opens All Forms from the top-level item and stays open on form pages", async ({ page }) => {
+    name = uniqueName("E2E menu");
+    const id = await createSurvey(page, name);
+    const menu = page.locator("#toplevel_page_surveyjs-main-menu");
+    const pages = [
+      [`page=surveyjs_editor&id=${id}`, "All Forms"],
+      [`page=surveyjs_results&id=${id}`, "All Forms"],
+      ["page=surveyjs_import&source=cf7", "All Forms"],
+      [`page=surveyjs-templates&form=${id}`, "Add New Form"],
+      ["page=surveyjs-getting-started", "Getting Started"]
+    ];
+    for (const [query, current] of pages) {
+      await page.goto(`/wp-admin/admin.php?${query}`);
+      await expect(menu).toHaveClass(/wp-has-current-submenu/);
+      await expect(menu).toHaveClass(/wp-menu-open/);
+      await expect(menu.locator(".wp-submenu li.current")).toHaveText(current);
+    }
+
+    await expect(menu.locator(".wp-submenu li:not(.wp-submenu-head) a").first()).toHaveText("All Forms");
+    await menu.locator("> a").click();
+    await expect(page).toHaveURL(/page=surveyjs-main-menu$/);
+    await expect(menu.locator(".wp-submenu li.current")).toHaveText("All Forms");
+  });
+});

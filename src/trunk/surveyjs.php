@@ -73,6 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include_once( __DIR__ . "/admin_bar.php" );
     include_once( __DIR__ . "/upsell.php" );
     include_once( __DIR__ . "/upgrade_notice.php" );
+    include_once( __DIR__ . "/dashboard_widget.php" );
     include( __DIR__ . "/survey_values.php" );
     include( __DIR__ . "/form_settings.php" );
     include( __DIR__ . "/surveyjs_themes.php" );
@@ -121,6 +122,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     SurveyJS_Admin_Bar::init();
     SurveyJS_Upsell::init();
     SurveyJS_Upgrade_Notice::init();
+    SurveyJS_Dashboard_Widget::init();
 
     include( __DIR__ . "/initializer.php" );
     new SurveyJS_SurveyJS();

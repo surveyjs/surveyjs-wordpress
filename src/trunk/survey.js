@@ -147,10 +147,6 @@
             survey.locale = config.locale;
         }
         survey.onTextMarkdown.add(SurveyJSMarkdown.handler(config.markdown));
-        // SurveyJS keeps files as base64 in the answer by default; upload them so they can be attached to emails.
-        survey.getAllQuestions().filter((question) => question.getType() === "file").forEach((question) => {
-            question.storeDataAsText = false;
-        });
         const container = configElement.parentElement.querySelector(".wp-sjs-survey");
         if (config.themeMode === "adaptive" && window.SurveyWordPress) {
             container.classList.add("wp-sjs-adaptive");

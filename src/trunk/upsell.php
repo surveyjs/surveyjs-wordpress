@@ -85,4 +85,13 @@ class SurveyJS_Upsell {
         <a href="<?php echo esc_url( self::url( 'editor' ) ); ?>" class="wp-sjs-editor__pro-link" target="_blank" rel="noopener"><?php esc_html_e( 'Or edit visually right here with the free Pro add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
         <?php
     }
+
+    public static function render_dashboard_widget_link() {
+        if ( ! self::enabled() ) {
+            return;
+        }
+        ?>
+        | <a href="<?php echo esc_url( self::url( 'dashboard-widget' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'See answers as charts with the free Pro add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
+        <?php
+    }
 }

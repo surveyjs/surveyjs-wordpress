@@ -69,7 +69,7 @@ class SurveyJS_MySurveys {
         $messages = array(
             /* translators: %s: number of deleted surveys */
             'deleted' => sprintf( _n( '%s form deleted.', '%s forms deleted.', $count, 'surveyjs' ), number_format_i18n( $count ) ),
-            'cloned'  => __( 'Form cloned.', 'surveyjs' ),
+            'cloned'  => __( 'Form duplicated.', 'surveyjs' ),
         );
         ?>
         <div class="wrap">
