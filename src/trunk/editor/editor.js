@@ -1447,7 +1447,6 @@
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
     const initialTab = tabNames.includes(requestedTab) && !(requestedTab in sources) ? requestedTab : tabNames[0];
     if (initialTab && !(initialTab in sources)) switchTab(initialTab);
-    if (config.fullPreviewUrl && new URLSearchParams(window.location.search).has("full_preview")) setFullPreview(true);
 
     const monacoLoaded = loadMonaco();
 

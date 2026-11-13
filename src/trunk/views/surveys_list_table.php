@@ -88,14 +88,14 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
     protected function column_name( $item ) {
         $edit_url = self::page_url( 'surveyjs_editor', array( 'id' => $item->id, 'name' => $item->name ) );
-        $preview_url = SurveyJS_Editor::full_preview_url( $item->id );
+        $preview_url = SurveyJS_SurveyJS::form_preview_url( $item->id );
         $results_url = self::page_url( 'surveyjs_results', array( 'id' => $item->id, 'name' => $item->name ) );
         $clone_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'clone', 'id' => $item->id ) ), 'surveyjs-clone-survey_' . $item->id );
         $delete_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'delete', 'id' => $item->id ) ), 'surveyjs-delete-survey_' . $item->id );
 
         $actions = array(
             'edit'    => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'surveyjs' ) ),
-            'full_preview' => sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $preview_url ), esc_html__( 'Preview', 'surveyjs' ) ),
+            'full_preview' => sprintf( '<a href="%s">%s</a>', esc_url( $preview_url ), esc_html__( 'Preview', 'surveyjs' ) ),
             'results' => sprintf( '<a href="%s">%s</a>', esc_url( $results_url ), esc_html__( 'Results', 'surveyjs' ) ),
             'clone'   => sprintf( '<a href="%s">%s</a>', esc_url( $clone_url ), esc_html__( 'Duplicate', 'surveyjs' ) ),
             'template' => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Templates::save_url( $item->id ) ), esc_html__( 'Save as Template', 'surveyjs' ) ),

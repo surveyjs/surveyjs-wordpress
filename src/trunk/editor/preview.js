@@ -1,6 +1,7 @@
 (function () {
     const editorOrigin = new URL(surveyjsPreview.editorUrl).origin;
     const container = document.getElementById("wp-sjs-preview-survey");
+    const previewBar = document.querySelector(".wp-sjs-preview-bar");
     const paletteVariable = /^--(wp--preset--color--|wp--preset--font-family--|ast-global-color-|global-palette\d|e-global-color-|e-global-typography-[\w-]+-font-family)/;
     const adapterTokenSelector = ".wp-sjs-adaptive .sjs-theme-overrides";
     const corePalette = /^--wp--preset--color--(black|white|cyan-bluish-gray|pale-pink|vivid-red|luminous-vivid-orange|luminous-vivid-amber|light-green-cyan|vivid-green-cyan|pale-cyan-blue|vivid-cyan-blue|vivid-purple|[\w-]*(global-color|palette)[\w-]*)$/;
@@ -239,7 +240,7 @@
     // The theme's header and footer are only a backdrop here: following their links or forms would navigate the preview frame away.
     document.addEventListener("click", (event) => {
         const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
-        if (link && !container.contains(link) && !link.getAttribute("href").startsWith("#")) event.preventDefault();
+        if (link && !container.contains(link) && !(previewBar && previewBar.contains(link)) && !link.getAttribute("href").startsWith("#")) event.preventDefault();
     }, true);
     document.addEventListener("submit", (event) => {
         if (!container.contains(event.target)) event.preventDefault();
@@ -250,5 +251,9 @@
         window.parent.postMessage({ type: "surveyjs-preview-escape" }, editorOrigin);
     }, true);
 
-    window.parent.postMessage({ type: "surveyjs-preview-ready", site: siteData(), adaptiveTheme: adaptiveTheme() }, editorOrigin);
+    if (surveyjsPreview.form) {
+        render(surveyjsPreview.form);
+    } else {
+        window.parent.postMessage({ type: "surveyjs-preview-ready", site: siteData(), adaptiveTheme: adaptiveTheme() }, editorOrigin);
+    }
 })();

@@ -41,6 +41,8 @@ JS;
 
     public static $rendered_forms = array();
 
+    private $preview_form = null;
+
     public static $prefix = "sjs";
     public $plugin_version = "0.1.0";
 
@@ -219,6 +221,11 @@ JS;
         return $page_id ? get_permalink( $page_id ) : '';
     }
 
+    public static function form_preview_url( $id ) {
+        $url = self::full_preview_url();
+        return $url ? add_query_arg( 'form', absint( $id ), $url ) : '';
+    }
+
     private static function is_full_preview_page() {
         $page_id = (int) get_option( self::FULL_PREVIEW_PAGE_OPTION );
         return $page_id && is_page( $page_id );
@@ -231,12 +238,51 @@ JS;
         if ( ! current_user_can( self::CAPABILITY ) ) {
             wp_die( esc_html__( 'Sorry, you are not allowed to preview forms.', 'surveyjs' ), 403 );
         }
+        if ( isset( $_GET['form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only preview, limited to users who can edit forms.
+            $this->preview_form = SurveyJS_Forms::find( absint( $_GET['form'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if ( ! $this->preview_form ) {
+                wp_die( esc_html__( 'This form does not exist.', 'surveyjs' ), 404 );
+            }
+            add_action( 'wp_body_open', array( $this, 'render_form_preview_bar' ) );
+        }
         nocache_headers();
         show_admin_bar( false ); // phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected -- hidden only on the admin-only preview page shown in the editor iframe; not removed site-wide.
         add_filter( 'wp_robots', 'wp_robots_no_robots' );
         add_filter( 'private_title_format', array( $this, 'full_preview_title_format' ) );
         add_filter( 'the_content', array( $this, 'full_preview_content' ), PHP_INT_MAX );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_preview_assets' ) );
+    }
+
+    public function render_form_preview_bar() {
+        $list_url = add_query_arg( 'page', self::MENU_SLUG, admin_url( 'admin.php' ) );
+        $referer = wp_get_referer();
+        if ( $referer && 0 === strpos( $referer, admin_url( 'admin.php' ) ) ) {
+            $referer_args = array();
+            wp_parse_str( (string) wp_parse_url( $referer, PHP_URL_QUERY ), $referer_args );
+            if ( isset( $referer_args['page'] ) && self::MENU_SLUG === $referer_args['page'] ) {
+                $list_url = $referer;
+            }
+        }
+        $edit_url = add_query_arg( array( 'page' => 'surveyjs_editor', 'id' => $this->preview_form->id ), admin_url( 'admin.php' ) );
+        ?>
+        <div class="wp-sjs-preview-bar" role="region" aria-label="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>">
+            <span class="wp-sjs-preview-bar__name"><?php echo esc_html( $this->preview_form->name ); ?></span>
+            <a class="wp-sjs-preview-bar__edit" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit form', 'surveyjs' ); ?></a>
+            <a class="wp-sjs-preview-bar__close" href="<?php echo esc_url( $list_url ); ?>"><?php esc_html_e( 'Close preview', 'surveyjs' ); ?></a>
+        </div>
+        <?php
+    }
+
+    private static function form_preview_message( $row ) {
+        $json = SurveyJS_Client::decode_survey_json( $row->json, false );
+        $style = SurveyJS_Themes::resolve( $row );
+        return array(
+            'json'                  => empty( $json ) ? new stdClass() : $json,
+            'theme'                 => $style['theme'],
+            'themeMode'             => $style['mode'],
+            'transparentBackground' => $style['transparentBackground'],
+            'markdown'              => SurveyJS_Form_Settings::get( $row )['markdown'],
+        );
     }
 
     public function full_preview_title_format() {
@@ -266,11 +312,16 @@ JS;
         wp_add_inline_style('wps-front--wordpress.css', '.wp-sjs-preview-page__main{padding-block:24px}.wp-sjs-preview__run-again{display:block;margin:16px auto}');
         wp_register_script('wps-front--survey.i18n.min.js', plugins_url('libs/library/survey.i18n.min.js', __FILE__), array('wps-front--survey.core.min.js'));
         wp_enqueue_script('wps-front--preview.js', plugins_url('editor/preview.js', __FILE__), array('wps-front--survey-js-ui.min.js', 'wps-front--survey.i18n.min.js', 'wps-front--wordpress.js', self::MARKDOWN_SCRIPT, self::MARKDOWN_HANDLER_SCRIPT), self::asset_version('editor/preview.js'), true);
-        wp_localize_script('wps-front--preview.js', 'surveyjsPreview', array(
+        $preview = array(
             'editorUrl' => admin_url(),
             'runAgain'  => __( 'Run again', 'surveyjs' ),
             'locale'    => self::survey_locale(),
-        ));
+        );
+        if ( $this->preview_form ) {
+            $preview['form'] = self::form_preview_message( $this->preview_form );
+            wp_add_inline_style('wps-front--wordpress.css', '.wp-sjs-preview-bar{position:sticky;top:0;z-index:100000;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:8px 16px;background:#1d2327;color:#f0f0f1;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}.wp-sjs-preview-bar__name{margin-right:auto;font-weight:600;overflow-wrap:anywhere}.wp-sjs-preview-bar a{color:#f0f0f1;text-decoration:none}.wp-sjs-preview-bar a:hover,.wp-sjs-preview-bar a:focus{color:#72aee6}.wp-sjs-preview-bar__close{padding:2px 10px;border:1px solid currentColor;border-radius:3px}');
+        }
+        wp_localize_script('wps-front--preview.js', 'surveyjsPreview', $preview);
     }
 
     public function register_frontend_assets() {

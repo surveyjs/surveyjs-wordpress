@@ -22,20 +22,26 @@ test.describe("survey list", () => {
     const id = await createSurvey(page, name);
 
     await page.goto(listUrl(name));
+    const listPage = page.url();
     const row = page.locator("#the-list tr", { hasText: name });
     await row.hover();
     const link = row.getByRole("link", { name: "Preview", exact: true });
-    await expect(link).toHaveAttribute("target", "_blank");
+    expect(await link.getAttribute("target")).toBeNull();
     const href = new URL(await link.getAttribute("href"), page.url());
-    expect(href.searchParams.get("page")).toBe("surveyjs_editor");
-    expect(href.searchParams.get("id")).toBe(String(id));
+    expect(href.searchParams.get("form")).toBe(String(id));
 
-    const [preview] = await Promise.all([page.waitForEvent("popup"), link.click()]);
-    await expect(preview.locator(".wp-sjs-editor")).toHaveClass(/wp-sjs-editor--full-preview/);
-    const frame = preview.locator("#wp-sjs-full-preview-frame");
-    await expect(frame).toHaveAttribute("src", await preview.evaluate(() => window.surveyjsEditor.config.fullPreviewUrl));
-    await expect(preview.frameLocator("#wp-sjs-full-preview-frame").getByText("What is your name?")).toBeVisible();
-    await preview.close();
+    await link.click();
+    const bar = page.locator(".wp-sjs-preview-bar");
+    await expect(bar).toContainText(name);
+    await expect(page.locator("#wp-sjs-preview-survey").getByText("What is your name?")).toBeVisible();
+    await expect(page.locator(".wp-sjs-editor")).toHaveCount(0);
+    const edit = new URL(await bar.getByRole("link", { name: "Edit form", exact: true }).getAttribute("href"), page.url());
+    expect(edit.searchParams.get("page")).toBe("surveyjs_editor");
+    expect(edit.searchParams.get("id")).toBe(String(id));
+
+    await bar.getByRole("link", { name: "Close preview", exact: true }).click();
+    await expect(page).toHaveURL(listPage);
+    await expect(page.locator("#the-list .row-title")).toHaveText([name]);
   });
 
   test("duplicates a survey", async ({ page }) => {
