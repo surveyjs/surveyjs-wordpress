@@ -117,16 +117,16 @@ test.describe("form templates", () => {
     await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
   });
 
-  test("a Contact Forms template turns on the email notification with Reply-To and attachments", async ({ page }) => {
+  test("a Contact Forms template leaves the email notification off with Reply-To and attachments set", async ({ page }) => {
     await useTemplate(page, "contact-form-with-file-upload", name);
-    await expect(await openEmailTab(page)).toBeChecked();
+    await expect(await openEmailTab(page)).not.toBeChecked();
     await expect(page.locator("#wp-sjs-notification-reply-to")).toHaveValue("email");
     await expect(page.locator("[data-setting=notificationAttachments]")).toHaveValue("attachments");
   });
 
-  test("a template of another category turns on the email notification and applies its theme", async ({ page }) => {
+  test("a template of another category leaves the email notification off and applies its theme", async ({ page }) => {
     await useTemplate(page, "roi-calculator", name);
-    await expect(await openEmailTab(page)).toBeChecked();
+    await expect(await openEmailTab(page)).not.toBeChecked();
     await expect(page.locator("#wp-sjs-notification-reply-to")).toHaveValue("email");
     await expect(await openThemeTab(page)).not.toBeChecked();
     const preview = page.frameLocator("#wp-sjs-preview").locator(".sd-root-modern");
@@ -134,13 +134,13 @@ test.describe("form templates", () => {
     await expect(preview).not.toHaveClass(/wp-sjs-adaptive/);
   });
 
-  test("Blank Form creates an empty form with the email notification on and the Adaptive theme", async ({ page }) => {
+  test("Blank Form creates an empty form with the email notification off and the Adaptive theme", async ({ page }) => {
     await page.goto(TEMPLATES_URL);
     await page.getByLabel("Form name").fill(name);
     await page.getByRole("button", { name: "Create blank form" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
     await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
-    await expect(await openEmailTab(page)).toBeChecked();
+    await expect(await openEmailTab(page)).not.toBeChecked();
     await expect(await openThemeTab(page)).toBeChecked();
   });
 
@@ -172,7 +172,7 @@ test.describe("form templates", () => {
     await card.getByRole("button", { name: "Use template" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
     await expect(page.locator("#wp-sjs-name-text")).toHaveText(`${name} copy`);
-    await expect(await openEmailTab(page)).toBeChecked();
+    await expect(await openEmailTab(page)).not.toBeChecked();
     await expect(page.locator("#wp-sjs-notification-reply-to")).toHaveValue("email");
     await expect(await openThemeTab(page)).not.toBeChecked();
     await expectBrandColor(page.frameLocator("#wp-sjs-preview").locator(".sd-root-modern"), ROI_BRAND_COLOR);

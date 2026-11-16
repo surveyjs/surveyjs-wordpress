@@ -3,16 +3,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 include_once( __DIR__ . "/ajax_handler.php");
 include_once( __DIR__ . "/../service_client.php");
-if ( ! function_exists( 'wp_handle_upload' ) ) {
-    require_once( ABSPATH . 'wp-admin/includes/file.php' );
-}
 
 class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
 
-    const SUBDIR           = '/surveyjs';
+    const SUBDIR           = SurveyJS_Uploads_Storage::SUBDIR;
     const MAX_FILES        = 20;
     const PREVIEW_LIFETIME = DAY_IN_SECONDS;
-    const GUARD_VERSION    = '2';
 
     function __construct() {
         parent::__construct("SurveyJS_UploadFiles", true);
@@ -40,8 +36,6 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         $max_size = $this->max_file_size();
         $result   = array();
 
-        self::protect_upload_dir();
-
         foreach ( $_FILES as $uploadedfile ) {
             if ( ! is_array( $uploadedfile ) || ! isset( $uploadedfile['name'], $uploadedfile['tmp_name'] ) ) {
                 continue;
@@ -53,7 +47,7 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
             if ( UPLOAD_ERR_INI_SIZE === $upload_error || UPLOAD_ERR_FORM_SIZE === $upload_error ) {
                 wp_send_json( array( 'error' => 'file_too_large' ), 400 );
             }
-            if ( UPLOAD_ERR_OK !== $upload_error ) {
+            if ( UPLOAD_ERR_OK !== $upload_error || ! is_uploaded_file( $uploadedfile['tmp_name'] ) ) {
                 wp_send_json( array( 'error' => 'upload_failed' ), 400 );
             }
 
@@ -74,31 +68,24 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
                 wp_send_json( array( 'error' => 'file_type_mismatch' ), 400 );
             }
 
-            $uploadedfile['name'] = strtolower( wp_generate_password( 32, false ) ) . '.' . $ext;
-
-            add_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
-            $movefile = wp_handle_upload( $uploadedfile, array( 'test_form' => false ) );
-            remove_filter( 'upload_dir', array( $this, 'filter_upload_dir' ) );
-
-            if ( ! $movefile || isset( $movefile['error'] ) ) {
+            $key = SurveyJS_Uploaded_Files::store_upload(
+                $uploadedfile['tmp_name'],
+                $ext,
+                array(
+                    'form_id'       => $survey_id,
+                    'original_name' => $originalname,
+                    'mime'          => $checked['type'],
+                    'size'          => (int) ( $uploadedfile['size'] ?? 0 ),
+                )
+            );
+            if ( is_wp_error( $key ) ) {
                 wp_send_json( array( 'error' => 'upload_failed' ), 400 );
             }
 
-            $file = array( 'name' => $originalname, 'content' => $movefile['url'] );
-            $result[ $originalname ] = array(
-                'url'     => $movefile['url'],
-                'preview' => SurveyJS_Uploaded_Files::signed_url( $file, self::PREVIEW_LIFETIME ),
-            );
+            $result[ $originalname ] = SurveyJS_Uploaded_Files::client_file( $key, time() + self::PREVIEW_LIFETIME );
         }
 
         wp_send_json( $result );
-    }
-
-    public function filter_upload_dir( $dirs ) {
-        $dirs['path']   = $dirs['basedir'] . self::SUBDIR;
-        $dirs['url']    = $dirs['baseurl'] . self::SUBDIR;
-        $dirs['subdir'] = self::SUBDIR;
-        return $dirs;
     }
 
     private function is_upload_allowed( $survey_id ) {
@@ -143,58 +130,5 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
 
         $size = (int) apply_filters( 'surveyjs_max_upload_size', $ceiling );
         return $size > 0 ? $size : $ceiling;
-    }
-
-    public static function protect_upload_dir() {
-        $upload_dir = wp_upload_dir();
-        if ( ! empty( $upload_dir['error'] ) ) {
-            return;
-        }
-
-        $dir = $upload_dir['basedir'] . self::SUBDIR;
-        if ( ! wp_mkdir_p( $dir ) ) {
-            return;
-        }
-
-        SurveyJS_Uploaded_Files::schedule_cleanup();
-
-        $guards = array(
-            '.htaccess' => "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n<Files *>\n    SetHandler none\n    SetHandler default-handler\n    Options -ExecCGI\n    RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps\n    RemoveType .php .phtml\n    php_flag engine off\n</Files>\n",
-            'index.php' => "<?php\n// Silence is golden.\n",
-        );
-
-        $outdated = array();
-        foreach ( $guards as $name => $contents ) {
-            $path = $dir . '/' . $name;
-            if ( ! file_exists( $path ) || ( '.htaccess' === $name && file_get_contents( $path ) !== $contents ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-                $outdated[ $path ] = $contents;
-            }
-        }
-        if ( ! $outdated ) {
-            return;
-        }
-
-        if ( ! function_exists( 'WP_Filesystem' ) ) {
-            require_once( ABSPATH . 'wp-admin/includes/file.php' );
-        }
-        if ( ! WP_Filesystem() ) {
-            return;
-        }
-
-        global $wp_filesystem;
-        foreach ( $outdated as $path => $contents ) {
-            $wp_filesystem->put_contents( $path, $contents, FS_CHMOD_FILE );
-        }
-    }
-
-    public static function maybe_update_upload_dir_guards() {
-        if ( self::GUARD_VERSION === get_option( 'surveyjs_upload_guard_version' ) ) {
-            return;
-        }
-        $upload_dir = wp_upload_dir( null, false );
-        if ( empty( $upload_dir['error'] ) && is_dir( $upload_dir['basedir'] . self::SUBDIR ) ) {
-            self::protect_upload_dir();
-        }
-        update_option( 'surveyjs_upload_guard_version', self::GUARD_VERSION );
     }
 }

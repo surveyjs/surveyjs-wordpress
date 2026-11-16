@@ -75,11 +75,15 @@ if ( 'create' === $command ) {
     }
     array_map( 'wp_delete_file', glob( $uploads['basedir'] . '/wpforms/' . $form_id . '-e2e/*' ) ?: array() );
     $wp_filesystem->rmdir( $uploads['basedir'] . '/wpforms/' . $form_id . '-e2e' );
-    foreach ( (array) ( get_option( 'surveyjs_imported_forms', array() )[ 'wpforms:' . $form_id ]['files'] ?? array() ) as $file_url ) {
-        wp_delete_file( $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $file_url, PHP_URL_PATH ) ) );
+    foreach ( (array) ( get_option( 'surveyjs_imported_forms', array() )[ 'wpforms:' . $form_id ]['files'] ?? array() ) as $copied ) {
+        $key = SurveyJS_Uploaded_Files::key( $copied );
+        if ( null !== $key ) {
+            SurveyJS_Uploaded_Files::storage()->delete( $key );
+        }
     }
     echo '{}';
 } elseif ( 'stored-file' === $command ) {
-    $stored_path = $uploads['basedir'] . '/surveyjs/' . basename( (string) wp_parse_url( $argv[2], PHP_URL_PATH ) );
+    $key = SurveyJS_Uploaded_Files::key( $argv[2] );
+    $stored_path = null === $key ? '' : $uploads['basedir'] . '/surveyjs/' . $key;
     echo wp_json_encode( array( 'content' => is_file( $stored_path ) ? file_get_contents( $stored_path ) : null ) );
 }

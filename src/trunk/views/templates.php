@@ -191,7 +191,7 @@ class SurveyJS_Templates {
 
     public static function settings( $form = array(), $theme_mode = 'adaptive' ) {
         $settings = array(
-            'notificationEnabled' => true,
+            'notificationEnabled' => false,
             'themeMode'           => $theme_mode,
         );
         foreach ( SurveyJS_Survey_Values::survey_questions( $form ) as $question ) {
@@ -364,7 +364,7 @@ class SurveyJS_Templates {
                     <label for="wp-sjs-templates-name"><?php esc_html_e( 'Form name', 'surveyjs' ); ?></label>
                     <input type="text" id="wp-sjs-templates-name" name="form_name" class="regular-text" placeholder="<?php esc_attr_e( 'The template name is used if you leave this empty', 'surveyjs' ); ?>" />
                 </p>
-                <p><?php esc_html_e( 'Start with a ready-made template, one of your own templates or a blank form. Every new form emails its entries to the site admin. You can change the questions, the theme and the email notification later in the editor.', 'surveyjs' ); ?></p>
+                <p><?php esc_html_e( 'Start with a ready-made template, one of your own templates or a blank form. You can change the questions and the theme later in the editor, and turn on the email notification on its Email tab.', 'surveyjs' ); ?></p>
 
                 <div class="wp-sjs-templates__layout">
                     <div class="wp-sjs-templates__sidebar">

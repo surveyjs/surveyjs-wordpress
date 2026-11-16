@@ -8,6 +8,8 @@ class SurveyJS_Admin_Bar {
 
     public static function init() {
         add_action( 'admin_bar_menu', array( __CLASS__, 'add_menu' ), 80 );
+        // After the items other plugins add at 81, as SurveyJS_Upsell and Pro do, so the links to the forms of the current page come last.
+        add_action( 'admin_bar_menu', array( __CLASS__, 'add_page_forms' ), 90 );
         add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_style' ) );
         add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_style' ) );
     }
@@ -20,6 +22,9 @@ class SurveyJS_Admin_Bar {
             . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count{display:inline-block;box-sizing:border-box;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#d63638;color:#fff;font-size:11px;line-height:18px;text-align:center;vertical-align:middle}'
             . '#wpadminbar #wp-admin-bar-surveyjs .wp-sjs-ab-count--expiring{background:#dba617;color:#1d2327}'
             . '#wpadminbar #wp-admin-bar-surveyjs-upgrade>.ab-item,#wpadminbar #wp-admin-bar-surveyjs-upgrade>.ab-item:focus,#wpadminbar #wp-admin-bar-surveyjs-upgrade:hover>.ab-item{background:#00a32a;color:#fff}' );
+        if ( SurveyJS_Welcome::progress() ) {
+            wp_add_inline_style( 'admin-bar', SurveyJS_Welcome::admin_bar_css() );
+        }
     }
 
     private static function admin_url( $page, $args = array() ) {
@@ -81,11 +86,35 @@ class SurveyJS_Admin_Bar {
         $admin_bar->add_node( array(
             'parent' => self::NODE,
             'id'     => self::NODE . '-add',
-            'title'  => esc_html__( 'Add New', 'surveyjs' ),
+            'title'  => esc_html__( 'Add New Form', 'surveyjs' ),
             'href'   => self::admin_url( 'surveyjs-templates' ),
         ) );
+        $progress = SurveyJS_Welcome::progress();
+        $admin_bar->add_node( array(
+            'parent' => self::NODE,
+            'id'     => self::NODE . '-getting-started',
+            'title'  => esc_html__( 'Getting Started', 'surveyjs' ) . ( $progress ? SurveyJS_Welcome::progress_markup( $progress ) : '' ),
+            'href'   => SurveyJS_Welcome::url(),
+        ) );
+        if ( $progress ) {
+            $admin_bar->add_node( array(
+                'parent' => self::NODE,
+                'id'     => self::NODE . '-next-step',
+                'title'  => esc_html__( 'Next:', 'surveyjs' ) . ' ' . esc_html( $progress['title'] ),
+                'href'   => $progress['url'],
+                'meta'   => array( 'class' => 'wp-sjs-checklist-progress' ),
+            ) );
+        }
+        $admin_bar->add_node( array(
+            'parent' => self::NODE,
+            'id'     => self::NODE . '-settings',
+            'title'  => esc_html__( 'Settings', 'surveyjs' ),
+            'href'   => self::admin_url( 'surveyjs-settings' ),
+        ) );
+    }
 
-        if ( is_admin() ) {
+    public static function add_page_forms( $admin_bar ) {
+        if ( is_admin() || ! current_user_can( self::CAPABILITY ) ) {
             return;
         }
         foreach ( self::page_forms() as $form ) {

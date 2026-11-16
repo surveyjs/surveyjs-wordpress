@@ -43,29 +43,35 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 }
             }
 
+            $partial_id = absint( wp_unslash( $_POST['PartialId'] ?? 0 ) );
+            $partial_token = sanitize_text_field( wp_unslash( $_POST['PartialToken'] ?? '' ) );
+            $partial_id = $settings['storeEntries'] ? SurveyJS_Entries::unfinished_id( $survey->id, $partial_id, $partial_token ) : 0;
+            $data = SurveyJS_Uploaded_Files::filter_submitted( json_decode( $Json, true ), $survey->id, $partial_id );
+            $Json = wp_json_encode( $data );
+
             $entry_id = 0;
             if ( $settings['storeEntries'] ) {
                 $entry_args = array(
                     'user_id' => get_current_user_id(),
                     'ip'      => SurveyJS_Entries::client_ip(),
                 );
-                $entry_id = SurveyJS_Entries::complete_partial( $survey->id, absint( wp_unslash( $_POST['PartialId'] ?? 0 ) ), sanitize_text_field( wp_unslash( $_POST['PartialToken'] ?? '' ) ), $Json, $entry_args );
+                $entry_id = SurveyJS_Entries::complete_partial( $survey->id, $partial_id, $partial_token, $Json, $entry_args );
                 if ( ! $entry_id ) {
                     $entry_id = SurveyJS_Entries::insert( $survey->id, $Json, $entry_args );
                 }
             }
+            if ( $entry_id ) {
+                SurveyJS_Uploaded_Files::attach( $survey->id, $entry_id, SurveyJS_Uploaded_Files::referenced_names( $data ) );
+            }
 
-            add_option( 'surveyjs_received_entry', 1 );
             SurveyJS_Drafts::delete( get_current_user_id(), $SurveyId );
 
-            $data = json_decode( $Json, true );
             SurveyJS_Notification::send( $survey, $settings, $data, $entry_id );
 
             do_action( 'wp_surveyjs_save_result', $survey->id, $Json, 'sjs_results', $entry_id );
 
-            if ( ! $settings['storeEntries'] && is_array( $data ) ) {
-                $questions = SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) );
-                SurveyJS_Uploaded_Files::delete_later( SurveyJS_Uploaded_Files::entry_paths( $questions, $data ) );
+            if ( ! $entry_id ) {
+                SurveyJS_Uploaded_Files::delete_later( SurveyJS_Uploaded_Files::referenced_names( $data ) );
             }
 
             $response = apply_filters( 'surveyjs_save_result_response', array(), $survey, $entry_id, is_array( $data ) ? $data : array() );
@@ -86,7 +92,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
         }
 
         $sanitized = self::sanitize_json_value( $decoded );
-        return wp_json_encode( $sanitized );
+        return wp_json_encode( SurveyJS_Uploaded_Files::normalize_contents( $sanitized ) );
     }
 
     private static function sanitize_json_value( $value ) {

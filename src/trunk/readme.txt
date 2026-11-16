@@ -31,12 +31,13 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 * **Partial entries** store answers the respondent has not submitted yet. Turn them on only if your privacy policy mentions it. Partial entries that are not submitted are deleted after 30 days, together with their uploaded files, unless you keep them. They work with the personal data export and erasure tools like other entries.
 * **IP addresses** are not stored by default. Turn on SurveyJS Forms > Settings > IP addresses only if you need them and your privacy policy mentions it.
 * Files uploaded by respondents are stored on your site and are not public: only administrators can open them from the entries table, the entry view and the CSV export. The email notification to the site owner attaches the files and links to them; the links open only for logged-in administrators. The auto-reply to the respondent lists only the file names.
-* Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old.
+* A respondent can remove an uploaded file before submitting the form, and the file is deleted right away. Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old (30 days for forms with Save & Resume). This also works on hosts where folders cannot be listed, such as WordPress VIP.
+* The privacy export includes links to the person's files; the links work as long as the export file is kept.
 * **Uninstall**: by default, deleting the plugin keeps your forms, entries and files. Turn on SurveyJS Forms > Settings > Uninstall to delete all forms, entries, uploaded files and settings when the plugin is deleted.
 * Form answers stay on your site and are sent only in the emails you set up. The optional CAPTCHA services and the free online UI Builder never receive form answers (see External services below).
 
 = Form builder =
-* **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. Every new form comes with the email notification turned on and Reply-To set to the respondent's email.
+* **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. The email notification is off in a new form until you turn it on on the Email tab; Reply-To is already set to the respondent's email.
 * **Save as Template**: save any form as your own template and reuse it from My Templates.
 * Describe your form in JSON with validation hints, formatting and a live preview.
 * Add a logo and images to the form from the WordPress Media Library.
@@ -138,6 +139,8 @@ SurveyJS plugin is free. It works on [self-hosted](https://wordpress.com/go/webs
 Files that respondents upload are saved to `wp-content/uploads/surveyjs/`. On Apache the plugin blocks direct access to this folder with an `.htaccess` file. Nginx does not read `.htaccess`, so add this rule to the `server` block of your site and reload Nginx:
 
 `location ^~ /wp-content/uploads/surveyjs/ { deny all; }`
+
+Answers link to files through a permission check, so this matters for entries saved by earlier versions and for addresses copied elsewhere. Tools > Site Health warns when the files can be opened by their direct address. On WordPress VIP, use Access-Controlled Files: see "Protect uploaded files on WordPress VIP" in the plugin's GitHub readme.
 
 Administrators still open the files through the plugin, so links in the entries, the CSV export and emails keep working.
 

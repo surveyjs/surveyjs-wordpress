@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
     define( 'SURVEYJS_VERSION', '3.2.4' );
-    define( 'SURVEYJS_DB_VERSION', '4' );
+    define( 'SURVEYJS_DB_VERSION', '5' );
 
     function surveyjs_site_url( $path = '' ) {
         $site = apply_filters( 'surveyjs_site_url', defined( 'SURVEYJS_SITE_URL' ) ? SURVEYJS_SITE_URL : 'https://surveyjs.io' );
@@ -48,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     function wps_uninstall() {
         SurveyJS_Uploaded_Files::unschedule_cleanup();
-        delete_option( 'surveyjs_upload_guard_version' );
+        delete_option( SurveyJS_Uploads_Storage::GUARD_OPTION );
         SurveyJS_Drafts::unschedule_cleanup();
         SurveyJS_Entries::unschedule_partial_cleanup();
     }
@@ -77,7 +77,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/survey_values.php" );
     include( __DIR__ . "/form_settings.php" );
     include( __DIR__ . "/surveyjs_themes.php" );
+    include( __DIR__ . "/file_storage.php" );
     include( __DIR__ . "/uploaded_files.php" );
+    include( __DIR__ . "/site_health.php" );
     include( __DIR__ . "/notification.php" );
     include( __DIR__ . "/captcha.php" );
     include( __DIR__ . "/importer.php" );
@@ -113,9 +115,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/ajax_handlers/download_file.php" );
     new SurveyJS_DownloadFile();
 
-    add_action( SurveyJS_Uploaded_Files::CLEANUP_HOOK, array( 'SurveyJS_Uploaded_Files', 'cleanup' ) );
-    add_action( SurveyJS_Uploaded_Files::DELETE_HOOK, array( 'SurveyJS_Uploaded_Files', 'delete_unreferenced' ) );
-    add_action( 'admin_init', array( 'SurveyJS_UploadFiles', 'maybe_update_upload_dir_guards' ) );
+    SurveyJS_Uploaded_Files::init();
+    SurveyJS_Site_Health::init();
     SurveyJS_Forms::init();
     SurveyJS_Entries::init();
     SurveyJS_Privacy::init();

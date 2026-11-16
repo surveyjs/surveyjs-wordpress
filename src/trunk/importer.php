@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 abstract class SurveyJS_Importer {
 
     const MAP_OPTION = 'surveyjs_imported_forms';
+    const FILE_SOURCE_DIRS = array( 'wpforms', 'fluentform', 'ninja-forms' );
 
     abstract public static function source();
 
@@ -163,7 +164,7 @@ abstract class SurveyJS_Importer {
             if ( $result_id && ! in_array( $result_id, $existing, true ) ) {
                 continue;
             }
-            $data = self::copy_entry_files( $data, $file_questions, $files, $counts );
+            $data = self::copy_entry_files( $data, $file_questions, $survey_id, $files, $counts );
             $json = wp_json_encode( self::sanitize_entry( $data ) );
             $date = $dates[ $entry_id ] ?? '';
             $date_field = '' !== $date ? array( 'created_at' => $date ) : array();
@@ -175,11 +176,14 @@ abstract class SurveyJS_Importer {
                 }
                 $counts['updated']++;
             } else {
-                $new_id = SurveyJS_Entries::insert( $survey_id, $json, array( 'status' => $is_partial ? SurveyJS_Entries::PARTIAL : 'read' ) + $date_field );
-                if ( $new_id ) {
-                    $imported[ $entry_id ] = $new_id;
+                $result_id = SurveyJS_Entries::insert( $survey_id, $json, array( 'status' => $is_partial ? SurveyJS_Entries::PARTIAL : 'read' ) + $date_field );
+                if ( $result_id ) {
+                    $imported[ $entry_id ] = $result_id;
                     $counts['added']++;
                 }
+            }
+            if ( $result_id ) {
+                SurveyJS_Uploaded_Files::attach( $survey_id, $result_id, SurveyJS_Uploaded_Files::referenced_names( $data ), false );
             }
         }
         $map[ $key ] = array( 'id' => $survey_id, 'entries' => $imported, 'files' => $files );
@@ -187,7 +191,7 @@ abstract class SurveyJS_Importer {
         return $counts;
     }
 
-    private static function copy_entry_files( $data, $file_questions, &$files, &$counts ) {
+    private static function copy_entry_files( $data, $file_questions, $survey_id, &$files, &$counts ) {
         foreach ( $file_questions as $name ) {
             if ( empty( $data[ $name ] ) || ! is_array( $data[ $name ] ) ) {
                 continue;
@@ -197,57 +201,89 @@ abstract class SurveyJS_Importer {
                 if ( '' === $source ) {
                     continue;
                 }
-                if ( isset( $files[ $source ] ) && self::stored_file_exists( $files[ $source ] ) ) {
-                    $data[ $name ][ $index ]['content'] = $files[ $source ];
+                $original_name = is_string( $file['name'] ?? null ) ? $file['name'] : '';
+                $copied = isset( $files[ $source ] ) ? SurveyJS_Uploaded_Files::key( $files[ $source ] ) : null;
+                if ( null !== $copied && SurveyJS_Uploaded_Files::storage()->exists( $copied ) ) {
+                    SurveyJS_Uploaded_Files::insert_records( array( array( 'file_key' => $copied, 'form_id' => $survey_id, 'original_name' => $original_name ) ) );
+                    $data[ $name ][ $index ]['content'] = SurveyJS_Uploaded_Files::content_url( $copied );
                     continue;
                 }
-                $copy = self::copy_file( $source );
-                if ( '' === $copy ) {
+                $copy = self::copy_file( $source, $survey_id, $original_name );
+                if ( null === $copy ) {
                     $counts['files_not_copied']++;
                     continue;
                 }
                 $files[ $source ] = $copy;
-                $data[ $name ][ $index ]['content'] = $copy;
+                $data[ $name ][ $index ]['content'] = SurveyJS_Uploaded_Files::content_url( $copy );
                 $counts['files_copied']++;
             }
         }
         return $data;
     }
 
-    private static function stored_file_exists( $url ) {
+    private static function copy_file( $url, $survey_id, $original_name ) {
+        $source = self::uploaded_file_path( $url );
+        $ext = strtolower( (string) pathinfo( (string) $source, PATHINFO_EXTENSION ) );
+        if ( null === $source || ! in_array( $ext, SurveyJS_UploadFiles::allowed_extensions(), true ) ) {
+            return null;
+        }
+        $type = wp_check_filetype( $source );
+        $size = filesize( $source );
+        $key = SurveyJS_Uploaded_Files::store_upload(
+            $source,
+            $ext,
+            array(
+                'form_id'       => (int) $survey_id,
+                'original_name' => $original_name,
+                'mime'          => (string) $type['type'],
+                'size'          => false === $size ? 0 : $size,
+            )
+        );
+        return is_wp_error( $key ) ? null : $key;
+    }
+
+    // Read-only access to the folders where the source plugins keep entry files, or to Media Library files.
+    // Files of SurveyJS itself are not a source, and realpath() is not used: it fails on stream wrappers such as vip://.
+    private static function uploaded_file_path( $url ) {
         $upload_dir = wp_upload_dir( null, false );
-        return empty( $upload_dir['error'] ) && is_file( $upload_dir['basedir'] . SurveyJS_UploadFiles::SUBDIR . '/' . basename( (string) wp_parse_url( $url, PHP_URL_PATH ) ) );
-    }
-
-    private static function copy_file( $url ) {
-        $upload_dir = wp_upload_dir();
         if ( ! empty( $upload_dir['error'] ) ) {
-            return '';
+            return null;
         }
-        $source = self::uploaded_file_path( $url, $upload_dir );
-        $ext = strtolower( (string) pathinfo( $source, PATHINFO_EXTENSION ) );
-        if ( '' === $source || ! in_array( $ext, SurveyJS_UploadFiles::allowed_extensions(), true ) ) {
-            return '';
-        }
-        SurveyJS_UploadFiles::protect_upload_dir();
-        $dir = $upload_dir['basedir'] . SurveyJS_UploadFiles::SUBDIR;
-        $name = uniqid( (string) wp_rand(), true ) . '.' . $ext;
-        if ( ! is_dir( $dir ) || ! is_readable( $source ) || ! wp_is_writable( $dir ) || ! copy( $source, $dir . '/' . $name ) ) {
-            return '';
-        }
-        return $upload_dir['baseurl'] . SurveyJS_UploadFiles::SUBDIR . '/' . $name;
-    }
-
-    private static function uploaded_file_path( $url, $upload_dir ) {
         // Only the path is compared: the site address may have changed since the entry was submitted.
         $path = (string) wp_parse_url( $url, PHP_URL_PATH );
         $base = untrailingslashit( (string) wp_parse_url( $upload_dir['baseurl'], PHP_URL_PATH ) ) . '/';
         if ( 0 !== strpos( $path, $base ) ) {
-            return '';
+            return null;
         }
-        $root = realpath( $upload_dir['basedir'] );
-        $file = realpath( $upload_dir['basedir'] . '/' . rawurldecode( substr( $path, strlen( $base ) ) ) );
-        return $root && $file && 0 === strpos( $file, $root . DIRECTORY_SEPARATOR ) && is_file( $file ) ? $file : '';
+        $relative = rawurldecode( substr( $path, strlen( $base ) ) );
+        if ( '' === $relative || 0 !== validate_file( $relative ) || str_contains( $relative, '\\' ) ) {
+            return null;
+        }
+        $segments = explode( '/', $relative );
+        foreach ( $segments as $segment ) {
+            if ( '' === $segment || '.' === $segment[0] ) {
+                return null;
+            }
+        }
+        if ( ltrim( SurveyJS_Uploads_Storage::SUBDIR, '/' ) === $segments[0] || ( ! in_array( $segments[0], self::FILE_SOURCE_DIRS, true ) && ! self::attachment_id( $url ) ) ) {
+            return null;
+        }
+        $file = $upload_dir['basedir'];
+        foreach ( $segments as $segment ) {
+            $file .= '/' . $segment;
+            // A symlink inside uploads could point outside it. Stream wrappers have no symlinks.
+            if ( ! wp_is_stream( $file ) && is_link( $file ) ) {
+                return null;
+            }
+        }
+        return is_file( $file ) && is_readable( $file ) ? $file : null;
+    }
+
+    private static function attachment_id( $url ) {
+        if ( function_exists( 'wpcom_vip_attachment_url_to_postid' ) ) {
+            return (int) wpcom_vip_attachment_url_to_postid( $url );
+        }
+        return (int) attachment_url_to_postid( $url ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid -- the cached VIP version above is used where it exists.
     }
 
     private static function sanitize_entry( $value ) {

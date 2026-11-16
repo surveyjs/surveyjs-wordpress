@@ -42,9 +42,10 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 
 ### File uploads
 
-- Files are saved to `wp-content/uploads/surveyjs/` with random names; PHP execution there is blocked and the files are open only to administrators.
+- Files are saved to `wp-content/uploads/surveyjs/` with random names; PHP execution there is blocked and the files are open only to administrators. An answer stores a link that checks permissions (`admin-ajax.php?action=SurveyJS_DownloadFile&file=…`), not the file's address in the uploads folder.
 - Allowed types: images, PDF, Office/OpenDocument files, TXT, CSV. Max size: 10 MB per file or the server limit, whichever is lower.
-- Files are deleted together with their entry or form; files of forms that were never submitted are removed by a daily cleanup.
+- A respondent can remove a file before submitting the form, and it is deleted right away. Files are deleted together with their entry or form; files of forms that were never submitted are removed by a daily cleanup (after 30 days for forms with Save & Resume).
+- Works on Apache, Nginx, WordPress VIP and with S3 Uploads; a custom storage can be plugged in (see [File storage](#file-storage)). Site Health warns when files can be opened by their direct address.
 
 ### Form Library
 
@@ -123,6 +124,23 @@ On Apache the plugin blocks direct access to `wp-content/uploads/surveyjs/` with
 location ^~ /wp-content/uploads/surveyjs/ { deny all; }
 ```
 
+New answers link to files through a permission check, so the rule matters for entries saved by earlier versions (they keep the direct address) and for addresses copied elsewhere. Tools > Site Health shows a warning with this rule when a test file in the folder opens by its direct address.
+
+**Protect uploaded files on WordPress VIP**
+
+VIP serves uploads from its file service and CDN, where `.htaccess` has no effect. Ask VIP Support to turn on [Access-Controlled Files](https://docs.wpvip.com/security-controls/access-controlled-files/) and add this filter to your theme or a client mu-plugin, so that files in the `surveyjs` folder are never served by their direct address (the plugin reads them in PHP, which the filter does not affect):
+
+```php
+add_filter( 'vip_files_acl_file_visibility', function ( $visibility, $file_path ) {
+    if ( preg_match( '#(^|/uploads/)surveyjs/#', ltrim( $file_path, '/' ) ) ) {
+        return \Automattic\VIP\Files\Acl\FILE_IS_PRIVATE_AND_DENIED;
+    }
+    return $visibility;
+}, 10, 2 );
+```
+
+Without it the files stay protected by their random names and by answers linking to the permission check instead of the file.
+
 ## Updates (SurveyJS Forms and SurveyJS Forms Pro)
 
 SurveyJS Forms and SurveyJS Forms Pro are always released together, with the same version number as the SurveyJS libraries (for example, 3.2.4). Releases are backward compatible, so always install the latest versions.
@@ -150,6 +168,104 @@ SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_resu
 - Actions: `surveyjs_admin_menu`, `surveyjs_admin_enqueue_scripts`, `surveyjs_register_settings`, `surveyjs_render_editor`, `surveyjs_editor_email_rows`, `surveyjs_render_results_view`, `surveyjs_results_title_actions`, `surveyjs_entries_bulk_action_<action>`, `surveyjs_enqueue_form_assets`, `wp_surveyjs_save_result`.
 - Filters: `surveyjs_editor_tabs`, `surveyjs_form_settings_defaults`, `surveyjs_form_settings_sanitize`, `surveyjs_form_row_actions`, `surveyjs_results_views`, `surveyjs_entry_row_actions`, `surveyjs_entries_bulk_actions`, `surveyjs_form_client_config`, `surveyjs_save_result_response`, `surveyjs_notification_attachments`, `surveyjs_notification_tags`, `surveyjs_form_locale`, `surveyjs_show_pro_upsell`.
 - Other settings: `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter (surveyjs.io address, default `https://surveyjs.io`; the UI Builder, Pro page and Pro download URLs are built from it), `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size`, `surveyjs_unattached_upload_lifetime`, `surveyjs_partial_entry_lifetime`, `surveyjs_entry_ip`, `surveyjs_import_entries_per_request`.
+
+### File storage
+
+Files from File Upload questions go through a storage object; the default one (`SurveyJS_Uploads_Storage`, `src/trunk/file_storage.php`) keeps them in `wp_upload_dir()['basedir'] . '/surveyjs'` and uses only `copy`, `fopen`, `is_file`, `filesize` and `unlink` there (no `realpath`, `scandir`, `rename` or `chmod`), so it works unchanged on Apache, Nginx, WordPress VIP (`vip://`) and [S3 Uploads](https://github.com/humanmade/S3-Uploads) (`s3://`). It writes `.htaccess`/`index.php` into the folder only when the folder is not on a stream wrapper.
+
+- **Key.** Every file is identified by a key: `[A-Za-z0-9][A-Za-z0-9._-]*`, up to 191 characters, no `/` or `..`. The storage generates it; the plugin never accepts a path or URL from the browser.
+- **Answer value.** The `content` of a file answer is the download link `admin-ajax.php?action=SurveyJS_DownloadFile&file=<key>` (it opens for users with the download capability, others are sent to the login page). Older entries keep the direct address `…/uploads/surveyjs/<key>`; both, and a bare key, are read by `SurveyJS_Uploaded_Files::key( $content )` / `stored_name( $file )`.
+- **Download.** The link works for users with the capability (`manage_options` by default) or with a signed link (`signed_url( $file, $lifetime )`, HMAC-SHA256 of `download|key|expires` with `wp_salt( 'auth' )`). Images and PDF open inline, everything else downloads; responses have `X-Content-Type-Options: nosniff` and `X-Robots-Tag: noindex`. The default storage streams the file in 1 MB chunks.
+- **Delete before submitting.** The upload response has a delete token (HMAC of `delete|key|expires`, valid for a day) that only the respondent's browser gets; with it `SurveyJS_DeleteFile` (POST) deletes the file unless an entry already uses it.
+- **Index.** The `{prefix}sjs_files` table lists every file: `file_key`, `form_id`, `entry_id` (`NULL` until the entry is saved), `draft_user_id` (a logged-in user's Save & Resume draft), `original_name`, `mime`, `size`, `created_at`. The daily cleanup deletes files with neither, older than `surveyjs_unattached_upload_lifetime` (a day; 30 days on forms with Save & Resume), without listing the folder. A submitted entry may only contain files uploaded to the same form and not used by another entry; other file values are dropped. After an update, a background job indexes the files of existing entries and drafts, and, where the folder can be listed, files not used anywhere (on VIP these stay until removed by hand).
+
+Hooks:
+
+- `surveyjs_file_storage` (filter) — `( SurveyJS_File_Storage $storage )`. Return your own implementation of the `SurveyJS_File_Storage` interface; anything else is ignored with a `_doing_it_wrong()` notice. Applied once per request.
+- `surveyjs_upload_dir` (filter) — `( array $dir )`, `path` and `url` of the default storage's folder. For a different folder without writing a class.
+- `surveyjs_file_download_capability` (filter) — `( string $capability )`, default `manage_options`.
+- `surveyjs_can_download_file` (filter) — `( bool $allowed, string $key, ?object $entry, int $user_id )`. `$allowed` is `true` for the capability or a valid signed link; `$entry` is the entry (as `SurveyJS_Entries::find_entry()` returns it) or `null` while the file is not saved with an entry. Example: let respondents open files of their own entries — `return $allowed || ( $entry && $user_id && $entry->user_id === $user_id );`.
+- `surveyjs_file_serve_headers` (filter) — `( array $headers, string $key, ?object $entry )`, `name => value`. When it adds `X-Accel-Redirect` or `X-Sendfile`, the default storage sends only the headers and lets the web server send the file.
+- `surveyjs_file_answer_content` (filter) — `( string $url, string $key )`, the value saved in the answer. Return `$key` to save only the key; a value that does not lead back to the same key is ignored.
+- `surveyjs_file_saved` (action) — `( string $key, array $context, SurveyJS_File_Storage $storage )`, `$context`: `form_id`, `original_name`, `mime`, `size`. For mirroring or audit logs.
+- `surveyjs_file_deleted` (action) — `( string $key, SurveyJS_File_Storage $storage )`.
+- `surveyjs_notification_attachments` (filter, see the Pro contract) — paths may also be stream paths (`vip://`, `s3://`): PHPMailer refuses them, so the plugin copies such files to a temporary file for the email and deletes the copy at the end of the request.
+
+The interface:
+
+```php
+interface SurveyJS_File_Storage {
+    public function save( string $tmp_path, string $ext, array $context ); // string $key or WP_Error
+    public function exists( string $key ): bool;
+    public function size( string $key );                                  // int or false
+    public function serve( string $key, string $download_name, string $disposition, array $headers ); // send or redirect, then exit
+    public function local_path( string $key );                            // string or false: a local file that lives until the request ends
+    public function delete( string $key ): bool;
+}
+```
+
+The plugin checks permissions before `serve()`, so a storage only delivers the file. Example: private S3 objects with the AWS SDK (not part of the plugin; the SDK is not bundled):
+
+```php
+add_filter( 'surveyjs_file_storage', function () {
+    return new My_SurveyJS_S3_Storage( new Aws\S3\S3Client( array( 'region' => 'eu-central-1', 'version' => 'latest' ) ), 'my-bucket', 'surveyjs/' );
+} );
+
+class My_SurveyJS_S3_Storage implements SurveyJS_File_Storage {
+    public function __construct( private $s3, private string $bucket, private string $prefix ) {}
+
+    public function save( string $tmp_path, string $ext, array $context ) {
+        $key = strtolower( wp_generate_password( 32, false ) ) . '.' . $ext;
+        try {
+            $this->s3->putObject( array( 'Bucket' => $this->bucket, 'Key' => $this->prefix . $key, 'SourceFile' => $tmp_path, 'ACL' => 'private', 'ContentType' => $context['mime'] ) );
+        } catch ( Exception $e ) {
+            return new WP_Error( 'surveyjs_s3', $e->getMessage() );
+        }
+        return $key;
+    }
+
+    public function exists( string $key ): bool {
+        return $this->s3->doesObjectExistV2( $this->bucket, $this->prefix . $key );
+    }
+
+    public function size( string $key ) {
+        try {
+            return (int) $this->s3->headObject( array( 'Bucket' => $this->bucket, 'Key' => $this->prefix . $key ) )['ContentLength'];
+        } catch ( Exception $e ) {
+            return false;
+        }
+    }
+
+    public function serve( string $key, string $download_name, string $disposition, array $headers ) {
+        $command = $this->s3->getCommand( 'GetObject', array(
+            'Bucket'                     => $this->bucket,
+            'Key'                        => $this->prefix . $key,
+            'ResponseContentType'        => $headers['Content-Type'],
+            'ResponseContentDisposition' => $headers['Content-Disposition'],
+        ) );
+        wp_redirect( (string) $this->s3->createPresignedRequest( $command, '+5 minutes' )->getUri() );
+        exit;
+    }
+
+    public function local_path( string $key ) {
+        $path = wp_tempnam( $key ) . '.' . pathinfo( $key, PATHINFO_EXTENSION ); // PHPMailer takes the MIME type from the extension
+        try {
+            $this->s3->getObject( array( 'Bucket' => $this->bucket, 'Key' => $this->prefix . $key, 'SaveAs' => $path ) );
+        } catch ( Exception $e ) {
+            return false;
+        }
+        register_shutdown_function( 'wp_delete_file', $path );
+        return $path;
+    }
+
+    public function delete( string $key ): bool {
+        $this->s3->deleteObject( array( 'Bucket' => $this->bucket, 'Key' => $this->prefix . $key ) );
+        return true;
+    }
+}
+```
+
+With S3 Uploads and the default storage, objects get the plugin-wide ACL (`S3_UPLOADS_OBJECT_ACL`, `public-read` by default), so their S3 URLs are public; use your own storage like the one above for private objects. Uninstall (with "delete data" on) deletes the files listed in `sjs_files` through the storage, then the folder of the default storage where it can be listed.
 
 ### External services
 

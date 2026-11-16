@@ -133,7 +133,7 @@ test.describe("admin menu", () => {
       [`page=surveyjs_results&id=${id}`, "All Forms"],
       ["page=surveyjs_import&source=cf7", "All Forms"],
       [`page=surveyjs-templates&form=${id}`, "Add New Form"],
-      ["page=surveyjs-getting-started", "Getting Started"]
+      ["page=surveyjs-getting-started", /^Getting Started/]
     ];
     for (const [query, current] of pages) {
       await page.goto(`/wp-admin/admin.php?${query}`);

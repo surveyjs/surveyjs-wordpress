@@ -6,58 +6,32 @@ include_once( __DIR__ . "/ajax_handler.php");
 class SurveyJS_DeleteFile extends SurveyJS_AJAX_Handler {
 
     function __construct() {
-        parent::__construct("SurveyJS_DeleteFile", false);
+        parent::__construct( 'SurveyJS_DeleteFile', true );
     }
 
     function callback() {
-        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'GET' !== $_SERVER['REQUEST_METHOD'] ) return;
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) return;
 
-        if(!check_ajax_referer( 'surveyjs-delete-file' )) exit;
+        if ( ! check_ajax_referer( 'surveyjs-delete-file' ) ) exit;
 
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json( array( 'error' => 'forbidden' ), 403 );
-        }
-
-        $name = isset( $_GET["name"] ) ? esc_url_raw( wp_unslash( $_GET["name"] ) ) : '';
-        if ( '' === $name ) {
+        $key = SurveyJS_Uploaded_Files::key( sanitize_text_field( wp_unslash( $_POST['file'] ?? '' ) ) );
+        if ( null === $key ) {
             wp_send_json( array( 'error' => 'bad_request' ), 400 );
         }
 
-        $file = $this->resolve_uploaded_file( $name );
-        if ( null === $file ) {
-            wp_send_json( array( 'error' => 'not_found' ), 404 );
+        $expires = absint( wp_unslash( $_POST['expires'] ?? 0 ) );
+        $token = sanitize_key( wp_unslash( $_POST['token'] ?? '' ) );
+        if ( ! SurveyJS_Uploaded_Files::has_valid_delete_token( $key, $expires, $token ) ) {
+            wp_send_json( array( 'error' => 'forbidden' ), 403 );
         }
 
-        wp_delete_file( $file );
+        $result = SurveyJS_Uploaded_Files::delete_unattached( $key );
+        if ( 'not_found' === $result ) {
+            wp_send_json( array( 'error' => 'not_found' ), 404 );
+        }
+        if ( 'attached' === $result ) {
+            wp_send_json( array( 'error' => 'in_use' ), 409 );
+        }
         wp_send_json( array( 'result' => 'success' ) );
-    }
-
-    private function resolve_uploaded_file( $url ) {
-        $upload_dir = wp_upload_dir();
-        if ( ! empty( $upload_dir['error'] ) ) return null;
-
-        $baseurl = $this->strip_scheme( trailingslashit( $upload_dir['baseurl'] ) );
-        $target  = $this->strip_scheme( $url );
-
-        if ( strpos( $target, $baseurl ) !== 0 ) return null;
-
-        $relative = ltrim( substr( $target, strlen( $baseurl ) ), '/' );
-        if ( '' === $relative || strpos( $relative, '..' ) !== false ) return null;
-
-        $real_base = realpath( $upload_dir['basedir'] );
-        $real_file = realpath( wp_normalize_path( trailingslashit( $upload_dir['basedir'] ) . $relative ) );
-        if ( false === $real_base || false === $real_file ) return null;
-
-        $real_base = trailingslashit( wp_normalize_path( $real_base ) );
-        $real_file = wp_normalize_path( $real_file );
-
-        if ( strpos( $real_file, $real_base ) !== 0 ) return null;
-        if ( ! is_file( $real_file ) ) return null;
-
-        return $real_file;
-    }
-
-    private function strip_scheme( $url ) {
-        return preg_replace( '#^(?:https?:)?//#i', '', $url );
     }
 }

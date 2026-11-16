@@ -98,6 +98,12 @@ class SurveyJS_Privacy {
         return is_string( $value ) && 0 === strcasecmp( trim( $value ), $email );
     }
 
+    // File links stay valid as long as WordPress keeps the export file.
+    public static function export_value( $question, $value ) {
+        $links = SurveyJS_Uploaded_Files::links( $value, (int) apply_filters( 'wp_privacy_export_expiration', 3 * DAY_IN_SECONDS ) );
+        return $links ? SurveyJS_Uploaded_Files::links_html( $links ) : SurveyJS_Survey_Values::display_value( $question, $value );
+    }
+
     private static function export_data( $row, $form ) {
         $data = array(
             array( 'name' => __( 'Form', 'surveyjs' ), 'value' => $form ? $form->name : __( '(deleted form)', 'surveyjs' ) ),
@@ -116,7 +122,7 @@ class SurveyJS_Privacy {
             if ( array_key_exists( $question['name'], $values ) ) {
                 $data[] = array(
                     'name'  => SurveyJS_Survey_Values::question_title( $question ),
-                    'value' => SurveyJS_Survey_Values::display_value( $question, $values[ $question['name'] ] ),
+                    'value' => self::export_value( $question, $values[ $question['name'] ] ),
                 );
                 unset( $values[ $question['name'] ] );
             }

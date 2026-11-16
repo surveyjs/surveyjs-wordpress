@@ -144,12 +144,11 @@ test.describe("batch import", () => {
     });
     expect(first.entries.map(entry => entry.gdpr_agreement)).toEqual([true, true, true, true, true]);
     const values = first.entries.map(entry => entry.documents);
-    const copiedFiles = values.flat().map(file => file.content).filter(url => url.includes("/uploads/surveyjs/"));
+    const copiedFiles = values.flat().map(file => file.content).filter(url => url.includes("action=SurveyJS_DownloadFile"));
     expect(copiedFiles).toHaveLength(5);
     for (const [index, value] of values.entries()) {
       expect(value[0]).toMatchObject({ name: `Document ${index + 1}.txt`, type: "text/plain" });
-      expect(value[0].content.startsWith(`${baseURL}/wp-content/uploads/surveyjs/`)).toBe(true);
-      expect(value[0].content).toMatch(/\/surveyjs\/[\w.]+\.txt$/);
+      expect(value[0].content).toMatch(new RegExp(`^${baseURL}/wp-admin/admin-ajax\\.php\\?action=SurveyJS_DownloadFile&file=[a-z0-9]+\\.txt$`));
       expect(fixture("stored-file", value[0].content).content).toBe(`E2E file ${index + 1} of ${name}`);
     }
     expect(values[4][1].content).toBe(`${baseURL}/wp-content/uploads/wpforms/${entriesFormId}-e2e/missing.txt`);

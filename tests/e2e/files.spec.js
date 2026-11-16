@@ -33,7 +33,8 @@ test.describe("uploaded files", () => {
     await (await fileChooser).setFiles({ name: "photo.png", mimeType: "image/png", buffer: PNG });
     const file = (await (await uploaded).json())["photo.png"];
 
-    expect((await visitor.request.get(file.url, { maxRedirects: 0 })).status()).toBe(403);
+    expect((await visitor.request.get(file.url, { maxRedirects: 0 })).status()).toBe(302);
+    expect((await visitor.request.get(`/wp-content/uploads/surveyjs/${file.file}`, { maxRedirects: 0 })).status()).toBe(403);
     await expect(visitor.locator(".wp-sjs-survey .sd-file img")).toHaveAttribute("src", file.preview);
     expect((await visitor.request.get(file.preview)).status()).toBe(200);
 
@@ -90,7 +91,7 @@ test.describe("uploaded files", () => {
     const response = await saved;
     expect(response.ok()).toBe(true);
     const data = JSON.parse(new URLSearchParams(response.request().postData()).get("Json"));
-    const stored = /\/wp-content\/uploads\/surveyjs\/[a-z0-9]+\.png$/;
+    const stored = /\/wp-admin\/admin-ajax\.php\?action=SurveyJS_DownloadFile&file=[a-z0-9]+\.png$/;
     expect(data.plain[0]).toMatchObject({ name: "plain.png", content: expect.stringMatching(stored) });
     expect(data.as_text[0]).toMatchObject({ name: "as-text.png", content: expect.stringMatching(stored) });
     expect(data.items[0].nested[0]).toMatchObject({ name: "nested.png", content: expect.stringMatching(stored) });

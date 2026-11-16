@@ -39,8 +39,10 @@ class SurveyJS_Drafts {
         if ( ! is_user_logged_in() ) {
             return $config + array( 'storageKey' => 'surveyjs-draft:' . home_url() . ':' . absint( $survey->id ) );
         }
+        $saved = self::get( get_current_user_id(), $survey->id );
         return $config + array(
-            'saved' => self::get( get_current_user_id(), $survey->id ),
+            'saved' => $saved,
+            'files' => (object) ( $saved ? SurveyJS_Uploaded_Files::client_files( json_decode( wp_json_encode( $saved->data ), true ), get_current_user_id() ) : array() ),
             'url'   => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( self::NONCE ),
         );
@@ -54,7 +56,27 @@ class SurveyJS_Drafts {
     public static function delete( $user_id, $survey_id ) {
         if ( $user_id ) {
             delete_user_option( $user_id, self::META_PREFIX . absint( $survey_id ) );
+            SurveyJS_Uploaded_Files::release_draft( $user_id, absint( $survey_id ) );
         }
+    }
+
+    public static function all() {
+        $drafts = array();
+        foreach ( self::stored_drafts() as $row ) {
+            $draft = self::decode( $row->meta_value );
+            if ( null !== $draft ) {
+                $drafts[] = array(
+                    'user_id' => (int) $row->user_id,
+                    'form_id' => self::form_id( $row->meta_key ),
+                    'data'    => json_decode( wp_json_encode( $draft->data ), true ),
+                );
+            }
+        }
+        return $drafts;
+    }
+
+    private static function form_id( $meta_key ) {
+        return absint( substr( $meta_key, strlen( self::meta_key_prefix() ) ) );
     }
 
     public function handle_save() {
@@ -88,6 +110,7 @@ class SurveyJS_Drafts {
             );
         }
         update_user_option( get_current_user_id(), self::META_PREFIX . absint( $survey->id ), wp_slash( wp_json_encode( $draft ) ) );
+        SurveyJS_Uploaded_Files::claim_for_draft( get_current_user_id(), $survey->id, SurveyJS_Uploaded_Files::referenced_names( json_decode( wp_json_encode( $draft['data'] ), true ) ) );
 
         if ( ! wp_next_scheduled( self::CLEANUP_HOOK ) ) {
             wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', self::CLEANUP_HOOK );
@@ -114,6 +137,7 @@ class SurveyJS_Drafts {
         } );
         foreach ( $expired as $row ) {
             delete_user_meta( $row->user_id, $row->meta_key );
+            SurveyJS_Uploaded_Files::release_draft( (int) $row->user_id, self::form_id( $row->meta_key ) );
         }
         if ( count( $expired ) === count( $drafts ) ) {
             wp_clear_scheduled_hook( self::CLEANUP_HOOK );
@@ -175,6 +199,9 @@ class SurveyJS_Drafts {
         foreach ( $drafts as $row ) {
             delete_user_meta( $row->user_id, $row->meta_key );
         }
+        if ( $user ) {
+            SurveyJS_Uploaded_Files::release_draft( $user->ID );
+        }
         return array(
             'items_removed'  => ! empty( $drafts ),
             'items_retained' => false,
@@ -203,7 +230,7 @@ class SurveyJS_Drafts {
             $question = $questions[ $name ] ?? array( 'name' => (string) $name );
             $answers[] = array(
                 'name'  => SurveyJS_Survey_Values::question_title( $question ),
-                'value' => SurveyJS_Survey_Values::display_value( $question, $value ),
+                'value' => SurveyJS_Privacy::export_value( $question, $value ),
             );
         }
         return $answers;

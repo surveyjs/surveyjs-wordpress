@@ -40,6 +40,8 @@ class SurveyJS_Install {
         }
         $legacy_ids = self::migrate_forms();
         self::upgrade_entries_table( $legacy_ids );
+        dbDelta( SurveyJS_Uploaded_Files::schema() );
+        SurveyJS_Uploaded_Files::start_backfill();
         update_option( self::LEGACY_MAX_ID_OPTION, self::legacy_max_id() );
         update_option( self::VERSION_OPTION, SURVEYJS_DB_VERSION );
         delete_option( self::LOCK_OPTION );

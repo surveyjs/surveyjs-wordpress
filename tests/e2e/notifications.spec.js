@@ -43,11 +43,10 @@ test.describe("email notification", () => {
     const editorJson = async () => JSON.parse(await page.evaluate(() => window.monaco.editor.getEditors()[0].getModel().getValue()));
 
     await settingsTab.click();
-    await expect(notification).toBeChecked();
-    await expect(addQuestion).toBeEnabled();
-    await notification.uncheck();
+    await expect(notification).not.toBeChecked();
     await expect(addQuestion).toBeDisabled();
     await notification.check();
+    await expect(addQuestion).toBeEnabled();
     await addQuestion.check();
     await expect(replyTo).toHaveValue("reply_to_email");
     await expect(replyTo.locator("option:checked")).toHaveText("reply_to_email");
@@ -151,13 +150,13 @@ test.describe("email notification", () => {
     const fileChooser = page.waitForEvent("filechooser");
     await page.locator(".wp-sjs-survey .sd-file__choose-btn").first().click();
     await (await fileChooser).setFiles({ name: "report.txt", mimeType: "text/plain", buffer: Buffer.from("E2E attachment") });
-    const fileUrl = (await (await uploaded).json())["report.txt"].url;
+    const fileKey = (await (await uploaded).json())["report.txt"].file;
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Complete" }).click();
     expect((await saved).ok()).toBe(true);
 
     const mail = await findMail(page.request, subject);
     expect(mail.Attachments.map(attachment => attachment.FileName)).toEqual(["report.txt"]);
-    expect((await page.request.get(fileUrl, { maxRedirects: 0 })).status()).not.toBe(200);
+    expect((await page.request.get(`/wp-content/uploads/surveyjs/${fileKey}`, { maxRedirects: 0 })).status()).not.toBe(200);
   });
 });

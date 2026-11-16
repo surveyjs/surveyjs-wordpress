@@ -2,13 +2,13 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 include( __DIR__ . "/views/settings.php" );
+include( __DIR__ . "/views/welcome.php" );
 
 if ( is_admin() ) {
     include( __DIR__ . "/views/mysurveys.php" );
     include( __DIR__ . "/views/editor.php" );
     include( __DIR__ . "/views/results.php" );
     include( __DIR__ . "/views/import.php" );
-    include( __DIR__ . "/views/welcome.php" );
     include( __DIR__ . "/views/templates.php" );
     add_action( 'init', array( 'SurveyJS_Templates', 'register_post_type' ) );
 }
@@ -66,6 +66,7 @@ JS;
         add_action('init', array($this, 'register_surveyjs_gutenberg_block'));
         add_action('enqueue_block_editor_assets', array($this, 'localize_block_editor'));
 
+        SurveyJS_Welcome::init();
         add_action('admin_init', array('SurveyJS_Welcome', 'maybe_redirect'));
         add_action('wp_ajax_surveyjs_checklist', array('SurveyJS_Welcome', 'handle_checklist_action'));
         add_action('wp_ajax_surveyjs_import', array('SurveyJS_Import', 'handle_ajax'));
@@ -453,7 +454,7 @@ JS;
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'All Forms', 'surveyjs' ), esc_html__( 'All Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
         $templates_hook = add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Add New Form', 'surveyjs' ), esc_html__( 'Add New Form', 'surveyjs' ), 'manage_options', SurveyJS_Templates::PAGE, array( 'SurveyJS_Templates', 'render' ) );
         add_action( 'load-' . $templates_hook, array( 'SurveyJS_Templates', 'handle_actions' ) );
-        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
+        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ) . SurveyJS_Welcome::menu_progress(), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
         add_submenu_page( '', esc_html__( 'Edit Form', 'surveyjs' ), '', 'manage_options', 'surveyjs_editor', array( 'SurveyJS_Editor', 'render' ) );
         $results_hook = add_submenu_page( '', esc_html__( 'Entries', 'surveyjs' ), '', 'manage_options', 'surveyjs_results', array( 'SurveyJS_Results', 'render' ) );
@@ -511,7 +512,6 @@ JS;
         $style = SurveyJS_Themes::resolve($row);
 
         $this->enqueue_frontend_assets($row);
-        $deleteFileUri = add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php'));
         $config = array(
             'id' => $id,
             'json' => empty($json) ? new stdClass() : $json,
@@ -522,7 +522,8 @@ JS;
             'saveResultNonce' => wp_create_nonce('surveyjs-save-result'),
             'uploadFilesUrl' => add_query_arg(array('action' => 'SurveyJS_UploadFiles'), admin_url('admin-ajax.php')),
             'uploadFilesNonce' => wp_create_nonce('surveyjs-upload-files'),
-            'deleteFileUrl' => add_query_arg('_wpnonce', wp_create_nonce('surveyjs-delete-file'), $deleteFileUri),
+            'deleteFileUrl' => add_query_arg(array('action' => 'SurveyJS_DeleteFile'), admin_url('admin-ajax.php')),
+            'deleteFileNonce' => wp_create_nonce('surveyjs-delete-file'),
             'draft' => SurveyJS_Drafts::client_config($row),
             'markdown' => SurveyJS_Form_Settings::get( $row )['markdown'],
             'locale' => self::survey_locale(),

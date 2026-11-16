@@ -23,7 +23,7 @@ class SurveyJS_Notification {
         $respondent_tags = apply_filters( 'surveyjs_notification_tags', $respondent_tags, 'respondent', $survey, $data, (int) $entry_id );
         $owner_tags = apply_filters( 'surveyjs_notification_tags', $owner_tags, 'owner', $survey, $data, (int) $entry_id );
         $attachments = function ( $key, $recipient ) use ( $settings, $data, $survey, $entry_id ) {
-            return apply_filters( 'surveyjs_notification_attachments', self::attachments( $settings[ $key ], $data ), $recipient, $survey, $settings, $data, (int) $entry_id );
+            return SurveyJS_Uploaded_Files::local_attachments( apply_filters( 'surveyjs_notification_attachments', self::attachments( $settings[ $key ], $data ), $recipient, $survey, $settings, $data, (int) $entry_id ) );
         };
 
         $value = function ( $key, $tags, $html = false ) use ( $settings ) {
@@ -136,13 +136,21 @@ class SurveyJS_Notification {
     private static function attachments( $question_name, $data ) {
         $attachments = array();
         $total = 0;
-        foreach ( SurveyJS_Uploaded_Files::paths( $data[ $question_name ] ?? null ) as $name => $path ) {
-            $size = (int) filesize( $path );
-            if ( $total + $size > self::MAX_ATTACHMENTS_SIZE ) {
+        $value = $data[ $question_name ] ?? null;
+        $storage = SurveyJS_Uploaded_Files::storage();
+        foreach ( is_array( $value ) ? $value : array() as $file ) {
+            $key = SurveyJS_Uploaded_Files::stored_name( $file );
+            $size = null === $key ? false : $storage->size( $key );
+            if ( false === $size || $total + (int) $size > self::MAX_ATTACHMENTS_SIZE ) {
                 continue;
             }
-            $total += $size;
-            $attachments[ $name ] = $path;
+            $path = $storage->local_path( $key );
+            if ( false === $path ) {
+                continue;
+            }
+            $total += (int) $size;
+            $name = sanitize_file_name( (string) ( $file['name'] ?? '' ) );
+            $attachments[ '' !== $name ? $name : $key ] = $path;
         }
         return $attachments;
     }

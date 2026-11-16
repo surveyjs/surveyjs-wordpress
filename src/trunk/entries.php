@@ -76,6 +76,7 @@ class SurveyJS_Entries {
         $prefix = $wpdb->get_blog_prefix( $site_id );
         $tables[] = $prefix . 'sjs_results';
         $tables[] = $prefix . 'sjs_my_surveys';
+        $tables[] = $prefix . 'sjs_files';
         return $tables;
     }
 
@@ -235,6 +236,11 @@ class SurveyJS_Entries {
         return $updated ? (int) $row->id : 0;
     }
 
+    public static function unfinished_id( $form_id, $id, $token ) {
+        $row = self::find_unfinished( $form_id, $id, $token );
+        return $row ? (int) $row->id : 0;
+    }
+
     private static function find_unfinished( $form_id, $id, $token ) {
         global $wpdb;
         if ( ! $id || ! is_string( $token ) || '' === $token ) {
@@ -333,11 +339,11 @@ class SurveyJS_Entries {
         if ( ! $rows ) {
             return 0;
         }
-        $file_names = array();
+        $ids = array_map( 'intval', wp_list_pluck( $rows, 'id' ) );
+        $file_names = SurveyJS_Uploaded_Files::entry_keys( $ids );
         foreach ( $rows as $row ) {
             $file_names = array_merge( $file_names, SurveyJS_Uploaded_Files::referenced_names( SurveyJS_Client::decode_survey_json( $row->json ) ) );
         }
-        $ids = array_map( 'intval', wp_list_pluck( $rows, 'id' ) );
         self::flush_counts();
         $deleted = (int) $wpdb->query( $wpdb->prepare(
             'DELETE FROM %i WHERE id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )',

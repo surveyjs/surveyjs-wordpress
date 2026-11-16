@@ -46,4 +46,24 @@ if ( 'legacy' === $command ) {
     $wpdb->update( SurveyJS_Entries::table(), array( 'created_at' => gmdate( 'Y-m-d H:i:s', time() - (int) $argv[3] * DAY_IN_SECONDS ) ), array( 'id' => (int) $argv[2] ) );
     SurveyJS_Entries::flush_counts();
     echo '{}';
+} elseif ( 'file' === $command ) {
+    $key = $argv[2];
+    $record = $wpdb->get_row( $wpdb->prepare( 'SELECT form_id, entry_id, draft_user_id, original_name, mime, size FROM %i WHERE file_key = %s', SurveyJS_Uploaded_Files::table(), $key ) );
+    $storage = SurveyJS_Uploaded_Files::default_storage();
+    echo wp_json_encode( array(
+        'record' => $record,
+        'exists' => SurveyJS_Uploaded_Files::storage()->exists( $key ),
+        'path'   => $storage ? $storage->path( $key ) : null,
+    ) );
+} elseif ( 'age-file' === $command ) {
+    $wpdb->update( SurveyJS_Uploaded_Files::table(), array( 'created_at' => gmdate( 'Y-m-d H:i:s', time() - (int) $argv[3] * DAY_IN_SECONDS ) ), array( 'file_key' => $argv[2] ) );
+    echo '{}';
+} elseif ( 'cleanup-files' === $command ) {
+    SurveyJS_Uploaded_Files::cleanup();
+    echo '{}';
+} elseif ( 'entry-values' === $command ) {
+    echo wp_json_encode( array_map( 'json_decode', $wpdb->get_col( $wpdb->prepare( 'SELECT json FROM %i WHERE form_id = %d ORDER BY id', SurveyJS_Entries::table(), (int) $argv[2] ) ) ) );
+} elseif ( 'stream-log' === $command ) {
+    $log = WP_CONTENT_DIR . '/sjstest-unsupported.log';
+    echo wp_json_encode( array( 'lines' => file_exists( $log ) ? array_values( array_filter( explode( "\n", (string) file_get_contents( $log ) ) ) ) : array() ) );
 }

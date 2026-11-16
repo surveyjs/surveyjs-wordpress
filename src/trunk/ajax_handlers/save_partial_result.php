@@ -33,11 +33,14 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
             wp_send_json_error( array( 'message' => 'Invalid form result payload' ), 400 );
         }
 
+        $partial_id = absint( wp_unslash( $_POST['PartialId'] ?? 0 ) );
+        $partial_token = sanitize_text_field( wp_unslash( $_POST['PartialToken'] ?? '' ) );
+        $data = SurveyJS_Uploaded_Files::filter_submitted( json_decode( $json, true ), $survey->id, SurveyJS_Entries::unfinished_id( $survey->id, $partial_id, $partial_token ) );
         $saved = SurveyJS_Entries::save_partial(
             $survey->id,
-            absint( wp_unslash( $_POST['PartialId'] ?? 0 ) ),
-            sanitize_text_field( wp_unslash( $_POST['PartialToken'] ?? '' ) ),
-            $json,
+            $partial_id,
+            $partial_token,
+            wp_json_encode( $data ),
             absint( wp_unslash( $_POST['Page'] ?? 0 ) ),
             array(
                 'user_id' => get_current_user_id(),
@@ -47,6 +50,7 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
         if ( null === $saved ) {
             wp_send_json_error( array( 'message' => 'Could not save the answers' ), 500 );
         }
+        SurveyJS_Uploaded_Files::attach( $survey->id, $saved['id'], SurveyJS_Uploaded_Files::referenced_names( $data ) );
         wp_send_json_success( $saved );
     }
 }

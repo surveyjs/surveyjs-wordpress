@@ -230,10 +230,12 @@
                 .catch(() => options.showSaveError());
         });
 
-        const previewUrls = {};
-        // Uploaded files are not public: the preview shows them through the signed link returned by the upload.
+        // Uploaded files are not public: the preview shows them through the signed link returned by the upload,
+        // and only the respondent who uploaded a file has the token that deletes it.
+        const uploadedFiles = Object.assign({}, config.draft && config.draft.files);
         survey.onDownloadFile.add((_, options) => {
-            options.callback("success", previewUrls[options.content] || options.content);
+            const uploaded = uploadedFiles[options.content];
+            options.callback("success", uploaded ? uploaded.preview : options.content);
         });
 
         survey.onUploadFiles.add((_, options) => {
@@ -256,7 +258,7 @@
                     options.callback(
                         options.files.map((file) => {
                             const uploaded = data[file.name];
-                            previewUrls[uploaded.url] = uploaded.preview;
+                            uploadedFiles[uploaded.url] = uploaded;
                             return {
                                 file: file,
                                 content: uploaded.url
@@ -270,12 +272,16 @@
                 });
         });
 
-        function deleteFile(fileURL, options) {
-            try {
-                fetch(`${config.deleteFileUrl}&name=${encodeURIComponent(fileURL)}`);
-            } catch (error) {
-                options.callback("error");
+        function deleteFile(content) {
+            const uploaded = uploadedFiles[content];
+            if (!uploaded || !uploaded.deleteToken) {
+                return;
             }
+            delete uploadedFiles[content];
+            fetch(config.deleteFileUrl, {
+                method: "POST",
+                body: new URLSearchParams({ _wpnonce: config.deleteFileNonce, file: uploaded.file, expires: uploaded.expires, token: uploaded.deleteToken })
+            }).catch((error) => console.error("Error: ", error));
         }
 
         survey.onClearFiles.add((_, options) => {
@@ -286,14 +292,14 @@
 
             if (!options.fileName && !!options.value) {
                 for (const item of options.value) {
-                    deleteFile(item.content, options);
+                    deleteFile(item.content);
                 }
             } else {
                 const fileToRemove = options.value.find(
                     (item) => item.name === options.fileName
                 );
                 if (fileToRemove) {
-                    deleteFile(fileToRemove.content, options);
+                    deleteFile(fileToRemove.content);
                 } else {
                     console.error(`File with name ${options.fileName} is not found`);
                 }
