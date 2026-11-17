@@ -208,6 +208,48 @@ function storageTests(label) {
 
 storageTests("file storage in the uploads folder");
 
+test.describe("with upload checks from other plugins", () => {
+  const PREFILTER_PLUGIN = "/var/www/html/wp-content/mu-plugins/surveyjs-e2e-upload-prefilter.php";
+  test.skip(!WP_CONTAINER, "Set WP_CONTAINER to install the upload check mu-plugin");
+
+  test.beforeAll(() => {
+    docker(["exec", "-i", WP_CONTAINER, "sh", "-c", `cat > ${PREFILTER_PLUGIN}`], fs.readFileSync(path.join(__dirname, "fixtures/upload-prefilter.php")));
+  });
+
+  test.afterAll(() => {
+    docker(["exec", WP_CONTAINER, "rm", "-f", PREFILTER_PLUGIN]);
+  });
+
+  test("refuses files rejected by wp_handle_upload_prefilter or the wp_handle_upload_overrides types", async ({ page, browser }) => {
+    const name = uniqueName("E2E upload checks");
+    const surveyId = await createSurvey(page, name, FILE_JSON);
+    const post = await publish(page, name, surveyId);
+    try {
+      const visitor = await browser.newPage({ storageState: { cookies: [], origins: [] } });
+      await visitor.goto(post.link);
+      const refused = async (fileName, mimeType) => {
+        const uploaded = visitor.waitForResponse(r => r.url().includes("action=SurveyJS_UploadFiles"));
+        const fileChooser = visitor.waitForEvent("filechooser");
+        await visitor.locator(".wp-sjs-survey .sd-file__choose-btn").first().click();
+        await (await fileChooser).setFiles({ name: fileName, mimeType, buffer: Buffer.from("E2E checked file") });
+        const response = await uploaded;
+        expect(response.status()).toBe(400);
+        return response.json();
+      };
+
+      expect(await refused("infected.txt", "text/plain")).toEqual({ error: "file_rejected", message: "E2E scanner: this file is infected." });
+      await expect(visitor.locator(".wp-sjs-survey .sd-question__erbox")).toContainText("E2E scanner: this file is infected.");
+      expect(await refused("table.csv", "text/csv")).toEqual({ error: "file_type_mismatch" });
+      const clean = await upload(visitor, "clean.txt", Buffer.from("E2E clean file"));
+      expect(fixture("file", clean.file).exists).toBe(true);
+      await visitor.close();
+    } finally {
+      await page.request.delete(`/?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
+      await deleteSurveys(page, name);
+    }
+  });
+});
+
 test.describe("on a stream wrapper without folder listing (like vip://)", () => {
   test.skip(!WP_CONTAINER, "Set WP_CONTAINER to install the stream wrapper mu-plugin");
 

@@ -51,6 +51,11 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
                 wp_send_json( array( 'error' => 'upload_failed' ), 400 );
             }
 
+            $rejection = self::prefilter_error( $uploadedfile );
+            if ( '' !== $rejection ) {
+                wp_send_json( array( 'error' => 'file_rejected', 'message' => $rejection ), 400 );
+            }
+
             $originalname = (string) $uploadedfile['name'];
             $safename     = sanitize_file_name( $originalname );
             $ext          = strtolower( (string) pathinfo( $safename, PATHINFO_EXTENSION ) );
@@ -63,7 +68,9 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
                 wp_send_json( array( 'error' => 'file_too_large' ), 400 );
             }
 
-            $checked = wp_check_filetype_and_ext( $uploadedfile['tmp_name'], $safename );
+            $overrides = apply_filters( 'wp_handle_upload_overrides', array( 'test_form' => false ), $uploadedfile ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, applied as wp_handle_upload() does.
+            $mimes = is_array( $overrides ) && ! empty( $overrides['mimes'] ) && is_array( $overrides['mimes'] ) ? $overrides['mimes'] : null;
+            $checked = wp_check_filetype_and_ext( $uploadedfile['tmp_name'], $safename, $mimes );
             if ( empty( $checked['ext'] ) || empty( $checked['type'] ) || strtolower( $checked['ext'] ) !== $ext ) {
                 wp_send_json( array( 'error' => 'file_type_mismatch' ), 400 );
             }
@@ -86,6 +93,18 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         }
 
         wp_send_json( $result );
+    }
+
+    // Upload checks that hook into core uploads (virus scanners, quotas) also see respondents' files. Only the error is used:
+    // the stored name is generated and the temporary file is read as PHP received it.
+    private static function prefilter_error( $uploadedfile ) {
+        $filtered = apply_filters( 'wp_handle_upload_prefilter', $uploadedfile ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, applied as wp_handle_upload() does.
+        $error = is_array( $filtered ) ? ( $filtered['error'] ?? '' ) : '';
+        if ( empty( $error ) || is_numeric( $error ) ) {
+            return '';
+        }
+        $message = is_string( $error ) ? wp_strip_all_tags( $error ) : '';
+        return '' !== $message ? $message : __( 'The file was rejected.', 'surveyjs' );
     }
 
     private function is_upload_allowed( $survey_id ) {

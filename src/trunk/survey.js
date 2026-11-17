@@ -253,7 +253,7 @@
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
-                        throw new Error(data.error);
+                        throw Object.assign(new Error(data.error), { userMessage: data.message });
                     }
                     options.callback(
                         options.files.map((file) => {
@@ -268,7 +268,7 @@
                 })
                 .catch((error) => {
                     console.error("Error: ", error);
-                    options.callback([], [ 'An error occurred during file upload.' ]);
+                    options.callback([], [ error.userMessage || 'An error occurred during file upload.' ]);
                 });
         });
 

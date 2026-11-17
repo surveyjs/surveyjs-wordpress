@@ -189,6 +189,7 @@ Hooks:
 - `surveyjs_file_answer_content` (filter) — `( string $url, string $key )`, the value saved in the answer. Return `$key` to save only the key; a value that does not lead back to the same key is ignored.
 - `surveyjs_file_saved` (action) — `( string $key, array $context, SurveyJS_File_Storage $storage )`, `$context`: `form_id`, `original_name`, `mime`, `size`. For mirroring or audit logs.
 - `surveyjs_file_deleted` (action) — `( string $key, SurveyJS_File_Storage $storage )`.
+- Core upload hooks, so virus scanners and other upload checks also see respondents' files: `wp_handle_upload_prefilter` gets each file (`name`, `type`, `tmp_name`, `error`, `size`) before the plugin's type and size checks; a non-numeric `error` refuses the file and the message is shown under the question. Changes to `name` or `tmp_name` are ignored (the key is generated and the uploaded file is read as received). `wp_handle_upload_overrides` gets `array( 'test_form' => false )`; its `mimes` can narrow the allowed types further (the plugin's own list still applies). The `wp_handle_upload` filter is not applied after saving: plugins on it treat the file as a public upload (offloaders copy it to public storage), which would expose private files.
 - `surveyjs_notification_attachments` (filter, see the Pro contract) — paths may also be stream paths (`vip://`, `s3://`): PHPMailer refuses them, so the plugin copies such files to a temporary file for the email and deletes the copy at the end of the request.
 
 The interface:
