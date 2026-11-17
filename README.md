@@ -154,16 +154,16 @@ SurveyJS Forms and SurveyJS Forms Pro are always released together, with the sam
   - SurveyJS Forms Pro older (the download failed, or an old Pro zip was installed by hand): "Please update SurveyJS Forms Pro" with the button **Update SurveyJS Forms Pro**, the last error if any, and **Download from surveyjs.io** as a fallback.
 
   Nothing is turned off while the versions differ.
-- **Self-updating of Pro is turned off** on WordPress VIP, when file changes are not allowed (`DISALLOW_FILE_MODS`), with `define( 'SURVEYJS_PRO_DISABLE_UPDATES', true );` or with the filter `surveyjs_pro_self_update` returning `false`. Then Pro never downloads anything, the notice has no Pro update button, and both plugins are updated in your code repository.
+- **Self-updating of Pro is turned off** on WordPress VIP, when Pro is installed with Composer (then `composer update surveyjs/surveyjs-pro --with-dependencies` updates both plugins), when file changes are not allowed (`DISALLOW_FILE_MODS`), with `define( 'SURVEYJS_PRO_DISABLE_UPDATES', true );` or with the filter `surveyjs_pro_self_update` returning `false`. Then Pro never downloads anything, the notice has no Pro update button, and both plugins are updated in your code repository.
 - Pro has the header `Update URI: https://surveyjs.io/wordpress-pro`, so WordPress.org never offers another plugin with the slug `surveyjs-pro` as its update.
 
-**Release order:** first upload the Pro zip to `https://surveyjs.io/Content/Downloads/wordpress/surveyjs-pro.zip` (fixed URL, always the latest Pro, one top folder `surveyjs-pro/`), then publish SurveyJS Forms to WordPress.org. Implementation details: `includes/updater.php` and the "Updates" section of README.md in the Pro repository.
+**Release order:** first upload the Pro zip to `https://surveyjs.io/Content/Downloads/wordpress/surveyjs-pro.zip` (fixed URL, always the latest Pro, one top folder `surveyjs-pro/`), then publish SurveyJS Forms to WordPress.org. Implementation details: `includes/updater.php` and the "Updates" section of DEVELOPMENT.md in the Pro repository.
 
 ## For developers
 
 ### Hooks for SurveyJS Forms Pro
 
-SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_results` table) and exposes generic hooks; Pro adds its features through them. Without anything hooked in, the plugin behaves as before. The full contract (constants, admin pages, the `window.surveyjsEditor` JavaScript API, every hook with its arguments) is described in the Pro repository's README.md, section "Developer: the extension contract in SurveyJS Forms (Base)".
+SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_results` table) and exposes generic hooks; Pro adds its features through them. Without anything hooked in, the plugin behaves as before. The full contract (constants, admin pages, the `window.surveyjsEditor` JavaScript API, every hook with its arguments) is described in the Pro repository's DEVELOPMENT.md, section "Developer: the extension contract in SurveyJS Forms (Base)".
 
 - Actions: `surveyjs_admin_menu`, `surveyjs_admin_enqueue_scripts`, `surveyjs_register_settings`, `surveyjs_render_editor`, `surveyjs_editor_email_rows`, `surveyjs_render_results_view`, `surveyjs_results_title_actions`, `surveyjs_entries_bulk_action_<action>`, `surveyjs_enqueue_form_assets`, `wp_surveyjs_save_result`.
 - Filters: `surveyjs_editor_tabs`, `surveyjs_form_settings_defaults`, `surveyjs_form_settings_sanitize`, `surveyjs_form_row_actions`, `surveyjs_results_views`, `surveyjs_entry_row_actions`, `surveyjs_entries_bulk_actions`, `surveyjs_form_client_config`, `surveyjs_save_result_response`, `surveyjs_notification_attachments`, `surveyjs_notification_tags`, `surveyjs_form_locale`, `surveyjs_show_pro_upsell`.
