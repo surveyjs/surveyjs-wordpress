@@ -7,20 +7,28 @@ class SurveyJS_Install {
     const LOCK_OPTION = 'surveyjs_upgrade_lock';
     const LOCK_TIMEOUT = 600;
     const LEGACY_MAX_ID_OPTION = 'surveyjs_legacy_max_id';
+    const LEGACY_MAX_ENTRY_ID_OPTION = 'surveyjs_legacy_max_entry_id';
 
     public static function maybe_upgrade() {
-        if ( get_option( self::VERSION_OPTION ) !== SURVEYJS_DB_VERSION || self::legacy_forms_added() ) {
+        if ( get_option( self::VERSION_OPTION ) !== SURVEYJS_DB_VERSION || self::legacy_data_added() ) {
             self::install();
         }
     }
 
-    // After a rollback to the pre-3 plugin, its new forms land in the old table while the DB version stays current.
-    // The check costs a query, so it runs on admin pages only: the admin who put the plugin back is there right after.
-    private static function legacy_forms_added() {
+    // After a rollback to the pre-3 plugin, its new forms land in the old table and its entries have no form_id,
+    // while the DB version stays current. The check costs a few queries, so it runs on admin pages only:
+    // the admin who put the plugin back is there right after.
+    private static function legacy_data_added() {
         if ( ! is_admin() || wp_doing_ajax() ) {
             return false;
         }
-        return self::legacy_max_id() > (int) get_option( self::LEGACY_MAX_ID_OPTION, 0 );
+        return self::legacy_max_id() > (int) get_option( self::LEGACY_MAX_ID_OPTION, 0 )
+            || self::unassigned_max_entry_id() > (int) get_option( self::LEGACY_MAX_ENTRY_ID_OPTION, 0 );
+    }
+
+    private static function unassigned_max_entry_id() {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(id) FROM %i WHERE form_id = 0', SurveyJS_Entries::table() ) );
     }
 
     private static function legacy_max_id() {
@@ -38,11 +46,13 @@ class SurveyJS_Install {
         if ( false === get_option( self::VERSION_OPTION ) && self::legacy_forms_exist() ) {
             SurveyJS_Upgrade_Notice::flag_legacy_update();
         }
-        $legacy_ids = self::migrate_forms();
-        self::upgrade_entries_table( $legacy_ids );
+        $migrated_before = get_option( self::LEGACY_MAX_ID_OPTION );
+        $legacy_ids = self::migrate_forms( (int) $migrated_before );
+        self::upgrade_entries_table( $legacy_ids, false === $migrated_before );
         dbDelta( SurveyJS_Uploaded_Files::schema() );
         SurveyJS_Uploaded_Files::start_backfill();
         update_option( self::LEGACY_MAX_ID_OPTION, self::legacy_max_id() );
+        update_option( self::LEGACY_MAX_ENTRY_ID_OPTION, self::unassigned_max_entry_id() );
         update_option( self::VERSION_OPTION, SURVEYJS_DB_VERSION );
         delete_option( self::LOCK_OPTION );
     }
@@ -73,7 +83,8 @@ class SurveyJS_Install {
     // so existing [surveyjs id="N"] shortcodes and blocks keep working without a lookup; otherwise the old ID
     // goes to SurveyJS_Forms::LEGACY_MAP_OPTION. Free IDs are taken first: every post created after that gets a
     // higher ID, so a new form can never land on an old ID that still points to another form.
-    private static function migrate_forms() {
+    // Rows up to $migrated_max_id were migrated by an earlier run: a form deleted since then must not come back.
+    private static function migrate_forms( $migrated_max_id ) {
         global $wpdb;
         $legacy_table = $wpdb->prefix . 'sjs_my_surveys';
         if ( ! self::table_exists( $legacy_table ) ) {
@@ -88,7 +99,7 @@ class SurveyJS_Install {
 
         $pending = array();
         foreach ( $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY id', $legacy_table ) ) as $row ) {
-            if ( ! isset( $map[ (int) $row->id ] ) ) {
+            if ( (int) $row->id > $migrated_max_id && ! isset( $map[ (int) $row->id ] ) ) {
                 $pending[ (int) $row->id ] = $row;
             }
         }
@@ -100,7 +111,8 @@ class SurveyJS_Install {
             foreach ( array( $free, $busy ) as $pass => $rows ) {
                 foreach ( $rows as $old_id => $row ) {
                     $new_id = SurveyJS_Forms::create( array(
-                        'name'      => (string) $row->name,
+                        // The pre-3 plugin saved renamed forms without wp_unslash(), so quotes in old names are escaped.
+                        'name'      => wp_unslash( (string) $row->name ),
                         'json'      => (string) $row->json,
                         'theme'     => (string) ( $row->theme ?? '' ),
                         'settings'  => (string) ( $row->settings ?? '' ),
@@ -124,21 +136,30 @@ class SurveyJS_Install {
         return $map;
     }
 
-    private static function upgrade_entries_table( $legacy_ids ) {
+    // The pre-3 plugin writes entries with surveyId only. The column stays, so that plugin still saves entries
+    // after a rollback; they get their form_id on the way back.
+    private static function upgrade_entries_table( $legacy_ids, $first_migration ) {
         global $wpdb;
         $table = SurveyJS_Entries::table();
-        $legacy_column = self::table_exists( $table ) && $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM %i WHERE Field = 'surveyId'", $table ) );
-        if ( $legacy_column ) {
+        $legacy_column = self::table_exists( $table ) ? $wpdb->get_row( $wpdb->prepare( "SHOW COLUMNS FROM %i WHERE Field = 'surveyId'", $table ) ) : null;
+        if ( $legacy_column && '0' !== (string) $legacy_column->Default ) {
             $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i MODIFY surveyId mediumint(9) NOT NULL DEFAULT 0', $table ) );
         }
 
         dbDelta( SurveyJS_Entries::schema() );
 
-        if ( $legacy_column ) {
+        if ( ! $legacy_column && self::table_exists( $wpdb->prefix . 'sjs_my_surveys' ) ) {
+            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i ADD surveyId mediumint(9) NOT NULL DEFAULT 0', $table ) );
+        }
+        if ( $legacy_column && self::unassigned_max_entry_id() ) {
             foreach ( $legacy_ids as $old_id => $new_id ) {
-                $wpdb->query( $wpdb->prepare( "UPDATE %i SET form_id = %d, status = 'read' WHERE surveyId = %d AND form_id = 0", $table, $new_id, $old_id ) );
+                if ( $first_migration ) {
+                    $wpdb->query( $wpdb->prepare( "UPDATE %i SET form_id = %d, status = 'read' WHERE surveyId = %d AND form_id = 0", $table, $new_id, $old_id ) );
+                } else {
+                    // Entries saved during a rollback are new: they stay unread and get the time they come back, as the old plugin stores none.
+                    $wpdb->query( $wpdb->prepare( "UPDATE %i SET form_id = %d, created_at = IF( created_at < '1000-01-01', %s, created_at ) WHERE surveyId = %d AND form_id = 0", $table, $new_id, current_time( 'mysql', true ), $old_id ) );
+                }
             }
-            $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i DROP COLUMN surveyId', $table ) );
         }
         if ( $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = 'id'", $table ) ) ) {
             $wpdb->query( $wpdb->prepare( 'ALTER TABLE %i DROP INDEX id', $table ) );

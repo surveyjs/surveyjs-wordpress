@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
     define( 'SURVEYJS_VERSION', '3.2.4' );
-    define( 'SURVEYJS_DB_VERSION', '5' );
+    define( 'SURVEYJS_DB_VERSION', '6' );
 
     function surveyjs_site_url( $path = '' ) {
         $site = apply_filters( 'surveyjs_site_url', defined( 'SURVEYJS_SITE_URL' ) ? SURVEYJS_SITE_URL : 'https://surveyjs.io' );
