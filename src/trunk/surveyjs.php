@@ -1,13 +1,14 @@
 <?php
 /*
 Plugin Name: SurveyJS Forms
-Plugin URI: https://wordpress.org/plugins/surveyjs
-Description: Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries stored in WordPress — free.
+Plugin URI: https://surveyjs.io/
+Description: Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries in WordPress — free.
 Version: 3.2.4
 Requires at least: 6.5
 Requires PHP: 8.2
 Author: Devsoft Baltic OÜ
-Author URI: http://devsoftbaltic.com/
+Author URI: https://devsoftbaltic.com/
+Text Domain: surveyjs
 License: "SEE LICENSE IN LICENSE"
 License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=License-1-ov-file"
 */

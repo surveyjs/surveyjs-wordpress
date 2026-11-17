@@ -1,5 +1,5 @@
 === SurveyJS Forms - Contact Forms, Survey & Form Builder & More ===
-Contributors: DevSoft Baltic
+Contributors: devsoftbaltic
 Tags: contact form, form builder, survey, forms, quiz
 Requires at least: 6.5
 Tested up to: 7.1
@@ -95,9 +95,14 @@ SurveyJS offers a simple way to add digital signatures to your e-forms with a bu
 == External services ==
 This plugin can open a form in the SurveyJS UI Builder, a free online visual form editor provided by Devsoft Baltic OÜ at [surveyjs.io/wordpress-ui-builder](https://surveyjs.io/wordpress-ui-builder).
 
-The plugin connects to this service only when you click **Open in free UI Builder** in the form editor. The UI Builder then opens in a new browser tab, and the plugin sends it the form ID, the form name, the form JSON, and the theme JSON currently open in the editor. When you click **Save and back to WordPress**, the UI Builder sends the edited form JSON and theme JSON back to the editor, where you can review them before saving. Form entries and other site data are never sent.
+The plugin connects to this service only when you click **Open in free UI Builder** in the form editor. The UI Builder then opens in a new browser tab, and the plugin sends it the form ID, the form name, the form JSON, the theme JSON currently open in the editor, and the address of your site's Privacy Policy page. When you click **Save and back to WordPress**, the UI Builder sends the edited form JSON and theme JSON back to the editor, where you can review them before saving. Form entries and other site data are never sent.
 
 The plugin works without this service: you can create and edit forms in the built-in JSON editor.
+
+This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
+
+= SurveyJS Forms Pro download page =
+The **Get Pro – Free** links in the admin menu and the admin bar, and the SurveyJS Forms Pro links on the Getting Started page, the dashboard widget and in the form editor open the SurveyJS Forms Pro download page at [surveyjs.io/wordpress-pro](https://surveyjs.io/wordpress-pro) in your browser. The link carries the address of your site's admin area (`wp_admin_url`) and labels of where in the plugin it was clicked (`utm_source`, `utm_medium`). Nothing is sent until you click a link.
 
 This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
 
@@ -149,6 +154,16 @@ Administrators still open the files through the plugin, so links in the entries,
 = Where is the visual form designer? =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component. Your forms and entries are not affected. Without Pro, edit forms in the built-in JSON editor or click **Open in free UI Builder** in the form editor.
 
+== Screenshots ==
+
+1. All Forms: your forms and the number of entries in each.
+2. Add New Form: start from a ready-made template, your own template or a blank form, with categories, search and a live preview.
+3. Form editor: the built-in JSON editor with validation hints and a live preview. Open in free UI Builder edits the form visually.
+4. Theme tab: the Adaptive theme, predefined themes and AI themes made from your site's styles.
+5. Email tab: the email notification with recipients, sender, Reply-To, subject and message.
+6. Entries: a column per question, unread and read entries, search and CSV export.
+7. A form on a page: questions appear based on the answers.
+
 == Release Notes ==
 Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-notes) to keep yourself informed about our latest enhancements and new features introduced every week.
 
@@ -157,11 +172,11 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 = 3.2.4 =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
 
-= v2.5.6 =
+= 2.5.7 =
+Fixed: a survey failed to load on a page when its JSON contained escaped double quotes, for example in an HTML link or an expression.
+
+= 2.5.6 =
 Security: added permission checks to the file upload and file delete handlers. Survey respondents can attach files again: an upload is only accepted when the survey really has a file question, only allowed file types go through, there is a size limit, and files are saved to a separate folder where PHP cannot run.
-
-
-= v2.5.5 =
 
 == Upgrade Notice ==
 
@@ -176,7 +191,7 @@ Survey Creator, the visual form designer, has moved to the free SurveyJS Forms P
 == Our web sites ==
 
 * [https://surveyjs.io/](https://surveyjs.io/)
-* [http://devsoftbaltic.com/](http://devsoftbaltic.com/)
+* [https://devsoftbaltic.com/](https://devsoftbaltic.com/)
 
 == Contact us ==
 info@devsoftbaltic.com
