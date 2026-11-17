@@ -71,7 +71,8 @@ class SurveyJS_Dashboard_Widget {
             . '.wp-sjs-dw__count{white-space:nowrap;font-weight:600}'
             . '.wp-sjs-dw__more{padding:0}.wp-sjs-dw__more summary{padding:8px 12px;cursor:pointer;color:#2271b1}'
             . '.wp-sjs-dw__empty{margin:0;padding:12px}'
-            . '.wp-sjs-dw__footer{margin:0;padding:12px;border-top:1px solid #f0f0f1;color:#dcdcde}' );
+            . '.wp-sjs-dw__footer{margin:0;padding:12px;border-top:1px solid #f0f0f1;color:#dcdcde}'
+            . '.wp-sjs-dw__progress{margin:0;padding:12px;border-bottom:1px solid #f0f0f1}.wp-sjs-dw__progress p{margin:0 0 8px}' );
         wp_add_inline_script( 'dashboard', 'var surveyjsDashboardWidget = ' . wp_json_encode( array( 'action' => self::PERIOD_ACTION, 'nonce' => wp_create_nonce( self::PERIOD_ACTION ) ) ) . ';' . <<<'JS'
 document.addEventListener("click", function (event) {
     var link = event.target.closest(".wp-sjs-dw__periods a[data-period]");
@@ -147,6 +148,7 @@ JS
         $unread = SurveyJS_Entries::unread_by_form();
         ?>
         <div class="wp-sjs-dw">
+            <?php SurveyJS_Welcome::render_dashboard_progress(); ?>
             <p class="wp-sjs-dw__periods">
                 <?php
                 $links = array();

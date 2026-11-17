@@ -97,6 +97,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             'edit'    => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'surveyjs' ) ),
             'full_preview' => sprintf( '<a href="%s">%s</a>', esc_url( $preview_url ), esc_html__( 'Preview', 'surveyjs' ) ),
             'results' => sprintf( '<a href="%s">%s</a>', esc_url( $results_url ), esc_html__( 'Results', 'surveyjs' ) ),
+            'embed'   => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Embed::create_page_url( $item->id ) ), esc_html__( 'Create a page', 'surveyjs' ) ),
             'clone'   => sprintf( '<a href="%s">%s</a>', esc_url( $clone_url ), esc_html__( 'Duplicate', 'surveyjs' ) ),
             'template' => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Templates::save_url( $item->id ) ), esc_html__( 'Save as Template', 'surveyjs' ) ),
             'delete'  => sprintf(

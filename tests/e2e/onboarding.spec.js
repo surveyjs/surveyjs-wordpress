@@ -60,18 +60,18 @@ test.describe("getting-started progress", () => {
 
     await page.goto(FORMS_URL);
     await expect(topLevel.locator(".wp-menu-name")).toHaveText("SurveyJS Forms");
-    await expect(menuProgress.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 4");
-    await expect(menuProgress.locator(".screen-reader-text")).toHaveText("1 of 4 steps completed");
+    await expect(menuProgress.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 3");
+    await expect(menuProgress.locator(".screen-reader-text")).toHaveText("1 of 3 steps completed");
     const bar = menuProgress.locator("progress");
     await expect(bar).toHaveAttribute("value", "1");
-    await expect(bar).toHaveAttribute("max", "4");
+    await expect(bar).toHaveAttribute("max", "3");
     expect((await bar.boundingBox()).height).toBe(4);
-    await expect(barGettingStarted.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 4");
-    await expect(barGettingStarted.locator(".screen-reader-text")).toHaveText("1 of 4 steps completed");
+    await expect(barGettingStarted.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 3");
+    await expect(barGettingStarted.locator(".screen-reader-text")).toHaveText("1 of 3 steps completed");
     await expect(barGettingStarted.locator("progress")).toHaveAttribute("value", "1");
     await expect(barNext.locator("a")).toHaveText("Next: Add the form to a page");
     await expect(barNext.locator("a")).toHaveAttribute("href", /post-new\.php\?post_type=page$/);
-    await expect(compact).toContainText("1 of 4 steps completed");
+    await expect(compact).toContainText("1 of 3 steps completed");
     await expect(compact.getByRole("link", { name: "Add the form to a page" })).toBeVisible();
 
     await page.goto("/");
@@ -106,14 +106,14 @@ test.describe("getting-started progress", () => {
     await expect(barNext.locator("a")).toHaveText("Next: Create a form");
     await page.goto("/wp-admin/index.php");
     await expect(barNext.locator("a")).toHaveText("Next: Create a form");
-    await expect(menuProgress.locator(".wp-sjs-menu-progress__text")).toHaveText("0 of 4");
+    await expect(menuProgress.locator(".wp-sjs-menu-progress__text")).toHaveText("0 of 3");
 
     name = uniqueName("E2E onboarding");
     await createSurvey(page, name);
     await page.goto(FORMS_URL);
     await expect(page.locator("#wpadminbar")).toBeVisible();
     await expect(barNext.filter({ hasText: "Create a form" })).toHaveCount(0);
-    await expect(menuProgress.filter({ hasText: "0 of 4" })).toHaveCount(0);
+    await expect(menuProgress.filter({ hasText: "0 of 3" })).toHaveCount(0);
   });
 
   test("counts the first entry only for a submission of the published form, not the editor preview", async ({ page }) => {

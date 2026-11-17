@@ -270,7 +270,7 @@ class SurveyJS_Templates {
         if ( ! $id ) {
             wp_die( esc_html__( 'The form could not be created from this template.', 'surveyjs' ) );
         }
-        wp_safe_redirect( add_query_arg( array( 'page' => 'surveyjs_editor', 'id' => $id ), admin_url( 'admin.php' ) ) );
+        wp_safe_redirect( add_query_arg( array( 'page' => 'surveyjs_editor', 'id' => $id, 'new' => 1 ), admin_url( 'admin.php' ) ) );
         exit;
     }
 
@@ -384,7 +384,7 @@ class SurveyJS_Templates {
                                 <div class="wp-sjs-template__thumbnail wp-sjs-template__thumbnail--empty"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span></div>
                                 <div class="wp-sjs-template__body">
                                     <h2 class="wp-sjs-template__name"><?php esc_html_e( 'Blank Form', 'surveyjs' ); ?></h2>
-                                    <p class="wp-sjs-template__description"><?php esc_html_e( 'Start from scratch and add questions in the JSON editor or the visual UI Builder.', 'surveyjs' ); ?></p>
+                                    <p class="wp-sjs-template__description"><?php SurveyJS_Welcome::visual_editor() ? esc_html_e( 'Start from scratch and add questions visually in the Config tab.', 'surveyjs' ) : esc_html_e( 'Start from scratch and add questions in the JSON editor or the visual UI Builder.', 'surveyjs' ); ?></p>
                                 </div>
                                 <div class="wp-sjs-template__actions">
                                     <button type="submit" name="template" value="<?php echo esc_attr( self::BLANK ); ?>" class="button button-primary"><?php esc_html_e( 'Create blank form', 'surveyjs' ); ?></button>

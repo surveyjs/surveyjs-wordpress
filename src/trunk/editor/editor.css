@@ -47,7 +47,49 @@
     margin-inline-start: 0;
 }
 
+.wp-sjs-editor__tabs .wp-sjs-editor__embed {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-block: 0 4px;
+    margin-inline-end: 8px;
+}
+
+.wp-sjs-editor__tabs .wp-sjs-editor__embed[aria-expanded="true"] {
+    background: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+
+.wp-sjs-embed.card {
+    max-width: 640px;
+    margin-block: 8px 12px;
+}
+
+.wp-sjs-embed[hidden],
+.wp-sjs-embed__unsaved[hidden],
+.wp-sjs-editor-next[hidden] {
+    display: none;
+}
+
+.wp-sjs-embed h3 {
+    margin-block: 16px 4px;
+    font-size: 13px;
+}
+
+.wp-sjs-embed__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.wp-sjs-embed__row select {
+    max-width: 100%;
+}
+
 .wp-sjs-editor__full-preview .dashicons,
+.wp-sjs-editor__embed .dashicons,
 .wp-sjs-editor__preview-close .dashicons {
     font-size: 16px;
     width: 16px;
@@ -553,4 +595,57 @@ body.wp-sjs-editor-full-preview-open {
     .wp-sjs-editor__tabs {
         flex-wrap: wrap;
     }
+}
+
+.wp-sjs-editor__empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 64px 24px 24px;
+    text-align: center;
+}
+
+.wp-sjs-editor__empty[hidden],
+.wp-sjs-editor--full-preview .wp-sjs-editor__empty,
+.wp-sjs-editor--empty:not(.wp-sjs-editor--full-preview) #wp-sjs-preview {
+    display: none;
+}
+
+.wp-sjs-editor__empty p {
+    max-width: 440px;
+    margin: 0 0 16px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__empty-title {
+    margin: 0 0 8px;
+    font-size: 1.3em;
+}
+
+.wp-sjs-editor__empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.wp-sjs-editor__empty-actions .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wp-sjs-editor__empty-actions .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.wp-sjs-editor .button.wp-sjs-editor__highlight {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #00a32a;
+}
+
+.wp-sjs-editor-next .button-link {
+    vertical-align: baseline;
 }

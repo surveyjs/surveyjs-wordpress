@@ -23,6 +23,8 @@
     const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
     const uiBuilderOrigin = new URL(config.uiBuilderUrl).origin;
     const noticeElement = document.getElementById("wp-sjs-editor-notice");
+    const emptyHint = document.getElementById("wp-sjs-empty-hint");
+    const emptyHintUiBuilderButton = document.getElementById("wp-sjs-empty-ui-builder");
     const monacoElement = document.getElementById("wp-sjs-monaco");
     const lintElement = document.getElementById("wp-sjs-lint");
     const previewElement = document.getElementById("wp-sjs-preview");
@@ -454,11 +456,11 @@
     }
 
     function showNotice(type, message) {
-        noticeElement.replaceChildren();
+        noticeElement.querySelectorAll(".wp-sjs-editor__message").forEach((notice) => notice.remove());
         if (!message) return;
-        const notice = element("div", "notice notice-" + type + " inline");
+        const notice = element("div", "notice notice-" + type + " inline wp-sjs-editor__message");
         notice.append(element("p", "", message));
-        noticeElement.append(notice);
+        noticeElement.prepend(notice);
     }
 
     function syntaxError() {
@@ -486,6 +488,7 @@
         gdprLabel.hidden = activeTab !== "survey";
         gdprCheckbox.disabled = Boolean(survey.error);
         if (survey.json) gdprCheckbox.checked = hasGdprAgreement(survey.json);
+        updateEmptyHint(survey.json);
         if (error) {
             showNotice("error", error);
         } else if (saveNotice) {
@@ -493,6 +496,19 @@
         } else {
             showNotice();
         }
+    }
+
+    function hasElements(json) {
+        const containers = [json].concat(Array.isArray(json.pages) ? json.pages : []);
+        return containers.some((container) => isJsonObject(container)
+            && ["elements", "questions"].some((key) => Array.isArray(container[key]) && container[key].length > 0));
+    }
+
+    function updateEmptyHint(json) {
+        if (!emptyHint) return;
+        const empty = Boolean(json) && !hasElements(json);
+        emptyHint.hidden = !empty;
+        rootElement.classList.toggle("wp-sjs-editor--empty", empty);
     }
 
     function runLint() {
@@ -919,12 +935,12 @@
     function save() {
         const survey = parse(sources.survey);
         const theme = parse(sources.theme);
-        if (!survey.json || !theme.json) return;
+        if (!survey.json || !theme.json) return Promise.resolve(false);
         const issueCount = SurveyLinter.lintSurvey(survey.json).findings.length;
         const settings = readSettings();
         const snapshot = { survey: sources.survey, theme: sources.theme, settings: JSON.stringify(settings) };
         saveButton.disabled = true;
-        fetch(config.saveUrl, {
+        return fetch(config.saveUrl, {
             method: "POST",
             body: new URLSearchParams({
                 Id: config.id,
@@ -942,9 +958,11 @@
                     ? { type: "warning", message: sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issueCount, "surveyjs"), issueCount) }
                     : { type: "success", message: __("Form saved.", "surveyjs") };
                 document.dispatchEvent(new CustomEvent("surveyjs:editor-saved", { detail: { id: config.id, json: survey.json, theme: theme.json, settings: settings } }));
+                return true;
             })
             .catch((error) => {
                 saveNotice = { type: "error", message: sprintf(__("Save failed: %s", "surveyjs"), error.message) };
+                return false;
             })
             .finally(updateState);
     }
@@ -1078,6 +1096,7 @@
     gdprCheckbox.addEventListener("change", toggleGdprAgreement);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
+    if (emptyHintUiBuilderButton) emptyHintUiBuilderButton.addEventListener("click", openUiBuilder);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
     testEmailButton.addEventListener("click", sendTestEmail);
     let themePresets = null;
@@ -1447,6 +1466,103 @@
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
     const initialTab = tabNames.includes(requestedTab) && !(requestedTab in sources) ? requestedTab : tabNames[0];
     if (initialTab && !(initialTab in sources)) switchTab(initialTab);
+
+    const embedButton = document.getElementById("wp-sjs-embed");
+    const embedPanel = document.getElementById("wp-sjs-embed-panel");
+    const embedShortcode = document.getElementById("wp-sjs-embed-shortcode");
+    const embedCopy = document.getElementById("wp-sjs-embed-copy");
+    const embedCopyLabel = embedCopy.textContent;
+    const NEXT_HINT_DISMISSED = "surveyjs-next-hint-dismissed";
+
+    function toggleEmbed(open) {
+        embedPanel.hidden = !open;
+        embedButton.setAttribute("aria-expanded", String(open));
+        if (!open) return;
+        embedPanel.querySelector(".wp-sjs-embed__unsaved").hidden = !isDirty();
+        embedShortcode.focus();
+        embedShortcode.select();
+    }
+
+    function copyShortcode() {
+        embedShortcode.select();
+        const copied = navigator.clipboard ? navigator.clipboard.writeText(embedShortcode.value) : Promise.reject(new Error("No clipboard"));
+        copied.catch(() => document.execCommand("copy")).then(() => {
+            embedCopy.textContent = embedCopy.dataset.copied;
+            setTimeout(() => {
+                embedCopy.textContent = embedCopyLabel;
+            }, COPIED_LABEL_MS);
+        });
+    }
+
+    function saveBeforeLeaving(event, leave) {
+        if (!isDirty()) return;
+        event.preventDefault();
+        save().then((saved) => {
+            if (saved) leave();
+        });
+    }
+
+    function focusNotification() {
+        if (!tabNames.includes("email")) return;
+        switchTab("email");
+        document.querySelector('input[data-setting="notificationEnabled"]').focus();
+        testEmailButton.classList.add("wp-sjs-editor__highlight");
+    }
+
+    function showNextHint() {
+        const steps = (config.nextSteps || []).filter((step) => step.key !== "notification" || !readSettings().notificationEnabled);
+        if (!steps.length || noticeElement.querySelector(".wp-sjs-editor-next")) return;
+        try {
+            if (window.localStorage.getItem(NEXT_HINT_DISMISSED)) return;
+        } catch (error) {
+            // Storage can be blocked; the hint then just shows.
+        }
+        const hint = element("div", "notice notice-info inline wp-sjs-editor-next");
+        const text = element("p");
+        text.append(element("strong", "", __("Next:", "surveyjs")), " ");
+        steps.forEach((step, index) => {
+            if (index) text.append(" · ");
+            const action = element("button", "button-link", step.label);
+            action.type = "button";
+            action.addEventListener("click", () => (step.key === "placement" ? toggleEmbed(true) : focusNotification()));
+            text.append(action);
+        });
+        const dismiss = element("button", "notice-dismiss");
+        dismiss.type = "button";
+        dismiss.append(element("span", "screen-reader-text", __("Dismiss this notice.", "surveyjs")));
+        dismiss.addEventListener("click", () => {
+            hint.remove();
+            try {
+                window.localStorage.setItem(NEXT_HINT_DISMISSED, "1");
+            } catch (error) {
+                // Without storage the hint comes back after the next new form is saved.
+            }
+        });
+        hint.classList.add("is-dismissible");
+        hint.append(text, dismiss);
+        noticeElement.append(hint);
+    }
+
+    embedButton.addEventListener("click", () => toggleEmbed(embedPanel.hidden));
+    embedCopy.addEventListener("click", copyShortcode);
+    embedPanel.querySelectorAll("[data-sjs-embed-save]").forEach((target) => {
+        if (target.tagName === "FORM") {
+            target.addEventListener("submit", (event) => saveBeforeLeaving(event, () => target.submit()));
+        } else {
+            target.addEventListener("click", (event) => saveBeforeLeaving(event, () => window.location.assign(target.href)));
+        }
+    });
+    if (config.isNew) {
+        document.addEventListener("surveyjs:editor-saved", showNextHint);
+    }
+    const requestedParams = new URLSearchParams(window.location.search);
+    if (requestedParams.get("focus") === "notification") focusNotification();
+    if (requestedParams.get("embed") === "1") toggleEmbed(true);
+    if (requestedParams.has("new")) {
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("new");
+        window.history.replaceState(null, "", cleanUrl.toString());
+    }
 
     const monacoLoaded = loadMonaco();
 

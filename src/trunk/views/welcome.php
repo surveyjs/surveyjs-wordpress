@@ -9,7 +9,9 @@ class SurveyJS_Welcome {
     const ENTRY_FORMS_OPTION = 'surveyjs_entry_forms';
     const DOCS_URL = 'https://surveyjs.io/form-library/documentation/overview';
     const CAPABILITY = 'manage_options';
+    const REVIEW_URL = 'https://wordpress.org/support/plugin/surveyjs/reviews/#new-post';
     const PROGRESS_TTL = DAY_IN_SECONDS;
+    const OPTIONAL_STEPS = array( 'notification' );
     const PROGRESS_CSS = '.wp-sjs-progress{-webkit-appearance:none;appearance:none;display:block;width:100%;height:4px;border:0;border-radius:2px;background:rgba(140,143,148,.35);overflow:hidden}.wp-sjs-progress::-webkit-progress-bar{background:transparent}.wp-sjs-progress::-webkit-progress-value{background:#00a32a;border-radius:2px}.wp-sjs-progress::-moz-progress-bar{background:#00a32a;border-radius:2px}.wp-sjs-checklist-progress[hidden]{display:none!important}';
 
     public static function init() {
@@ -119,11 +121,14 @@ class SurveyJS_Welcome {
             return null;
         }
         $progress = $state['progress'] ?? null;
-        if ( is_admin() && ( ! is_array( $progress ) || (int) ( $progress['time'] ?? 0 ) < time() - self::PROGRESS_TTL ) ) {
-            $progress = self::checklist()['progress'];
-        }
         $titles = self::titles();
-        if ( ! is_array( $progress ) || ! isset( $titles[ $progress['next'] ?? '' ] ) ) {
+        // A cache written before the email step became optional counts it in the total.
+        $outdated = is_array( $progress ) && count( $titles ) - count( self::OPTIONAL_STEPS ) !== (int) ( $progress['total'] ?? 0 );
+        if ( is_admin() && ( ! is_array( $progress ) || $outdated || (int) ( $progress['time'] ?? 0 ) < time() - self::PROGRESS_TTL ) ) {
+            $progress = self::checklist()['progress'];
+            $outdated = false;
+        }
+        if ( $outdated || ! is_array( $progress ) || ! isset( $titles[ $progress['next'] ?? '' ] ) ) {
             return null;
         }
         $progress['title'] = $titles[ $progress['next'] ];
@@ -134,7 +139,7 @@ class SurveyJS_Welcome {
         if ( ! in_array( sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ), array( self::PAGE, 'surveyjs-main-menu' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             return;
         }
-        wp_add_inline_style( 'common', '.wp-sjs-checklist.card,.wp-sjs-welcome-import.card,.wp-sjs-pro-upsell.card{max-width:640px}.wp-sjs-checklist progress{width:100%}.wp-sjs-checklist__steps{margin:16px 0 0;list-style:none}.wp-sjs-checklist__steps li{display:flex;gap:8px;margin:0;padding:12px 0;border-top:1px solid #f0f0f1}.wp-sjs-checklist__steps p{margin:4px 0 8px}.wp-sjs-checklist .dashicons-yes-alt{color:#00a32a}.wp-sjs-checklist .dashicons-marker{color:#a7aaad}.wp-sjs-checklist[hidden],.wp-sjs-checklist-compact[hidden],.wp-sjs-checklist-hidden[hidden]{display:none}.wp-sjs-checklist .wp-sjs-progress{height:8px;border-radius:4px}' . self::PROGRESS_CSS );
+        wp_add_inline_style( 'common', '.wp-sjs-checklist.card,.wp-sjs-welcome-import.card,.wp-sjs-pro-upsell.card{max-width:640px}.wp-sjs-checklist progress{width:100%}.wp-sjs-checklist__steps{margin:16px 0 0;list-style:none}.wp-sjs-checklist__steps li{display:flex;gap:8px;margin:0;padding:12px 0;border-top:1px solid #f0f0f1}.wp-sjs-checklist__steps p{margin:4px 0 8px}.wp-sjs-checklist .dashicons-yes-alt{color:#00a32a}.wp-sjs-checklist .dashicons-marker{color:#a7aaad}.wp-sjs-checklist[hidden],.wp-sjs-checklist-compact[hidden],.wp-sjs-checklist-hidden[hidden]{display:none}.wp-sjs-checklist .wp-sjs-progress{height:8px;border-radius:4px}.wp-sjs-checklist__optional{display:inline-block;margin-inline-start:6px;padding:0 6px;border-radius:2px;background:#f0f0f1;color:#50575e;font-size:12px;line-height:18px;vertical-align:1px}.wp-sjs-checklist__suggestion .wp-sjs-checklist__optional{margin-inline:0 6px}' . self::PROGRESS_CSS );
         wp_add_inline_script( 'common', 'var surveyjsChecklist = ' . wp_json_encode( array( 'nonce' => wp_create_nonce( 'surveyjs-checklist' ) ) ) . ';' . <<<'JS'
 document.addEventListener("click", function (event) {
     var button = event.target.closest("[data-sjs-checklist]");
@@ -182,7 +187,9 @@ JS
             'form'         => array(
                 'done'        => (bool) $form_ids,
                 'title'       => $titles['form'],
-                'description' => __( 'Start with a ready-made template or a blank form and edit the questions in the JSON editor or the visual UI Builder.', 'surveyjs' ),
+                'description' => self::visual_editor()
+                    ? __( 'Start with a ready-made template or a blank form and edit the questions visually in the Config tab.', 'surveyjs' )
+                    : __( 'Start with a ready-made template or a blank form and edit the questions in the JSON editor or the visual UI Builder.', 'surveyjs' ),
                 'url'         => self::add_form_url(),
                 'action'      => __( 'Create a form', 'surveyjs' ),
             ),
@@ -193,14 +200,15 @@ JS
                     /* translators: %s: form shortcode */
                     ? sprintf( __( 'Insert the SurveyJS Forms block, or paste the shortcode %s, and publish the page.', 'surveyjs' ), '[surveyjs id="' . $latest_id . '"]' )
                     : __( 'Insert the SurveyJS Forms block or the form shortcode, and publish the page.', 'surveyjs' ),
-                'url'         => admin_url( 'post-new.php?post_type=page' ),
-                'action'      => __( 'Add a new page', 'surveyjs' ),
+                'url'         => $latest_id ? SurveyJS_Embed::create_page_url( $latest_id ) : admin_url( 'post-new.php?post_type=page' ),
+                'next_url'    => $latest_id ? add_query_arg( 'embed', 1, $editor_url ) : admin_url( 'post-new.php?post_type=page' ),
+                'action'      => $latest_id ? __( 'Create a page with this form', 'surveyjs' ) : __( 'Add a new page', 'surveyjs' ),
             ),
             'notification' => array(
                 'done'        => $notification,
                 'title'       => $titles['notification'],
-                'description' => __( 'Get an email every time someone submits the form.', 'surveyjs' ),
-                'url'         => $latest_id ? add_query_arg( 'tab', 'email', $editor_url ) : $editor_url,
+                'description' => __( 'Turn on the email notification to get an email every time someone submits the form. Send a test email to check that emails reach your inbox; if they don\'t, set up an SMTP plugin.', 'surveyjs' ),
+                'url'         => $latest_id ? add_query_arg( array( 'tab' => 'email', 'focus' => 'notification' ), $editor_url ) : $editor_url,
                 'action'      => $latest_id ? __( 'Set up notification', 'surveyjs' ) : __( 'Create a form', 'surveyjs' ),
             ),
             'entry'        => array(
@@ -211,6 +219,25 @@ JS
                 'action'      => $placement_url ? __( 'Open the page', 'surveyjs' ) : ( $latest_id ? __( 'View entries', 'surveyjs' ) : __( 'Create a form', 'surveyjs' ) ),
             ),
         );
+    }
+
+    public static function visual_editor() {
+        return (bool) apply_filters( 'surveyjs_visual_editor_enabled', false );
+    }
+
+    public static function editor_next_steps() {
+        $progress = self::progress();
+        $labels = array(
+            'placement'    => __( 'Embed the form', 'surveyjs' ),
+            'notification' => __( 'Turn on email notifications', 'surveyjs' ),
+        );
+        $steps = array();
+        foreach ( $progress ? (array) ( $progress['left'] ?? array() ) : array() as $key ) {
+            if ( isset( $labels[ $key ] ) ) {
+                $steps[] = array( 'key' => $key, 'label' => $labels[ $key ] );
+            }
+        }
+        return $steps;
     }
 
     private static function titles() {
@@ -241,16 +268,24 @@ JS
         $left = array_filter( $steps, function ( $step ) {
             return ! $step['done'];
         } );
-        $next = key( $left );
+        $required = array_diff_key( $steps, array_flip( self::OPTIONAL_STEPS ) );
+        $required_left = array_intersect_key( $left, $required );
+        $next = key( $required_left );
         $progress = array(
-            'done'  => count( $steps ) - count( $left ),
-            'total' => count( $steps ),
+            'done'  => count( $required ) - count( $required_left ),
+            'total' => count( $required ),
             'next'  => $next,
-            'url'   => $next ? $steps[ $next ]['url'] : '',
+            'url'   => $next ? ( $steps[ $next ]['next_url'] ?? $steps[ $next ]['url'] ) : '',
+            'left'  => array_keys( $left ),
             'time'  => time(),
         );
-        self::update_state( array( 'completed' => ! $left, 'progress' => $progress ) );
-        return array( 'steps' => $steps, 'done' => $progress['done'], 'progress' => $left ? $progress : null );
+        self::update_state( array( 'completed' => ! $required_left, 'progress' => $progress ) );
+        return array(
+            'steps'    => $steps,
+            'done'     => $progress['done'],
+            'total'    => $progress['total'],
+            'progress' => $required_left ? $progress : null,
+        );
     }
 
     private static function progress_text( $done, $total ) {
@@ -286,6 +321,23 @@ JS
             . '#wpadminbar .wp-sjs-menu-progress{display:flex;align-items:center;gap:8px;min-width:180px}'
             . '#wpadminbar .wp-sjs-menu-progress__text{flex:none;font-size:12px;line-height:16px;opacity:.85}'
             . '#wpadminbar .wp-sjs-menu-progress .wp-sjs-progress{display:block;flex:1;width:auto;min-width:60px;height:4px;border-radius:2px;background:rgba(140,143,148,.35)}';
+    }
+
+    public static function render_dashboard_progress() {
+        $progress = self::progress();
+        if ( ! $progress ) {
+            return;
+        }
+        ?>
+        <div class="wp-sjs-dw__progress">
+            <p>
+                <a href="<?php echo esc_url( self::url() ); ?>"><?php esc_html_e( 'Getting Started', 'surveyjs' ); ?></a>:
+                <?php echo esc_html( self::progress_text( $progress['done'], $progress['total'] ) ); ?>.
+                <?php esc_html_e( 'Next:', 'surveyjs' ); ?> <a href="<?php echo esc_url( $progress['url'] ); ?>"><?php echo esc_html( $progress['title'] ); ?></a>
+            </p>
+            <progress class="wp-sjs-progress" max="<?php echo esc_attr( $progress['total'] ); ?>" value="<?php echo esc_attr( $progress['done'] ); ?>" aria-hidden="true"></progress>
+        </div>
+        <?php
     }
 
     public static function render_compact() {
@@ -342,23 +394,37 @@ JS
     }
 
     private static function render_checklist( $checklist, $hidden ) {
-        $total = count( $checklist['steps'] );
+        $total = $checklist['total'];
+        $notification = $checklist['steps']['notification'];
         ?>
         <div class="card wp-sjs-checklist"<?php echo $hidden ? ' hidden' : ''; ?>>
             <?php if ( $total === $checklist['done'] ) : ?>
                 <h2><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'You\'re all set!', 'surveyjs' ); ?></h2>
-                <p><?php esc_html_e( 'Your form is live, sends email notifications and has received its first entry.', 'surveyjs' ); ?></p>
-                <p><a href="<?php echo esc_url( add_query_arg( 'page', 'surveyjs-main-menu', admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Go to all forms', 'surveyjs' ); ?></a></p>
+                <p><?php esc_html_e( 'Your form is live and has received its first entry.', 'surveyjs' ); ?></p>
+                <?php if ( ! $notification['done'] ) : ?>
+                    <p class="wp-sjs-checklist__suggestion">
+                        <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Optional', 'surveyjs' ); ?></span>
+                        <?php esc_html_e( 'Want an email every time someone submits the form?', 'surveyjs' ); ?>
+                        <a href="<?php echo esc_url( $notification['url'] ); ?>"><?php echo esc_html( $notification['title'] ); ?></a>
+                    </p>
+                <?php endif; ?>
+                <p>
+                    <a href="<?php echo esc_url( add_query_arg( 'page', 'surveyjs-main-menu', admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Go to all forms', 'surveyjs' ); ?></a>
+                    &nbsp;|&nbsp; <a href="<?php echo esc_url( self::REVIEW_URL ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Rate SurveyJS Forms on WordPress.org', 'surveyjs' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
+                </p>
             <?php else : ?>
                 <h2><?php esc_html_e( 'Get started', 'surveyjs' ); ?></h2>
                 <p><?php echo esc_html( self::progress_text( $checklist['done'], $total ) ); ?></p>
                 <progress class="wp-sjs-progress" max="<?php echo esc_attr( $total ); ?>" value="<?php echo esc_attr( $checklist['done'] ); ?>"></progress>
                 <ol class="wp-sjs-checklist__steps">
-                    <?php foreach ( $checklist['steps'] as $step ) : ?>
+                    <?php foreach ( $checklist['steps'] as $key => $step ) : ?>
                         <li>
                             <span class="dashicons <?php echo $step['done'] ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>" aria-hidden="true"></span>
                             <div>
                                 <strong><?php echo esc_html( $step['title'] ); ?></strong>
+                                <?php if ( in_array( $key, self::OPTIONAL_STEPS, true ) ) : ?>
+                                    <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Optional', 'surveyjs' ); ?></span>
+                                <?php endif; ?>
                                 <span class="screen-reader-text"><?php $step['done'] ? esc_html_e( '(completed)', 'surveyjs' ) : esc_html_e( '(not completed)', 'surveyjs' ); ?></span>
                                 <?php if ( ! $step['done'] ) : ?>
                                     <p><?php echo esc_html( $step['description'] ); ?></p>

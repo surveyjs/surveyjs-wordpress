@@ -22,7 +22,7 @@ if ( 'get' === $command ) {
         'completed' => false,
         'progress'  => array(
             'done'  => (int) $argv[2],
-            'total' => 4,
+            'total' => 3,
             'next'  => (string) $argv[3],
             'url'   => admin_url( 'post-new.php?post_type=page' ),
             'time'  => time(),
@@ -30,4 +30,38 @@ if ( 'get' === $command ) {
     );
     update_option( SurveyJS_Welcome::CHECKLIST_OPTION, $state );
     echo '{}';
+} elseif ( 'fresh' === $command ) {
+    // Turns the site into one that has never had a form; destructive, so only for a throwaway sandbox.
+    global $wpdb;
+    do {
+        $form_ids = get_posts( array( 'post_type' => SurveyJS_Forms::POST_TYPE, 'post_status' => 'any', 'numberposts' => 100, 'fields' => 'ids' ) );
+        foreach ( $form_ids as $form_id ) {
+            wp_delete_post( $form_id, true );
+        }
+    } while ( $form_ids );
+    $placed = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND ( post_content LIKE '%wp:sjs/gutenberg-block%' OR post_content LIKE '%[survey%' )" );
+    foreach ( $placed as $placed_id ) {
+        wp_update_post( array( 'ID' => (int) $placed_id, 'post_status' => 'draft' ) );
+    }
+    $wpdb->query( $wpdb->prepare( 'DELETE FROM %i', SurveyJS_Entries::table() ) );
+    foreach ( array( SurveyJS_Welcome::CHECKLIST_OPTION, SurveyJS_Welcome::ENTRY_FORMS_OPTION, 'surveyjs_received_entry' ) as $option_name ) {
+        delete_option( $option_name );
+    }
+    echo wp_json_encode( array( 'unpublished' => count( $placed ) ) );
+} elseif ( 'delete' === $command ) {
+    foreach ( array_slice( $argv, 2 ) as $delete_id ) {
+        wp_delete_post( (int) $delete_id, true );
+    }
+    echo '{}';
+} elseif ( 'pro' === $command ) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    if ( 'on' === ( $argv[2] ?? '' ) ) {
+        activate_plugin( 'surveyjs-pro/surveyjs-pro.php' );
+    } else {
+        deactivate_plugins( 'surveyjs-pro/surveyjs-pro.php' );
+    }
+    echo wp_json_encode( array( 'active' => is_plugin_active( 'surveyjs-pro/surveyjs-pro.php' ) ) );
+} elseif ( 'creator' === $command ) {
+    SurveyJS_Pro_Settings::update( array( 'creator' => 'on' === ( $argv[2] ?? '' ) ) );
+    echo wp_json_encode( array( 'creator' => SurveyJS_Pro_Settings::feature( 'creator' ) ) );
 }

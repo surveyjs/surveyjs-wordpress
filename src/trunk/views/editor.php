@@ -7,8 +7,26 @@ class SurveyJS_Editor {
     function __construct() {
     }
 
+    const JSON_GUIDE_URL = 'https://surveyjs.io/form-library/documentation/design-survey/create-a-simple-survey';
+
     public static function ui_builder_url() {
         return surveyjs_site_url( '/wordpress-ui-builder' );
+    }
+
+    private static function render_empty_hint() {
+        if ( SurveyJS_Welcome::visual_editor() ) {
+            return;
+        }
+        ?>
+        <div class="wp-sjs-editor__empty" id="wp-sjs-empty-hint" hidden>
+            <h2 class="wp-sjs-editor__empty-title"><?php esc_html_e( 'This form is empty', 'surveyjs' ); ?></h2>
+            <p><?php esc_html_e( 'Add questions in the JSON editor. If you\'re new to SurveyJS JSON, read the Getting Started guide, or build the form visually in the free UI Builder.', 'surveyjs' ); ?></p>
+            <p class="wp-sjs-editor__empty-actions">
+                <a class="button" href="<?php echo esc_url( self::JSON_GUIDE_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Getting Started guide', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span><span class="dashicons dashicons-external" aria-hidden="true"></span></a>
+                <button type="button" class="button" id="wp-sjs-empty-ui-builder"><?php esc_html_e( 'Open in free UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
+            </p>
+        </div>
+        <?php
     }
 
     public static function tabs( $survey ) {
@@ -76,6 +94,8 @@ class SurveyJS_Editor {
             'uiBuilderUrl' => self::ui_builder_url(),
             'gdpr'      => self::gdpr_agreement(),
             'privacyPolicyUrl' => get_privacy_policy_url(),
+            'isNew'     => ! empty( $_GET['new'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only decides whether to show a hint.
+            'nextSteps' => SurveyJS_Welcome::editor_next_steps(),
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $captcha_configured = SurveyJS_Captcha::is_configured();
@@ -98,12 +118,14 @@ class SurveyJS_Editor {
                 <a href="<?php echo esc_url( SurveyJS_Templates::save_url( $survey->id ) ); ?>" class="button wp-sjs-editor__save-template" id="wp-sjs-save-template"><?php esc_html_e( 'Save as Template', 'surveyjs' ); ?></a>
             </div>
             <div id="wp-sjs-editor-notice"></div>
+            <?php SurveyJS_Embed::render_panel( $survey ); ?>
 
             <nav class="nav-tab-wrapper wp-sjs-editor__tabs">
                 <?php foreach ( $tabs as $tab => $label ) : ?>
                     <a href="#" class="nav-tab<?php echo $tab === $first_tab ? ' nav-tab-active' : ''; ?>" data-tab="<?php echo esc_attr( $tab ); ?>"><?php echo esc_html( $label ); ?></a>
                 <?php endforeach; ?>
                 <button type="button" class="button wp-sjs-editor__full-preview" id="wp-sjs-full-preview" aria-controls="wp-sjs-preview-panel" aria-expanded="false"><span class="dashicons dashicons-visibility" aria-hidden="true"></span><?php esc_html_e( 'Open full preview', 'surveyjs' ); ?></button>
+                <button type="button" class="button wp-sjs-editor__embed" id="wp-sjs-embed" aria-controls="wp-sjs-embed-panel" aria-expanded="false"><span class="dashicons dashicons-shortcode" aria-hidden="true"></span><?php esc_html_e( 'Embed', 'surveyjs' ); ?></button>
                 <button type="button" class="button button-primary wp-sjs-editor__save" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </nav>
 
@@ -336,7 +358,8 @@ class SurveyJS_Editor {
                         <p class="description wp-sjs-editor__preview-note"><?php esc_html_e( 'Depending on your site\'s theme, the form on a real page may look slightly different from this preview.', 'surveyjs' ); ?></p>
                         <button type="button" class="button wp-sjs-editor__preview-close" id="wp-sjs-preview-close" hidden><span class="dashicons dashicons-no-alt" aria-hidden="true"></span><?php esc_html_e( 'Close preview', 'surveyjs' ); ?></button>
                     </div>
-                    <iframe id="wp-sjs-preview" class="wp-sjs-editor__preview-frame" title="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>"></iframe>
+                    <?php self::render_empty_hint(); ?>
+                    <iframe id="wp-sjs-preview"class="wp-sjs-editor__preview-frame" title="<?php esc_attr_e( 'Form preview', 'surveyjs' ); ?>"></iframe>
                     <iframe id="wp-sjs-full-preview-frame" class="wp-sjs-editor__preview-frame wp-sjs-editor__preview-frame--full" title="<?php esc_attr_e( 'Form preview on a page of your site', 'surveyjs' ); ?>"></iframe>
                 </div>
             </div>

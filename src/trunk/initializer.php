@@ -10,6 +10,8 @@ if ( is_admin() ) {
     include( __DIR__ . "/views/results.php" );
     include( __DIR__ . "/views/import.php" );
     include( __DIR__ . "/views/templates.php" );
+    include( __DIR__ . "/embed.php" );
+    SurveyJS_Embed::init();
     add_action( 'init', array( 'SurveyJS_Templates', 'register_post_type' ) );
 }
 
