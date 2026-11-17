@@ -1,0 +1,61 @@
+name: GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      publish:
+        description: Publish the release, which creates the tag (waits for the "release" environment approval)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  VERSION: ${{ inputs.version }}
+
+jobs:
+  draft:
+    name: Release draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: ${{ runner.temp }}/dist
+      - working-directory: ${{ runner.temp }}/dist
+        run: |
+          tag_sha="$(gh api "repos/$GH_REPO/commits/$VERSION" --jq .sha 2> /dev/null || true)"
+          if [ -n "$tag_sha" ] && [ "$tag_sha" != "$GITHUB_SHA" ]; then
+            echo "::error::Tag $VERSION already exists on $tag_sha, this run is $GITHUB_SHA"
+            exit 1
+          fi
+          notes="Built by $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID from $GITHUB_SHA."
+          if draft="$(gh release view "$VERSION" --json isDraft --jq .isDraft 2> /dev/null)"; then
+            [ "$draft" = true ] || { echo "::error::Release $VERSION is already published"; exit 1; }
+            gh release edit "$VERSION" --target "$GITHUB_SHA" --notes "$notes"
+            gh release upload "$VERSION" ./*.zip SHA256SUMS --clobber
+          else
+            gh release create "$VERSION" ./*.zip SHA256SUMS --draft --target "$GITHUB_SHA" --title "$VERSION" --notes "$notes"
+          fi
+          echo "Draft: $(gh release view "$VERSION" --json url --jq .url)" >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Publish release and tag
+    needs: draft
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - run: gh release edit "$VERSION" --draft=false

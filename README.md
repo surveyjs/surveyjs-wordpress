@@ -157,7 +157,7 @@ SurveyJS Forms and SurveyJS Forms Pro are always released together, with the sam
 - **Self-updating of Pro is turned off** on WordPress VIP, when Pro is installed with Composer (then `composer update surveyjs/surveyjs-pro --with-dependencies` updates both plugins), when file changes are not allowed (`DISALLOW_FILE_MODS`), with `define( 'SURVEYJS_PRO_DISABLE_UPDATES', true );` or with the filter `surveyjs_pro_self_update` returning `false`. Then Pro never downloads anything, the notice has no Pro update button, and both plugins are updated in your code repository.
 - Pro has the header `Update URI: https://surveyjs.io/wordpress-pro`, so WordPress.org never offers another plugin with the slug `surveyjs-pro` as its update.
 
-**Release order:** first upload the Pro zip to `https://surveyjs.io/Content/Downloads/wordpress/surveyjs-pro.zip` (fixed URL, always the latest Pro, one top folder `surveyjs-pro/`), then publish SurveyJS Forms to WordPress.org. Implementation details: `includes/updater.php` and the "Updates" section of DEVELOPMENT.md in the Pro repository.
+**Release order:** first upload the Pro zip to `https://cdn.surveyjs.io/wordpress/surveyjs-pro.zip` (fixed URL, always the latest Pro, one top folder `surveyjs-pro/`), then publish SurveyJS Forms to WordPress.org. Implementation details: `includes/updater.php` and the "Updates" section of DEVELOPMENT.md in the Pro repository.
 
 ## For developers
 
@@ -167,7 +167,7 @@ SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_resu
 
 - Actions: `surveyjs_admin_menu`, `surveyjs_admin_enqueue_scripts`, `surveyjs_register_settings`, `surveyjs_render_editor`, `surveyjs_editor_email_rows`, `surveyjs_render_results_view`, `surveyjs_results_title_actions`, `surveyjs_entries_bulk_action_<action>`, `surveyjs_enqueue_form_assets`, `wp_surveyjs_save_result`.
 - Filters: `surveyjs_editor_tabs`, `surveyjs_form_settings_defaults`, `surveyjs_form_settings_sanitize`, `surveyjs_form_row_actions`, `surveyjs_results_views`, `surveyjs_entry_row_actions`, `surveyjs_entries_bulk_actions`, `surveyjs_form_client_config`, `surveyjs_save_result_response`, `surveyjs_notification_attachments`, `surveyjs_notification_tags`, `surveyjs_form_locale`, `surveyjs_show_pro_upsell`.
-- Other settings: `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter (surveyjs.io address, default `https://surveyjs.io`; the UI Builder, Pro page and Pro download URLs are built from it), `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size`, `surveyjs_unattached_upload_lifetime`, `surveyjs_partial_entry_lifetime`, `surveyjs_entry_ip`, `surveyjs_import_entries_per_request`.
+- Other settings: `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter (surveyjs.io address, default `https://surveyjs.io`; the UI Builder and Pro page URLs are built from it; the Pro download URL is `surveyjs_pro_package_url`), `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size`, `surveyjs_unattached_upload_lifetime`, `surveyjs_partial_entry_lifetime`, `surveyjs_entry_ip`, `surveyjs_import_entries_per_request`.
 
 ### File storage
 

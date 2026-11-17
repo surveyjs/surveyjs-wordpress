@@ -1,0 +1,219 @@
+name: Checks
+
+# Shared by Base (ci.yml) and Pro (surveyjs-wordpress-pro ci.yml). Runs on the "plugin" artifact
+# of the caller's build job; the caller's repository has the tests, this repository has the tools.
+
+on:
+  workflow_call:
+    inputs:
+      php-paths:
+        description: Folders from the artifact for php -l and phpcs, space-separated
+        type: string
+        required: true
+      plugin-check-dir:
+        description: Plugin folder from the artifact for Plugin Check (its name is the slug)
+        type: string
+        required: true
+      plugin-check-ignore-codes:
+        description: Accepted Plugin Check error codes, one per line
+        type: string
+        default: ""
+      e2e-base-dir:
+        description: Base plugin folder from the artifact for E2E
+        type: string
+        required: true
+      e2e-pro-dir:
+        description: Pro plugin folder from the artifact for E2E; empty = WordPress without Pro
+        type: string
+        default: ""
+      e2e-shards:
+        description: E2E shard numbers, JSON list
+        type: string
+        default: "[1]"
+
+permissions:
+  contents: read
+
+env:
+  WP_ENV: "@wordpress/env@12.1.0"
+
+jobs:
+  lint:
+    name: php -l (${{ matrix.php }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.2", "8.5"]
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: ${{ runner.temp }}/dist
+      - working-directory: ${{ runner.temp }}
+        env:
+          PATHS: ${{ inputs.php-paths }}
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/dist:/w/dist:ro" -w /w "php:${{ matrix.php }}-cli" \
+            sh -c 'find "$@" -name "*.php" -print0 | xargs -0 -n1 -P4 php -l' lint $PATHS > lint.log \
+            || { grep -v '^No syntax errors' lint.log; exit 1; }
+          echo "$(grep -c '^No syntax errors' lint.log) files without syntax errors"
+
+  phpcs:
+    name: VIP phpcs
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PATHS: ${{ inputs.php-paths }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: dist
+      - run: composer install --no-interaction --no-progress
+      - name: WordPress-VIP-Go and PHPCompatibilityWP (phpcs.xml.dist)
+        run: vendor/bin/phpcs $PATHS
+      - name: WordPressVIPMinimum
+        if: ${{ !cancelled() }}
+        run: vendor/bin/phpcs --standard=WordPressVIPMinimum --extensions=php,js --severity=1 --runtime-set ignore_warnings_on_exit 1 -sp $PATHS
+
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: dist
+      - uses: WordPress/plugin-check-action@10857da14b6c2246d15402b3e69f777edcf8c12e # v1.1.9
+        with:
+          build-dir: ${{ inputs.plugin-check-dir }}
+          ignore-codes: ${{ inputs.plugin-check-ignore-codes }}
+          repo-token: ""
+
+  e2e:
+    name: E2E (${{ matrix.shard }}/${{ strategy.job-total }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(inputs.e2e-shards) }}
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.32.0
+        ports:
+          - 1025
+          - 8025
+    env:
+      WP_USERNAME: admin
+      WP_PASSWORD: password
+      PW_CHANNEL: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .tooling
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: dist
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: |
+          npm ci
+          npx playwright install chromium
+      - name: WordPress (wp-env) with the built plugins
+        working-directory: .tooling
+        env:
+          BASE_DIR: ${{ inputs.e2e-base-dir }}
+          PRO_DIR: ${{ inputs.e2e-pro-dir }}
+          SMTP_PORT: ${{ job.services.mailpit.ports['1025'] }}
+        run: |
+          pro_plugins=""
+          pro_mapping=""
+          if [ -n "$PRO_DIR" ]; then
+            pro_plugins='"plugins": [],'
+            pro_mapping="\"wp-content/plugins/surveyjs-pro\": \"../$PRO_DIR\","
+          fi
+          cat > .wp-env.override.json <<EOF
+          {
+            $pro_plugins
+            "mappings": {
+              $pro_mapping
+              "wp-content/plugins/surveyjs": "../$BASE_DIR"
+            },
+            "config": { "SJS_E2E_SMTP_PORT": $SMTP_PORT }
+          }
+          EOF
+          npx --yes "$WP_ENV" start
+          if [ -n "$PRO_DIR" ]; then npx --yes "$WP_ENV" run cli wp plugin activate surveyjs-pro; fi
+          install="$(npx --yes "$WP_ENV" status --json | node -p 'JSON.parse(require("fs").readFileSync(0)).installPath')"
+          container="$(docker ps -q -f "label=com.docker.compose.project=$(basename "$install")" -f label=com.docker.compose.service=wordpress)"
+          [ -n "$container" ] || { echo "::error::wp-env WordPress container not found"; exit 1; }
+          {
+            echo "WP_ENV_INSTALL=$install"
+            echo "WP_CONTAINER=$container"
+            echo "WP_BASE_URL=http://localhost:$(node -p 'require("./.wp-env.json").port')"
+          } >> "$GITHUB_ENV"
+      - env:
+          MAILPIT_URL: http://localhost:${{ job.services.mailpit.ports['8025'] }}
+        run: npx playwright test --project=setup --project=e2e --shard=${{ matrix.shard }}/${{ strategy.job-total }} --grep-invert @quarantine
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report/
+          retention-days: 7
+      - if: ${{ failure() }}
+        run: cp "$WP_ENV_INSTALL/WordPress/wp-content/debug.log" test-results/ || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() }}
+        with:
+          name: test-results-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
+
+  e2e-report:
+    name: E2E report
+    needs: e2e
+    if: ${{ !cancelled() && needs.e2e.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+      - run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

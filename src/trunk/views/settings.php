@@ -70,7 +70,7 @@ class SurveyJS_SettingsPage {
 				/* translators: 1: Google reCAPTCHA admin console URL, 2: Cloudflare Turnstile dashboard URL */
 				__( 'Get the keys in the <a href="%1$s" target="_blank" rel="noopener noreferrer">Google reCAPTCHA admin console</a> or the <a href="%2$s" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile dashboard</a>. reCAPTCHA v2 and v3 use different keys.', 'surveyjs' ),
 				'https://www.google.com/recaptcha/admin',
-				'https://dash.cloudflare.com/?to=/:account/turnstile'
+				'https://dash.cloudflare.com/?to=/:account/turnstile' // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- link to the Cloudflare dashboard, not an asset.
 			),
 			array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
 		) . '</p>';

@@ -7,3 +7,8 @@ node_modules/
 test-results/
 playwright-report/
 tests/e2e/.auth/
+blob-report/
+dist/
+vendor/
+.wp-env.override.json
+.tooling/

@@ -1,0 +1,17 @@
+{
+    "name": "surveyjs/surveyjs-wordpress-dev",
+    "description": "Development tools for SurveyJS Forms and SurveyJS Forms Pro (code checks). The plugin itself is src/trunk.",
+    "type": "project",
+    "minimum-stability": "alpha",
+    "prefer-stable": true,
+    "require-dev": {
+        "automattic/vipwpcs": "3.1.0",
+        "phpcompatibility/php-compatibility": "10.0.0-alpha2",
+        "phpcompatibility/phpcompatibility-wp": "3.0.0-alpha2"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

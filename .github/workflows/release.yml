@@ -1,0 +1,163 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release, x.y.z (the tag is created after the checks)
+        required: true
+      publish:
+        description: Publish the GitHub release (creates the tag) and deploy to wordpress.org; each step waits for approval
+        type: boolean
+        default: false
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERSION: ${{ inputs.version }}
+
+jobs:
+  verify:
+    name: Release fields
+    if: github.repository == 'surveyjs/surveyjs-wordpress'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - working-directory: src/trunk
+        run: |
+          fail=0
+          need() { grep -qF -- "$2" "$1" || { echo "::error file=src/trunk/$1::\"$2\" not found"; fail=1; }; }
+          need surveyjs.php "define( 'SURVEYJS_VERSION', '$VERSION' );"
+          need readme.txt "Stable tag: $VERSION"
+          need libs/library/survey.core.min.js " v$VERSION"
+          if [ "$(grep -c "^= $VERSION =" readme.txt)" -lt 2 ]; then
+            echo "::error file=src/trunk/readme.txt::Changelog and Upgrade Notice need a \"= $VERSION =\" entry"
+            fail=1
+          fi
+          exit "$fail"
+
+  ci:
+    name: Checks
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+    with:
+      release-version: ${{ inputs.version }}
+
+  upgrade:
+    name: E2E upgrade from ${{ vars.UPGRADE_FROM_VERSION || '2.5.7' }}
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      WP_ENV: "@wordpress/env@12.1.0"
+      LEGACY_VERSION: ${{ vars.UPGRADE_FROM_VERSION || '2.5.7' }}
+      WP_USERNAME: admin
+      WP_PASSWORD: password
+      PW_CHANNEL: ""
+      UPGRADE_E2E: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: dist
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: |
+          npm ci
+          npx playwright install chromium
+          curl -fsSL -o "$RUNNER_TEMP/legacy.zip" "https://downloads.wordpress.org/plugin/surveyjs.$LEGACY_VERSION.zip"
+          unzip -q "$RUNNER_TEMP/legacy.zip" -d "$RUNNER_TEMP/legacy"
+          echo "UPGRADE_LEGACY_DIR=$RUNNER_TEMP/legacy/surveyjs" >> "$GITHUB_ENV"
+          echo "UPGRADE_BASE_DIR=$PWD/dist/surveyjs" >> "$GITHUB_ENV"
+      - name: WordPress (wp-env) without SurveyJS
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir -p wp && cd wp
+          node -e 'const c = require(process.argv[1]); console.log(JSON.stringify({ core: c.core, phpVersion: c.phpVersion, port: c.port, config: c.config }))' "$GITHUB_WORKSPACE/.wp-env.json" > .wp-env.json
+          npx --yes "$WP_ENV" start
+          npx --yes "$WP_ENV" run cli wp rewrite structure /%postname%/ --hard
+          install="$(npx --yes "$WP_ENV" status --json | node -p 'JSON.parse(require("fs").readFileSync(0)).installPath')"
+          container="$(docker ps -q -f "label=com.docker.compose.project=$(basename "$install")" -f label=com.docker.compose.service=wordpress)"
+          [ -n "$container" ] || { echo "::error::wp-env WordPress container not found"; exit 1; }
+          echo "WP_CONTAINER=$container" >> "$GITHUB_ENV"
+          echo "WP_BASE_URL=http://localhost:$(node -p 'require("./.wp-env.json").port')" >> "$GITHUB_ENV"
+      - run: npx playwright test --project=setup --project=e2e tests/e2e/upgrade.spec.js
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() }}
+        with:
+          name: upgrade-test-results
+          path: test-results/
+          retention-days: 7
+
+  svn-dry-run:
+    name: wordpress.org SVN (dry run)
+    needs: [ci, upgrade]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: dist
+      - uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+        with:
+          dry-run: true
+        env:
+          SLUG: surveyjs
+          BUILD_DIR: dist/surveyjs
+          ASSETS_DIR: src/assets
+          SVN_USERNAME: dry-run
+          SVN_PASSWORD: dry-run
+          HOME: ${{ runner.temp }}
+
+  github-release:
+    name: GitHub Release
+    needs: svn-dry-run
+    permissions:
+      contents: write
+    uses: ./.github/workflows/github-release.yml
+    with:
+      version: ${{ inputs.version }}
+      publish: ${{ inputs.publish && vars.RELEASE_PUBLISH_ENABLED == 'true' }}
+
+  wordpress-org:
+    name: Deploy to wordpress.org SVN
+    needs: github-release
+    if: inputs.publish && vars.RELEASE_PUBLISH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: wordpress-org
+      url: https://wordpress.org/plugins/surveyjs/
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: plugin
+          path: dist
+      - uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+        env:
+          SLUG: surveyjs
+          BUILD_DIR: dist/surveyjs
+          ASSETS_DIR: src/assets
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          HOME: ${{ runner.temp }}

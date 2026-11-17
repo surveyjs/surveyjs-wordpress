@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master, base-pro-split]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      release-version:
+        type: string
+        default: ""
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build zip
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - env:
+          RELEASE_VERSION: ${{ inputs.release-version }}
+        run: |
+          version="$(sed -nE 's/^Version:[[:space:]]*([^[:space:]]+).*/\1/p' src/trunk/surveyjs.php)"
+          if [ -n "$RELEASE_VERSION" ] && [ "$version" != "$RELEASE_VERSION" ]; then
+            echo "::error file=src/trunk/surveyjs.php::Version is $version, the release is $RELEASE_VERSION"
+            exit 1
+          fi
+          mkdir -p dist
+          git archive --format=zip --prefix=surveyjs/ -o "dist/surveyjs-$version.zip" HEAD:src/trunk
+          unzip -q "dist/surveyjs-$version.zip" -d dist
+          (cd dist && sha256sum "surveyjs-$version.zip" | tee SHA256SUMS)
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: plugin
+          path: dist/
+          retention-days: ${{ inputs.release-version && 90 || 7 }}
+          if-no-files-found: error
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test --project=unit
+
+  checks:
+    name: Checks
+    needs: build
+    uses: ./.github/workflows/checks.yml
+    with:
+      php-paths: dist/surveyjs
+      plugin-check-dir: dist/surveyjs
+      plugin-check-ignore-codes: |
+        plugin_header_invalid_license
+        no_license
+      e2e-base-dir: dist/surveyjs
+      e2e-shards: "[1, 2, 3]"

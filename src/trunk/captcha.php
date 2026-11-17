@@ -58,7 +58,7 @@ class SurveyJS_Captcha {
             case 'recaptcha_v3':
                 return add_query_arg( 'render', rawurlencode( $captcha['siteKey'] ), 'https://www.google.com/recaptcha/api.js' );
             case 'turnstile':
-                return 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+                return 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Turnstile must be loaded from Cloudflare.
         }
         return '';
     }
@@ -90,7 +90,7 @@ class SurveyJS_Captcha {
             return new WP_Error( 'captcha_missing', __( 'Please complete the CAPTCHA.', 'surveyjs' ) );
         }
         $url = 'turnstile' === $captcha['type']
-            ? 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+            ? 'https://challenges.cloudflare.com/turnstile/v0/siteverify' // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- server-side API endpoint, not an asset.
             : 'https://www.google.com/recaptcha/api/siteverify';
         $response = wp_remote_post( $url, array(
             'timeout' => 3,
