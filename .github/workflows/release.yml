@@ -89,11 +89,11 @@ jobs:
           node -e 'const c = require(process.argv[1]); console.log(JSON.stringify({ core: c.core, phpVersion: c.phpVersion, port: c.port, config: c.config }))' "$GITHUB_WORKSPACE/.wp-env.json" > .wp-env.json
           npx --yes "$WP_ENV" start
           npx --yes "$WP_ENV" run cli wp rewrite structure /%postname%/ --hard
-          install="$(npx --yes "$WP_ENV" status --json | node -p 'JSON.parse(require("fs").readFileSync(0)).installPath')"
-          container="$(docker ps -q -f "label=com.docker.compose.project=$(basename "$install")" -f label=com.docker.compose.service=wordpress)"
+          port="$(node -p 'require("./.wp-env.json").port')"
+          container="$(docker ps -q -f label=com.docker.compose.service=wordpress -f "publish=$port")"
           [ -n "$container" ] || { echo "::error::wp-env WordPress container not found"; exit 1; }
           echo "WP_CONTAINER=$container" >> "$GITHUB_ENV"
-          echo "WP_BASE_URL=http://localhost:$(node -p 'require("./.wp-env.json").port')" >> "$GITHUB_ENV"
+          echo "WP_BASE_URL=http://localhost:$port" >> "$GITHUB_ENV"
       - run: npx playwright test --project=setup --project=e2e tests/e2e/upgrade.spec.js
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ failure() }}

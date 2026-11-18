@@ -165,13 +165,12 @@ jobs:
           EOF
           npx --yes "$WP_ENV" start
           if [ -n "$PRO_DIR" ]; then npx --yes "$WP_ENV" run cli wp plugin activate surveyjs-pro; fi
-          install="$(npx --yes "$WP_ENV" status --json | node -p 'JSON.parse(require("fs").readFileSync(0)).installPath')"
-          container="$(docker ps -q -f "label=com.docker.compose.project=$(basename "$install")" -f label=com.docker.compose.service=wordpress)"
+          port="$(node -p 'require("./.wp-env.json").port')"
+          container="$(docker ps -q -f label=com.docker.compose.service=wordpress -f "publish=$port")"
           [ -n "$container" ] || { echo "::error::wp-env WordPress container not found"; exit 1; }
           {
-            echo "WP_ENV_INSTALL=$install"
             echo "WP_CONTAINER=$container"
-            echo "WP_BASE_URL=http://localhost:$(node -p 'require("./.wp-env.json").port')"
+            echo "WP_BASE_URL=http://localhost:$port"
           } >> "$GITHUB_ENV"
       - env:
           MAILPIT_URL: http://localhost:${{ job.services.mailpit.ports['8025'] }}
@@ -183,7 +182,7 @@ jobs:
           path: blob-report/
           retention-days: 7
       - if: ${{ failure() }}
-        run: cp "$WP_ENV_INSTALL/WordPress/wp-content/debug.log" test-results/ || true
+        run: docker cp "$WP_CONTAINER:/var/www/html/wp-content/debug.log" test-results/ || true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ failure() }}
         with:
