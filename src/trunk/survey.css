@@ -13,6 +13,25 @@
     margin: 16px 0;
 }
 
+.wp-sjs-restricted__message {
+    margin: 16px 0;
+    padding: 16px 20px;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+}
+
+.wp-sjs-restricted__message > :first-child {
+    margin-top: 0;
+}
+
+.wp-sjs-restricted__message > :last-child {
+    margin-bottom: 0;
+}
+
+.wp-sjs-restricted .wp-sjs-survey[hidden] {
+    display: none;
+}
+
 .wp-sjs-survey:empty {
     min-height: 400px;
 }

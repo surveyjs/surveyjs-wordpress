@@ -510,6 +510,12 @@ JS;
         $id = $row->id;
         self::$rendered_forms[ $id ] = $row->name;
 
+        $settings = SurveyJS_Form_Settings::get( $row );
+        $restriction = SurveyJS_Restrictions::check( $row, $settings, false, is_singular() ? get_permalink() : home_url( '/' ) );
+        if ( $restriction ) {
+            return SurveyJS_Restrictions::render( $row, $restriction );
+        }
+
         $json = SurveyJS_Client::decode_survey_json($row->json, false);
         $style = SurveyJS_Themes::resolve($row);
 
@@ -530,6 +536,9 @@ JS;
             'markdown' => SurveyJS_Form_Settings::get( $row )['markdown'],
             'locale' => self::survey_locale(),
         );
+        if ( SurveyJS_Restrictions::enabled( $settings ) ) {
+            $config['statusUrl'] = SurveyJS_Restrictions::status_url( $row );
+        }
         if ( SurveyJS_Entries::partial_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['partial'] = array(
                 'url'        => add_query_arg( array( 'action' => 'SurveyJS_SavePartialResult' ), admin_url( 'admin-ajax.php' ) ),

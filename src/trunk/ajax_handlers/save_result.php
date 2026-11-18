@@ -35,6 +35,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 return;
             }
             $settings = SurveyJS_Form_Settings::get( $survey );
+            SurveyJS_Restrictions::reject_if_closed( $survey, $settings );
             if ( SurveyJS_Captcha::is_enabled( $settings ) ) {
                 $captcha = SurveyJS_Captcha::verify( sanitize_text_field( wp_unslash( $_POST['CaptchaToken'] ?? '' ) ) );
                 if ( is_wp_error( $captcha ) ) {
@@ -54,6 +55,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
                 $entry_args = array(
                     'user_id' => get_current_user_id(),
                     'ip'      => SurveyJS_Entries::client_ip(),
+                    'ip_hash' => SurveyJS_Restrictions::entry_ip_hash( $settings ),
                 );
                 $entry_id = SurveyJS_Entries::complete_partial( $survey->id, $partial_id, $partial_token, $Json, $entry_args );
                 if ( ! $entry_id ) {

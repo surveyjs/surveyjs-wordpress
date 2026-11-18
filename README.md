@@ -12,7 +12,7 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 
 - **SurveyJS Forms** menu: All Forms (search, sorting, bulk delete; row actions Edit, Preview, Results, Duplicate, Save as Template, Delete), Add New Form, Getting Started, Settings.
 - **Form templates**: Add New Form starts from a blank form, a built-in template or your own template, with categories, search and a live preview. Templates come from [surveyjs/templates](https://github.com/surveyjs/templates) and ship with the plugin; nothing is downloaded. **Save as Template** saves any form as your own template (My Templates).
-- **Form editor** tabs: Config (form JSON), Theme, Email, Entries. JSON is edited in a code editor (Monaco) with validation hints, a Format button and a live preview. Images from the Media Library can be inserted or set as the form logo.
+- **Form editor** tabs: Config (form JSON), Theme, Email, Entries, Restrictions. JSON is edited in a code editor (Monaco) with validation hints, a Format button and a live preview. Images from the Media Library can be inserted or set as the form logo.
 - **Open in free UI Builder**: edit the form in the free online visual builder on surveyjs.io; on save, the JSON comes back to the editor and the editor confirms it to the UI Builder. If the popup is blocked, the connection is cut or the UI Builder does not respond in 15 s, the editor says so and offers to copy and paste the JSON manually. Optional, the plugin works fully without it.
 - **Themes**: the default **Adaptive** theme takes the colors, fonts, buttons and fields of your WordPress theme. **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme; the plugin keeps only valid tokens and warns about low text contrast. The plugin never sends anything to an AI service. [Predefined SurveyJS themes](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles#add-surveyjs-themes-to-your-application) are also available.
 - **Per-form options**: Markdown in form texts, Save & Resume (visitors continue in the same browser, logged-in users on any device), GDPR agreement checkbox, CAPTCHA.
@@ -32,12 +32,23 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 - Entries are stored in WordPress (can be turned off per form). Entries table with a column per question, entry view, delete and CSV export.
 - **Partial entries** (off by default): answers of multi-page forms are saved on each next page and listed under Partial until the form is submitted. Unfinished entries are deleted after 30 days unless you click Keep.
 
+### Form restrictions
+
+On the Restrictions tab of the form editor; all off by default.
+
+- **Entry limit**: in total or per day, week, month or year.
+- **Entries per person**: by user account or by IP address.
+- **Schedule**: open and close dates, each with its own message.
+- **Require login**: guests see a message with a Log in link.
+- **Automatic deletion of old entries**: a site setting (Settings > Delete old entries) with a per-form override on the Entries tab; a daily cron job deletes entries and their files.
+- Restrictions are checked on render and on submit, so they also work on cached pages.
+
 ### Spam protection and privacy
 
 - Hidden honeypot field on every form. Optional CAPTCHA: Google reCAPTCHA v2/v3 or Cloudflare Turnstile.
 - GDPR agreement checkbox linked to your Privacy Policy page.
 - Entries work with Tools > Export Personal Data and Tools > Erase Personal Data.
-- IP addresses are not stored unless you turn this on in Settings.
+- IP addresses are not stored unless you turn this on in Settings. The per-person limit by IP address stores only a hash of the address (HMAC with the site salt).
 - Uninstall keeps forms, entries and files unless you turn on deletion in Settings.
 
 ### File uploads

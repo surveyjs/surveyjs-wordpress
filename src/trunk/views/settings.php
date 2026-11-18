@@ -5,6 +5,7 @@ class SurveyJS_SettingsPage {
 
     const PAGE = 'surveyjs-settings-page';
     const OPTION_GROUP = 'surveyjs-settings-group';
+    const OPTION = 'surveyjs-settings';
 
     function __construct() {
         $this->add_hooks();
@@ -17,6 +18,11 @@ class SurveyJS_SettingsPage {
 	public static function option( $key, $default = false ) {
 		$settings = (array) get_option( 'surveyjs-settings' );
 		return array_key_exists( $key, $settings ) ? ! empty( $settings[ $key ] ) : $default;
+	}
+
+	public static function retention_days() {
+		$settings = (array) get_option( self::OPTION );
+		return absint( $settings['entry_retention_days'] ?? 0 );
 	}
 
     public function init() {
@@ -37,6 +43,7 @@ class SurveyJS_SettingsPage {
 			'label'       => __( 'Count form views to show conversion rates', 'surveyjs' ),
 			'description' => __( 'Counts how many times visitors see each form and how many of them submit it. Only a daily number per form is stored: no cookies, no IP addresses or other personal data. Views and submissions by logged-in users who can edit posts are not counted.', 'surveyjs' ),
 		) );
+		add_settings_field( 'entry_retention_days', esc_html__( 'Delete old entries', 'surveyjs' ), array( $this, 'retention_render' ), 'surveyjs-settings-page', 'sjs-data-section', array( 'label_for' => 'sjs-entry-retention-days' ) );
 		add_settings_field( 'uninstall_data', esc_html__( 'Uninstall', 'surveyjs' ), array( $this, 'render_checkbox' ), 'surveyjs-settings-page', 'sjs-data-section', array(
 			'key'         => 'uninstall_data',
 			'label'       => __( 'Delete all forms, entries, uploaded files and settings when the plugin is deleted', 'surveyjs' ),
@@ -60,6 +67,7 @@ class SurveyJS_SettingsPage {
 		}
 		$sanitized['store_ip'] = ! empty( $input['store_ip'] );
 		$sanitized[ SurveyJS_Form_Stats::SETTING ] = ! empty( $input[ SurveyJS_Form_Stats::SETTING ] );
+		$sanitized['entry_retention_days'] = absint( $input['entry_retention_days'] ?? ( $current['entry_retention_days'] ?? 0 ) );
 		$sanitized['uninstall_data'] = ! empty( $input['uninstall_data'] );
 		$type = sanitize_key( $input['captcha_type'] ?? ( $current['captcha_type'] ?? 'none' ) );
 		$sanitized['captcha_type'] = array_key_exists( $type, SurveyJS_Captcha::types() ) ? $type : 'none';
@@ -115,6 +123,15 @@ class SurveyJS_SettingsPage {
 				document.getElementById("sjs-captcha-threshold").disabled = this.value !== "recaptcha_v3";
 			});
 		</script>
+		<?php
+	}
+
+	public function retention_render() {
+		$days = self::retention_days();
+		?>
+		<input type="number" name="surveyjs-settings[entry_retention_days]" id="sjs-entry-retention-days" value="<?php echo esc_attr( $days ? $days : '' ); ?>" min="1" step="1" class="small-text" aria-describedby="sjs-entry-retention-days-description" />
+		<?php esc_html_e( 'days', 'surveyjs' ); ?>
+		<p class="description" id="sjs-entry-retention-days-description"><?php esc_html_e( 'Entries older than this are deleted automatically once a day, with their uploaded files, including partial and spam entries. Deleted entries cannot be restored. Leave empty to keep entries forever. Each form can use its own period on its Entries tab.', 'surveyjs' ); ?></p>
 		<?php
 	}
 

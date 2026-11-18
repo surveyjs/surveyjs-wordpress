@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
     define( 'SURVEYJS_VERSION', '3.2.4' );
-    define( 'SURVEYJS_DB_VERSION', '7' );
+    define( 'SURVEYJS_DB_VERSION', '8' );
 
     function surveyjs_site_url( $path = '' ) {
         $site = apply_filters( 'surveyjs_site_url', defined( 'SURVEYJS_SITE_URL' ) ? SURVEYJS_SITE_URL : 'https://surveyjs.io' );
@@ -52,11 +52,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         delete_option( SurveyJS_Uploads_Storage::GUARD_OPTION );
         SurveyJS_Drafts::unschedule_cleanup();
         SurveyJS_Entries::unschedule_partial_cleanup();
+        SurveyJS_Entry_Retention::unschedule();
     }
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
     function wps_activate( $network_wide = false ) {
         wps_install();
+        SurveyJS_Entry_Retention::sync_schedule();
         $bulk = isset( $_POST['checked'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $cli = defined( 'WP_CLI' ) && WP_CLI;
         $rest = defined( 'REST_REQUEST' ) && REST_REQUEST;
@@ -84,6 +86,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/site_health.php" );
     include( __DIR__ . "/notification.php" );
     include( __DIR__ . "/captcha.php" );
+    include( __DIR__ . "/restrictions.php" );
+    include( __DIR__ . "/entry_retention.php" );
     include( __DIR__ . "/importer.php" );
     include( __DIR__ . "/cf7_importer.php" );
     include( __DIR__ . "/wpforms_importer.php" );
@@ -130,3 +134,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     include( __DIR__ . "/initializer.php" );
     new SurveyJS_SurveyJS();
+
+    SurveyJS_Restrictions::init();
+    SurveyJS_Entry_Retention::init();

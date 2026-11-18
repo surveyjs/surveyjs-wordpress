@@ -61,12 +61,15 @@ class SurveyJS_Entries {
             status varchar(20) NOT NULL DEFAULT 'unread',
             user_id bigint(20) unsigned NOT NULL DEFAULT 0,
             ip varchar(45) DEFAULT NULL,
+            ip_hash char(64) DEFAULT NULL,
             created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
             token_hash char(64) DEFAULT NULL,
             last_page smallint(5) unsigned NOT NULL DEFAULT 0,
             kept tinyint(1) unsigned NOT NULL DEFAULT 0,
             PRIMARY KEY  (id),
             KEY form_status_date (form_id,status,created_at),
+            KEY form_user (form_id,user_id),
+            KEY form_ip_hash (form_id,ip_hash),
             KEY status (status)
         ) {$wpdb->get_charset_collate()};";
     }
@@ -175,10 +178,11 @@ class SurveyJS_Entries {
                         'last_page'  => $last_page,
                         'user_id'    => (int) $args['user_id'],
                         'ip'         => $args['ip'],
+                        'ip_hash'    => $args['ip_hash'] ?? null,
                         'created_at' => current_time( 'mysql', true ),
                     ),
                     array( 'id' => (int) $row->id, 'token_hash' => $row->token_hash ),
-                    array( '%s', '%d', '%d', '%s', '%s' ),
+                    array( '%s', '%d', '%d', '%s', '%s', '%s' ),
                     array( '%d', '%s' )
                 );
             }
@@ -194,11 +198,12 @@ class SurveyJS_Entries {
                 'status'     => self::PARTIAL,
                 'user_id'    => (int) $args['user_id'],
                 'ip'         => $args['ip'],
+                'ip_hash'    => $args['ip_hash'] ?? null,
                 'created_at' => current_time( 'mysql', true ),
                 'token_hash' => self::hash_token( $token ),
                 'last_page'  => $last_page,
             ),
-            array( '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%d' )
+            array( '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d' )
         );
         if ( ! $inserted ) {
             return null;
@@ -226,11 +231,12 @@ class SurveyJS_Entries {
                 'status'     => 'spam' === $row->status ? 'spam' : 'unread',
                 'user_id'    => (int) $args['user_id'],
                 'ip'         => $args['ip'],
+                'ip_hash'    => $args['ip_hash'] ?? null,
                 'created_at' => current_time( 'mysql', true ),
                 'token_hash' => null,
             ),
             array( 'id' => (int) $row->id, 'token_hash' => $row->token_hash ),
-            array( '%s', '%s', '%d', '%s', '%s', '%s' ),
+            array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' ),
             array( '%d', '%s' )
         );
         self::flush_counts();
@@ -261,6 +267,7 @@ class SurveyJS_Entries {
             'status'     => 'unread',
             'user_id'    => 0,
             'ip'         => null,
+            'ip_hash'    => null,
             'created_at' => current_time( 'mysql', true ),
         ), $args );
         $status = in_array( $args['status'], self::STATUSES, true ) ? $args['status'] : 'unread';
@@ -272,11 +279,12 @@ class SurveyJS_Entries {
                 'status'     => $status,
                 'user_id'    => (int) $args['user_id'],
                 'ip'         => $args['ip'],
+                'ip_hash'    => $args['ip_hash'],
                 'created_at' => $args['created_at'],
                 // A partial entry with no respondent to continue it (e.g. imported) still needs a token hash: it marks the row as unfinished.
                 'token_hash' => self::PARTIAL === $status ? self::hash_token( bin2hex( random_bytes( 24 ) ) ) : null,
             ),
-            array( '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+            array( '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
         );
         if ( self::PARTIAL === $status ) {
             self::schedule_partial_cleanup();
@@ -467,9 +475,10 @@ class SurveyJS_Entries {
     }
 
     public static function client_ip() {
-        if ( ! SurveyJS_SettingsPage::option( 'store_ip' ) ) {
-            return null;
-        }
+        return SurveyJS_SettingsPage::option( 'store_ip' ) ? self::remote_ip() : null;
+    }
+
+    public static function remote_ip() {
         $ip = apply_filters( 'surveyjs_entry_ip', isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' ); // phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders -- validated with FILTER_VALIDATE_IP on the next line
         return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : null;
     }

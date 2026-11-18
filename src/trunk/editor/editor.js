@@ -149,12 +149,25 @@
             const enabled = rowToggles(row).some((toggle) => toggle.checked);
             row.querySelectorAll("input, select, textarea, button").forEach((control) => { control.disabled = !enabled; });
         });
+        valueDependents.forEach((element) => {
+            const [setting, value] = element.dataset.enabledIf.split("=");
+            const enabled = settingInput(setting).value === value;
+            element.querySelectorAll("input, select, textarea, button").forEach((control) => { control.disabled = !enabled; });
+        });
         const jsonInvalid = Boolean(parse(sources.survey).error);
         pickers.forEach((picker) => { picker.addCheckbox.disabled ||= jsonInvalid; });
+        restrictionsStoreNotice.hidden = settingInput("storeEntries").checked || !(settingInput("limitEntries").checked || settingInput("limitPerRespondent").checked);
+    }
+    const valueDependents = document.querySelectorAll("[data-enabled-if]");
+    const restrictionsStoreNotice = document.getElementById("wp-sjs-restrictions-store-notice");
+    function settingInput(setting) {
+        return document.querySelector(`[data-setting="${setting}"]`);
     }
     dependentRows.forEach((row) => {
         rowToggles(row).forEach((toggle) => toggle.addEventListener("change", updateDependentRows));
     });
+    valueDependents.forEach((element) => settingInput(element.dataset.enabledIf.split("=")[0]).addEventListener("change", updateDependentRows));
+    ["storeEntries", "limitEntries", "limitPerRespondent"].forEach((setting) => settingInput(setting).addEventListener("change", updateDependentRows));
     updateDependentRows();
 
     function checkboxValue(input) {

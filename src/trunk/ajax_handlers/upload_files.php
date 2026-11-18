@@ -23,6 +23,10 @@ class SurveyJS_UploadFiles extends SurveyJS_AJAX_Handler {
         if ( ! $this->is_upload_allowed( $survey_id ) ) {
             wp_send_json( array( 'error' => 'forbidden' ), 403 );
         }
+        $survey = $survey_id ? ( new SurveyJS_Client() )->getSurvey( $survey_id ) : null;
+        if ( $survey && SurveyJS_Restrictions::check( $survey, SurveyJS_Form_Settings::get( $survey ) ) ) {
+            wp_send_json( array( 'error' => 'restricted' ), 403 );
+        }
 
         if ( empty( $_FILES ) ) {
             wp_send_json( array( 'error' => 'no_files' ), 400 );

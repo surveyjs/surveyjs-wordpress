@@ -35,6 +35,7 @@ class SurveyJS_Editor {
             'theme'   => __( 'Theme', 'surveyjs' ),
             'email'   => __( 'Email', 'surveyjs' ),
             'entries' => __( 'Entries', 'surveyjs' ),
+            'restrictions' => __( 'Restrictions', 'surveyjs' ),
             'spam'     => __( 'Spam Protection', 'surveyjs' ),
             'advanced' => __( 'Advanced', 'surveyjs' ),
         );
@@ -99,6 +100,8 @@ class SurveyJS_Editor {
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $captcha_configured = SurveyJS_Captcha::is_configured();
+        $site_retention_days = SurveyJS_Entry_Retention::site_days();
+        $settings_url = add_query_arg( array( 'page' => 'surveyjs-settings' ), admin_url( 'admin.php' ) );
         $tabs = self::tabs( $survey );
         $first_tab = (string) array_key_first( $tabs );
         ?>
@@ -207,7 +210,132 @@ class SurveyJS_Editor {
                                 <p class="description"><?php esc_html_e( 'Answers are saved on your site each time the respondent goes to the next page, so you see entries of people who started the form but did not submit it. They are listed under Partial in the entries and become a regular entry when the form is submitted. Unfinished entries are deleted after 30 days unless you click Keep on them. Mention this in your privacy policy. Works only when Store entries is on.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
+                        <tr>
+                            <th scope="row"><label for="wp-sjs-entry-retention"><?php esc_html_e( 'Delete old entries', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <select id="wp-sjs-entry-retention" data-setting="entryRetention">
+                                    <option value="default">
+                                        <?php
+                                        echo esc_html( $site_retention_days
+                                            /* translators: %d: number of days */
+                                            ? sprintf( _n( 'Use the site setting: delete after %d day', 'Use the site setting: delete after %d days', $site_retention_days, 'surveyjs' ), $site_retention_days )
+                                            : __( 'Use the site setting: keep forever', 'surveyjs' ) );
+                                        ?>
+                                    </option>
+                                    <option value="forever"><?php esc_html_e( 'Keep forever', 'surveyjs' ); ?></option>
+                                    <option value="days"><?php esc_html_e( 'Delete after a number of days', 'surveyjs' ); ?></option>
+                                </select>
+                                <span data-enabled-if="entryRetention=days">
+                                    <input type="number" id="wp-sjs-entry-retention-days" class="small-text" min="1" step="1" data-setting="entryRetentionDays" aria-label="<?php esc_attr_e( 'Days to keep entries', 'surveyjs' ); ?>" />
+                                    <?php esc_html_e( 'days', 'surveyjs' ); ?>
+                                </span>
+                                <p class="description">
+                                    <?php esc_html_e( 'Entries older than this are deleted automatically once a day, with their uploaded files, including partial and spam entries. Deleted entries cannot be restored. Keeping personal data only as long as you need it is a GDPR requirement.', 'surveyjs' ); ?>
+                                    <a href="<?php echo esc_url( $settings_url ); ?>"><?php esc_html_e( 'Site setting', 'surveyjs' ); ?></a>
+                                </p>
+                            </td>
+                        </tr>
                     </table>
+                </div>
+                <div class="wp-sjs-editor__settings" data-panel="restrictions" hidden>
+                    <div class="notice notice-warning inline" id="wp-sjs-restrictions-store-notice" hidden>
+                        <p><?php esc_html_e( 'Entry limits count the entries stored on your site, so they work only when Store entries is on (Entries tab).', 'surveyjs' ); ?></p>
+                    </div>
+                    <table class="form-table" role="presentation">
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Entry limit', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="limitEntries" /> <?php esc_html_e( 'Limit the number of entries', 'surveyjs' ); ?></label>
+                                <p class="description"><?php esc_html_e( 'When the limit is reached, the form is replaced with the message below. Submitted entries count; partial, spam and deleted entries do not.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="limitEntries">
+                            <th scope="row"><label for="wp-sjs-entry-limit"><?php esc_html_e( 'Number of entries', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <input type="number" id="wp-sjs-entry-limit" class="small-text" min="1" step="1" data-setting="entryLimit" />
+                                <select id="wp-sjs-entry-limit-period" data-setting="entryLimitPeriod" aria-label="<?php esc_attr_e( 'Limit period', 'surveyjs' ); ?>">
+                                    <option value="total"><?php esc_html_e( 'in total', 'surveyjs' ); ?></option>
+                                    <option value="day"><?php esc_html_e( 'per day', 'surveyjs' ); ?></option>
+                                    <option value="week"><?php esc_html_e( 'per week', 'surveyjs' ); ?></option>
+                                    <option value="month"><?php esc_html_e( 'per month', 'surveyjs' ); ?></option>
+                                    <option value="year"><?php esc_html_e( 'per year', 'surveyjs' ); ?></option>
+                                </select>
+                                <p class="description"><?php esc_html_e( 'Days, weeks, months and years start at midnight in the site time zone; weeks start on the day set in Settings > General.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="limitEntries">
+                            <th scope="row"><label for="wp-sjs-entry-limit-message"><?php esc_html_e( 'Limit reached message', 'surveyjs' ); ?></label></th>
+                            <td><textarea id="wp-sjs-entry-limit-message" class="large-text" rows="3" data-setting="entryLimitMessage"></textarea></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Entries per person', 'surveyjs' ); ?></th>
+                            <td><label><input type="checkbox" data-setting="limitPerRespondent" /> <?php esc_html_e( 'Limit how many times one person can submit the form', 'surveyjs' ); ?></label></td>
+                        </tr>
+                        <tr data-enabled-by="limitPerRespondent">
+                            <th scope="row"><label for="wp-sjs-respondent-limit"><?php esc_html_e( 'Maximum per person', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <input type="number" id="wp-sjs-respondent-limit" class="small-text" min="1" step="1" data-setting="respondentLimit" />
+                                <label for="wp-sjs-respondent-by"><?php esc_html_e( 'Identify people by', 'surveyjs' ); ?></label>
+                                <select id="wp-sjs-respondent-by" data-setting="respondentBy">
+                                    <option value="user"><?php esc_html_e( 'User account', 'surveyjs' ); ?></option>
+                                    <option value="ip"><?php esc_html_e( 'IP address', 'surveyjs' ); ?></option>
+                                </select>
+                                <p class="description"><?php esc_html_e( 'User account: only logged-in users can submit the form; visitors see the login message. This is the reliable option.', 'surveyjs' ); ?></p>
+                                <p class="description"><?php esc_html_e( 'IP address: works without login, but people on one network (an office, a school, a mobile carrier) count as one person, and a person can change their address. Each entry keeps a one-way hash of the address for this check, not the address itself.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="limitPerRespondent">
+                            <th scope="row"><label for="wp-sjs-respondent-limit-message"><?php esc_html_e( 'Limit reached message', 'surveyjs' ); ?></label></th>
+                            <td><textarea id="wp-sjs-respondent-limit-message" class="large-text" rows="3" data-setting="respondentLimitMessage"></textarea></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Schedule', 'surveyjs' ); ?></th>
+                            <td><label><input type="checkbox" data-setting="scheduleEnabled" /> <?php esc_html_e( 'Open and close the form at set times', 'surveyjs' ); ?></label></td>
+                        </tr>
+                        <tr data-enabled-by="scheduleEnabled">
+                            <th scope="row"><label for="wp-sjs-schedule-start"><?php esc_html_e( 'Opens', 'surveyjs' ); ?></label></th>
+                            <td><input type="datetime-local" id="wp-sjs-schedule-start" data-setting="scheduleStart" /></td>
+                        </tr>
+                        <tr data-enabled-by="scheduleEnabled">
+                            <th scope="row"><label for="wp-sjs-schedule-end"><?php esc_html_e( 'Closes', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <input type="datetime-local" id="wp-sjs-schedule-end" data-setting="scheduleEnd" />
+                                <p class="description">
+                                    <?php
+                                    /* translators: %s: site time zone, for example "Europe/Berlin" or "+02:00" */
+                                    echo esc_html( sprintf( __( 'Leave Opens or Closes empty for no start or no end. Times are in the site time zone (%s).', 'surveyjs' ), wp_timezone_string() ) );
+                                    ?>
+                                    <a href="<?php echo esc_url( admin_url( 'options-general.php#timezone_string' ) ); ?>"><?php esc_html_e( 'Change the time zone', 'surveyjs' ); ?></a>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="scheduleEnabled">
+                            <th scope="row"><label for="wp-sjs-schedule-pending-message"><?php esc_html_e( 'Before opening message', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <textarea id="wp-sjs-schedule-pending-message" class="large-text" rows="3" data-setting="schedulePendingMessage"></textarea>
+                                <p class="description"><?php esc_html_e( '{open_date} is replaced with the opening date and time.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="scheduleEnabled">
+                            <th scope="row"><label for="wp-sjs-schedule-expired-message"><?php esc_html_e( 'After closing message', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <textarea id="wp-sjs-schedule-expired-message" class="large-text" rows="3" data-setting="scheduleExpiredMessage"></textarea>
+                                <p class="description"><?php esc_html_e( '{close_date} is replaced with the closing date and time.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Require login', 'surveyjs' ); ?></th>
+                            <td><label><input type="checkbox" data-setting="requireLogin" /> <?php esc_html_e( 'Only logged-in users can fill in the form', 'surveyjs' ); ?></label></td>
+                        </tr>
+                        <tr data-enabled-by="requireLogin limitPerRespondent">
+                            <th scope="row"><label for="wp-sjs-require-login-message"><?php esc_html_e( 'Login message', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <textarea id="wp-sjs-require-login-message" class="large-text" rows="3" data-setting="requireLoginMessage"></textarea>
+                                <p class="description"><?php esc_html_e( 'Visitors who are not logged in see this message and a Log in link instead of the form.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                    <p class="description"><?php esc_html_e( 'Messages are shown instead of the form and can contain basic HTML. The restrictions are checked when the page opens and again when the form is submitted, so they also work on cached pages.', 'surveyjs' ); ?></p>
                 </div>
                 <div class="wp-sjs-editor__settings" data-panel="spam" hidden>
                     <table class="form-table" role="presentation">

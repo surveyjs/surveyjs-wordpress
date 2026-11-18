@@ -30,6 +30,23 @@ class SurveyJS_Form_Settings {
             'themeMode'             => 'adaptive',
             'transparentBackground' => false,
             'captchaEnabled'        => false,
+            'limitEntries'          => false,
+            'entryLimit'            => 100,
+            'entryLimitPeriod'      => 'total',
+            'entryLimitMessage'     => '',
+            'limitPerRespondent'    => false,
+            'respondentLimit'       => 1,
+            'respondentBy'          => 'user',
+            'respondentLimitMessage' => '',
+            'scheduleEnabled'       => false,
+            'scheduleStart'         => '',
+            'scheduleEnd'           => '',
+            'schedulePendingMessage' => '',
+            'scheduleExpiredMessage' => '',
+            'requireLogin'          => false,
+            'requireLoginMessage'   => '',
+            'entryRetention'        => 'default',
+            'entryRetentionDays'    => 90,
         );
     }
 
@@ -49,6 +66,13 @@ class SurveyJS_Form_Settings {
             'autoReplySubject'      => __( 'Thanks for contacting {site_name}', 'surveyjs' ),
             /* translators: Default auto-reply message. Keep {all_fields} as is: it is replaced with the answers. */
             'autoReplyMessage'      => __( "Thanks for your message. We received it and will get back to you soon.\n\nYour answers:\n{all_fields}", 'surveyjs' ),
+            'entryLimitMessage'     => __( 'Sorry, this form is no longer accepting entries.', 'surveyjs' ),
+            'respondentLimitMessage' => __( 'You have already submitted this form. Thank you!', 'surveyjs' ),
+            /* translators: Default message before a scheduled form opens. Keep {open_date} as is: it is replaced with the opening date and time. */
+            'schedulePendingMessage' => __( 'This form opens on {open_date}. Please come back then.', 'surveyjs' ),
+            /* translators: Default message after a scheduled form closed. Keep {close_date} as is: it is replaced with the closing date and time. */
+            'scheduleExpiredMessage' => __( 'Sorry, this form closed on {close_date} and is no longer accepting entries.', 'surveyjs' ),
+            'requireLoginMessage'   => __( 'Please log in to fill in this form.', 'surveyjs' ),
         );
     }
 
@@ -108,7 +132,28 @@ class SurveyJS_Form_Settings {
             'themeMode'             => in_array( $input['themeMode'], self::theme_modes(), true ) ? $input['themeMode'] : 'adaptive',
             'transparentBackground' => ! empty( $input['transparentBackground'] ),
             'captchaEnabled'        => ! empty( $input['captchaEnabled'] ),
+            'limitEntries'          => ! empty( $input['limitEntries'] ),
+            'entryLimit'            => max( 1, absint( $input['entryLimit'] ) ),
+            'entryLimitPeriod'      => self::choice( $input['entryLimitPeriod'], SurveyJS_Restrictions::PERIODS ),
+            'entryLimitMessage'     => self::sanitize_message( $input['entryLimitMessage'], true ),
+            'limitPerRespondent'    => ! empty( $input['limitPerRespondent'] ),
+            'respondentLimit'       => max( 1, absint( $input['respondentLimit'] ) ),
+            'respondentBy'          => self::choice( $input['respondentBy'], SurveyJS_Restrictions::RESPONDENT_TYPES ),
+            'respondentLimitMessage' => self::sanitize_message( $input['respondentLimitMessage'], true ),
+            'scheduleEnabled'       => ! empty( $input['scheduleEnabled'] ),
+            'scheduleStart'         => SurveyJS_Restrictions::sanitize_datetime( $input['scheduleStart'] ),
+            'scheduleEnd'           => SurveyJS_Restrictions::sanitize_datetime( $input['scheduleEnd'] ),
+            'schedulePendingMessage' => self::sanitize_message( $input['schedulePendingMessage'], true ),
+            'scheduleExpiredMessage' => self::sanitize_message( $input['scheduleExpiredMessage'], true ),
+            'requireLogin'          => ! empty( $input['requireLogin'] ),
+            'requireLoginMessage'   => self::sanitize_message( $input['requireLoginMessage'], true ),
+            'entryRetention'        => self::choice( $input['entryRetention'], SurveyJS_Entry_Retention::MODES ),
+            'entryRetentionDays'    => max( 1, absint( $input['entryRetentionDays'] ) ),
         );
+    }
+
+    private static function choice( $value, $choices ) {
+        return in_array( $value, $choices, true ) ? $value : $choices[0];
     }
 
     private static function sanitize_message( $message, $html ) {

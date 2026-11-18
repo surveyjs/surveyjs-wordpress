@@ -20,9 +20,11 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
         }
 
         $survey = ( new SurveyJS_Client() )->getSurvey( absint( wp_unslash( $_POST['SurveyId'] ?? 0 ) ) );
-        if ( ! $survey || ! SurveyJS_Entries::partial_enabled( SurveyJS_Form_Settings::get( $survey ) ) ) {
+        $settings = $survey ? SurveyJS_Form_Settings::get( $survey ) : array();
+        if ( ! $survey || ! SurveyJS_Entries::partial_enabled( $settings ) ) {
             wp_send_json_error( array( 'message' => 'Form not found' ), 404 );
         }
+        SurveyJS_Restrictions::reject_if_closed( $survey, $settings );
 
         $raw_json = (string) wp_unslash( $_POST['Json'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only measured here; sanitize_result_json() below decodes it and sanitizes every value.
         if ( strlen( $raw_json ) > self::MAX_BYTES ) {
@@ -45,6 +47,7 @@ class SurveyJS_SavePartialResult extends SurveyJS_AJAX_Handler {
             array(
                 'user_id' => get_current_user_id(),
                 'ip'      => SurveyJS_Entries::client_ip(),
+                'ip_hash' => SurveyJS_Restrictions::entry_ip_hash( $settings ),
             )
         );
         if ( null === $saved ) {

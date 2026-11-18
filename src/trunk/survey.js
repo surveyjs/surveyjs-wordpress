@@ -152,6 +152,22 @@
         observer.observe(element);
     }
 
+    function showRestriction(container, html) {
+        const message = document.createElement("div");
+        message.className = "wp-sjs-restricted__message";
+        message.setAttribute("role", "status");
+        message.innerHTML = html;
+        container.parentElement.classList.add("wp-sjs-restricted");
+        container.parentElement.querySelectorAll(".wp-sjs-survey, .wp-sjs-captcha").forEach((element) => { element.hidden = true; });
+        container.after(message);
+    }
+
+    function restrictionHtml(response) {
+        return response.status === 403
+            ? response.clone().json().then((result) => result && result.data && result.data.restricted ? result.data.html : null, () => null)
+            : Promise.resolve(null);
+    }
+
     function withTransparentBackground(theme) {
         const cssVariables = Object.assign({}, theme && theme.cssVariables, {
             "--sjs2-color-utility-body": "transparent",
@@ -230,13 +246,17 @@
                             saved = true;
                             return;
                         }
-                        return response.json().then(
+                        return restrictionHtml(response).then((html) => html ? Promise.reject({ restriction: html }) : response.json().then(
                             (result) => Promise.reject((result && result.data && result.data.message) || messages.failed),
                             () => Promise.reject(messages.failed)
-                        );
+                        ));
                     })
                     .catch((error) => {
                         options.allow = false;
+                        if (error && error.restriction) {
+                            showRestriction(container, error.restriction);
+                            return;
+                        }
                         options.message = typeof error === "string" ? error : messages.failed;
                         captcha.reset();
                     });
@@ -251,7 +271,7 @@
             }
             options.showSaveInProgress();
             saveResult(sender.data, {})
-                .then((response) => response.ok ? options.showSaveSuccess() : response.text().then((text) => options.showSaveError(text)))
+                .then((response) => response.ok ? options.showSaveSuccess() : restrictionHtml(response).then((html) => html ? showRestriction(container, html) : response.text().then((text) => options.showSaveError(text))))
                 .catch(() => options.showSaveError());
         });
 
@@ -338,6 +358,16 @@
 
         SurveyUI.renderSurvey(survey, container);
         countView(config, container);
+
+        // The page may come from a page cache made before the form closed, so the server is asked again.
+        if (config.statusUrl) {
+            fetch(config.statusUrl, { credentials: "same-origin", cache: "no-store" })
+                .then((response) => response.ok ? response.json() : null)
+                .then((result) => {
+                    if (result && result.data && result.data.open === false) showRestriction(container, result.data.html);
+                })
+                .catch((error) => console.error("Error: ", error));
+        }
     }
 
     window.wpSurveyJSInit = initSurvey;

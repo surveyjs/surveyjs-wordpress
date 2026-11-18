@@ -25,12 +25,23 @@ SurveyJS lets you build **contact forms, surveys, quizzes and multi-page forms**
 * Entries table with a column per question, entry view and CSV export.
 * **Partial entries**: turn on **Save partial entries** on the Entries tab of the form editor to see who started a multi-page form but did not submit it. The answers are saved each time the respondent goes to the next page and are listed under **Partial**, with the page they reached. When the respondent submits the form, the partial entry becomes a regular entry. Partial entries are not counted as unread and are not in the CSV export of all entries; export them from the Partial view. Unfinished entries are deleted after 30 days (filter `surveyjs_partial_entry_lifetime`); 5 days before that they are marked "Will be deleted on …" and the entries page shows a warning, so you can click **Keep** on the ones you need. The WPForms importer brings partial and abandoned WPForms entries in as Partial. Off by default.
 
+= Form restrictions =
+Set them on the Restrictions tab of the form editor. All restrictions are off by default.
+
+* **Entry limit**: close the form after a number of entries in total or per day, week, month or year.
+* **Entries per person**: limit how many times one person can submit the form, by user account or IP address.
+* **Schedule**: open and close the form on set dates, with a message before and after.
+* **Require login**: show the form only to logged-in users, with a Log in link for everyone else.
+* Each restriction shows its own message instead of the form. The restrictions are checked when the page opens and again when the form is submitted, so they also work on cached pages.
+* **Delete old entries**: entries older than a number of days are deleted once a day, for the whole site or for one form.
+
 = Privacy and GDPR =
+* **Delete old entries**: set SurveyJS Forms > Settings > Delete old entries, or a period for one form on its Entries tab, and entries older than that are deleted once a day together with their uploaded files. Off by default.
 * **GDPR agreement**: turn on the **GDPR agreement** checkbox in the form editor to add a required consent checkbox to the end of the form; turn it off to remove it. Its text links to your site's Privacy Policy page (Settings > Privacy); without a published Privacy Policy page the text has no link. The form is not submitted until the respondent checks it. Entries, the CSV export and emails show the consent text the respondent accepted.
 * **Personal data export and erasure**: entries work with the WordPress tools Tools > Export Personal Data and Tools > Erase Personal Data. An entry belongs to a person when one of its answers is their email address or when they submitted it while logged in. The eraser deletes these entries together with their uploaded files.
 * **Partial entries** store answers the respondent has not submitted yet. Turn them on only if your privacy policy mentions it. Partial entries that are not submitted are deleted after 30 days, together with their uploaded files, unless you keep them. They work with the personal data export and erasure tools like other entries.
 * **Form views**: to show the conversion rate in the Forms list, the plugin counts how many times visitors see each form and how many of them submit it. It stores only one number per form per day: no cookies, no IP addresses, nothing that identifies a visitor. Views by logged-in users who can edit posts and by known bots are not counted. Turn it off in SurveyJS Forms > Settings > Form views.
-* **IP addresses** are not stored by default. Turn on SurveyJS Forms > Settings > IP addresses only if you need them and your privacy policy mentions it.
+* **IP addresses** are not stored by default. Turn on SurveyJS Forms > Settings > IP addresses only if you need them and your privacy policy mentions it. Only when a form limits entries per person by IP address, each entry keeps a hash of the address (HMAC with the site salt), not the address itself.
 * Files uploaded by respondents are stored on your site and are not public: only administrators can open them from the entries table, the entry view and the CSV export. The email notification to the site owner attaches the files and links to them; the links open only for logged-in administrators. The auto-reply to the respondent lists only the file names.
 * A respondent can remove an uploaded file before submitting the form, and the file is deleted right away. Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old (30 days for forms with Save & Resume). This also works on hosts where folders cannot be listed, such as WordPress VIP.
 * The privacy export includes links to the person's files; the links work as long as the export file is kept.
