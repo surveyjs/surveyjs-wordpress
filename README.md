@@ -18,7 +18,7 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 - **Per-form options**: Markdown in form texts, Save & Resume (visitors continue in the same browser, logged-in users on any device), GDPR agreement checkbox, CAPTCHA.
 - **URL parameters and the logged-in user in expressions**: default values, conditions and calculations can use `{urlParams.<name>}` (a parameter from the page URL, e.g. `{urlParams.utm_source}` for `?utm_source=ads`) and `{wpUser.<property>}` (the logged-in user: `id`, `login`, `email`, `url`, `display_name`, `first_name`, `last_name`, `full_name`, `nickname`; empty for guests). Write `{#urlParams.zip}` to keep a value such as `01234` as text. Only the user properties the form uses are added to the page.
 - **Adding a form to a page**: the **SurveyJS** block, or the shortcode `[surveyjs id="1"]` (the old `[Survey id="1"]` still works).
-- **Importers** for forms (and entries, where available) from WPForms, Contact Form 7, Ninja Forms and Fluent Forms.
+- **Importers** for forms (and entries, where available) from WPForms, Contact Form 7, Ninja Forms, Fluent Forms and Gravity Forms. A Gravity Forms export file (.json) can be imported without Gravity Forms installed.
 
 ### Email
 

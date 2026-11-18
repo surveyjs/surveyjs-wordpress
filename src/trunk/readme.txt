@@ -51,6 +51,7 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 = Form builder =
 * **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. The email notification is off in a new form until you turn it on on the Email tab; Reply-To is already set to the respondent's email.
 * **Save as Template**: save any form as your own template and reuse it from My Templates.
+* **Import from other form plugins**: forms (and entries, where available) from WPForms, Contact Form 7, Ninja Forms, Fluent Forms and Gravity Forms. A Gravity Forms export file (.json) can be imported without Gravity Forms installed.
 * Describe your form in JSON with validation hints, formatting and a live preview.
 * Add a logo and images to the form from the WordPress Media Library.
 * **Prefill from the URL or the user account**: use `{urlParams.name}` for a parameter from the page URL and `{wpUser.email}` (also `id`, `login`, `url`, `display_name`, `first_name`, `last_name`, `full_name`, `nickname`) for the logged-in user in default values, conditions and calculations.

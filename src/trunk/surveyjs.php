@@ -94,6 +94,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/wpforms_importer.php" );
     include( __DIR__ . "/ninja_forms_importer.php" );
     include( __DIR__ . "/fluent_forms_importer.php" );
+    include( __DIR__ . "/gravity_forms_importer.php" );
 
     include( __DIR__ . "/drafts.php" );
     new SurveyJS_Drafts();

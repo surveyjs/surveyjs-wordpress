@@ -35,6 +35,13 @@ class SurveyJS_Import {
                 'intro'      => __( 'Select the forms to import. Fields, columns, steps, conditional logic, the email notifications and the confirmations are copied to SurveyJS forms; the Fluent Forms forms stay unchanged.', 'surveyjs' ),
                 'no_entries' => __( 'The Fluent Forms entries table was not found, so only the forms are imported.', 'surveyjs' ),
             ),
+            'gravityforms' => array(
+                'importer'      => 'SurveyJS_Gravity_Forms_Importer',
+                'file_importer' => 'SurveyJS_Gravity_Forms_File_Importer',
+                'title'         => __( 'Gravity Forms', 'surveyjs' ),
+                'intro'         => __( 'Select the forms to import. Fields, sections, pages, conditional logic, the email notifications and the confirmations are copied to SurveyJS forms; the Gravity Forms forms stay unchanged.', 'surveyjs' ),
+                'no_entries'    => __( 'The Gravity Forms entries tables were not found, so only the forms are imported.', 'surveyjs' ),
+            ),
         );
     }
 
@@ -43,6 +50,12 @@ class SurveyJS_Import {
             return;
         }
         $source = self::source();
+        if ( isset( $_POST['import_file'] ) && isset( self::sources()[ $source ]['file_importer'] ) ) {
+            check_admin_referer( 'surveyjs-import-file-' . $source );
+            set_transient( self::RESULTS_TRANSIENT . get_current_user_id(), self::import_file( self::sources()[ $source ]['file_importer'] ), HOUR_IN_SECONDS );
+            wp_safe_redirect( self::url( $source, array( 'imported' => 1 ) ) );
+            exit;
+        }
         check_admin_referer( 'surveyjs-import-' . $source );
         $importer = self::sources()[ $source ]['importer'];
         $with_entries = ! empty( $_POST['entries'] );
@@ -54,6 +67,32 @@ class SurveyJS_Import {
         set_transient( self::RESULTS_TRANSIENT . get_current_user_id(), $results, HOUR_IN_SECONDS );
         wp_safe_redirect( self::url( $source, array( 'imported' => 1 ) ) );
         exit;
+    }
+
+    private static function import_file( $importer ) {
+        $file = isset( $_FILES['file'] ) && is_array( $_FILES['file'] ) ? $_FILES['file'] : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- the caller checks the nonce; the upload is validated below and only parsed as JSON.
+        $name = sanitize_file_name( (string) ( $file['name'] ?? '' ) );
+        $tmp_name = (string) ( $file['tmp_name'] ?? '' );
+        $error = function ( $message ) use ( $name ) {
+            return array( array( 'name' => '' !== $name ? $name : __( 'Export file', 'surveyjs' ), 'error' => $message ) );
+        };
+        if ( UPLOAD_ERR_OK !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE ) || '' === $tmp_name || ! is_uploaded_file( $tmp_name ) ) {
+            return $error( __( 'The file was not uploaded. Choose the .json file exported from Gravity Forms and try again.', 'surveyjs' ) );
+        }
+        if ( 'json' !== strtolower( pathinfo( $name, PATHINFO_EXTENSION ) ) ) {
+            return $error( __( 'The file is not a .json file. Gravity Forms exports forms as a .json file.', 'surveyjs' ) );
+        }
+        $contents = file_get_contents( $tmp_name ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- the uploaded temporary file checked by is_uploaded_file(), never a URL.
+        $form_ids = $importer::load( false === $contents ? '' : $contents );
+        if ( is_wp_error( $form_ids ) ) {
+            return $error( $form_ids->get_error_message() );
+        }
+        $results = array();
+        foreach ( $form_ids as $form_id ) {
+            $result = $importer::import( $form_id );
+            $results[] = is_wp_error( $result ) ? self::error_result( $importer, $form_id, $result ) : $result;
+        }
+        return $results;
     }
 
     public static function handle_ajax() {
@@ -152,6 +191,11 @@ class SurveyJS_Import {
             <?php if ( is_array( $results ) ) : ?>
                 <?php self::render_results( $results ); ?>
                 <p><a href="<?php echo esc_url( self::list_url() ); ?>" class="button button-primary"><?php esc_html_e( 'Go to all forms', 'surveyjs' ); ?></a></p>
+            <?php elseif ( isset( $info['file_importer'] ) ) : ?>
+                <?php if ( $forms ) : ?>
+                    <?php self::render_form( $source, $forms ); ?>
+                <?php endif; ?>
+                <?php self::render_file_form( $source, (bool) $forms ); ?>
             <?php elseif ( ! $importer::is_available() ) : ?>
                 <p><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Activate %s to import its forms.', 'surveyjs' ), $info['title'] ) ); ?></p>
             <?php elseif ( empty( $forms ) ) : ?>
@@ -199,6 +243,29 @@ class SurveyJS_Import {
             <?php endif; ?>
             <p class="submit">
                 <?php submit_button( __( 'Import', 'surveyjs' ), 'primary', 'submit', false ); ?>
+                <span class="spinner" style="float:none;margin-top:0"></span>
+            </p>
+        </form>
+        <?php
+    }
+
+    private static function render_file_form( $source, $below_list ) {
+        $info = self::sources()[ $source ];
+        ?>
+        <?php if ( $below_list ) : ?>
+            <h2><?php esc_html_e( 'Import from an export file', 'surveyjs' ); ?></h2>
+        <?php endif; ?>
+        <p><?php /* translators: %1$s: form plugin name */ echo esc_html( sprintf( __( 'In %1$s, go to Forms → Import/Export → Export Forms, select the forms and download the .json file. Upload it here to import every form in it. %1$s does not need to be installed on this site.', 'surveyjs' ), $info['title'] ) ); ?></p>
+        <p><?php esc_html_e( 'Uploading the same forms again updates the SurveyJS forms created from them. The export file has no entries, so only the forms are imported.', 'surveyjs' ); ?></p>
+        <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( self::url( $source ) ); ?>" onsubmit="this.querySelector('.spinner').classList.add('is-active'); this.querySelector('[type=submit]').disabled = true;">
+            <?php wp_nonce_field( 'surveyjs-import-file-' . $source ); ?>
+            <input type="hidden" name="import_file" value="1" />
+            <p>
+                <label for="wp-sjs-import-file"><?php esc_html_e( 'Export file (.json)', 'surveyjs' ); ?></label><br>
+                <input type="file" id="wp-sjs-import-file" name="file" accept=".json,application/json" required />
+            </p>
+            <p class="submit">
+                <?php submit_button( __( 'Upload and import', 'surveyjs' ), $below_list ? 'secondary' : 'primary', 'submit', false ); ?>
                 <span class="spinner" style="float:none;margin-top:0"></span>
             </p>
         </form>

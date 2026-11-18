@@ -342,6 +342,7 @@ class SurveyJS_Templates {
                     <input type="text" id="wp-sjs-templates-name" name="form_name" class="regular-text" placeholder="<?php esc_attr_e( 'The template name is used if you leave this empty', 'surveyjs' ); ?>" />
                 </p>
                 <p><?php esc_html_e( 'Start with a ready-made template, one of your own templates or a blank form. You can change the questions and the theme later in the editor, and turn on the email notification on its Email tab.', 'surveyjs' ); ?></p>
+                <p><?php /* translators: %s: link to the Gravity Forms import page */ printf( esc_html__( 'Moving from Gravity Forms? %s', 'surveyjs' ), '<a href="' . esc_url( SurveyJS_Import::url( 'gravityforms' ) ) . '">' . esc_html__( 'Import its forms from an export file', 'surveyjs' ) . '</a>' ); ?></p>
 
                 <div class="wp-sjs-templates__layout">
                     <div class="wp-sjs-templates__sidebar">

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 abstract class SurveyJS_Importer {
 
     const MAP_OPTION = 'surveyjs_imported_forms';
-    const FILE_SOURCE_DIRS = array( 'wpforms', 'fluentform', 'ninja-forms' );
+    const FILE_SOURCE_DIRS = array( 'wpforms', 'fluentform', 'ninja-forms', 'gravity_forms' );
 
     abstract public static function source();
 
