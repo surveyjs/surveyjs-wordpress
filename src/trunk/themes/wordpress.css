@@ -126,15 +126,15 @@
   background-color: transparent;
 }
 
-/* With zero horizontal paddings the controls touch .sv-scroll__scroller, whose overflow clips their
-   focus rings; the padding gives the rings room and the negative margin keeps the survey aligned. */
+/* With zero survey paddings the controls touch .sv-scroll__scroller, whose overflow clips their borders
+   and focus rings; the padding gives them room and the negative margin keeps the survey aligned. */
 .wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides {
   width: calc(100% + 8px);
-  margin-inline: -4px;
+  margin: -4px;
 }
 
 .wp-sjs-adaptive .sjs-theme-overrides .sv-scroll__container {
-  padding-inline: 4px;
+  padding: 4px;
 }
 
 /* Themes style every input and button on the page (input[type="text"], button, [type="button"], :hover),
@@ -177,6 +177,7 @@
   margin: 0;
   padding: var(--sd-action-padding);
   border: none;
+  outline: none;
   border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action));
   box-shadow: none;
   background: var(--sd-action-background);
@@ -184,7 +185,7 @@
   text-transform: none;
 }
 
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border {
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action.sd-action--border {
   box-shadow: var(--sd-action-boxshadow);
 }
 
@@ -195,6 +196,17 @@
 
 .wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
   box-shadow: var(--sd-action-hover-box-shadow);
+}
+
+.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border:focus-visible:not(:disabled, .sd-action--disabled) {
+  box-shadow: var(--sd-action-boxshadow), var(--sjs2-border-effect-component-action-a11y);
+}
+
+/* --sjs2-color-utility-shadow-trigger-default is transparent so filled buttons stay flat, but Previous / Next
+   have the page color as background and that border is all that makes them look like buttons. */
+.wp-sjs-adaptive .sjs-theme-overrides .sd-action--tertiary-surface {
+  --sd-action-boxshadow: 0 0 0 1px var(--sjs2-color-component-formbox-default-border);
+  --sd-action-hover-box-shadow: 0 0 0 1px var(--sjs2-color-component-formbox-hovered-border);
 }
 
 .wp-sjs-adaptive .sjs-theme-overrides .sv-header--mobile {
