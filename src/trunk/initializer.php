@@ -539,6 +539,10 @@ JS;
         if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['captcha'] = SurveyJS_Captcha::client_config();
         }
+        $view_url = SurveyJS_Form_Stats::view_url( $id );
+        if ( '' !== $view_url ) {
+            $config['viewUrl'] = $view_url;
+        }
         $config = apply_filters( 'surveyjs_form_client_config', $config, $row, SurveyJS_Form_Settings::get( $row ) );
 
         ob_start();

@@ -14,9 +14,9 @@ class SurveyJS_SettingsPage {
         add_action( "admin_init", array( $this, 'init' ) );
 	}
 
-	public static function option( $key ) {
+	public static function option( $key, $default = false ) {
 		$settings = (array) get_option( 'surveyjs-settings' );
-		return ! empty( $settings[ $key ] );
+		return array_key_exists( $key, $settings ) ? ! empty( $settings[ $key ] ) : $default;
 	}
 
     public function init() {
@@ -30,6 +30,12 @@ class SurveyJS_SettingsPage {
 			'key'         => 'store_ip',
 			'label'       => __( 'Store the IP address of the person who submits a form', 'surveyjs' ),
 			'description' => __( 'An IP address is personal data. Leave this off unless you need it and your privacy policy mentions it.', 'surveyjs' ),
+		) );
+		add_settings_field( SurveyJS_Form_Stats::SETTING, esc_html__( 'Form views', 'surveyjs' ), array( $this, 'render_checkbox' ), 'surveyjs-settings-page', 'sjs-data-section', array(
+			'key'         => SurveyJS_Form_Stats::SETTING,
+			'default'     => true,
+			'label'       => __( 'Count form views to show conversion rates', 'surveyjs' ),
+			'description' => __( 'Counts how many times visitors see each form and how many of them submit it. Only a daily number per form is stored: no cookies, no IP addresses or other personal data. Views and submissions by logged-in users who can edit posts are not counted.', 'surveyjs' ),
 		) );
 		add_settings_field( 'uninstall_data', esc_html__( 'Uninstall', 'surveyjs' ), array( $this, 'render_checkbox' ), 'surveyjs-settings-page', 'sjs-data-section', array(
 			'key'         => 'uninstall_data',
@@ -53,6 +59,7 @@ class SurveyJS_SettingsPage {
 			$sanitized['license_key'] = sanitize_text_field( $current['license_key'] );
 		}
 		$sanitized['store_ip'] = ! empty( $input['store_ip'] );
+		$sanitized[ SurveyJS_Form_Stats::SETTING ] = ! empty( $input[ SurveyJS_Form_Stats::SETTING ] );
 		$sanitized['uninstall_data'] = ! empty( $input['uninstall_data'] );
 		$type = sanitize_key( $input['captcha_type'] ?? ( $current['captcha_type'] ?? 'none' ) );
 		$sanitized['captcha_type'] = array_key_exists( $type, SurveyJS_Captcha::types() ) ? $type : 'none';
@@ -115,7 +122,7 @@ class SurveyJS_SettingsPage {
 		$name = 'surveyjs-settings[' . $args['key'] . ']';
 		?>
 		<label for="<?php echo esc_attr( $name ); ?>">
-			<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( self::option( $args['key'] ) ); ?> />
+			<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( self::option( $args['key'], $args['default'] ?? false ) ); ?> />
 			<?php echo esc_html( $args['label'] ); ?>
 		</label>
 		<p class="description"><?php echo esc_html( $args['description'] ); ?></p>

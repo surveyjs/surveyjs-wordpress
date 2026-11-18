@@ -18,17 +18,24 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
     }
 
     public function get_columns() {
-        return array(
+        $columns = array(
             'cb'        => '<input type="checkbox" />',
             'name'      => __( 'Name', 'surveyjs' ),
             'results'   => __( 'Results', 'surveyjs' ),
         );
+        if ( SurveyJS_Form_Stats::enabled() ) {
+            $columns['views'] = __( 'Views', 'surveyjs' );
+            $columns['conversion'] = __( 'Conversion', 'surveyjs' );
+        }
+        return $columns;
     }
 
     protected function get_sortable_columns() {
         return array(
-            'name'    => array( 'name', false ),
-            'results' => array( 'results', true ),
+            'name'       => array( 'name', false ),
+            'results'    => array( 'results', true ),
+            'views'      => array( 'views', true ),
+            'conversion' => array( 'conversion', true ),
         );
     }
 
@@ -45,6 +52,9 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
         $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
         $orderby_columns = array( 'name' => 'name', 'results' => 'results' );
+        if ( SurveyJS_Form_Stats::enabled() ) {
+            $orderby_columns += array( 'views' => 'views', 'conversion' => 'conversion' );
+        }
         $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 'id';
         $order = 'desc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'DESC' : 'ASC';
 
@@ -60,14 +70,17 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
         $entries = SurveyJS_Entries::table();
         $this->items = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results
+            "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results,
+                COALESCE( MAX(s.views), 0 ) AS views, COALESCE( MAX(s.submissions), 0 ) AS submissions, MAX(s.submissions) / NULLIF( MAX(s.views), 0 ) AS conversion
             FROM {$wpdb->posts} p
             LEFT JOIN %i r ON r.form_id = p.ID
+            LEFT JOIN ( SELECT form_id, SUM(views) AS views, SUM(submissions) AS submissions FROM %i GROUP BY form_id ) s ON s.form_id = p.ID
             WHERE p.post_type = %s AND p.post_status = 'publish' AND ( %s = '' OR p.post_title LIKE %s )
             GROUP BY p.ID, p.post_title
             ORDER BY " . sanitize_sql_orderby( $orderby . ' ' . $order ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
             ' LIMIT %d OFFSET %d',
             $entries,
+            SurveyJS_Form_Stats::table(),
             SurveyJS_Forms::POST_TYPE,
             $search,
             $like,
@@ -141,6 +154,20 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             $html .= sprintf( '<br><a href="%s" style="color:#b32d2e">%s</a>', esc_url( self::page_url( 'surveyjs_results', array( 'id' => $item->id, 'status' => SurveyJS_Entries::PARTIAL ) ) ), esc_html( $text ) );
         }
         return $html;
+    }
+
+    protected function column_views( $item ) {
+        return esc_html( number_format_i18n( (int) $item->views ) );
+    }
+
+    protected function column_conversion( $item ) {
+        $title = sprintf(
+            /* translators: 1: number of submissions, 2: number of views */
+            _n( '%1$s submission from %2$s views', '%1$s submissions from %2$s views', (int) $item->submissions, 'surveyjs' ),
+            number_format_i18n( (int) $item->submissions ),
+            number_format_i18n( (int) $item->views )
+        );
+        return sprintf( '<span title="%s">%s</span>', esc_attr( $title ), esc_html( SurveyJS_Form_Stats::format_conversion( (int) $item->views, (int) $item->submissions ) ) );
     }
 
     public static function page_url( $page, $args = array() ) {

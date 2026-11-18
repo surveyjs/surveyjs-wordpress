@@ -77,6 +77,7 @@ class SurveyJS_Entries {
         $tables[] = $prefix . 'sjs_results';
         $tables[] = $prefix . 'sjs_my_surveys';
         $tables[] = $prefix . 'sjs_files';
+        $tables[] = $prefix . 'sjs_form_stats';
         return $tables;
     }
 

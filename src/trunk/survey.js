@@ -127,6 +127,31 @@
         return body;
     }
 
+    // A view is counted once per page load, when the form is on screen in a visible tab: forms in closed popups,
+    // background tabs and prerendered pages are not seen yet. No cookies or storage, so nothing identifies the visitor.
+    function countView(config, element) {
+        if (!config.viewUrl || navigator.webdriver || !window.IntersectionObserver) {
+            return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+            if (document.visibilityState !== "visible" || !entries.some((entry) => entry.isIntersecting)) {
+                return;
+            }
+            observer.disconnect();
+            document.removeEventListener("visibilitychange", recheck);
+            const body = new URLSearchParams({ id: config.id });
+            if (!(navigator.sendBeacon && navigator.sendBeacon(config.viewUrl, body))) {
+                fetch(config.viewUrl, { method: "POST", body: body, keepalive: true }).catch(() => {});
+            }
+        });
+        function recheck() {
+            observer.unobserve(element);
+            observer.observe(element);
+        }
+        document.addEventListener("visibilitychange", recheck);
+        observer.observe(element);
+    }
+
     function withTransparentBackground(theme) {
         const cssVariables = Object.assign({}, theme && theme.cssVariables, {
             "--sjs2-color-utility-body": "transparent",
@@ -312,6 +337,7 @@
         }
 
         SurveyUI.renderSurvey(survey, container);
+        countView(config, container);
     }
 
     window.wpSurveyJSInit = initSurvey;

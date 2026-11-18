@@ -20,7 +20,7 @@ function surveyjs_uninstall_site() {
 
     surveyjs_uninstall_delete_files();
 
-    $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}sjs_results, {$wpdb->prefix}sjs_my_surveys, {$wpdb->prefix}sjs_files" );
+    $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}sjs_results, {$wpdb->prefix}sjs_my_surveys, {$wpdb->prefix}sjs_files, {$wpdb->prefix}sjs_form_stats" );
 
     $wpdb->query( $wpdb->prepare(
         "DELETE FROM {$wpdb->options} WHERE ( option_name = %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s ) AND option_name NOT LIKE %s AND option_name NOT LIKE %s AND option_name NOT LIKE %s",

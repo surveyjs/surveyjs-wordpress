@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
     define( 'SURVEYJS_VERSION', '3.2.4' );
-    define( 'SURVEYJS_DB_VERSION', '6' );
+    define( 'SURVEYJS_DB_VERSION', '7' );
 
     function surveyjs_site_url( $path = '' ) {
         $site = apply_filters( 'surveyjs_site_url', defined( 'SURVEYJS_SITE_URL' ) ? SURVEYJS_SITE_URL : 'https://surveyjs.io' );
@@ -69,6 +69,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include_once( __DIR__ . "/service_client.php" );
     include_once( __DIR__ . "/forms.php" );
     include_once( __DIR__ . "/entries.php" );
+    include_once( __DIR__ . "/form_stats.php" );
     include_once( __DIR__ . "/db_install.php" );
     include_once( __DIR__ . "/privacy.php" );
     include_once( __DIR__ . "/admin_bar.php" );
@@ -120,6 +121,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     SurveyJS_Site_Health::init();
     SurveyJS_Forms::init();
     SurveyJS_Entries::init();
+    SurveyJS_Form_Stats::init();
     SurveyJS_Privacy::init();
     SurveyJS_Admin_Bar::init();
     SurveyJS_Upsell::init();
