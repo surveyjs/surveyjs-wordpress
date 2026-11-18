@@ -2,6 +2,9 @@
     const LINT_DEBOUNCE_MS = 300;
     const PREVIEW_DEBOUNCE_MS = 400;
     const COPIED_LABEL_MS = 2000;
+    const UI_BUILDER_CONNECT_TIMEOUT_MS = 15000;
+    const UI_BUILDER_POLL_MS = 1000;
+    const UI_BUILDER_PROTOCOL_VERSION = 2;
     const { __, _n, sprintf } = wp.i18n;
 
     const config = JSON.parse(document.getElementById("wp-sjs-editor-config").textContent);
@@ -22,6 +25,13 @@
     const saveButton = document.getElementById("wp-sjs-save");
     const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
     const uiBuilderOrigin = new URL(config.uiBuilderUrl).origin;
+    const uiBuilderStatus = document.getElementById("wp-sjs-ui-builder-status");
+    const uiBuilderManual = document.getElementById("wp-sjs-ui-builder-manual");
+    const uiBuilderManualToggle = document.getElementById("wp-sjs-ui-builder-manual-toggle");
+    const uiBuilderCopyButton = document.getElementById("wp-sjs-ui-builder-copy");
+    const uiBuilderPasteInput = document.getElementById("wp-sjs-ui-builder-paste");
+    const uiBuilderApplyButton = document.getElementById("wp-sjs-ui-builder-apply");
+    const uiBuilderManualNotice = document.getElementById("wp-sjs-ui-builder-manual-notice");
     const noticeElement = document.getElementById("wp-sjs-editor-notice");
     const emptyHint = document.getElementById("wp-sjs-empty-hint");
     const emptyHintUiBuilderButton = document.getElementById("wp-sjs-empty-ui-builder");
@@ -106,6 +116,10 @@
     let adaptiveTheme = null;
     let themeTokens = null;
     let contrastCheckPending = false;
+    let uiBuilderWindow = null;
+    let uiBuilderConnectTimer = null;
+    let uiBuilderPollTimer = null;
+    let uiBuilderConnected = false;
 
     nameText.textContent = config.name;
     settingInputs.forEach((input) => {
@@ -455,12 +469,16 @@
         return element("span", "dashicons dashicons-" + name + (className ? " " + className : ""));
     }
 
-    function showNotice(type, message) {
-        noticeElement.querySelectorAll(".wp-sjs-editor__message").forEach((notice) => notice.remove());
+    function renderNotice(container, type, message) {
+        container.querySelectorAll(".wp-sjs-editor__message").forEach((notice) => notice.remove());
         if (!message) return;
         const notice = element("div", "notice notice-" + type + " inline wp-sjs-editor__message");
         notice.append(element("p", "", message));
-        noticeElement.prepend(notice);
+        container.prepend(notice);
+    }
+
+    function showNotice(type, message) {
+        renderNotice(noticeElement, type, message);
     }
 
     function syntaxError() {
@@ -1031,34 +1049,138 @@
         models[tab].pushStackElement();
     }
 
+    function applyExternalJson(survey, theme, message) {
+        if (survey) replaceSource("survey", survey);
+        if (theme) replaceSource("theme", theme);
+        if (theme && !models) renderThemePreset();
+        saveNotice = { type: "info", message: message };
+        updateState();
+        renderPreview();
+        runLint();
+    }
+
+    function stopUiBuilderWatch() {
+        clearTimeout(uiBuilderConnectTimer);
+        clearInterval(uiBuilderPollTimer);
+    }
+
+    function setUiBuilderStatus(type, message) {
+        renderNotice(uiBuilderStatus, type, message);
+    }
+
+    function failUiBuilder(type, message) {
+        stopUiBuilderWatch();
+        setUiBuilderStatus(type, message);
+        toggleUiBuilderManual(true);
+    }
+
     function openUiBuilder() {
-        window.open(config.uiBuilderUrl, "surveyjs-ui-builder-" + config.id);
+        stopUiBuilderWatch();
+        uiBuilderConnected = false;
+        uiBuilderWindow = window.open(config.uiBuilderUrl, "surveyjs-ui-builder-" + config.id);
+        if (!uiBuilderWindow) {
+            failUiBuilder("error", __("The browser blocked the UI Builder window. Allow pop-ups for this site and try again, or copy and paste the JSON manually below.", "surveyjs"));
+            return;
+        }
+        setUiBuilderStatus("info", __("Opening the UI Builder in a new tab…", "surveyjs"));
+        uiBuilderConnectTimer = setTimeout(() => {
+            failUiBuilder("warning", __("The UI Builder has not connected to this page yet. If it does not load or shows an error, copy and paste the JSON manually below.", "surveyjs"));
+        }, UI_BUILDER_CONNECT_TIMEOUT_MS);
+        uiBuilderPollTimer = setInterval(() => {
+            if (!uiBuilderWindow.closed) return;
+            if (uiBuilderConnected) {
+                stopUiBuilderWatch();
+                setUiBuilderStatus();
+            } else {
+                failUiBuilder("error", __("The connection to the UI Builder was lost: its window was closed or a security setting of this site blocked the link. Try again or copy and paste the JSON manually below. If this happens every time, check the Cross-Origin-Opener-Policy header of this site: same-origin blocks the link, same-origin-allow-popups keeps it.", "surveyjs"));
+            }
+        }, UI_BUILDER_POLL_MS);
+    }
+
+    function replyToUiBuilder(event, type, extra) {
+        if (!event.source) return;
+        const reply = Object.assign({ source: "surveyjs-wordpress", type: type, surveyId: config.id }, extra);
+        const requestId = event.data.requestId;
+        if (typeof requestId === "string" || typeof requestId === "number") reply.requestId = requestId;
+        event.source.postMessage(reply, event.origin);
+    }
+
+    function onUiBuilderReady(event) {
+        clearTimeout(uiBuilderConnectTimer);
+        uiBuilderConnected = true;
+        const survey = parse(sources.survey);
+        const theme = parse(sources.theme);
+        if (!survey.json || !theme.json) {
+            replyToUiBuilder(event, "load-failed", { reason: "invalid-json" });
+            setUiBuilderStatus("error", __("The UI Builder could not get this form because its JSON has an error. Fix the error and open the UI Builder again.", "surveyjs"));
+            return;
+        }
+        replyToUiBuilder(event, "load", {
+            protocolVersion: UI_BUILDER_PROTOCOL_VERSION,
+            name: saved.name,
+            json: survey.json,
+            theme: theme.json,
+            privacyPolicyUrl: config.privacyPolicyUrl
+        });
+        setUiBuilderStatus("info", __("Connected to the UI Builder. Edit the form there and click Save in the UI Builder to send the changes to this page.", "surveyjs"));
+    }
+
+    function onUiBuilderSave(event) {
+        const message = event.data;
+        if (message.surveyId !== config.id) {
+            replyToUiBuilder(event, "save-failed", { reason: "survey-mismatch" });
+            setUiBuilderStatus("warning", __("The UI Builder sent changes for another form, so they were not applied here.", "surveyjs"));
+            return;
+        }
+        if (!isJsonObject(message.json)) {
+            replyToUiBuilder(event, "save-failed", { reason: "invalid-json" });
+            setUiBuilderStatus("error", __("The UI Builder sent changes that are not valid form JSON, so they were not applied.", "surveyjs"));
+            return;
+        }
+        stopUiBuilderWatch();
+        applyExternalJson(message.json, isJsonObject(message.theme) ? message.theme : null, __("Changes from the UI Builder are in the editor. Press Save to keep them.", "surveyjs"));
+        replyToUiBuilder(event, "saved");
+        setUiBuilderStatus("success", sprintf(__("Changes from the UI Builder arrived at %s.", "surveyjs"), new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })));
     }
 
     function onUiBuilderMessage(event) {
         const message = event.data;
         if (event.origin !== uiBuilderOrigin || !isJsonObject(message) || message.source !== "surveyjs-ui-builder") return;
-        if (message.type === "ready") {
-            const survey = parse(sources.survey);
-            const theme = parse(sources.theme);
-            if (!survey.json || !theme.json) return;
-            event.source.postMessage({
-                source: "surveyjs-wordpress",
-                type: "load",
-                surveyId: config.id,
-                name: saved.name,
-                json: survey.json,
-                theme: theme.json,
-                privacyPolicyUrl: config.privacyPolicyUrl
-            }, event.origin);
-        } else if (message.type === "save" && message.surveyId === config.id && isJsonObject(message.json)) {
-            replaceSource("survey", message.json);
-            if (isJsonObject(message.theme)) replaceSource("theme", message.theme);
-            saveNotice = { type: "info", message: __("Changes from the UI Builder are in the editor. Press Save to keep them.", "surveyjs") };
-            updateState();
-            renderPreview();
-            runLint();
+        if (message.type === "ready") onUiBuilderReady(event);
+        else if (message.type === "save") onUiBuilderSave(event);
+    }
+
+    function toggleUiBuilderManual(open) {
+        uiBuilderManual.hidden = !open;
+        uiBuilderManualToggle.setAttribute("aria-expanded", String(open));
+    }
+
+    function copySurveyJson() {
+        copyText(sources.survey)
+            .then(() => {
+                showCopied(uiBuilderCopyButton, __("Copied!", "surveyjs"));
+                renderNotice(uiBuilderManualNotice, "info", __("Form JSON copied. In the UI Builder, open the JSON Editor tab, replace its content with the copied JSON and edit the form.", "surveyjs"));
+            })
+            .catch((error) => renderNotice(uiBuilderManualNotice, "error", sprintf(__("The JSON was not copied: %s", "surveyjs"), error.message)));
+    }
+
+    function isThemeJson(json) {
+        return ["cssVariables", "themeName", "colorPalette"].some((key) => key in json) && !["pages", "elements", "questions"].some((key) => key in json);
+    }
+
+    function applyPastedJson() {
+        const parsed = parseAnswer(uiBuilderPasteInput.value);
+        if (!parsed.json) {
+            renderNotice(uiBuilderManualNotice, "error", sprintf(__("The pasted text is not valid JSON: %s", "surveyjs"), parsed.error));
+            return;
         }
+        const tab = isThemeJson(parsed.json) ? "theme" : "survey";
+        applyExternalJson(tab === "survey" ? parsed.json : null, tab === "theme" ? parsed.json : null, tab === "theme"
+            ? __("The pasted theme JSON is in the editor. Press Save to keep it.", "surveyjs")
+            : __("The pasted form JSON is in the editor. Press Save to keep it.", "surveyjs"));
+        uiBuilderPasteInput.value = "";
+        renderNotice(uiBuilderManualNotice);
+        if (editor && activeTab !== tab) switchTab(tab);
     }
 
     function loadMonaco() {
@@ -1097,6 +1219,9 @@
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
     if (emptyHintUiBuilderButton) emptyHintUiBuilderButton.addEventListener("click", openUiBuilder);
+    uiBuilderManualToggle.addEventListener("click", () => toggleUiBuilderManual(uiBuilderManual.hidden));
+    uiBuilderCopyButton.addEventListener("click", copySurveyJson);
+    uiBuilderApplyButton.addEventListener("click", applyPastedJson);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
     testEmailButton.addEventListener("click", sendTestEmail);
     let themePresets = null;

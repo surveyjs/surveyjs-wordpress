@@ -13,7 +13,7 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 - **SurveyJS Forms** menu: All Forms (search, sorting, bulk delete; row actions Edit, Preview, Results, Duplicate, Save as Template, Delete), Add New Form, Getting Started, Settings.
 - **Form templates**: Add New Form starts from a blank form, a built-in template or your own template, with categories, search and a live preview. Templates come from [surveyjs/templates](https://github.com/surveyjs/templates) and ship with the plugin; nothing is downloaded. **Save as Template** saves any form as your own template (My Templates).
 - **Form editor** tabs: Config (form JSON), Theme, Email, Entries. JSON is edited in a code editor (Monaco) with validation hints, a Format button and a live preview. Images from the Media Library can be inserted or set as the form logo.
-- **Open in free UI Builder**: edit the form in the free online visual builder on surveyjs.io; on save, the JSON comes back to the editor. Optional, the plugin works fully without it.
+- **Open in free UI Builder**: edit the form in the free online visual builder on surveyjs.io; on save, the JSON comes back to the editor and the editor confirms it to the UI Builder. If the popup is blocked, the connection is cut or the UI Builder does not respond in 15 s, the editor says so and offers to copy and paste the JSON manually. Optional, the plugin works fully without it.
 - **Themes**: the default **Adaptive** theme takes the colors, fonts, buttons and fields of your WordPress theme. **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme; the plugin keeps only valid tokens and warns about low text contrast. The plugin never sends anything to an AI service. [Predefined SurveyJS themes](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles#add-surveyjs-themes-to-your-application) are also available.
 - **Per-form options**: Markdown in form texts, Save & Resume (visitors continue in the same browser, logged-in users on any device), GDPR agreement checkbox, CAPTCHA.
 - **Adding a form to a page**: the **SurveyJS** block, or the shortcode `[surveyjs id="1"]` (the old `[Survey id="1"]` still works).
@@ -275,6 +275,21 @@ All of them are optional; form answers are never sent to them.
 - **SurveyJS UI Builder** (surveyjs.io): only when the user clicks Open in free UI Builder. The form ID, name, form JSON and theme JSON are sent. [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
 - **Google reCAPTCHA** and **Cloudflare Turnstile**: only when chosen in Settings and turned on for a form. See "External services" in `src/trunk/readme.txt`.
 - **SurveyJS Forms Pro** downloads its updates from surveyjs.io (see [Updates](#updates-surveyjs-forms-and-surveyjs-forms-pro)).
+
+### UI Builder messages
+
+The editor opens `surveyjs_site_url( '/wordpress-ui-builder' )` with `window.open` and talks to it with `postMessage`. The editor accepts messages only from the origin of that URL; the UI Builder should send its replies to the `event.origin` of `load`.
+
+| From | `type` | Fields | Notes |
+|---|---|---|---|
+| UI Builder | `ready` | | Sent to `window.opener` when the page loads. |
+| Editor | `load` | `surveyId`, `name`, `json`, `theme`, `privacyPolicyUrl`, `protocolVersion` | `protocolVersion: 2` means the editor answers every `save`. |
+| Editor | `load-failed` | `surveyId`, `reason: "invalid-json"` | The editor JSON has a syntax error. |
+| UI Builder | `save` | `surveyId`, `json`, `theme`, optional `requestId` (string or number) | |
+| Editor | `saved` | `surveyId`, `requestId` | The JSON is in the editor as unsaved changes. |
+| Editor | `save-failed` | `surveyId` (of the open form), `requestId`, `reason`: `survey-mismatch` or `invalid-json` | Nothing was applied. |
+
+UI Builder messages have `source: "surveyjs-ui-builder"`, editor messages `source: "surveyjs-wordpress"`. With `protocolVersion` 2, no answer to `save` within a few seconds means the editor tab was closed or left the form editor; older editors never answer.
 
 ### Development
 

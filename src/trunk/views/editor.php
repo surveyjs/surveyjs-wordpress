@@ -134,7 +134,22 @@ class SurveyJS_Editor {
                     <div class="wp-sjs-editor__pane-header">
                         <span class="description"><?php esc_html_e( 'Prefer a visual editor? Edit this form in the free online UI Builder.', 'surveyjs' ); ?></span>
                         <button type="button" class="button wp-sjs-editor__ui-builder" id="wp-sjs-ui-builder"><?php esc_html_e( 'Open in free UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
+                        <button type="button" class="button-link" id="wp-sjs-ui-builder-manual-toggle" aria-expanded="false" aria-controls="wp-sjs-ui-builder-manual"><?php esc_html_e( 'Copy and paste JSON manually', 'surveyjs' ); ?></button>
                         <?php SurveyJS_Upsell::render_editor_link(); ?>
+                        <div class="wp-sjs-editor__ui-builder-status" id="wp-sjs-ui-builder-status" aria-live="polite"></div>
+                        <div class="wp-sjs-editor__ui-builder-manual" id="wp-sjs-ui-builder-manual" hidden>
+                            <p class="description"><?php esc_html_e( 'Use this when the UI Builder cannot connect to this page. Copy the form JSON, open the UI Builder and paste the JSON into its JSON Editor tab. When you finish editing, copy the JSON from the JSON Editor tab, paste it below and press Apply JSON.', 'surveyjs' ); ?></p>
+                            <span class="wp-sjs-editor__ui-builder-manual-actions">
+                                <button type="button" class="button" id="wp-sjs-ui-builder-copy"><?php esc_html_e( 'Copy form JSON', 'surveyjs' ); ?></button>
+                                <a href="<?php echo esc_url( self::ui_builder_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Open the UI Builder in a new tab', 'surveyjs' ); ?></a>
+                            </span>
+                            <label for="wp-sjs-ui-builder-paste" class="screen-reader-text"><?php esc_html_e( 'JSON from the UI Builder', 'surveyjs' ); ?></label>
+                            <textarea id="wp-sjs-ui-builder-paste" class="large-text code" rows="6" placeholder="<?php esc_attr_e( 'Paste the form JSON or the theme JSON from the UI Builder here', 'surveyjs' ); ?>"></textarea>
+                            <span class="wp-sjs-editor__ui-builder-manual-actions">
+                                <button type="button" class="button button-primary" id="wp-sjs-ui-builder-apply"><?php esc_html_e( 'Apply JSON', 'surveyjs' ); ?></button>
+                            </span>
+                            <div id="wp-sjs-ui-builder-manual-notice" aria-live="polite"></div>
+                        </div>
                     </div>
                     <div class="wp-sjs-editor__theme-mode" id="wp-sjs-theme-mode" hidden>
                         <label for="wp-sjs-theme-mode-adaptive"><input type="checkbox" id="wp-sjs-theme-mode-adaptive" data-setting="themeMode" data-checked-value="adaptive" data-unchecked-value="surveyjs" /> <?php esc_html_e( 'Adaptive: use your site\'s theme styles', 'surveyjs' ); ?></label>

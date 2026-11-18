@@ -95,7 +95,7 @@ SurveyJS offers a simple way to add digital signatures to your e-forms with a bu
 == External services ==
 This plugin can open a form in the SurveyJS UI Builder, a free online visual form editor provided by Devsoft Baltic OÜ at [surveyjs.io/wordpress-ui-builder](https://surveyjs.io/wordpress-ui-builder).
 
-The plugin connects to this service only when you click **Open in free UI Builder** in the form editor. The UI Builder then opens in a new browser tab, and the plugin sends it the form ID, the form name, the form JSON, the theme JSON currently open in the editor, and the address of your site's Privacy Policy page. When you click **Save and back to WordPress**, the UI Builder sends the edited form JSON and theme JSON back to the editor, where you can review them before saving. Form entries and other site data are never sent.
+The plugin connects to this service only when you click **Open in free UI Builder** in the form editor. The UI Builder then opens in a new browser tab, and the plugin sends it the form ID, the form name, the form JSON, the theme JSON currently open in the editor, and the address of your site's Privacy Policy page. When you click **Save and back to WordPress**, the UI Builder sends the edited form JSON and theme JSON back to the editor, where you can review them before saving. Form entries and other site data are never sent. If the browser blocks the connection between the two tabs, the editor offers to copy the form JSON and paste the edited JSON back by hand; in that case the plugin sends nothing on its own.
 
 The plugin works without this service: you can create and edit forms in the built-in JSON editor.
 
