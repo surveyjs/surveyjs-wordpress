@@ -17,7 +17,8 @@
 		"SCRIPT_DEBUG": false,
 		"WP_DEBUG_DISPLAY": false,
 		"WP_DEBUG_LOG": true,
-		"SJS_E2E_SMTP_PORT": 1025
+		"SJS_E2E_SMTP_PORT": 1025,
+		"WPFORMS_SETUP_WIZARD_DISABLED": true
 	},
 	"lifecycleScripts": {
 		"afterStart": "wp-env run cli wp plugin activate surveyjs && wp-env run cli wp rewrite structure /%postname%/ --hard"

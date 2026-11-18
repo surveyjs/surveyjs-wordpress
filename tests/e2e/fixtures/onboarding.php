@@ -53,15 +53,4 @@ if ( 'get' === $command ) {
         wp_delete_post( (int) $delete_id, true );
     }
     echo '{}';
-} elseif ( 'pro' === $command ) {
-    require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    if ( 'on' === ( $argv[2] ?? '' ) ) {
-        activate_plugin( 'surveyjs-pro/surveyjs-pro.php' );
-    } else {
-        deactivate_plugins( 'surveyjs-pro/surveyjs-pro.php' );
-    }
-    echo wp_json_encode( array( 'active' => is_plugin_active( 'surveyjs-pro/surveyjs-pro.php' ) ) );
-} elseif ( 'creator' === $command ) {
-    SurveyJS_Pro_Settings::update( array( 'creator' => 'on' === ( $argv[2] ?? '' ) ) );
-    echo wp_json_encode( array( 'creator' => SurveyJS_Pro_Settings::feature( 'creator' ) ) );
 }

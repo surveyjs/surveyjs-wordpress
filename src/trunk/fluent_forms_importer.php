@@ -187,7 +187,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             if ( in_array( $indicator, array( 'progress-bar', 'steps' ), true ) ) {
                 $this->json['showProgressBar'] = true;
                 if ( 'steps' === $indicator ) {
-                    $this->json['progressBarType'] = 'buttons';
+                    $this->json['progressBarShowNavigationText'] = true;
                 }
             }
             $this->button_text( 'pagePrevText', $steps['stepEnd']['settings']['prev_btn'] ?? null );
@@ -205,7 +205,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             $json['pages'] = $pages;
         } else {
             $json['elements'] = $pages ? $pages[0]['elements'] : array();
-            unset( $this->json['showProgressBar'], $this->json['progressBarType'], $this->json['pageNextText'], $this->json['pagePrevText'] );
+            unset( $this->json['showProgressBar'], $this->json['progressBarShowNavigationText'], $this->json['pageNextText'], $this->json['pagePrevText'] );
         }
         $json += $this->json;
 

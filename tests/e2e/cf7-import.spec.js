@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, lintIssues } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, currentUser, lintIssues } = require("./helpers");
 
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
 
@@ -121,7 +121,10 @@ test.describe("import from Contact Form 7", () => {
     await page.goto(post.link);
     await expect(page.getByText("Before you start")).toBeVisible();
     await page.getByLabel("Your name").fill("Jane");
-    await page.locator(".sd-question", { hasText: "Topic" }).locator(".sd-dropdown").click();
+    const topic = page.locator(".sd-question", { hasText: "Topic" }).locator(".sd-dropdown");
+    // The list opens as a fixed popup: with the dropdown at the viewport bottom, clicking an option scrolls the page, and the list moves or closes.
+    await topic.evaluate(element => element.scrollIntoView({ block: "center" }));
+    await topic.click();
     await page.getByRole("option", { name: "Sales" }).click();
     await page.getByLabel("2+2=?").fill("5");
     await page.getByRole("button", { name: "Send" }).click();
@@ -215,16 +218,17 @@ test.describe("import from Contact Form 7", () => {
     postId = post.id;
     const url = new URL(post.link);
     url.searchParams.set("utm", "0042");
+    const user = await currentUser(page);
     await page.goto(url.toString());
-    await expect(page.getByLabel("Email")).toHaveValue("sandbox@example.com");
-    await expect(page.getByLabel("Reference")).toHaveValue("sandbox");
+    await expect(page.getByLabel("Email")).toHaveValue(user.email);
+    await expect(page.getByLabel("Reference")).toHaveValue(user.login);
     await page.getByLabel("First name").fill("Withparams");
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Send" }).click();
     expect((await saved).ok()).toBe(true);
     const mail = await findMail(page.request, `${name} Withparams`);
-    expect(mail.Text).toContain("Email: sandbox@example.com");
-    expect(mail.Text).toContain("Ref: sandbox");
+    expect(mail.Text).toContain(`Email: ${user.email}`);
+    expect(mail.Text).toContain(`Ref: ${user.login}`);
     expect(mail.Text).toContain("UTM: 0042");
 
     url.searchParams.delete("utm");

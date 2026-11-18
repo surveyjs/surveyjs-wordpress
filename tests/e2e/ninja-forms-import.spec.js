@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, lintIssues } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, currentUser, lintIssues } = require("./helpers");
 
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
 
@@ -159,8 +159,9 @@ test.describe("import from Ninja Forms", () => {
     await expect(page.getByLabel("Send To")).toHaveValue("{admin_email}");
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");
 
+    const { email } = await currentUser(page);
     await page.goto(await publish(page, name, `[surveyjs id="${surveyId}"]`));
-    await expect(page.getByLabel("Email")).toHaveValue("sandbox@example.com");
+    await expect(page.getByLabel("Email")).toHaveValue(email);
     await page.getByLabel("First Name").fill("Ann");
     await page.getByLabel("Last Name").fill("Lee");
     await page.getByLabel("Email").fill("ann@example.com");

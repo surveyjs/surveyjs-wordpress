@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, lintIssues } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, currentUser, lintIssues } = require("./helpers");
 
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
 
@@ -212,6 +212,7 @@ test.describe("import from WPForms: Layout and Repeater", () => {
     postId = post.id;
     const url = new URL(post.link);
     url.searchParams.set("utm_source", "0123");
+    const { email } = await currentUser(page);
     await page.goto(url.toString());
 
     const code = page.getByLabel("Code");
@@ -219,7 +220,7 @@ test.describe("import from WPForms: Layout and Repeater", () => {
     await expect(page.getByLabel("Guest Name")).toBeHidden();
     await code.fill("abq");
     await code.blur();
-    await expect(page.getByLabel("Email")).toHaveValue("sandbox@example.com");
+    await expect(page.getByLabel("Email")).toHaveValue(email);
     await expect(page.getByLabel("City")).toBeVisible();
     const rows = await page.evaluate(id => window[`survey${id}`].pages[0].rows.map(row => row.elements.map(element => element.name)), surveyId);
     expect(rows).toEqual([["code"], ["group", "email"], ["city"], ["guests"], ["source"]]);
@@ -236,6 +237,6 @@ test.describe("import from WPForms: Layout and Repeater", () => {
     expect((await saved).ok()).toBe(true);
 
     const entries = fixture("results", surveyId).entries;
-    expect(entries[2]).toMatchObject({ code: "abz", email: "sandbox@example.com", source: "0123", guests: [{ guest_name: "Eve" }, { guest_name: "Fay" }] });
+    expect(entries[2]).toMatchObject({ code: "abz", email, source: "0123", guests: [{ guest_name: "Eve" }, { guest_name: "Fay" }] });
   });
 });

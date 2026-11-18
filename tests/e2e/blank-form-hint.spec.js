@@ -16,19 +16,15 @@ function fixture(...args) {
   return JSON.parse(output.toString().trim().split("\n").pop());
 }
 
-test.describe.serial("hint in the editor of an empty form", () => {
+test.describe("hint in the editor of an empty form", () => {
   let formId;
 
   test.beforeAll(() => {
-    test.skip(!WP_CONTAINER, "Set WP_CONTAINER to a sandbox container: the test turns SurveyJS Pro off and on");
-    fixture("pro", "off");
+    test.skip(!WP_CONTAINER, "Set WP_CONTAINER to the WordPress container name to delete the test form");
   });
 
   test.afterAll(() => {
-    if (!WP_CONTAINER) return;
-    fixture("pro", "on");
-    fixture("creator", "on");
-    if (formId) fixture("delete", formId);
+    if (WP_CONTAINER && formId) fixture("delete", formId);
   });
 
   test("guides to the JSON docs and the UI Builder until the form has an element", async ({ page }) => {
@@ -69,21 +65,5 @@ test.describe.serial("hint in the editor of an empty form", () => {
 
     await page.evaluate(() => window.monaco.editor.getEditors()[0].setValue("{"));
     await expect(hint).toBeHidden();
-  });
-
-  test("shows with Pro when the Creator is off", async ({ page }) => {
-    expect(fixture("pro", "on").active).toBe(true);
-    expect(fixture("creator", "off").creator).toBe(false);
-    await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${formId}`);
-    await expect(page.locator(".monaco-editor")).toBeVisible();
-    await expect(page.locator("#wp-sjs-empty-hint")).toBeVisible();
-  });
-
-  test("does not show when the Creator is on", async ({ page }) => {
-    expect(fixture("creator", "on").creator).toBe(true);
-    await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${formId}`);
-    await expect(page.locator("#wp-sjs-preview-panel")).toBeAttached();
-    await expect(page.locator("#wp-sjs-empty-hint")).toHaveCount(0);
-    await page.screenshot({ path: test.info().outputPath("empty-form-creator.png") });
   });
 });

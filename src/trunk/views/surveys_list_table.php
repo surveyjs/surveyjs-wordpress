@@ -53,7 +53,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
         $orderby_columns = array( 'name' => 'name', 'results' => 'results' );
         if ( SurveyJS_Form_Stats::enabled() ) {
-            $orderby_columns += array( 'views' => 'views', 'conversion' => 'conversion' );
+            $orderby_columns += array( 'views' => 'views', 'conversion' => 'conversion_rate' );
         }
         $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 'id';
         $order = 'desc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'DESC' : 'ASC';
@@ -71,7 +71,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         $entries = SurveyJS_Entries::table();
         $this->items = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results,
-                COALESCE( MAX(s.views), 0 ) AS views, COALESCE( MAX(s.submissions), 0 ) AS submissions, MAX(s.submissions) / NULLIF( MAX(s.views), 0 ) AS conversion
+                COALESCE( MAX(s.views), 0 ) AS views, COALESCE( MAX(s.submissions), 0 ) AS submissions, MAX(s.submissions) / NULLIF( MAX(s.views), 0 ) AS conversion_rate
             FROM {$wpdb->posts} p
             LEFT JOIN %i r ON r.form_id = p.ID
             LEFT JOIN ( SELECT form_id, SUM(views) AS views, SUM(submissions) AS submissions FROM %i GROUP BY form_id ) s ON s.form_id = p.ID

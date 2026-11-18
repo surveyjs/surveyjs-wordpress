@@ -63,8 +63,14 @@ async function deleteSurveys(page, search) {
   await expect(page.locator(".notice-success")).toContainText("deleted");
 }
 
+async function currentUser(page) {
+  const nonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
+  const user = await (await page.request.get("/index.php?rest_route=/wp/v2/users/me&context=edit", { headers: { "X-WP-Nonce": nonce } })).json();
+  return { login: user.username, email: user.email };
+}
+
 async function lintIssues(page, json) {
   return page.evaluate(survey => window.SurveyLinter.lintSurvey(survey).findings.map(finding => `${finding.ruleId} at ${finding.path}: ${finding.message}`), json);
 }
 
-module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, lintIssues };
+module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, currentUser, lintIssues };

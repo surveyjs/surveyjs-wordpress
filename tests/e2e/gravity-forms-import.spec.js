@@ -110,7 +110,7 @@ test.describe("import from Gravity Forms", () => {
     expect(findElement(json.pages, "dietary_needs").columns.map(column => column.name)).toEqual(["person", "need"]);
     expect(findElement(json.pages, "event_rules")).toMatchObject({ type: "boolean", title: "I agree to the event rules.", isRequired: true });
     expect(json.pages[2].visibleIf).toBe("{guests} < 5");
-    expect(json).toMatchObject({ completeText: "Register", pageNextText: "Continue", pagePrevText: "Back", showProgressBar: true, progressBarType: "buttons" });
+    expect(json).toMatchObject({ completeText: "Register", pageNextText: "Continue", pagePrevText: "Back", showProgressBar: true, progressBarShowNavigationText: true });
     expect(json.completedHtml).toContain("Thanks {your_name_first}!");
     expect(json.navigateToUrlOnCondition).toEqual([{ expression: "({ticket_type} = 'vip')", url: "https://example.com/vip?ticket={ticket_type}" }]);
     expect(settings).toMatchObject({

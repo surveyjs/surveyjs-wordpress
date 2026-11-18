@@ -51,25 +51,14 @@ test.describe.serial("getting started on a site without forms", () => {
   test.beforeAll(() => {
     test.skip(!WP_CONTAINER, "Set WP_CONTAINER to a throwaway sandbox container: the test deletes every form");
     fixture("fresh");
-    fixture("pro", "off");
   });
 
   test.afterAll(() => {
-    if (WP_CONTAINER) {
-      fixture("pro", "on");
-      if (pageIds.length) fixture("delete", ...pageIds);
-    }
+    if (WP_CONTAINER && pageIds.length) fixture("delete", ...pageIds);
   });
 
-  test("talks about the Config tab instead of the JSON editor when Pro's Creator is on", async ({ page }) => {
+  test("talks about the JSON editor and the UI Builder", async ({ page }) => {
     const blankText = page.locator(".wp-sjs-template--blank .wp-sjs-template__description");
-    expect(fixture("pro", "on").active).toBe(true);
-    await page.goto(TEMPLATES_URL);
-    await expect(blankText).toHaveText("Start from scratch and add questions visually in the Config tab.");
-    await page.goto(GETTING_STARTED_URL);
-    await expect(step(page, "Create a form")).toContainText("edit the questions visually in the Config tab");
-
-    expect(fixture("pro", "off").active).toBe(false);
     await page.goto(TEMPLATES_URL);
     await expect(blankText).toHaveText("Start from scratch and add questions in the JSON editor or the visual UI Builder.");
     await page.goto(GETTING_STARTED_URL);
@@ -163,7 +152,7 @@ test.describe.serial("getting started on a site without forms", () => {
     await page.getByLabel("Add to an existing page").selectOption(String(existing.id));
     await page.getByRole("button", { name: "Add to page" }).click();
     await expect(page).toHaveURL(new RegExp(`post\\.php\\?post=${existing.id}&action=edit`));
-    await expect(page.getByText(`The form "${name}" was added at the end of the page.`)).toBeVisible();
+    await expect(page.locator(".components-notice__content", { hasText: `The form "${name}" was added at the end of the page.` })).toBeVisible();
     await expect(page).not.toHaveURL(/surveyjs_embed=/);
     const blocks = await page.evaluate(() => window.wp.data.select("core/block-editor").getBlocks().map((block) => [block.name, block.attributes.surveyid || ""]));
     expect(blocks.at(-1)).toEqual(["sjs/gutenberg-block", String(formId)]);

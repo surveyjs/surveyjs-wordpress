@@ -419,7 +419,7 @@ class SurveyJS_Gravity_Forms_Importer extends SurveyJS_Importer {
         if ( in_array( $indicator, array( 'percentage', 'steps' ), true ) ) {
             $this->json['showProgressBar'] = true;
             if ( 'steps' === $indicator ) {
-                $this->json['progressBarType'] = 'buttons';
+                $this->json['progressBarShowNavigationText'] = true;
             }
         }
 
@@ -439,7 +439,7 @@ class SurveyJS_Gravity_Forms_Importer extends SurveyJS_Importer {
             if ( isset( $pages[0]['visibleIf'] ) ) {
                 $this->notes[] = __( 'The conditional logic of the only page was not imported.', 'surveyjs' );
             }
-            unset( $this->json['showProgressBar'], $this->json['progressBarType'], $this->json['pageNextText'], $this->json['pagePrevText'] );
+            unset( $this->json['showProgressBar'], $this->json['progressBarShowNavigationText'], $this->json['pageNextText'], $this->json['pagePrevText'] );
         }
         $json += $this->json;
 
