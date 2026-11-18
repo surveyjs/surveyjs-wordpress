@@ -295,7 +295,7 @@ UI Builder messages have `source: "surveyjs-ui-builder"`, editor messages `sourc
 
 - Plugin source: `src/trunk` (published to WordPress.org); WordPress.org assets: `src/assets`. The user-facing readme is `src/trunk/readme.txt`.
 - Tests (Playwright): `npm run test:unit`, `npm run test:e2e`. The e2e tests run against the demo site (`demo/`, `docker compose`, http://localhost:9876; override with `WP_BASE_URL`, `WP_USERNAME`, `WP_PASSWORD`, `MAILPIT_URL`; set `WP_CONTAINER` for the tests that run PHP in the container).
-- Templates: `npm run update-templates [-- <local checkout>]` replaces `src/trunk/templates/` with the templates repository (latest commit or a local checkout); `source.txt` records the commit.
+- Templates: `npm run update-templates [-- <local checkout>]` replaces `src/trunk/templates/` with the templates repository (latest commit or a local checkout); `source.txt` records the commit. Category labels come from `categories.json` in the templates repository root and are generated into `categories.php` as literal `__()` calls; the script fails if the file is missing or a category folder has no label.
 
 **Update test site** (`sandboxes/pro-update-test/`, http://localhost:9905, user `sandbox` / password `sandbox`). Run the scripts in Git Bash with Docker running.
 

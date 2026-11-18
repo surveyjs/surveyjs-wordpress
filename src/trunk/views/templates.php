@@ -147,31 +147,8 @@ class SurveyJS_Templates {
     }
 
     private static function category_labels() {
-        return array(
-            'contact'               => __( 'Contact Forms', 'surveyjs' ),
-            self::MINE              => __( 'My Templates', 'surveyjs' ),
-            'booking'               => __( 'Booking', 'surveyjs' ),
-            'calculators'           => __( 'Calculators', 'surveyjs' ),
-            'consent-and-legal'     => __( 'Consent & Legal', 'surveyjs' ),
-            'customer-feedback'     => __( 'Customer Feedback', 'surveyjs' ),
-            'education'             => __( 'Education', 'surveyjs' ),
-            'events'                => __( 'Events', 'surveyjs' ),
-            'finance-and-insurance' => __( 'Finance & Insurance', 'surveyjs' ),
-            'healthcare'            => __( 'Healthcare', 'surveyjs' ),
-            'human-resources'       => __( 'Human Resources', 'surveyjs' ),
-            'inspections'           => __( 'Inspections', 'surveyjs' ),
-            'lead-generation'       => __( 'Lead Generation', 'surveyjs' ),
-            'market-research'       => __( 'Market Research', 'surveyjs' ),
-            'nonprofit'             => __( 'Nonprofit', 'surveyjs' ),
-            'operations'            => __( 'Operations', 'surveyjs' ),
-            'orders'                => __( 'Orders', 'surveyjs' ),
-            'product-research'      => __( 'Product Research', 'surveyjs' ),
-            'quizzes'               => __( 'Quizzes', 'surveyjs' ),
-            'real-estate'           => __( 'Real Estate', 'surveyjs' ),
-            'recruitment'           => __( 'Recruitment', 'surveyjs' ),
-            'registration'          => __( 'Registration', 'surveyjs' ),
-            'support'               => __( 'Support', 'surveyjs' ),
-        );
+        $labels = include dirname( __DIR__ ) . '/templates/categories.php';
+        return array( self::MINE => __( 'My Templates', 'surveyjs' ) ) + ( is_array( $labels ) ? $labels : array() );
     }
 
     public static function categories( $templates = null ) {
