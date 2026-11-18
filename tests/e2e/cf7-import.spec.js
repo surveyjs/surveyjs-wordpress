@@ -50,10 +50,10 @@ test.describe("import from Contact Form 7", () => {
 
   test.afterEach(async ({ page }) => {
     if (postId) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
     }
     if (cf7Id) {
-      await page.request.delete(`/?rest_route=/contact-form-7/v1/contact-forms/${cf7Id}`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/contact-form-7/v1/contact-forms/${cf7Id}`, { headers: { "X-WP-Nonce": restNonce } });
     }
     if (name) {
       await deleteSurveys(page, name);
@@ -63,7 +63,7 @@ test.describe("import from Contact Form 7", () => {
 
   test("imports text between fields, pipes, quiz and hidden fields, and re-import updates the form", async ({ page }) => {
     name = uniqueName("E2E CF7");
-    const created = await page.request.post("/?rest_route=/contact-form-7/v1/contact-forms", {
+    const created = await page.request.post("/index.php?rest_route=/contact-form-7/v1/contact-forms", {
       headers: { "X-WP-Nonce": restNonce },
       data: {
         context: "save",
@@ -112,7 +112,7 @@ test.describe("import from Contact Form 7", () => {
     });
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();
@@ -138,7 +138,7 @@ test.describe("import from Contact Form 7", () => {
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}`);
     await setEditorJson(page, { elements: [{ type: "text", name: "edited" }] });
     await saveSurvey(page);
-    const updated = await page.request.post(`/?rest_route=/contact-form-7/v1/contact-forms/${cf7Id}`, {
+    const updated = await page.request.post(`/index.php?rest_route=/contact-form-7/v1/contact-forms/${cf7Id}`, {
       headers: { "X-WP-Nonce": restNonce },
       data: { context: "save", form: FORM.replace("Your name", "Full name") }
     });

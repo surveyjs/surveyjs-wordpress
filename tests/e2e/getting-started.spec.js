@@ -32,8 +32,8 @@ async function restNonce(page) {
 async function restPage(page, id, data) {
   const nonce = await restNonce(page);
   const response = data
-    ? await page.request.post(`/?rest_route=/wp/v2/pages/${id}`, { headers: { "X-WP-Nonce": nonce }, data })
-    : await page.request.get(`/?rest_route=/wp/v2/pages/${id}&context=edit`, { headers: { "X-WP-Nonce": nonce } });
+    ? await page.request.post(`/index.php?rest_route=/wp/v2/pages/${id}`, { headers: { "X-WP-Nonce": nonce }, data })
+    : await page.request.get(`/index.php?rest_route=/wp/v2/pages/${id}&context=edit`, { headers: { "X-WP-Nonce": nonce } });
   return response.json();
 }
 
@@ -152,7 +152,7 @@ test.describe.serial("getting started on a site without forms", () => {
 
   test("adds the block to an existing page in the page editor without saving the page", async ({ page }) => {
     const nonce = await restNonce(page);
-    const existing = await (await page.request.post("/?rest_route=/wp/v2/pages", {
+    const existing = await (await page.request.post("/index.php?rest_route=/wp/v2/pages", {
       headers: { "X-WP-Nonce": nonce },
       data: { title: `${name} existing`, status: "publish", content: "<!-- wp:paragraph --><p>Existing text</p><!-- /wp:paragraph -->" }
     })).json();

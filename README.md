@@ -94,6 +94,7 @@ The screenshots were taken before 3.2.4. Screenshots 2–4 show Survey Creator, 
 - WordPress 6.5 or later (tested up to 7.1).
 - PHP 8.2 or later.
 - Self-hosted WordPress or a WordPress.com plan that supports plugins.
+- Works on Apache and Nginx, including [Local](https://localwp.com/). On Nginx, add one rule that protects uploaded files: see "Protect uploaded files on Nginx" below.
 
 ## Installation
 
@@ -123,6 +124,8 @@ On Apache the plugin blocks direct access to `wp-content/uploads/surveyjs/` with
 ```nginx
 location ^~ /wp-content/uploads/surveyjs/ { deny all; }
 ```
+
+In [Local](https://localwp.com/), which uses Nginx by default, add the rule to `conf/nginx/site.conf.hbs` in the site folder (not to `site.conf`, which Local regenerates on every start) and restart the site. With the Apache web server in Local, the `.htaccess` file works and no rule is needed.
 
 New answers link to files through a permission check, so the rule matters for entries saved by earlier versions (they keep the direct address) and for addresses copied elsewhere. Tools > Site Health shows a warning with this rule when a test file in the folder opens by its direct address.
 

@@ -75,7 +75,7 @@ test.describe("dashboard widget", () => {
       await selectPeriod(page, period);
     }
     if (post) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
     }
     if (name) {
       await deleteSurveys(page, name);
@@ -86,7 +86,7 @@ test.describe("dashboard widget", () => {
     name = uniqueName("E2E dashboard widget");
     const surveyId = await createSurvey(page, name);
     const nonce = await restNonce(page);
-    post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": nonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();

@@ -21,7 +21,7 @@ test.describe("import from WPForms", () => {
 
   test.afterEach(async ({ page }) => {
     if (postId) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
     }
     if (wpformsId) {
       await page.goto("/wp-admin/admin.php?page=wpforms-overview");
@@ -76,7 +76,7 @@ test.describe("import from WPForms", () => {
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();

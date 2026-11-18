@@ -145,6 +145,8 @@ Files that respondents upload are saved to `wp-content/uploads/surveyjs/`. On Ap
 
 `location ^~ /wp-content/uploads/surveyjs/ { deny all; }`
 
+In Local (localwp.com), which uses Nginx by default, add the rule to `conf/nginx/site.conf.hbs` in the site folder (not to `site.conf`, which Local overwrites) and restart the site.
+
 Answers link to files through a permission check, so this matters for entries saved by earlier versions and for addresses copied elsewhere. Tools > Site Health warns when the files can be opened by their direct address. On WordPress VIP, use Access-Controlled Files: see "Protect uploaded files on WordPress VIP" in the plugin's GitHub readme.
 
 Administrators still open the files through the plugin, so links in the entries, the CSV export and emails keep working.
@@ -153,6 +155,13 @@ Administrators still open the files through the plugin, so links in the entries,
 
 = Where is the visual form designer? =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component. Your forms and entries are not affected. Without Pro, edit forms in the built-in JSON editor or click **Open in free UI Builder** in the form editor.
+
+= Does it work on Nginx and Local (localwp.com)? =
+Yes. Nginx does not read the `.htaccess` file that protects `wp-content/uploads/surveyjs/`, so add this rule to the `server` block of the site and reload Nginx:
+
+`location ^~ /wp-content/uploads/surveyjs/ { deny all; }`
+
+In Local, add it to `conf/nginx/site.conf.hbs` in the site folder and restart the site.
 
 == Screenshots ==
 

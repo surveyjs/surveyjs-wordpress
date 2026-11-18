@@ -84,14 +84,14 @@ test.describe("import from Fluent Forms", () => {
   let restNonce;
 
   async function rest(page, method, route, form) {
-    const response = await page.request.fetch(`/?rest_route=/fluentform/v1/${route}`, { method, headers: { "X-WP-Nonce": restNonce }, form });
+    const response = await page.request.fetch(`/index.php?rest_route=/fluentform/v1/${route}`, { method, headers: { "X-WP-Nonce": restNonce }, form });
     expect(response.ok(), await response.text()).toBe(true);
     return response.json();
   }
 
   test.afterEach(async ({ page }) => {
     if (postId) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
     }
     if (fluentId) {
       await rest(page, "DELETE", `forms/${fluentId}`);
@@ -105,7 +105,7 @@ test.describe("import from Fluent Forms", () => {
     test.slow();
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
     name = uniqueName("E2E Fluent Forms");
-    const created = await page.request.post("/?rest_route=/fluentform/v1/forms", { headers: { "X-WP-Nonce": restNonce }, form: { predefined: "blank_form", type: "form" } });
+    const created = await page.request.post("/index.php?rest_route=/fluentform/v1/forms", { headers: { "X-WP-Nonce": restNonce }, form: { predefined: "blank_form", type: "form" } });
     test.skip(created.status() === 404, "Fluent Forms is not active");
     expect(created.ok(), await created.text()).toBe(true);
     fluentId = (await created.json()).formId;
@@ -213,7 +213,7 @@ test.describe("import from Fluent Forms", () => {
     await expect(page.locator("#the-list tr", { hasText: "ann@example.com" })).toBeVisible();
     await expect(page.locator("#the-list td[data-colname=\"I accept the event rules.\"]")).toHaveText("Yes");
 
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();

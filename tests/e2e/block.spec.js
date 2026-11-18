@@ -9,7 +9,7 @@ test.describe("Gutenberg block", () => {
 
   test.afterEach(async ({ page }) => {
     if (postId) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
     }
     await deleteSurveys(page, name);
   });

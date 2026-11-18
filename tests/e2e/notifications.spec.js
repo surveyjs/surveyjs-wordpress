@@ -28,7 +28,7 @@ test.describe("email notification", () => {
 
   test.afterEach(async ({ page }) => {
     if (postId) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
     }
     await deleteSurveys(page, name);
   });
@@ -95,7 +95,7 @@ test.describe("email notification", () => {
     await expect(page.getByLabel("Save submitted entries in the database")).not.toBeChecked();
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();
@@ -139,7 +139,7 @@ test.describe("email notification", () => {
     await saveSurvey(page);
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();

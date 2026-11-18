@@ -21,7 +21,7 @@ function fixture(...args) {
 
 async function publish(page, name, surveyId) {
   const nonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
-  const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+  const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
     headers: { "X-WP-Nonce": nonce },
     data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
   })).json();
@@ -74,7 +74,7 @@ function storageTests(label) {
 
     test.afterEach(async ({ page }) => {
       for (const post of posts) {
-        await page.request.delete(`/?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
+        await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
       }
       for (const name of names) {
         await deleteSurveys(page, name);
@@ -244,7 +244,7 @@ test.describe("with upload checks from other plugins", () => {
       expect(fixture("file", clean.file).exists).toBe(true);
       await visitor.close();
     } finally {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
       await deleteSurveys(page, name);
     }
   });
@@ -277,7 +277,7 @@ test.describe("on a stream wrapper without folder listing (like vip://)", () => 
       expect(await (await visitor.request.get(uploaded.preview)).text()).toBe("E2E stream file");
       await visitor.close();
     } finally {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
       await deleteSurveys(page, name);
     }
   });

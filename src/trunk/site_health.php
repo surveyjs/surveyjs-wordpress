@@ -66,7 +66,8 @@ class SurveyJS_Site_Health {
         $rule = sprintf( self::NGINX_RULE, trailingslashit( (string) wp_parse_url( $dir['url'], PHP_URL_PATH ) ) );
         $result['description'] = $intro
             . '<p>' . esc_html__( 'On Apache, the plugin blocks the folder with an .htaccess file. Nginx does not read .htaccess: add this rule to the server block of the site and reload Nginx.', 'surveyjs' ) . '</p>'
-            . '<p><code>' . esc_html( $rule ) . '</code></p>';
+            . '<p><code>' . esc_html( $rule ) . '</code></p>'
+            . '<p>' . esc_html__( 'In Local (localwp.com), add the rule to conf/nginx/site.conf.hbs in the site folder (not to site.conf, which Local overwrites) and restart the site.', 'surveyjs' ) . '</p>';
         return $result;
     }
 
@@ -83,7 +84,15 @@ class SurveyJS_Site_Health {
         if ( ! $written ) {
             return new WP_Error( 'surveyjs_probe_not_written', __( 'The test file could not be saved.', 'surveyjs' ) );
         }
-        $response = wp_remote_head( $dir['url'] . '/' . self::PROBE, array( 'timeout' => 3, 'redirection' => 0 ) );
+        $response = wp_remote_head(
+            $dir['url'] . '/' . self::PROBE,
+            array(
+                'timeout'     => 3,
+                'redirection' => 0,
+                // Same as core loopback requests: local sites (Local, Docker) often use self-signed certificates.
+                'sslverify'   => apply_filters( 'https_local_ssl_verify', false ),
+            )
+        );
         wp_delete_file( $path );
         return is_wp_error( $response ) ? $response : (int) wp_remote_retrieve_response_code( $response );
     }

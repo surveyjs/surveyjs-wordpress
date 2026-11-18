@@ -45,7 +45,7 @@ test.describe("getting-started progress", () => {
 
   test.afterEach(async ({ page }) => {
     if (postId) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${postId}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
       postId = null;
     }
     if (name) {
@@ -128,7 +128,7 @@ test.describe("getting-started progress", () => {
     expect(onboardingFixture("entry", surveyId).received).toBe(false);
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
     })).json();

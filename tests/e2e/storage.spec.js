@@ -143,7 +143,7 @@ test.describe("entry storage", () => {
 
   async function createPost(page, title, content) {
     const nonce = await restNonce(page);
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": nonce },
       data: { title, status: "publish", content }
     })).json();
@@ -174,7 +174,7 @@ test.describe("entry storage", () => {
       await setStoreIp(page, storeIp);
     }
     for (const post of posts) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${post.id}&force=true`, { headers: { "X-WP-Nonce": post.nonce } });
     }
     if (name) {
       await deleteSurveys(page, name);
@@ -185,7 +185,7 @@ test.describe("entry storage", () => {
     name = uniqueName("E2E entry");
     const surveyId = await createSurvey(page, name);
     const post = await createPost(page, name, `[surveyjs id="${surveyId}"]`);
-    const me = await (await page.request.get("/?rest_route=/wp/v2/users/me", { headers: { "X-WP-Nonce": await restNonce(page) } })).json();
+    const me = await (await page.request.get("/index.php?rest_route=/wp/v2/users/me", { headers: { "X-WP-Nonce": await restNonce(page) } })).json();
 
     await page.goto(post.link);
     await page.getByLabel("What is your name?").fill("Jane");

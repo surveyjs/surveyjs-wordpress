@@ -53,7 +53,7 @@ test.describe("import from Ninja Forms", () => {
   let restNonce;
 
   async function runAbility(page, ability, input) {
-    const response = await page.request.post(`/?rest_route=/wp-abilities/v1/abilities/${ability}/run`, {
+    const response = await page.request.post(`/index.php?rest_route=/wp-abilities/v1/abilities/${ability}/run`, {
       headers: { "X-WP-Nonce": restNonce },
       data: { input }
     });
@@ -61,7 +61,7 @@ test.describe("import from Ninja Forms", () => {
   }
 
   async function publish(page, title, content) {
-    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
       data: { title, status: "publish", content }
     })).json();
@@ -71,7 +71,7 @@ test.describe("import from Ninja Forms", () => {
 
   test.afterEach(async ({ page }) => {
     for (const id of postIds) {
-      await page.request.delete(`/?rest_route=/wp/v2/posts/${id}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
+      await page.request.delete(`/index.php?rest_route=/wp/v2/posts/${id}&force=true`, { headers: { "X-WP-Nonce": restNonce } });
     }
     if (ninjaId) {
       await runAbility(page, "ninjaforms/delete-form", { form_id: ninjaId });
