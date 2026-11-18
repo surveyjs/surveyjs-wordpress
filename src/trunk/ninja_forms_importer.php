@@ -614,7 +614,19 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
             $props['placeholder'] = self::text( $field['placeholder'] );
         }
         $default = self::text( $field['default'] ?? '' );
-        if ( preg_match( '/\{[\w-]+:[^{}]*\}/', $default ) ) {
+        $users = array(
+            '{wp:user_id}'           => 'id',
+            '{wp:user_username}'     => 'login',
+            '{wp:user_email}'        => 'email',
+            '{wp:user_url}'          => 'url',
+            '{wp:user_display_name}' => 'display_name',
+            '{wp:user_first_name}'   => 'first_name',
+            '{wp:user_last_name}'    => 'last_name',
+        );
+        $variable = preg_match( '/^\{querystring:([^}]+)\}$/', $default, $match ) ? self::query_variable( $match[1] ) : ( isset( $users[ $default ] ) ? self::user_variable( $users[ $default ] ) : '' );
+        if ( '' !== $variable ) {
+            $props['defaultValueExpression'] = self::variables_expression( array( $variable ) );
+        } elseif ( preg_match( '/\{[\w-]+:[^{}]*\}/', $default ) ) {
             /* translators: 1: field label, 2: default value */
             $notes[] = sprintf( __( 'The default value of "%1$s" (%2$s) uses a merge tag and was not imported.', 'surveyjs' ), $label, $default );
         } elseif ( '' !== $default ) {

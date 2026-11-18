@@ -535,6 +535,7 @@ JS;
             'draft' => SurveyJS_Drafts::client_config($row),
             'markdown' => SurveyJS_Form_Settings::get( $row )['markdown'],
             'locale' => self::survey_locale(),
+            'variables' => SurveyJS_Form_Variables::client_config( $row->json ),
         );
         if ( SurveyJS_Restrictions::enabled( $settings ) ) {
             $config['statusUrl'] = SurveyJS_Restrictions::status_url( $row );

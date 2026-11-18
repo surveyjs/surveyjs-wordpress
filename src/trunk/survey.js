@@ -188,6 +188,10 @@
             survey.locale = config.locale;
         }
         survey.onTextMarkdown.add(SurveyJSMarkdown.handler(config.markdown));
+        if (config.variables) {
+            survey.setVariable(config.variables.query, Object.fromEntries(new URLSearchParams(window.location.search)));
+            Object.entries(config.variables.values).forEach(([name, value]) => survey.setVariable(name, value));
+        }
         const container = configElement.parentElement.querySelector(".wp-sjs-survey");
         if (config.themeMode === "adaptive" && window.SurveyWordPress) {
             container.classList.add("wp-sjs-adaptive");

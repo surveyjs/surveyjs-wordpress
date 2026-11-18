@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, lintIssues } = require("./helpers");
 
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
 
@@ -30,7 +30,7 @@ function ninjaForm(title) {
     fields: [
       { type: "firstname", key: "first_name", label: "First Name", required: 1, order: 1 },
       { type: "lastname", key: "last_name", label: "Last Name", required: 1, order: 2 },
-      { type: "email", key: "email", label: "Email", required: 1, order: 3 },
+      { type: "email", key: "email", label: "Email", required: 1, order: 3, default: "{wp:user_email}" },
       { type: "listselect", key: "topic", label: "Topic", order: 4, options: options([["- Select -", ""], ["Support", "support"], ["Billing", "billing"]]) },
       { type: "listcheckbox", key: "products", label: "Products", order: 5, options: options([["Form Library", "library"], ["Survey Creator", "creator"]]) },
       { type: "checkbox", key: "newsletter", label: "Subscribe to the newsletter", order: 6 },
@@ -143,8 +143,10 @@ test.describe("import from Ninja Forms", () => {
     await page.goto(editUrl);
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
     const json = await editorJson(page);
+    expect(await lintIssues(page, json)).toEqual([]);
     expect(json.elements.map(element => element.name)).toEqual(["first_name", "last_name", "email", "topic", "products", "subscribe_to_the_newsletter", "message"]);
     expect(json.elements[1].startWithNewLine).toBe(false);
+    expect(json.elements[2].defaultValueExpression).toBe("{#wpUser.email}");
     expect(json.elements[3]).toMatchObject({ type: "dropdown", placeholder: "- Select -", choices: [{ value: "support", text: "Support" }, { value: "billing", text: "Billing" }] });
     expect(json.elements[4].type).toBe("checkbox");
     expect(json.elements[5]).toEqual({ type: "boolean", displayMode: "checkbox", name: "subscribe_to_the_newsletter", title: "Subscribe to the newsletter" });
@@ -158,6 +160,7 @@ test.describe("import from Ninja Forms", () => {
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");
 
     await page.goto(await publish(page, name, `[surveyjs id="${surveyId}"]`));
+    await expect(page.getByLabel("Email")).toHaveValue("sandbox@example.com");
     await page.getByLabel("First Name").fill("Ann");
     await page.getByLabel("Last Name").fill("Lee");
     await page.getByLabel("Email").fill("ann@example.com");

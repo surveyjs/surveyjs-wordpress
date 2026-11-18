@@ -5,6 +5,8 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
 
     const TITLE_MAX_LENGTH = 150;
 
+    const DEFAULT_TYPES = array( 'text', 'email', 'url', 'tel', 'number', 'date', 'textarea', 'hidden', 'select', 'checkbox', 'radio' );
+
     public static function source() {
         return 'cf7';
     }
@@ -66,6 +68,15 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             }
             $question = self::question( $tag, $title, $messages, $notes );
             if ( $question ) {
+                if ( in_array( $tag->basetype, self::DEFAULT_TYPES, true ) ) {
+                    $expression = self::default_expression( $tag, $notes );
+                    if ( '' !== $expression ) {
+                        $question['defaultValueExpression'] = $expression;
+                    }
+                }
+                if ( $segments && self::same_line( $text, end( $json['elements'] ), $question ) ) {
+                    $question['startWithNewLine'] = false;
+                }
                 $json['elements'][] = $question;
             } else {
                 $skipped[] = sprintf( '%s (%s)', '' !== $tag->name ? $tag->name : $tag->type, $tag->basetype );
@@ -263,6 +274,37 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
         return null;
     }
 
+    // Contact Form 7 takes the value of the first default:* source that has one, then falls back to the tag value.
+    private static function default_expression( $tag, &$notes ) {
+        $variables = array();
+        foreach ( array_filter( (array) $tag->get_option( 'default' ), 'is_string' ) as $option ) {
+            $option = sanitize_key( $option );
+            if ( '' === $option || preg_match( '/^[0-9_]+$/', $option ) ) {
+                continue;
+            }
+            if ( 'get' === $option ) {
+                $variable = self::query_variable( $tag->name );
+            } else {
+                $variable = 0 === strpos( $option, 'user_' ) ? self::user_variable( substr( $option, 5 ) ) : '';
+            }
+            if ( '' === $variable ) {
+                /* translators: 1: Contact Form 7 option, e.g. default:post_meta, 2: field name */
+                $notes[] = sprintf( __( 'The default value source %1$s of "%2$s" has no equivalent and was not imported.', 'surveyjs' ), 'default:' . $option, $tag->name );
+                continue;
+            }
+            $variables[] = $variable;
+        }
+        return self::variables_expression( $variables );
+    }
+
+    private static function same_line( $html, $previous, $question ) {
+        if ( ! is_array( $previous ) || 'html' === ( $previous['type'] ?? '' ) || false === ( $previous['visible'] ?? true ) || false === ( $question['visible'] ?? true ) ) {
+            return false;
+        }
+        $html = preg_replace( '/<\/(div|p|span)>\s*<(div|p|span)\b[^>]*\bclass="[^"]*\bcol[^"]*"[^>]*>/i', ' ', $html );
+        return ! preg_match( '/[\r\n]|<br\b|<\/?(p|div|h[1-6]|ul|ol|li|table|tr|fieldset|legend|hr|section)\b/i', $html ) && '' === trim( wp_strip_all_tags( $html ) );
+    }
+
     private static function label( $form_html, $tag ) {
         $tag_pattern = '\[' . preg_quote( $tag->type, '/' ) . '\s+' . preg_quote( $tag->raw_name, '/' ) . '\b[^\]]*\]';
         if ( preg_match_all( '/<label[^>]*>(.*?)<\/label>/si', $form_html, $labels ) ) {
@@ -357,6 +399,15 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             } else {
                 /* translators: %s: Reply-To value from the Contact Form 7 mail settings */
                 $notes[] = sprintf( __( 'Reply-To "%s" was not imported: Reply-To can only be a form field.', 'surveyjs' ), trim( $reply_to[1] ) );
+            }
+        }
+
+        foreach ( array_filter( array( $mail, ! empty( $mail_2['active'] ) ? $mail_2 : array() ) ) as $source ) {
+            if ( preg_match_all( '/^(Cc|Bcc):\s*(.+)$/mi', (string) ( $source['additional_headers'] ?? '' ), $headers, PREG_SET_ORDER ) ) {
+                foreach ( $headers as $header ) {
+                    /* translators: 1: CC or BCC, 2: email addresses */
+                    $notes[] = sprintf( __( '%1$s "%2$s" was not imported: add these addresses to Send To if needed.', 'surveyjs' ), strtoupper( $header[1] ), trim( $header[2] ) );
+                }
             }
         }
 

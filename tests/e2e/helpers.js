@@ -63,4 +63,8 @@ async function deleteSurveys(page, search) {
   await expect(page.locator(".notice-success")).toContainText("deleted");
 }
 
-module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys };
+async function lintIssues(page, json) {
+  return page.evaluate(survey => window.SurveyLinter.lintSurvey(survey).findings.map(finding => `${finding.ruleId} at ${finding.path}: ${finding.message}`), json);
+}
+
+module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, lintIssues };

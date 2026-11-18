@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, lintIssues } = require("./helpers");
 
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
 
@@ -186,6 +186,7 @@ test.describe("import from Fluent Forms", () => {
     await result.getByRole("link", { name: "Edit" }).click();
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
     const json = await editorJson(page);
+    expect(await lintIssues(page, json)).toEqual([]);
     expect(json.pages.map(p => p.title)).toEqual(["Your details", "Event options"]);
     expect(json.pages[0].elements.map(e => e.name)).toEqual(["name_first", "name_last", "email", "company"]);
     expect(json.pages[0].elements[1].startWithNewLine).toBe(false);
@@ -240,6 +241,46 @@ test.describe("import from Fluent Forms", () => {
     expect(mail.HTML).toContain("Jane Roe registered.");
     const autoReply = await findMail(page.request, `You are registered: ${name}`);
     expect(autoReply.To.map(to => to.Address)).toEqual(["jane@example.com"]);
+  });
+
+  test("imports starts with, ends with and length conditions, and {get.*} and {user.*} default values", async ({ page }) => {
+    restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
+    name = uniqueName("E2E Fluent Forms logic");
+    const created = await page.request.post("/?rest_route=/fluentform/v1/forms", { headers: { "X-WP-Nonce": restNonce }, form: { predefined: "blank_form", type: "form" } });
+    test.skip(created.status() === 404, "Fluent Forms is not active");
+    fluentId = (await created.json()).formId;
+    const when = (operator, value) => ({ conditional_logics: { type: "all", status: true, conditions: [{ field: "code", value, operator }] } });
+    await rest(page, "POST", `forms/${fluentId}`, {
+      title: name,
+      status: "published",
+      formFields: JSON.stringify({
+        fields: [
+          field("input_text", "code", { label: "Code" }, { type: "text" }),
+          field("input_text", "starts", { label: "Starts", ...when("startsWith", "AB") }, { type: "text" }),
+          field("input_text", "ends", { label: "Ends", ...when("endsWith", "Z") }, { type: "text" }),
+          field("input_text", "long", { label: "Long", ...when("length_greater_than", "3") }, { type: "text" }),
+          field("input_email", "email", { label: "Email" }, { type: "email", value: "{user.user_email}" }),
+          field("input_hidden", "utm", { admin_field_label: "UTM" }, { type: "hidden", value: "{get.utm_source}" })
+        ],
+        submitButton: { element: "button", attributes: { type: "submit", class: "" }, settings: { button_ui: { type: "default", text: "Send", img_url: "" } } }
+      })
+    });
+
+    await page.goto("/wp-admin/admin.php?page=surveyjs_import&source=fluentform");
+    await importFluentForm(page, false);
+    const result = page.locator(".wrap li", { hasText: name });
+    await expect(result).toContainText("imported");
+    await result.getByRole("link", { name: "Edit" }).click();
+    const json = await editorJson(page);
+    expect(await lintIssues(page, json)).toEqual([]);
+    expect(Object.fromEntries(json.elements.map(element => [element.name, element.visibleIf || element.defaultValueExpression]))).toEqual({
+      code: undefined,
+      starts: "substring({#code}, 0, 2) = 'AB'",
+      ends: "substring({#code}, sum({code.length}, -1)) = 'Z'",
+      long: "sum({code.length}) > 3",
+      email: "{#wpUser.email}",
+      utm: "{#urlParams.utm_source}"
+    });
   });
 
   test("re-import updates the imported form and its entries instead of adding copies", async ({ page }) => {

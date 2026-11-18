@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, setEditorJson, saveSurvey, lintIssues } = require("./helpers");
 
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
 
@@ -91,6 +91,7 @@ test.describe("import from Contact Form 7", () => {
     await result.getByRole("link", { name: "Edit" }).click();
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
     const json = await editorJson(page);
+    expect(await lintIssues(page, json)).toEqual([]);
     expect(json.elements.map(element => element.type)).toEqual(["html", "text", "dropdown", "comment", "text", "text", "boolean"]);
     expect(json.elements[0].html).toContain("Before you start");
     expect(json.elements[1].validators).toEqual([{ type: "text", minLength: 2 }]);
@@ -156,6 +157,84 @@ test.describe("import from Contact Form 7", () => {
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list tr")).toHaveCount(1);
+  });
+
+  test("imports fields on one line, default:get and default:user_* values, and reports CC and BCC", async ({ page }) => {
+    name = uniqueName("E2E CF7 defaults");
+    const created = await page.request.post("/?rest_route=/contact-form-7/v1/contact-forms", {
+      headers: { "X-WP-Nonce": restNonce },
+      data: {
+        context: "save",
+        title: name,
+        locale: "en_US",
+        form: `<label> First name [text first-name] </label> <label> Last name [text last-name] </label>
+<div class="row"><div class="col-6">[email your-email default:user_email]</div><div class="col-6">[tel phone]</div></div>
+<label> Reference [text ref default:get default:user_login] </label>
+[hidden utm default:get "direct"]
+[submit "Send"]`,
+        mail: {
+          recipient: "owner@example.com",
+          subject: `${name} [first-name]`,
+          sender: "[_site_title] <[_site_admin_email]>",
+          body: "Email: [your-email]\nRef: [ref]\nUTM: [utm]",
+          additional_headers: "Cc: boss@example.com\nBcc: audit@example.com",
+          attachments: "",
+          use_html: false,
+          exclude_blank: false
+        }
+      }
+    });
+    test.skip(!created.ok(), "Contact Form 7 is not active");
+    cf7Id = (await created.json()).id;
+
+    await importForm(page, cf7Id);
+    const result = page.locator(".wrap li", { hasText: name });
+    await expect(result).toContainText('CC "boss@example.com" was not imported');
+    await expect(result).toContainText('BCC "audit@example.com" was not imported');
+    await expect(result).not.toContainText("The default value source");
+    await result.getByRole("link", { name: "Edit" }).click();
+    const surveyId = Number(new URL(page.url()).searchParams.get("id"));
+    const json = await editorJson(page);
+    expect(await lintIssues(page, json)).toEqual([]);
+    expect(json.elements.map(element => [element.name, element.startWithNewLine])).toEqual([
+      ["first-name", undefined],
+      ["last-name", false],
+      ["your-email", undefined],
+      ["phone", false],
+      ["ref", undefined],
+      ["utm", undefined]
+    ]);
+    expect(json.elements[2].defaultValueExpression).toBe("{#wpUser.email}");
+    expect(json.elements[4].defaultValueExpression).toBe("iif({#urlParams.ref} notempty, {#urlParams.ref}, {#wpUser.login})");
+    expect(json.elements[5]).toMatchObject({ defaultValue: "direct", defaultValueExpression: "{#urlParams.utm}" });
+
+    const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
+      headers: { "X-WP-Nonce": restNonce },
+      data: { title: name, status: "publish", content: `[surveyjs id="${surveyId}"]` }
+    })).json();
+    postId = post.id;
+    const url = new URL(post.link);
+    url.searchParams.set("utm", "0042");
+    await page.goto(url.toString());
+    await expect(page.getByLabel("Email")).toHaveValue("sandbox@example.com");
+    await expect(page.getByLabel("Reference")).toHaveValue("sandbox");
+    await page.getByLabel("First name").fill("Withparams");
+    const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
+    await page.getByRole("button", { name: "Send" }).click();
+    expect((await saved).ok()).toBe(true);
+    const mail = await findMail(page.request, `${name} Withparams`);
+    expect(mail.Text).toContain("Email: sandbox@example.com");
+    expect(mail.Text).toContain("Ref: sandbox");
+    expect(mail.Text).toContain("UTM: 0042");
+
+    url.searchParams.delete("utm");
+    url.searchParams.set("ref", "R-1");
+    await page.goto(url.toString());
+    await expect(page.getByLabel("Reference")).toHaveValue("R-1");
+    await page.getByLabel("First name").fill("Withoututm");
+    await page.getByRole("button", { name: "Send" }).click();
+    const fallback = await findMail(page.request, `${name} Withoututm`);
+    expect(fallback.Text).toContain("UTM: direct");
   });
 
   test("the Getting Started page offers the Contact Form 7 import", async ({ page }) => {

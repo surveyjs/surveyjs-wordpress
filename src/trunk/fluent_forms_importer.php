@@ -768,7 +768,18 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             $props['placeholder'] = self::text( $attributes['placeholder'] );
         }
         $default = is_scalar( $attributes['value'] ?? '' ) ? trim( (string) ( $attributes['value'] ?? '' ) ) : '';
-        if ( preg_match( '/\{[\w.]+[^}]*\}/', $default ) ) {
+        $users = array(
+            '{user.ID}'           => 'id',
+            '{user.display_name}' => 'display_name',
+            '{user.first_name}'   => 'first_name',
+            '{user.last_name}'    => 'last_name',
+            '{user.user_email}'   => 'email',
+            '{user.user_login}'   => 'login',
+        );
+        $variable = preg_match( '/^\{get\.([^}]+)\}$/', $default, $match ) ? self::query_variable( $match[1] ) : ( isset( $users[ $default ] ) ? self::user_variable( $users[ $default ] ) : '' );
+        if ( '' !== $variable ) {
+            $props['defaultValueExpression'] = self::variables_expression( array( $variable ) );
+        } elseif ( preg_match( '/\{[\w.]+[^}]*\}/', $default ) ) {
             /* translators: 1: field label, 2: default value */
             $this->notes[] = sprintf( __( 'The default value of "%1$s" (%2$s) uses a smart code and was not imported.', 'surveyjs' ), $label, $default );
         } elseif ( '' !== $default ) {
@@ -861,6 +872,14 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
         }
         if ( '' === $value && in_array( $operator, array( '=', '!=' ), true ) ) {
             return $name . ( '=' === $operator ? ' empty' : ' notempty' );
+        }
+        if ( in_array( $operator, array( 'startsWith', 'endsWith' ), true ) ) {
+            return false === strpos( $value, '{' ) ? self::affix_rule( $names[0], 'startsWith' === $operator, $value ) : '';
+        }
+        $lengths = array( 'length_equal' => '=', 'length_less_than' => '<', 'length_greater_than' => '>' );
+        // sum() makes the length a number for SurveyJS expression checks: they type {q.length} as the answer itself, a text or an array.
+        if ( isset( $lengths[ $operator ] ) ) {
+            return is_numeric( $value ) ? 'sum({' . $names[0] . '.length}) ' . $lengths[ $operator ] . ' ' . ( 0 + $value ) : '';
         }
         if ( preg_match( '/^\{inputs\.([^}]+)\}$/', $value, $match ) ) {
             $other = $this->field_names( $match[1] );

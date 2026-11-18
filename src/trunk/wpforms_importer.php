@@ -8,6 +8,8 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
     const SKIPPED_ENTRY_STATUSES = array( 'spam', 'trash' );
     const PARTIAL_ENTRY_STATUSES = array( 'partial', 'abandoned' );
 
+    const CONTAINERS = array( 'layout', 'repeater' );
+
     public static function source() {
         return 'wpforms';
     }
@@ -81,7 +83,13 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
 
     protected static function entries_page( $wpforms_id, $form, $offset, $limit ) {
         global $wpdb;
-        $questions = array_column( SurveyJS_Survey_Values::survey_questions( $form['json'] ), null, 'name' );
+        $questions = SurveyJS_Survey_Values::survey_questions( $form['json'] );
+        foreach ( $questions as $question ) {
+            if ( 'paneldynamic' === ( $question['type'] ?? '' ) ) {
+                SurveyJS_Survey_Values::collect_questions( $question['templateElements'] ?? array(), $questions );
+            }
+        }
+        $questions = array_column( $questions, null, 'name' );
         $max_age = SurveyJS_Entries::partial_max_age();
         // Partial entries older than the cleanup age would be deleted by the next cleanup, so they are not imported.
         $where_args = array_merge( array( $wpforms_id ), self::SKIPPED_ENTRY_STATUSES, self::PARTIAL_ENTRY_STATUSES, array( $max_age > 0 ? gmdate( 'Y-m-d H:i:s', time() - $max_age ) : '0000-00-00 00:00:00' ) );
@@ -95,15 +103,34 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         $entries = array();
         foreach ( $rows as $row ) {
             $data = array();
+            $repeated = array();
             foreach ( (array) json_decode( (string) $row->fields, true ) as $field_id => $field ) {
-                $ref = $form['refs'][ (string) $field_id ] ?? null;
-                if ( ! $ref || ! is_array( $field ) ) {
+                // A Repeater keeps its first row under the field ID and each added row under "<field ID>_<index>".
+                if ( ! preg_match( '/^(\d+)(?:_(\d+))?$/', (string) $field_id, $match ) ) {
                     continue;
                 }
+                $ref = $form['refs'][ $match[1] ] ?? null;
+                if ( ! $ref || ! is_array( $field ) || ( isset( $match[2] ) && ! isset( $ref['repeater'] ) ) ) {
+                    continue;
+                }
+                $values = array();
                 foreach ( $ref['parts'] as $part => $name ) {
                     if ( isset( $questions[ $name ] ) ) {
-                        $data += self::entry_field_value( $questions[ $name ], $ref['type'], $field, $part );
+                        $values += self::entry_field_value( $questions[ $name ], $ref['type'], $field, $part );
                     }
+                }
+                if ( isset( $ref['repeater'] ) ) {
+                    $index = isset( $match[2] ) ? (int) $match[2] : -1;
+                    $repeated[ $ref['repeater'] ][ $index ] = ( $repeated[ $ref['repeater'] ][ $index ] ?? array() ) + $values;
+                } else {
+                    $data += $values;
+                }
+            }
+            foreach ( $repeated as $name => $panels ) {
+                ksort( $panels );
+                $panels = array_values( array_filter( $panels ) );
+                if ( $panels ) {
+                    $data[ $name ] = $panels;
                 }
             }
             if ( $data ) {
@@ -162,12 +189,24 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         $conditions = array();
         $settings = (array) ( $form['settings'] ?? array() );
         $pages = array( array( 'name' => 'page1', 'elements' => array() ) );
+        $fields = array();
+        $children = array();
+        foreach ( array_filter( (array) ( $form['fields'] ?? array() ), 'is_array' ) as $field ) {
+            $fields[ (string) ( $field['id'] ?? '' ) ] = $field;
+            if ( in_array( $field['type'] ?? '', self::CONTAINERS, true ) ) {
+                foreach ( array_filter( (array) ( $field['columns'] ?? array() ), 'is_array' ) as $column ) {
+                    foreach ( (array) ( $column['fields'] ?? array() ) as $child_id ) {
+                        $children[ (string) $child_id ] = true;
+                    }
+                }
+            }
+        }
 
-        foreach ( (array) ( $form['fields'] ?? array() ) as $field ) {
-            if ( ! is_array( $field ) ) {
+        foreach ( $fields as $id => $field ) {
+            $type = (string) ( $field['type'] ?? '' );
+            if ( isset( $children[ (string) $id ] ) && ! in_array( $type, array_merge( self::CONTAINERS, array( 'pagebreak' ) ), true ) ) {
                 continue;
             }
-            $type = (string) ( $field['type'] ?? '' );
             if ( 'pagebreak' === $type ) {
                 $position = (string) ( $field['position'] ?? '' );
                 if ( 'top' === $position ) {
@@ -192,37 +231,26 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
                 }
                 continue;
             }
-            $elements = self::elements( $field, $taken, $refs, $notes );
-            if ( null === $elements ) {
-                $label = self::text( $field['label'] ?? '' );
-                $skipped[] = sprintf( '%s (%s)', '' !== $label ? $label : '#' . ( $field['id'] ?? '' ), $type );
-                continue;
-            }
-            $id = (string) ( $field['id'] ?? '' );
-            if ( isset( $refs[ $id ] ) ) {
-                $refs[ $id ] += array(
-                    'type'     => $type,
-                    'choices'  => self::choice_values( $field ),
-                    'multiple' => 'checkbox' === $type || ( 'select' === $type && ! empty( $field['multiple'] ) ),
-                );
-            }
-            $page = count( $pages ) - 1;
-            if ( ! empty( $field['conditional_logic'] ) && $elements ) {
-                $conditions[] = array( $page, count( $pages[ $page ]['elements'] ), count( $elements ), $field );
-            }
-            array_push( $pages[ $page ]['elements'], ...$elements );
+            $elements = in_array( $type, self::CONTAINERS, true )
+                ? self::container( $field, $fields, $taken, $refs, $notes, $conditions, $skipped )
+                : self::field_elements( $field, $taken, $refs, $notes, $conditions, $skipped );
+            array_push( $pages[ count( $pages ) - 1 ]['elements'], ...$elements );
         }
 
-        foreach ( $conditions as list( $page, $start, $count, $field ) ) {
+        $visibility = array();
+        foreach ( $conditions as list( $names, $field ) ) {
             $expression = self::expression( $field, $refs );
             if ( '' === $expression ) {
                 /* translators: %s: field label */
                 $notes[] = sprintf( __( 'The conditional logic of "%s" was not imported.', 'surveyjs' ), self::text( $field['label'] ?? '' ) );
                 continue;
             }
-            for ( $index = $start; $index < $start + $count; $index++ ) {
-                $pages[ $page ]['elements'][ $index ]['visibleIf'] = $expression;
+            foreach ( $names as $name ) {
+                $visibility[ $name ] = isset( $visibility[ $name ] ) ? '(' . $visibility[ $name ] . ') and (' . $expression . ')' : $expression;
             }
+        }
+        foreach ( $pages as $index => $page ) {
+            $pages[ $index ]['elements'] = self::with_visibility( $page['elements'], $visibility );
         }
 
         $pages = array_values( array_filter( $pages, function ( $page ) {
@@ -255,6 +283,158 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
             'notes'    => $notes,
             'refs'     => $refs,
         );
+    }
+
+    private static function field_elements( $field, &$taken, &$refs, &$notes, &$conditions, &$skipped ) {
+        $type = (string) ( $field['type'] ?? '' );
+        $elements = self::elements( $field, $taken, $refs, $notes );
+        if ( null === $elements ) {
+            $label = self::text( $field['label'] ?? '' );
+            $skipped[] = sprintf( '%s (%s)', '' !== $label ? $label : '#' . ( $field['id'] ?? '' ), $type );
+            return array();
+        }
+        $id = (string) ( $field['id'] ?? '' );
+        if ( isset( $refs[ $id ] ) ) {
+            $refs[ $id ] += array(
+                'type'     => $type,
+                'choices'  => self::choice_values( $field ),
+                'multiple' => 'checkbox' === $type || ( 'select' === $type && ! empty( $field['multiple'] ) ),
+            );
+        }
+        if ( ! empty( $field['conditional_logic'] ) && $elements ) {
+            $conditions[] = array( array_column( $elements, 'name' ), $field );
+        }
+        return $elements;
+    }
+
+    private static function container( $field, $fields, &$taken, &$refs, &$notes, &$conditions, &$skipped ) {
+        $is_repeater = 'repeater' === $field['type'];
+        $label = self::text( $field['label'] ?? '' );
+        $name = $is_repeater ? self::unique_name( '' !== $label ? $label : 'repeater_' . ( $field['id'] ?? '' ), $taken ) : '';
+        $columns = array();
+        $child_ids = array();
+        foreach ( array_filter( (array) ( $field['columns'] ?? array() ), 'is_array' ) as $column ) {
+            $cells = array();
+            foreach ( (array) ( $column['fields'] ?? array() ) as $child_id ) {
+                $child = $fields[ (string) $child_id ] ?? null;
+                if ( ! $child || in_array( $child['type'] ?? '', array_merge( self::CONTAINERS, array( 'pagebreak' ) ), true ) ) {
+                    continue;
+                }
+                $elements = self::field_elements( $child, $taken, $refs, $notes, $conditions, $skipped );
+                if ( $elements ) {
+                    $cells[] = $elements;
+                }
+                $child_ids[] = (string) $child_id;
+            }
+            $columns[] = array( 'cells' => $cells, 'width' => $column['width_preset'] ?? '' );
+        }
+        // Layout shows "rows" by default; a Repeater shows "rows" (one field per column) or "blocks".
+        $elements = self::arrange( $columns, $is_repeater ? 'blocks' !== ( $field['display'] ?? 'rows' ) : 'columns' !== ( $field['display'] ?? 'rows' ), $taken );
+        if ( ! $elements ) {
+            return array();
+        }
+        if ( $is_repeater ) {
+            foreach ( $child_ids as $child_id ) {
+                if ( isset( $refs[ $child_id ] ) ) {
+                    $refs[ $child_id ]['repeater'] = $name;
+                }
+            }
+            $elements = array( self::repeater( $field, $name, $label, $elements ) );
+        }
+        if ( ! empty( $field['conditional_logic'] ) ) {
+            $conditions[] = array( array_column( $elements, 'name' ), $field );
+        }
+        return $elements;
+    }
+
+    private static function repeater( $field, $name, $label, $elements ) {
+        $panel = array( 'type' => 'paneldynamic', 'name' => $name, 'title' => $label );
+        if ( '' !== self::text( $field['description'] ?? '' ) ) {
+            $panel['description'] = self::text( $field['description'] );
+        }
+        if ( ! empty( $field['label_hide'] ) ) {
+            $panel['titleLocation'] = 'hidden';
+        }
+        $panel['templateElements'] = $elements;
+        $min = is_numeric( $field['rows_limit_min'] ?? '' ) ? max( 0, (int) $field['rows_limit_min'] ) : 1;
+        $max = is_numeric( $field['rows_limit_max'] ?? '' ) ? (int) $field['rows_limit_max'] : 10;
+        $panel['panelCount'] = max( 1, $min );
+        if ( $min > 0 ) {
+            $panel['minPanelCount'] = $min;
+        }
+        if ( $max >= max( 1, $min ) ) {
+            $panel['maxPanelCount'] = $max;
+        }
+        $buttons = (array) ( $field['button_labels'] ?? array() );
+        if ( '' !== self::text( $buttons['add'] ?? '' ) ) {
+            $panel['panelAddText'] = self::text( $buttons['add'] );
+        }
+        if ( '' !== self::text( $buttons['remove'] ?? '' ) ) {
+            $panel['panelRemoveText'] = self::text( $buttons['remove'] );
+        }
+        if ( 'blocks' !== ( $field['display'] ?? 'rows' ) ) {
+            $panel['panelRemoveButtonLocation'] = 'right';
+        }
+        return $panel;
+    }
+
+    // Each cell holds the elements of one WPForms field. By rows, the n-th cells of all columns share a line;
+    // by columns, each column becomes a panel so that its fields stack under each other.
+    private static function arrange( $columns, $by_rows, &$taken ) {
+        $columns = array_values( array_filter( $columns, function ( $column ) {
+            return ! empty( $column['cells'] );
+        } ) );
+        if ( count( $columns ) < 2 ) {
+            return $columns ? array_merge( ...$columns[0]['cells'] ) : array();
+        }
+        $sized = count( array_unique( array_map( 'strval', array_column( $columns, 'width' ) ) ) ) > 1;
+        $height = max( array_map( function ( $column ) {
+            return count( $column['cells'] );
+        }, $columns ) );
+        $place = function ( $element, $first, $width ) use ( $sized ) {
+            if ( ! $first ) {
+                $element['startWithNewLine'] = false;
+            }
+            if ( $sized && is_numeric( $width ) ) {
+                $element['width'] = round( (float) $width, 2 ) . '%';
+            }
+            return $element;
+        };
+        $result = array();
+        if ( ! $by_rows && $height > 1 ) {
+            foreach ( $columns as $index => $column ) {
+                $panel = array( 'type' => 'panel', 'name' => self::unique_name( 'column', $taken ), 'elements' => array_merge( ...$column['cells'] ) );
+                $result[] = $place( $panel, 0 === $index, $column['width'] );
+            }
+            return $result;
+        }
+        for ( $row = 0; $row < $height; $row++ ) {
+            $first = true;
+            foreach ( $columns as $column ) {
+                $cell = $column['cells'][ $row ] ?? null;
+                if ( ! $cell ) {
+                    continue;
+                }
+                $element = 1 === count( $cell ) ? $cell[0] : array( 'type' => 'panel', 'name' => self::unique_name( 'group', $taken ), 'elements' => $cell );
+                $result[] = $place( $element, $first, $column['width'] );
+                $first = false;
+            }
+        }
+        return $result;
+    }
+
+    private static function with_visibility( $elements, $visibility ) {
+        foreach ( $elements as $index => $element ) {
+            if ( isset( $element['name'], $visibility[ $element['name'] ] ) ) {
+                $elements[ $index ]['visibleIf'] = $visibility[ $element['name'] ];
+            }
+            foreach ( array( 'elements', 'templateElements' ) as $key ) {
+                if ( ! empty( $element[ $key ] ) ) {
+                    $elements[ $index ][ $key ] = self::with_visibility( $element[ $key ], $visibility );
+                }
+            }
+        }
+        return $elements;
     }
 
     private static function captcha() {
@@ -589,13 +769,31 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
             $props['placeholder'] = self::text( $field[ $placeholder_key ] );
         }
         $default = self::text( $field[ $default_key ] ?? '' );
-        if ( preg_match( '/\{\w+[^}]*\}/', $default ) ) {
+        $variable = self::smart_tag_variable( $default );
+        if ( '' !== $variable ) {
+            $props['defaultValueExpression'] = self::variables_expression( array( $variable ) );
+        } elseif ( preg_match( '/\{\w+[^}]*\}/', $default ) ) {
             /* translators: 1: field label, 2: default value */
             $notes[] = sprintf( __( 'The default value of "%1$s" (%2$s) uses a smart tag and was not imported.', 'surveyjs' ), $label, $default );
         } elseif ( '' !== $default ) {
             $props['defaultValue'] = $default;
         }
         return $props;
+    }
+
+    private static function smart_tag_variable( $default ) {
+        if ( preg_match( '/^\{query_var key="([^"]*)"\}$/', $default, $match ) ) {
+            return self::query_variable( $match[1] );
+        }
+        $users = array(
+            '{user_id}'         => 'id',
+            '{user_display}'    => 'display_name',
+            '{user_full_name}'  => 'full_name',
+            '{user_first_name}' => 'first_name',
+            '{user_last_name}'  => 'last_name',
+            '{user_email}'      => 'email',
+        );
+        return isset( $users[ $default ] ) ? self::user_variable( $users[ $default ] ) : '';
     }
 
     private static function confirmation( $confirmations, $title, $refs, &$json, &$notes ) {
@@ -672,7 +870,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
 
     private static function rule( $rule, $refs ) {
         $ref = $refs[ (string) ( $rule['field'] ?? '' ) ] ?? null;
-        if ( ! $ref || ! isset( $ref['parts']['value'] ) ) {
+        if ( ! $ref || ! isset( $ref['parts']['value'] ) || isset( $ref['repeater'] ) ) {
             return '';
         }
         $name = '{' . $ref['parts']['value'] . '}';
@@ -690,11 +888,11 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         if ( in_array( $operator, array( '>', '<' ), true ) ) {
             return is_numeric( $value ) ? $name . ' ' . $operator . ' ' . ( 0 + $value ) : '';
         }
-        if ( false === strpos( $value, "'" ) ) {
-            $quoted = "'" . $value . "'";
-        } elseif ( false === strpos( $value, '"' ) ) {
-            $quoted = '"' . $value . '"';
-        } else {
+        if ( '^' === $operator || '~' === $operator ) {
+            return self::affix_rule( $ref['parts']['value'], '^' === $operator, $value );
+        }
+        $quoted = self::quoted( $value );
+        if ( '' === $quoted ) {
             return '';
         }
         $operators = array(
@@ -783,7 +981,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
 
     private static function field_names( $field_id, $refs ) {
         list( $id, $part ) = array_pad( explode( '|', $field_id, 2 ), 2, '' );
-        if ( ! isset( $refs[ $id ] ) ) {
+        if ( ! isset( $refs[ $id ] ) || isset( $refs[ $id ]['repeater'] ) ) {
             return array();
         }
         $parts = $refs[ $id ]['parts'];
@@ -794,7 +992,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         if ( ! preg_match( '/^\s*\{(?:' . implode( '|', self::FIELD_TAGS ) . ')="(\d+)"\}\s*$/', (string) $text, $match ) ) {
             return '';
         }
-        return ! empty( $refs[ $match[1] ]['email'] ) ? $refs[ $match[1] ]['parts']['value'] : '';
+        return ! empty( $refs[ $match[1] ]['email'] ) && ! isset( $refs[ $match[1] ]['repeater'] ) ? $refs[ $match[1] ]['parts']['value'] : '';
     }
 
     private static function unique_name( $text, &$taken ) {

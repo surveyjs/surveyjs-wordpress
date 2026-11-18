@@ -53,6 +53,7 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 * **Save as Template**: save any form as your own template and reuse it from My Templates.
 * Describe your form in JSON with validation hints, formatting and a live preview.
 * Add a logo and images to the form from the WordPress Media Library.
+* **Prefill from the URL or the user account**: use `{urlParams.name}` for a parameter from the page URL and `{wpUser.email}` (also `id`, `login`, `url`, `display_name`, `first_name`, `last_name`, `full_name`, `nickname`) for the logged-in user in default values, conditions and calculations.
 * **Adaptive theme**: by default the form takes the colors, fonts, buttons and fields of your site's theme.
 * **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme that matches your site. The plugin checks the theme and warns about hard-to-read text.
 * Prefer a visual editor? Open the form in the **free online SurveyJS UI Builder** with drag & drop, a logic editor and a theme editor. When you save there, the form comes back to WordPress. Optional: the plugin works fully without it (see External services below).

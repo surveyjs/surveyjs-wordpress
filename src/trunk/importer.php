@@ -106,6 +106,7 @@ abstract class SurveyJS_Importer {
         if ( empty( $form['json']['elements'] ) && empty( $form['json']['pages'] ) ) {
             return new WP_Error( 'no_fields', __( 'The form has no fields to import.', 'surveyjs' ) );
         }
+        $form['json'] = self::with_variables( $form['json'] );
         $id = static::imported_id( $source_id );
         $updated = (bool) $id;
         $settings = $form['settings'];
@@ -138,6 +139,19 @@ abstract class SurveyJS_Importer {
             'skipped' => $form['skipped'],
             'notes'   => array_values( array_unique( $form['notes'] ) ),
         );
+    }
+
+    // survey.js sets these variables at runtime. A calculated value without an expression is never computed, so it keeps
+    // the runtime value and only declares the name for SurveyJS tools that check references.
+    private static function with_variables( $json ) {
+        $encoded = (string) wp_json_encode( $json );
+        $declared = array_map( 'strtolower', array_column( array_filter( (array) ( $json['calculatedValues'] ?? array() ), 'is_array' ), 'name' ) );
+        foreach ( array( SurveyJS_Form_Variables::QUERY, SurveyJS_Form_Variables::USER ) as $variable ) {
+            if ( preg_match( '/\{#?' . $variable . '\./i', $encoded ) && ! in_array( strtolower( $variable ), $declared, true ) ) {
+                $json['calculatedValues'][] = array( 'name' => $variable );
+            }
+        }
+        return $json;
     }
 
     private static function save_entries( $survey_id, $source_id, $form, $entries ) {
@@ -305,6 +319,46 @@ abstract class SurveyJS_Importer {
             ) );
         }
         return $question;
+    }
+
+    protected static function user_variable( $property ) {
+        return in_array( $property, SurveyJS_Form_Variables::USER_PROPERTIES, true ) ? SurveyJS_Form_Variables::USER . '.' . $property : '';
+    }
+
+    protected static function query_variable( $param ) {
+        return preg_match( '/^[A-Za-z0-9_-]+$/', (string) $param ) ? SurveyJS_Form_Variables::QUERY . '.' . $param : '';
+    }
+
+    // The first variable with a value wins; when none has one, SurveyJS falls back to defaultValue.
+    protected static function variables_expression( $variables ) {
+        $variables = array_values( array_unique( array_filter( $variables, 'strlen' ) ) );
+        $expression = '';
+        foreach ( array_reverse( $variables ) as $variable ) {
+            // "#" keeps the text as is: without it SurveyJS turns "01234" into the number 1234.
+            $value = '{#' . $variable . '}';
+            $expression = '' === $expression ? $value : 'iif(' . $value . ' notempty, ' . $value . ', ' . $expression . ')';
+        }
+        return $expression;
+    }
+
+    protected static function quoted( $value ) {
+        $value = (string) $value;
+        if ( false === strpos( $value, "'" ) ) {
+            return "'" . $value . "'";
+        }
+        return false === strpos( $value, '"' ) ? '"' . $value . '"' : '';
+    }
+
+    // SurveyJS expressions have no startsWith/endsWith, so the rule compares a substring of the answer's length in UTF-16 units, as JavaScript counts it.
+    // The ending starts at sum({q.length}, -N): "{q.length} - N" is arithmetic on a text question, which SurveyJS expression checks report.
+    protected static function affix_rule( $name, $starts, $value ) {
+        $value = (string) $value;
+        $quoted = self::quoted( $value );
+        if ( '' === $value || '' === $quoted ) {
+            return '';
+        }
+        $length = (int) ( strlen( mb_convert_encoding( $value, 'UTF-16LE', 'UTF-8' ) ) / 2 );
+        return 'substring({#' . $name . '}, ' . ( $starts ? '0, ' . $length : 'sum({' . $name . '.length}, -' . $length . ')' ) . ') = ' . $quoted;
     }
 
     protected static function entry_value( $question, $value ) {

@@ -80,6 +80,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include_once( __DIR__ . "/dashboard_widget.php" );
     include( __DIR__ . "/survey_values.php" );
     include( __DIR__ . "/form_settings.php" );
+    include( __DIR__ . "/form_variables.php" );
     include( __DIR__ . "/surveyjs_themes.php" );
     include( __DIR__ . "/file_storage.php" );
     include( __DIR__ . "/uploaded_files.php" );
