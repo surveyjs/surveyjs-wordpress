@@ -35,7 +35,10 @@ class SurveyJS_Notification {
             return is_rtl() ? '<div dir="rtl">' . $body . '</div>' : $body;
         };
 
-        $to = self::recipients( strtr( SurveyJS_Form_Settings::value( $settings, 'notificationTo' ), $value_tags ) );
+        $recipients = function ( $key ) use ( $settings, $value_tags ) {
+            return self::recipients( strtr( SurveyJS_Form_Settings::value( $settings, $key ), $value_tags ) );
+        };
+        $to = $recipients( 'notificationTo' );
         $respondent_email = $data[ $settings['notificationReplyTo'] ] ?? '';
         $respondent_email = is_string( $respondent_email ) && is_email( $respondent_email ) ? $respondent_email : '';
         $from = self::from( $value( 'notificationFromName', $respondent_tags ), $value( 'notificationFromEmail', $respondent_tags ) );
@@ -43,13 +46,13 @@ class SurveyJS_Notification {
         $notify = ! empty( $settings['notificationEnabled'] ) && ! empty( $to );
         if ( $notify ) {
             $html = ! empty( $settings['notificationHtml'] );
-            $headers = self::headers( $from, $respondent_email, $html );
+            $headers = self::headers( $from, $respondent_email, $html, $recipients( 'notificationCc' ), $recipients( 'notificationBcc' ) );
             wp_mail( $to, $value( 'notificationSubject', $respondent_tags ), $value( 'notificationMessage', $owner_tags, $html ), $headers, $attachments( 'notificationAttachments', 'owner' ) );
         }
 
         if ( ! empty( $settings['autoReplyEnabled'] ) && $respondent_email ) {
             $html = ! empty( $settings['autoReplyHtml'] );
-            $headers = self::headers( $from, $notify ? implode( ', ', $to ) : get_option( 'admin_email' ), $html );
+            $headers = self::headers( $from, $notify ? implode( ', ', $to ) : get_option( 'admin_email' ), $html, $recipients( 'autoReplyCc' ), $recipients( 'autoReplyBcc' ) );
             wp_mail( $respondent_email, $value( 'autoReplySubject', $respondent_tags ), $value( 'autoReplyMessage', $respondent_tags, $html ), $headers, $attachments( 'autoReplyAttachments', 'respondent' ) );
         }
     }
@@ -89,6 +92,8 @@ class SurveyJS_Notification {
             return new WP_Error( 'no_recipients', __( 'Enter a valid email address in Send To.', 'surveyjs' ) );
         }
 
+        $cc = self::recipients( $value( 'notificationCc' ) );
+        $bcc = self::recipients( $value( 'notificationBcc' ) );
         $error = null;
         $catch_error = function ( $wp_error ) use ( &$error ) {
             $error = $wp_error;
@@ -100,12 +105,12 @@ class SurveyJS_Notification {
             sprintf( __( 'Test email from %s', 'surveyjs' ), $tags['{site_name}'] ),
             /* translators: %s: form name */
             sprintf( __( "This is a test email from the form \"%s\". If you received it, emails from this form are delivered.", 'surveyjs' ), $survey->name ),
-            self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) )
+            self::headers( self::from( $value( 'notificationFromName' ), $value( 'notificationFromEmail' ) ), '', false, $cc, $bcc )
         );
         remove_action( 'wp_mail_failed', $catch_error );
 
         if ( $sent ) {
-            return $to;
+            return array_values( array_unique( array_merge( $to, $cc, $bcc ) ) );
         }
         return $error instanceof WP_Error ? $error : new WP_Error( 'mail_failed', __( 'The email could not be sent.', 'surveyjs' ) );
     }
@@ -155,10 +160,16 @@ class SurveyJS_Notification {
         return $attachments;
     }
 
-    private static function headers( $from, $reply_to, $html ) {
+    private static function headers( $from, $reply_to, $html, $cc = array(), $bcc = array() ) {
         $headers = $from;
         if ( '' !== $reply_to ) {
             $headers[] = 'Reply-To: ' . $reply_to;
+        }
+        if ( $cc ) {
+            $headers[] = 'Cc: ' . implode( ', ', $cc );
+        }
+        if ( $bcc ) {
+            $headers[] = 'Bcc: ' . implode( ', ', $bcc );
         }
         if ( $html ) {
             $headers[] = 'Content-Type: text/html; charset=UTF-8';

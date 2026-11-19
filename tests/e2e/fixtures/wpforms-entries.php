@@ -89,7 +89,14 @@ if ( 'create' === $command ) {
             8 => array( 'id' => 8, 'type' => 'select', 'label' => 'Meal', 'choices' => array( 1 => array( 'label' => 'Fish' ), 2 => array( 'label' => 'Meat' ) ) ),
             9 => array( 'id' => 9, 'type' => 'hidden', 'label' => 'Source', 'default_value' => '{query_var key="utm_source"}' ),
         ),
-        'settings' => array( 'form_title' => $form_title ),
+        'settings' => array(
+            'form_title'          => $form_title,
+            'notification_enable' => '1',
+            'notifications'       => array(
+                1 => array( 'email' => '{admin_email}', 'carboncopy' => 'boss@example.com, {field_id="4"}', 'subject' => 'New entry', 'message' => '{all_fields}' ),
+                2 => array( 'notification_name' => 'Copy', 'email' => '{field_id="4"}', 'carboncopy' => 'team@example.com', 'subject' => 'Thanks', 'message' => '{all_fields}' ),
+            ),
+        ),
     );
     wp_update_post( array( 'ID' => $form_id, 'post_content' => wp_slash( wp_json_encode( $form ) ) ) );
     $text = function ( $id, $value, $type = 'text' ) {

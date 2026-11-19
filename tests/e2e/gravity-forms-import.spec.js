@@ -116,10 +116,14 @@ test.describe("import from Gravity Forms", () => {
     expect(settings).toMatchObject({
       notificationEnabled: true,
       notificationTo: "{admin_email}",
+      notificationCc: "boss@example.com",
+      notificationBcc: "audit@example.com, {field:email}",
       notificationSubject: "New registration: {form_name}",
       notificationReplyTo: "email",
       notificationAttachments: "documents",
       autoReplyEnabled: true,
+      autoReplyCc: "",
+      autoReplyBcc: "archive@example.com",
       autoReplySubject: "Your {form_name} registration",
       autoReplyHtml: true
     });

@@ -136,6 +136,8 @@ test.describe("import from Fluent Forms", () => {
         enabled: true,
         sendTo: { type: "email", email: "{wp.admin_email}", field: "", routing: [] },
         replyTo: "{inputs.email}",
+        cc: "boss@example.com",
+        bcc: "{inputs.email}",
         subject: "Registration: {form_title}",
         message: "<p>{inputs.names} registered.</p><p>{all_data}</p>",
         conditionals: NO_CONDITIONS
@@ -150,7 +152,7 @@ test.describe("import from Fluent Forms", () => {
         fromName: "",
         fromEmail: "",
         replyTo: "",
-        bcc: "",
+        bcc: "archive@example.com",
         subject: "You are registered: {form_title}",
         message: "<p>Hi {inputs.names.first_name}, see you there.</p>",
         conditionals: NO_CONDITIONS
@@ -208,6 +210,10 @@ test.describe("import from Fluent Forms", () => {
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true }).click();
     await expect(page.getByLabel("Send an email when the form is submitted")).toBeChecked();
     await expect(page.getByLabel("Send To")).toHaveValue("{admin_email}");
+    await expect(page.locator("#wp-sjs-notification-cc")).toHaveValue("boss@example.com");
+    await expect(page.locator("#wp-sjs-notification-bcc")).toHaveValue("{field:email}");
+    await expect(page.locator("#wp-sjs-auto-reply-cc")).toHaveValue("");
+    await expect(page.locator("#wp-sjs-auto-reply-bcc")).toHaveValue("archive@example.com");
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);

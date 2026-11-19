@@ -194,6 +194,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 
 = 3.2.4 =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
+Added: CC and BCC fields for the email notification and the auto-reply; form importers now bring over CC and BCC addresses.
 
 = 2.5.7 =
 Fixed: a survey failed to load on a page when its JSON contained escaped double quotes, for example in an HTML link or an expression.

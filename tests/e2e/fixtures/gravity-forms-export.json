@@ -203,12 +203,12 @@
     "notifications": [
       {
         "id": "64f0a1b2c3d4e", "isActive": true, "to": "{admin_email}", "name": "Admin Notification", "event": "form_submission", "toType": "email",
-        "cc": "", "bcc": "audit@example.com", "subject": "New registration: {form_title}", "message": "{all_fields}",
+        "cc": "boss@example.com", "bcc": "audit@example.com, {Email:2}", "subject": "New registration: {form_title}", "message": "{all_fields}",
         "from": "{admin_email}", "fromName": "E2E Conference", "replyTo": "{Email:2}", "routing": null, "conditionalLogic": null,
         "disableAutoformat": false, "enableAttachments": true, "service": "wordpress"
       },
       {
-        "id": "64f0a1b2c3d4f", "isActive": true, "to": "2", "name": "User Notification", "event": "form_submission", "toType": "field",
+        "id": "64f0a1b2c3d4f", "isActive": true, "to": "2", "name": "User Notification", "event": "form_submission", "toType": "field", "bcc": "archive@example.com",
         "subject": "Your {form_title} registration", "message": "<p>Hi {Your Name (First):1.3},</p><p>Your ticket: {Ticket type:5}. Entry {entry_id}.</p>",
         "from": "{admin_email}", "fromName": "", "replyTo": "", "routing": null, "conditionalLogic": null, "disableAutoformat": false, "service": "wordpress"
       },

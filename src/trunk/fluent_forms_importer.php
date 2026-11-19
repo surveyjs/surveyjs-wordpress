@@ -1024,13 +1024,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
                 'notificationSubject'   => $this->tags( $admin['subject'] ?? '', false ),
                 'notificationFromName'  => $this->tags( $admin['fromName'] ?? '', false ),
                 'notificationFromEmail' => $this->tags( $admin['fromEmail'] ?? '', false ),
-            ) + $this->message_settings( $admin, 'notification' );
-            foreach ( array( 'cc' => 'CC', 'bcc' => 'BCC' ) as $key => $header ) {
-                if ( '' !== trim( (string) ( $admin[ $key ] ?? '' ) ) ) {
-                    /* translators: 1: CC or BCC, 2: email addresses */
-                    $this->notes[] = sprintf( __( '%1$s "%2$s" was not imported: add these addresses to Send To if needed.', 'surveyjs' ), $header, $admin[ $key ] );
-                }
-            }
+            ) + $this->copies( $admin, 'notification' ) + $this->message_settings( $admin, 'notification' );
             $reply_to = trim( (string) ( $admin['replyTo'] ?? '' ) );
             if ( '' !== $reply_to ) {
                 $settings['notificationReplyTo'] = $this->email_field( $reply_to );
@@ -1047,7 +1041,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
                 $settings['notificationReplyTo'] = $auto_reply_field;
                 $settings['autoReplyEnabled'] = ! empty( $auto_reply['enabled'] );
                 $settings['autoReplySubject'] = $this->tags( $auto_reply['subject'] ?? '', false );
-                $settings += $this->message_settings( $auto_reply, 'autoReply' );
+                $settings += $this->copies( $auto_reply, 'autoReply' ) + $this->message_settings( $auto_reply, 'autoReply' );
                 /* translators: %s: notification name */
                 $this->notes[] = sprintf( __( 'The notification "%s" was imported as the auto-reply.', 'surveyjs' ), $auto_reply['name'] ?? '' );
                 $this->notification_notes( $auto_reply );
@@ -1060,6 +1054,13 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             $this->notes[] = sprintf( __( 'The notification "%s" was not imported: a form has one email notification and one auto-reply.', 'surveyjs' ), $other['name'] ?? '' );
         }
         return $settings;
+    }
+
+    private function copies( $notification, $prefix ) {
+        return array(
+            $prefix . 'Cc'  => trim( $this->tags( (string) ( $notification['cc'] ?? '' ), false ) ),
+            $prefix . 'Bcc' => trim( $this->tags( (string) ( $notification['bcc'] ?? '' ), false ) ),
+        );
     }
 
     private function message_settings( $notification, $prefix ) {

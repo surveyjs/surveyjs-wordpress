@@ -203,6 +203,8 @@ test.describe("import from WPForms: Layout and Repeater", () => {
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}`);
     expect(await lintIssues(page, imported.survey)).toEqual([]);
+    await expect(page.locator("#wp-sjs-notification-cc")).toHaveValue("boss@example.com, {field:email}");
+    await expect(page.locator("#wp-sjs-auto-reply-cc")).toHaveValue("team@example.com");
 
     restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
     const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {

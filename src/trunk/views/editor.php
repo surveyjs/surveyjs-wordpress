@@ -397,6 +397,20 @@ class SurveyJS_Editor {
                                 <p id="wp-sjs-test-email-result" aria-live="polite"></p>
                             </td>
                         </tr>
+                        <tr data-enabled-by="notificationEnabled">
+                            <th scope="row"><label for="wp-sjs-notification-cc"><?php esc_html_e( 'CC', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <input type="text" id="wp-sjs-notification-cc" class="regular-text" data-setting="notificationCc" />
+                                <p class="description"><?php esc_html_e( 'Who receives a copy of the email. Separate multiple addresses with commas.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="notificationEnabled">
+                            <th scope="row"><label for="wp-sjs-notification-bcc"><?php esc_html_e( 'BCC', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <input type="text" id="wp-sjs-notification-bcc" class="regular-text" data-setting="notificationBcc" />
+                                <p class="description"><?php esc_html_e( 'Who receives a hidden copy: other recipients do not see these addresses. Separate multiple addresses with commas.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
                         <tr data-enabled-by="notificationEnabled autoReplyEnabled">
                             <th scope="row"><label for="wp-sjs-notification-from-name"><?php esc_html_e( 'From Name', 'surveyjs' ); ?></label></th>
                             <td>
@@ -460,6 +474,20 @@ class SurveyJS_Editor {
                                 <td>
                                     <label><input type="checkbox" data-setting="autoReplyEnabled" /> <?php esc_html_e( 'Send an auto-reply to the respondent', 'surveyjs' ); ?></label>
                                     <p class="description"><?php esc_html_e( 'Sent to the address the respondent entered in the Reply-To question. When the respondent replies, the reply goes to the Send To addresses, or to the site admin email if the email notification is off. Bots can enter someone else\'s address, so turn this on together with spam protection.', 'surveyjs' ); ?></p>
+                                </td>
+                            </tr>
+                            <tr data-enabled-by="autoReplyEnabled">
+                                <th scope="row"><label for="wp-sjs-auto-reply-cc"><?php esc_html_e( 'CC', 'surveyjs' ); ?></label></th>
+                                <td>
+                                    <input type="text" id="wp-sjs-auto-reply-cc" class="regular-text" data-setting="autoReplyCc" />
+                                    <p class="description"><?php esc_html_e( 'Who receives a copy of the email. Separate multiple addresses with commas.', 'surveyjs' ); ?></p>
+                                </td>
+                            </tr>
+                            <tr data-enabled-by="autoReplyEnabled">
+                                <th scope="row"><label for="wp-sjs-auto-reply-bcc"><?php esc_html_e( 'BCC', 'surveyjs' ); ?></label></th>
+                                <td>
+                                    <input type="text" id="wp-sjs-auto-reply-bcc" class="regular-text" data-setting="autoReplyBcc" />
+                                    <p class="description"><?php esc_html_e( 'Who receives a hidden copy: other recipients do not see these addresses. Separate multiple addresses with commas.', 'surveyjs' ); ?></p>
                                 </td>
                             </tr>
                             <tr data-enabled-by="autoReplyEnabled">

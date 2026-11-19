@@ -920,10 +920,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         $settings['notificationFromEmail'] = self::tags( $notification['sender_address'] ?? '', $refs, '', false, $notes );
         $settings['notificationMessage'] = self::tags( $notification['message'] ?? '', $refs, '', false, $notes );
         $settings['notificationHtml'] = (bool) preg_match( '/<[a-z][^>]*>/i', $settings['notificationMessage'] );
-        if ( ! empty( $notification['carboncopy'] ) ) {
-            /* translators: %s: email addresses */
-            $notes[] = sprintf( __( 'CC "%s" was not imported: add these addresses to Send To if needed.', 'surveyjs' ), $notification['carboncopy'] );
-        }
+        $settings['notificationCc'] = self::tags( $notification['carboncopy'] ?? '', $refs, '', false, $notes );
         if ( ! empty( $notification['conditional_logic'] ) ) {
             $notes[] = __( 'The conditional logic of the notification was not imported.', 'surveyjs' );
         }
@@ -941,6 +938,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
             if ( empty( $settings['autoReplyEnabled'] ) && '' !== $recipient && in_array( $settings['notificationReplyTo'] ?? '', array( '', $recipient ), true ) ) {
                 $settings['notificationReplyTo'] = $recipient;
                 $settings['autoReplyEnabled'] = '0' !== (string) ( $other['enable'] ?? '1' );
+                $settings['autoReplyCc'] = self::tags( $other['carboncopy'] ?? '', $refs, '', false, $notes );
                 $settings['autoReplySubject'] = self::tags( $other['subject'] ?? '', $refs, '', false, $notes );
                 $settings['autoReplyMessage'] = self::tags( $other['message'] ?? '', $refs, '', false, $notes );
                 $settings['autoReplyHtml'] = (bool) preg_match( '/<[a-z][^>]*>/i', $settings['autoReplyMessage'] );

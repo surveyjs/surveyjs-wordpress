@@ -402,17 +402,11 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
             }
         }
 
-        foreach ( array_filter( array( $mail, ! empty( $mail_2['active'] ) ? $mail_2 : array() ) ) as $source ) {
-            if ( preg_match_all( '/^(Cc|Bcc):\s*(.+)$/mi', (string) ( $source['additional_headers'] ?? '' ), $headers, PREG_SET_ORDER ) ) {
-                foreach ( $headers as $header ) {
-                    /* translators: 1: CC or BCC, 2: email addresses */
-                    $notes[] = sprintf( __( '%1$s "%2$s" was not imported: add these addresses to Send To if needed.', 'surveyjs' ), strtoupper( $header[1] ), trim( $header[2] ) );
-                }
-            }
-        }
+        $settings += self::copies( $mail, 'notification', $names, $notes );
 
         if ( ! empty( $mail_2['active'] ) ) {
             $settings['autoReplyEnabled'] = true;
+            $settings += self::copies( $mail_2, 'autoReply', $names, $notes );
             $settings['autoReplySubject'] = self::tags( $mail_2['subject'] ?? '', $names, $notes );
             $settings['autoReplyMessage'] = self::tags( $mail_2['body'] ?? '', $names, $notes );
             $settings['autoReplyHtml'] = ! empty( $mail_2['use_html'] );
@@ -426,6 +420,17 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
         }
         $notes = array_values( array_unique( $notes ) );
         return $settings;
+    }
+
+    private static function copies( $mail, $prefix, $names, &$notes ) {
+        $copies = array();
+        preg_match_all( '/^(Cc|Bcc):\s*(.+)$/mi', (string) ( $mail['additional_headers'] ?? '' ), $headers, PREG_SET_ORDER );
+        foreach ( $headers as $header ) {
+            $key = $prefix . ucfirst( strtolower( $header[1] ) );
+            $list = trim( self::tags( $header[2], $names, $notes ) );
+            $copies[ $key ] = isset( $copies[ $key ] ) ? $copies[ $key ] . ', ' . $list : $list;
+        }
+        return $copies;
     }
 
     private static function tags( $text, $names, &$notes ) {

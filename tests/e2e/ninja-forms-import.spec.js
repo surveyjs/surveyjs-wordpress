@@ -39,8 +39,8 @@ function ninjaForm(title) {
     ],
     actions: [
       { type: "save", label: "Record Submission", active: 1 },
-      { ...email, type: "email", label: "Admin", to: "{system:admin_email}", reply_to: "{field:email}", email_subject: "Ninja: {form:title}", email_message: "<p>{all_fields_table}</p>" },
-      { ...email, type: "email", label: "Copy to visitor", to: "{field:email}", email_subject: "Thanks {field:first_name}", email_message: "<p>We got it.</p>" },
+      { ...email, type: "email", label: "Admin", to: "{system:admin_email}", cc: "boss@example.com", bcc: "{field:email}", reply_to: "{field:email}", email_subject: "Ninja: {form:title}", email_message: "<p>{all_fields_table}</p>" },
+      { ...email, type: "email", label: "Copy to visitor", to: "{field:email}", bcc: "archive@example.com", email_subject: "Thanks {field:first_name}", email_message: "<p>We got it.</p>" },
       { type: "successmessage", label: "Success Message", active: 1, success_msg: "<p>Thanks, {field:first_name}!</p>" }
     ]
   };
@@ -157,6 +157,10 @@ test.describe("import from Ninja Forms", () => {
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Email", exact: true }).click();
     await expect(page.getByLabel("Send an email when the form is submitted")).toBeChecked();
     await expect(page.getByLabel("Send To")).toHaveValue("{admin_email}");
+    await expect(page.locator("#wp-sjs-notification-cc")).toHaveValue("boss@example.com");
+    await expect(page.locator("#wp-sjs-notification-bcc")).toHaveValue("{field:email}");
+    await expect(page.locator("#wp-sjs-auto-reply-cc")).toHaveValue("");
+    await expect(page.locator("#wp-sjs-auto-reply-bcc")).toHaveValue("archive@example.com");
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");
 
     const { email } = await currentUser(page);
@@ -173,8 +177,11 @@ test.describe("import from Ninja Forms", () => {
     const mail = await findMail(page.request, `Ninja: ${name}`);
     expect(mail.ReplyTo.map(to => to.Address)).toEqual(["ann@example.com"]);
     expect(mail.HTML).toContain("First Name: Ann");
+    expect(mail.Cc.map(cc => cc.Address)).toEqual(["boss@example.com"]);
+    expect(mail.Bcc.map(bcc => bcc.Address)).toEqual(["ann@example.com"]);
     const reply = await findMail(page.request, "Thanks Ann");
     expect(reply.To.map(to => to.Address)).toEqual(["ann@example.com"]);
+    expect(reply.Bcc.map(bcc => bcc.Address)).toEqual(["archive@example.com"]);
   });
 
   test("re-import updates the imported form and its entries instead of adding copies", async ({ page }) => {

@@ -855,6 +855,7 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
             $settings['notificationFromEmail'] = self::tags( $notification['from_address'] ?? '', $by_key, '', false, $notes );
             $settings['notificationMessage'] = self::tags( $notification[ $html ? 'email_message' : 'email_message_plain' ] ?? '', $by_key, '', false, $notes );
             $settings['notificationHtml'] = $html;
+            $settings += self::copies( $notification, 'notification', $by_key, $notes );
             $reply_to = trim( (string) ( $notification['reply_to'] ?? '' ) );
             if ( '' !== $reply_to ) {
                 $settings['notificationReplyTo'] = self::email_field( $reply_to, $by_key );
@@ -872,6 +873,7 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
             $settings['autoReplySubject'] = self::tags( $auto_reply['email_subject'] ?? '', $by_key, '', false, $notes );
             $settings['autoReplyMessage'] = self::tags( $auto_reply[ $html ? 'email_message' : 'email_message_plain' ] ?? '', $by_key, '', false, $notes );
             $settings['autoReplyHtml'] = $html;
+            $settings += self::copies( $auto_reply, 'autoReply', $by_key, $notes );
             /* translators: %s: email action name */
             $notes[] = sprintf( __( 'The email action "%s" was imported as the auto-reply.', 'surveyjs' ), self::text( $auto_reply['label'] ?? '' ) );
             foreach ( array( 'from_name', 'from_address', 'reply_to' ) as $option ) {
@@ -892,14 +894,15 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
         return $settings;
     }
 
+    private static function copies( $email, $prefix, $by_key, &$notes ) {
+        return array(
+            $prefix . 'Cc'  => trim( self::tags( (string) ( $email['cc'] ?? '' ), $by_key, '', false, $notes ) ),
+            $prefix . 'Bcc' => trim( self::tags( (string) ( $email['bcc'] ?? '' ), $by_key, '', false, $notes ) ),
+        );
+    }
+
     private static function email_notes( $email, $by_key, &$notes ) {
         $name = self::text( $email['label'] ?? '' );
-        foreach ( array( 'cc' => 'CC', 'bcc' => 'BCC' ) as $option => $header ) {
-            if ( '' !== trim( (string) ( $email[ $option ] ?? '' ) ) ) {
-                /* translators: 1: CC or BCC, 2: email addresses, 3: email action name */
-                $notes[] = sprintf( __( '%1$s "%2$s" of the email action "%3$s" was not imported: add these addresses to Send To if needed.', 'surveyjs' ), $header, $email[ $option ], $name );
-            }
-        }
         if ( ! empty( $email['attach_csv'] ) || ! empty( $email['file_attachment'] ) ) {
             /* translators: %s: email action name */
             $notes[] = sprintf( __( 'The attachments of the email action "%s" were not imported.', 'surveyjs' ), $name );

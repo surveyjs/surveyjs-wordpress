@@ -162,7 +162,7 @@ test.describe("import from Contact Form 7", () => {
     await expect(page.locator("#the-list tr")).toHaveCount(1);
   });
 
-  test("imports fields on one line, default:get and default:user_* values, and reports CC and BCC", async ({ page }) => {
+  test("imports fields on one line, default:get and default:user_* values, and CC and BCC of both emails", async ({ page }) => {
     name = uniqueName("E2E CF7 defaults");
     const created = await page.request.post("/?rest_route=/contact-form-7/v1/contact-forms", {
       headers: { "X-WP-Nonce": restNonce },
@@ -180,7 +180,18 @@ test.describe("import from Contact Form 7", () => {
           subject: `${name} [first-name]`,
           sender: "[_site_title] <[_site_admin_email]>",
           body: "Email: [your-email]\nRef: [ref]\nUTM: [utm]",
-          additional_headers: "Cc: boss@example.com\nBcc: audit@example.com",
+          additional_headers: "Cc: boss@example.com\nBcc: audit@example.com, [your-email]",
+          attachments: "",
+          use_html: false,
+          exclude_blank: false
+        },
+        mail_2: {
+          active: true,
+          recipient: "[your-email]",
+          subject: `${name} auto-reply`,
+          sender: "[_site_title] <[_site_admin_email]>",
+          body: "Thanks",
+          additional_headers: "Cc: [_site_admin_email]\nBcc: archive@example.com",
           attachments: "",
           use_html: false,
           exclude_blank: false
@@ -192,8 +203,8 @@ test.describe("import from Contact Form 7", () => {
 
     await importForm(page, cf7Id);
     const result = page.locator(".wrap li", { hasText: name });
-    await expect(result).toContainText('CC "boss@example.com" was not imported');
-    await expect(result).toContainText('BCC "audit@example.com" was not imported');
+    await expect(result).toContainText("imported");
+    await expect(result).not.toContainText("CC");
     await expect(result).not.toContainText("The default value source");
     await result.getByRole("link", { name: "Edit" }).click();
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));
@@ -210,6 +221,10 @@ test.describe("import from Contact Form 7", () => {
     expect(json.elements[2].defaultValueExpression).toBe("{#wpUser.email}");
     expect(json.elements[4].defaultValueExpression).toBe("iif({#urlParams.ref} notempty, {#urlParams.ref}, {#wpUser.login})");
     expect(json.elements[5]).toMatchObject({ defaultValue: "direct", defaultValueExpression: "{#urlParams.utm}" });
+    await expect(page.locator("#wp-sjs-notification-cc")).toHaveValue("boss@example.com");
+    await expect(page.locator("#wp-sjs-notification-bcc")).toHaveValue("audit@example.com, {field:your-email}");
+    await expect(page.locator("#wp-sjs-auto-reply-cc")).toHaveValue("{admin_email}");
+    await expect(page.locator("#wp-sjs-auto-reply-bcc")).toHaveValue("archive@example.com");
 
     const post = await (await page.request.post("/?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
@@ -227,6 +242,11 @@ test.describe("import from Contact Form 7", () => {
     await page.getByRole("button", { name: "Send" }).click();
     expect((await saved).ok()).toBe(true);
     const mail = await findMail(page.request, `${name} Withparams`);
+    expect(mail.Cc.map(cc => cc.Address)).toEqual(["boss@example.com"]);
+    expect(mail.Bcc.map(bcc => bcc.Address)).toEqual(["audit@example.com", user.email]);
+    const autoReply = await findMail(page.request, `${name} auto-reply`);
+    expect(autoReply.To.map(to => to.Address)).toEqual([user.email]);
+    expect(autoReply.Bcc.map(bcc => bcc.Address)).toEqual(["archive@example.com"]);
     expect(mail.Text).toContain(`Email: ${user.email}`);
     expect(mail.Text).toContain(`Ref: ${user.login}`);
     expect(mail.Text).toContain("UTM: 0042");
