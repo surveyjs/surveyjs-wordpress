@@ -161,9 +161,25 @@ test.describe("uploaded files", () => {
     await modal.locator("input[type=file]").setInputFiles({ name: "e2e-logo.png", mimeType: "image/png", buffer: PNG });
     await expect(modal.locator("li.attachment.selected")).toBeVisible();
     await expect(modal.locator(".media-button-select")).toBeEnabled();
+    const attachmentId = await modal.locator("li.attachment.selected").getAttribute("data-id");
+    const details = modal.locator(".attachment-details");
+    await expect(details.locator(".setting[data-setting='url'] input")).toHaveValue(/e2e-logo/);
+    await expect(details.getByRole("button", { name: "Copy URL to clipboard" })).toBeVisible();
+    await expect(details.locator(".edit-attachment")).toBeVisible();
+    for (const setting of ["alt", "title", "caption", "description"]) {
+      await expect(details.locator(`.setting[data-setting='${setting}']`)).toBeHidden();
+    }
+    await expect(details.locator("#alt-text-description")).toBeHidden();
     await modal.locator(".media-button-select").click();
     const json = JSON.parse(await page.evaluate(() => monaco.editor.getModels()[0].getValue()));
     expect(json.logo).toMatch(/\/wp-content\/uploads\/.*e2e-logo.*\.png$/);
+
+    await page.goto(`/wp-admin/upload.php?item=${attachmentId}`);
+    const libraryDetails = page.locator(".media-modal:visible .attachment-details");
+    for (const setting of ["alt", "title", "caption", "description", "url"]) {
+      await expect(libraryDetails.locator(`.setting[data-setting='${setting}']`)).toBeVisible();
+    }
+    await expect(libraryDetails.locator("#alt-text-description")).toBeVisible();
   });
 
   test("lists Media Library images to copy without changing the JSON", async ({ page, context, baseURL }) => {

@@ -194,6 +194,14 @@
     color: #d63638;
 }
 
+.wp-sjs-media-frame .attachment-details .setting[data-setting="alt"],
+.wp-sjs-media-frame .attachment-details #alt-text-description,
+.wp-sjs-media-frame .attachment-details .setting[data-setting="title"],
+.wp-sjs-media-frame .attachment-details .setting[data-setting="caption"],
+.wp-sjs-media-frame .attachment-details .setting[data-setting="description"] {
+    display: none;
+}
+
 .wp-sjs-editor__pane.is-theme-json-locked .wp-sjs-editor__monaco {
     opacity: 0.5;
 }

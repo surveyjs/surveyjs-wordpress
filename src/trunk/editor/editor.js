@@ -513,12 +513,16 @@
         updateDependentRows();
         formatButton.disabled = !(activeTab in sources) || isThemeJsonLocked() || Boolean(parse(sources[activeTab]).error);
         insertImageButton.disabled = !hasMediaLibrary();
-        setLogoButton.hidden = activeTab !== "survey";
-        setLogoButton.disabled = !editor || Boolean(parse(sources.survey).error) || !hasMediaLibrary();
         const survey = parse(sources.survey);
-        gdprLabel.hidden = activeTab !== "survey";
-        gdprCheckbox.disabled = Boolean(survey.error);
-        if (survey.json) gdprCheckbox.checked = hasGdprAgreement(survey.json);
+        if (setLogoButton) {
+            setLogoButton.hidden = activeTab !== "survey";
+            setLogoButton.disabled = !editor || Boolean(survey.error) || !hasMediaLibrary();
+        }
+        if (gdprLabel) {
+            gdprLabel.hidden = activeTab !== "survey";
+            gdprCheckbox.disabled = Boolean(survey.error);
+            if (survey.json) gdprCheckbox.checked = hasGdprAgreement(survey.json);
+        }
         updateEmptyHint(survey.json);
         if (error) {
             showNotice("error", error);
@@ -598,7 +602,7 @@
         const lineTop = monacoElement.getBoundingClientRect().top + editor.getTopForLineNumber(line);
         const lineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight);
         const viewTop = document.getElementById("wpadminbar")?.offsetHeight ?? 0;
-        const viewBottom = window.innerHeight - lintElement.offsetHeight;
+        const viewBottom = window.innerHeight - (lintElement ? lintElement.offsetHeight : 0);
         if (center) {
             window.scrollBy(0, lineTop - (viewTop + viewBottom - lineHeight) / 2);
         } else if (lineTop < viewTop) {
@@ -629,6 +633,7 @@
     }
 
     function renderLint() {
+        if (!lintElement) return;
         const waiting = analysis.kind === "waiting";
         const issueCount = waiting ? 0 : analysis.result.findings.length;
         const failed = issueCount > 0;
@@ -849,6 +854,7 @@
             library: { type: "image" },
             multiple: multiple
         });
+        frame.$el.addClass("wp-sjs-media-frame");
         frame.on("select", () => {
             const attachments = frame.state().get("selection").toJSON().filter((attachment) => attachment.url);
             if (attachments.length > 0) onSelect(attachments);
@@ -1193,7 +1199,7 @@
             : __("The pasted form JSON is in the editor. Press Save to keep it.", "surveyjs"));
         uiBuilderPasteInput.value = "";
         renderNotice(uiBuilderManualNotice);
-        if (editor && activeTab !== tab) switchTab(tab);
+        if (editor && activeTab !== tab && tabNames.includes(tab)) switchTab(tab);
     }
 
     function loadMonaco() {
@@ -1227,8 +1233,8 @@
     })));
     formatButton.addEventListener("click", format);
     insertImageButton.addEventListener("click", insertImage);
-    setLogoButton.addEventListener("click", setLogo);
-    gdprCheckbox.addEventListener("change", toggleGdprAgreement);
+    if (setLogoButton) setLogoButton.addEventListener("click", setLogo);
+    if (gdprCheckbox) gdprCheckbox.addEventListener("change", toggleGdprAgreement);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
     if (emptyHintUiBuilderButton) emptyHintUiBuilderButton.addEventListener("click", openUiBuilder);

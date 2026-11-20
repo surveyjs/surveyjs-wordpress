@@ -115,6 +115,30 @@ test.describe("JSON editor", () => {
     page.off("dialog", onDialog);
     expect(warned).toBe(false);
   });
+
+  test("renders the Config tab or the requested tab from the server", async ({ page }) => {
+    name = uniqueName("E2E first tab");
+    const id = await createSurvey(page, name);
+    const editorUrl = `/wp-admin/admin.php?page=surveyjs_editor&id=${id}`;
+
+    const config = await (await page.request.get(editorUrl)).text();
+    expect(config).toContain('data-active-tab="survey"');
+    expect(config).toMatch(/id="wp-sjs-json-pane">/);
+    expect(config).toContain('id="wp-sjs-set-logo"');
+    expect(config).toContain('id="wp-sjs-lint"');
+    expect(config).toMatch(/data-panel="email" hidden>/);
+
+    const email = await (await page.request.get(`${editorUrl}&tab=email`)).text();
+    expect(email).toContain('data-active-tab="email"');
+    expect(email).toMatch(/id="wp-sjs-json-pane" hidden>/);
+    expect(email).toMatch(/data-panel="email">/);
+
+    await page.goto(editorUrl);
+    await expect(page.locator(".wp-sjs-editor__tabs .nav-tab-active")).toHaveAttribute("data-tab", "survey");
+    await expect(page.locator("#wp-sjs-json-pane .monaco-editor")).toBeVisible();
+    await expect(page.locator("#wp-sjs-set-logo")).toBeVisible();
+    await expect(page.locator("#wp-sjs-gdpr-agreement-label")).toBeVisible();
+  });
 });
 
 test.describe("admin menu", () => {

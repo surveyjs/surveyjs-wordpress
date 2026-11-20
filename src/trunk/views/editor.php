@@ -7,6 +7,8 @@ class SurveyJS_Editor {
     function __construct() {
     }
 
+    const JSON_TABS = array( 'survey', 'theme' );
+
     const JSON_GUIDE_URL = 'https://surveyjs.io/form-library/documentation/design-survey/create-a-simple-survey';
 
     public static function ui_builder_url() {
@@ -49,6 +51,21 @@ class SurveyJS_Editor {
             $tabs['advanced'] = $advanced;
         }
         return array_filter( array_map( 'strval', $tabs ), 'strlen' );
+    }
+
+    // editor.js opens a JSON tab only once Monaco has loaded, so the page starts on the first tab for those too.
+    private static function initial_tab( $tabs ) {
+        $requested = sanitize_key( wp_unslash( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks the tab shown first.
+        if ( isset( $tabs[ $requested ] ) && ! in_array( $requested, self::JSON_TABS, true ) ) {
+            return $requested;
+        }
+        return (string) array_key_first( $tabs );
+    }
+
+    private static function hidden_unless( $tab, $initial_tab ) {
+        if ( $tab !== $initial_tab ) {
+            echo ' hidden';
+        }
     }
 
     private static function gdpr_agreement() {
@@ -103,14 +120,15 @@ class SurveyJS_Editor {
         $site_retention_days = SurveyJS_Entry_Retention::site_days();
         $settings_url = add_query_arg( array( 'page' => 'surveyjs-settings' ), admin_url( 'admin.php' ) );
         $tabs = self::tabs( $survey );
-        $first_tab = (string) array_key_first( $tabs );
+        $initial_tab = self::initial_tab( $tabs );
+        $has_config = isset( $tabs['survey'] );
         ?>
-        <div class="wrap wp-sjs-editor" data-active-tab="<?php echo esc_attr( $first_tab ); ?>">
+        <div class="wrap wp-sjs-editor" data-active-tab="<?php echo esc_attr( $initial_tab ); ?>">
             <hr class="wp-header-end">
             <div class="wp-sjs-editor__header">
                 <a href="<?php echo esc_url( $list_url ); ?>" class="button"><?php esc_html_e( 'Back', 'surveyjs' ); ?></a>
                 <div class="wp-sjs-editor__name" id="wp-sjs-name-view">
-                    <h1 class="wp-heading-inline" id="wp-sjs-name-text"></h1>
+                    <h1 class="wp-heading-inline" id="wp-sjs-name-text"><?php echo esc_html( $survey->name ); ?></h1>
                     <button type="button" class="button button-small" id="wp-sjs-name-edit" aria-label="<?php esc_attr_e( 'Edit form name', 'surveyjs' ); ?>"><?php esc_html_e( 'Edit', 'surveyjs' ); ?></button>
                 </div>
                 <div class="wp-sjs-editor__name" id="wp-sjs-name-form" hidden>
@@ -125,7 +143,7 @@ class SurveyJS_Editor {
 
             <nav class="nav-tab-wrapper wp-sjs-editor__tabs">
                 <?php foreach ( $tabs as $tab => $label ) : ?>
-                    <a href="#" class="nav-tab<?php echo $tab === $first_tab ? ' nav-tab-active' : ''; ?>" data-tab="<?php echo esc_attr( $tab ); ?>"><?php echo esc_html( $label ); ?></a>
+                    <a href="#" class="nav-tab<?php echo $tab === $initial_tab ? ' nav-tab-active' : ''; ?>" data-tab="<?php echo esc_attr( $tab ); ?>"><?php echo esc_html( $label ); ?></a>
                 <?php endforeach; ?>
                 <button type="button" class="button wp-sjs-editor__full-preview" id="wp-sjs-full-preview" aria-controls="wp-sjs-preview-panel" aria-expanded="false"><span class="dashicons dashicons-visibility" aria-hidden="true"></span><?php esc_html_e( 'Open full preview', 'surveyjs' ); ?></button>
                 <button type="button" class="button wp-sjs-editor__embed" id="wp-sjs-embed" aria-controls="wp-sjs-embed-panel" aria-expanded="false"><span class="dashicons dashicons-shortcode" aria-hidden="true"></span><?php esc_html_e( 'Embed', 'surveyjs' ); ?></button>
@@ -133,7 +151,7 @@ class SurveyJS_Editor {
             </nav>
 
             <div class="wp-sjs-editor__columns">
-                <div class="wp-sjs-editor__pane" id="wp-sjs-json-pane">
+                <div class="wp-sjs-editor__pane" id="wp-sjs-json-pane"<?php echo in_array( $initial_tab, self::JSON_TABS, true ) ? '' : ' hidden'; ?>>
                     <div class="wp-sjs-editor__pane-header">
                         <span class="description"><?php esc_html_e( 'Prefer a visual editor? Edit this form in the free online UI Builder.', 'surveyjs' ); ?></span>
                         <button type="button" class="button wp-sjs-editor__ui-builder" id="wp-sjs-ui-builder"><?php esc_html_e( 'Open in free UI Builder', 'surveyjs' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></button>
@@ -186,18 +204,24 @@ class SurveyJS_Editor {
                     </div>
                     <div class="wp-sjs-editor__media">
                         <button type="button" class="button" id="wp-sjs-insert-image" data-frame-title="<?php esc_attr_e( 'Insert image', 'surveyjs' ); ?>" data-frame-button="<?php esc_attr_e( 'Insert image URL', 'surveyjs' ); ?>" disabled><span class="dashicons dashicons-format-image" aria-hidden="true"></span><?php esc_html_e( 'Insert image', 'surveyjs' ); ?></button>
+                        <?php if ( $has_config ) : ?>
                         <button type="button" class="button" id="wp-sjs-set-logo" data-frame-title="<?php esc_attr_e( 'Form logo', 'surveyjs' ); ?>" data-frame-button="<?php esc_attr_e( 'Use as logo', 'surveyjs' ); ?>" disabled><?php esc_html_e( 'Set logo', 'surveyjs' ); ?></button>
                         <label class="wp-sjs-editor__gdpr" id="wp-sjs-gdpr-agreement-label" for="wp-sjs-gdpr-agreement" title="<?php esc_attr_e( 'Adds a required consent checkbox with a link to your Privacy Policy page at the end of the form. Uncheck to remove it.', 'surveyjs' ); ?>"><input type="checkbox" id="wp-sjs-gdpr-agreement" /> <?php esc_html_e( 'GDPR agreement', 'surveyjs' ); ?></label>
                         <span class="description"><?php esc_html_e( 'Pick or upload images in the Media Library. Insert image lists them below with their URLs to copy, for example into "imageLink" of an Image question or an Image Picker choice. Set logo shows an image in the form header. These images are public.', 'surveyjs' ); ?></span>
+                        <?php else : ?>
+                        <span class="description"><?php esc_html_e( 'Pick or upload images in the Media Library. Insert image lists them below with their URLs to copy, for example into "backgroundImage" of the theme. These images are public.', 'surveyjs' ); ?></span>
+                        <?php endif; ?>
                         <ul class="wp-sjs-editor__images" id="wp-sjs-image-list" aria-label="<?php esc_attr_e( 'Chosen images', 'surveyjs' ); ?>" data-url-label="<?php esc_attr_e( 'Image URL', 'surveyjs' ); ?>" data-copy-label="<?php esc_attr_e( 'Copy', 'surveyjs' ); ?>" data-copied-label="<?php esc_attr_e( 'Copied!', 'surveyjs' ); ?>" data-remove-label="<?php esc_attr_e( 'Remove from the list', 'surveyjs' ); ?>" hidden></ul>
                     </div>
                     <div class="wp-sjs-editor__overlay">
                         <button type="button" class="button button-small wp-sjs-editor__format" id="wp-sjs-format"><?php esc_html_e( 'Format', 'surveyjs' ); ?></button>
                     </div>
                     <div id="wp-sjs-monaco" class="wp-sjs-editor__monaco"><p class="wp-sjs-editor__loading"><?php esc_html_e( 'Loading editor…', 'surveyjs' ); ?></p></div>
+                    <?php if ( $has_config ) : ?>
                     <div id="wp-sjs-lint" class="wp-sjs-lint"></div>
+                    <?php endif; ?>
                 </div>
-                <div class="wp-sjs-editor__settings" data-panel="entries" hidden>
+                <div class="wp-sjs-editor__settings" data-panel="entries"<?php self::hidden_unless( 'entries', $initial_tab ); ?>>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Store entries', 'surveyjs' ); ?></th>
@@ -237,7 +261,7 @@ class SurveyJS_Editor {
                         </tr>
                     </table>
                 </div>
-                <div class="wp-sjs-editor__settings" data-panel="restrictions" hidden>
+                <div class="wp-sjs-editor__settings" data-panel="restrictions"<?php self::hidden_unless( 'restrictions', $initial_tab ); ?>>
                     <div class="notice notice-warning inline" id="wp-sjs-restrictions-store-notice" hidden>
                         <p><?php esc_html_e( 'Entry limits count the entries stored on your site, so they work only when Store entries is on (Entries tab).', 'surveyjs' ); ?></p>
                     </div>
@@ -337,7 +361,7 @@ class SurveyJS_Editor {
                     </table>
                     <p class="description"><?php esc_html_e( 'Messages are shown instead of the form and can contain basic HTML. The restrictions are checked when the page opens and again when the form is submitted, so they also work on cached pages.', 'surveyjs' ); ?></p>
                 </div>
-                <div class="wp-sjs-editor__settings" data-panel="spam" hidden>
+                <div class="wp-sjs-editor__settings" data-panel="spam"<?php self::hidden_unless( 'spam', $initial_tab ); ?>>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row"><?php esc_html_e( 'CAPTCHA', 'surveyjs' ); ?></th>
@@ -364,7 +388,7 @@ class SurveyJS_Editor {
                         </tr>
                     </table>
                 </div>
-                <div class="wp-sjs-editor__settings" data-panel="advanced" hidden>
+                <div class="wp-sjs-editor__settings" data-panel="advanced"<?php self::hidden_unless( 'advanced', $initial_tab ); ?>>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Save & Resume', 'surveyjs' ); ?></th>
@@ -382,7 +406,7 @@ class SurveyJS_Editor {
                         </tr>
                     </table>
                 </div>
-                <div class="wp-sjs-editor__settings" data-panel="email" hidden>
+                <div class="wp-sjs-editor__settings" data-panel="email"<?php self::hidden_unless( 'email', $initial_tab ); ?>>
                     <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Send notification', 'surveyjs' ); ?></th>
@@ -523,7 +547,7 @@ class SurveyJS_Editor {
                     </div>
                     <?php do_action( 'surveyjs_editor_email_rows', 'end', $survey ); ?>
                 </div>
-                <?php do_action( 'surveyjs_render_editor', $survey ); ?>
+                <?php do_action( 'surveyjs_render_editor', $survey, $initial_tab ); ?>
                 <div class="wp-sjs-editor__preview" id="wp-sjs-preview-panel">
                     <div class="wp-sjs-editor__preview-bar">
                         <p class="description wp-sjs-editor__preview-note"><?php esc_html_e( 'Depending on your site\'s theme, the form on a real page may look slightly different from this preview.', 'surveyjs' ); ?></p>
