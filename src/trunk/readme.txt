@@ -177,6 +177,9 @@ Yes. Nginx does not read the `.htaccess` file that protects `wp-content/uploads/
 
 In Local, add it to `conf/nginx/site.conf.hbs` in the site folder and restart the site.
 
+= My custom CSS does not change the form. Why? =
+The plugin protects forms from the styles of your WordPress theme, so a form looks right in any theme. The same protection outweighs ordinary custom CSS. To change colors, fonts, corners and sizes, use the **Theme** tab of the form editor. For other changes, add `!important` to your rule, for example `.sd-btn { border-radius: 0 !important; }`.
+
 == Screenshots ==
 
 1. All Forms: your forms and the number of entries in each.
