@@ -315,9 +315,8 @@
         {
           "type": "boolean",
           "name": "contactConsent",
-          "title": "Consent",
+          "title": "I agree to be contacted by email or phone to arrange and confirm this consultation.",
           "titleLocation": "hidden",
-          "label": "I agree to be contacted by email or phone to arrange and confirm this consultation.",
           "isRequired": true,
           "renderAs": "checkbox",
           "validators": [

@@ -153,7 +153,7 @@
               "name": "buyHours",
               "startWithNewLine": false,
               "titleLocation": "hidden",
-              "resetValueIf": "{sellHours} notempty",
+              "enableIf": "{sellHours} empty",
               "title": "Hours to buy"
             },
             {
@@ -184,7 +184,7 @@
               "name": "sellHours",
               "startWithNewLine": false,
               "titleLocation": "hidden",
-              "resetValueIf": "{buyHours} notempty",
+              "enableIf": "{buyHours} empty",
               "title": "Hours to sell"
             },
             {

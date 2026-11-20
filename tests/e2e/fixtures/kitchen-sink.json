@@ -1,0 +1,254 @@
+{
+  "survey": {
+    "title": "Kitchen sink",
+    "description": "Every SurveyJS question type and the main survey features, for checking the look under WordPress themes.",
+    "logo": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Crect width='120' height='40' rx='6' fill='%23f59e0b'/%3E%3Ctext x='60' y='26' font-size='16' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3ELOGO%3C/text%3E%3C/svg%3E",
+    "logoPosition": "right",
+    "showProgressBar": true,
+    "progressBarLocation": "auto",
+    "progressBarType": "pages",
+    "progressBarShowPageTitles": true,
+    "progressBarShowPageNumbers": true,
+    "showQuestionNumbers": "on",
+    "checkErrorsMode": "onComplete",
+    "showPreviewBeforeComplete": false,
+    "pages": [
+      {
+        "name": "inputs",
+        "title": "Text inputs",
+        "description": "Single-line and multi-line text, masks, expressions and static content.",
+        "elements": [
+          { "type": "text", "name": "fullName", "title": "Full name", "description": "Required, with a placeholder.", "placeholder": "Jane Doe", "isRequired": true },
+          { "type": "text", "name": "email", "title": "Email", "inputType": "email", "isRequired": true, "validators": [{ "type": "email" }], "startWithNewLine": false },
+          { "type": "text", "name": "age", "title": "Age", "inputType": "number", "min": 18, "max": 120 },
+          { "type": "text", "name": "birthDate", "title": "Date", "inputType": "date", "startWithNewLine": false },
+          { "type": "text", "name": "meetingTime", "title": "Date and time", "inputType": "datetime-local" },
+          { "type": "text", "name": "favoriteColor", "title": "Color", "inputType": "color", "startWithNewLine": false },
+          { "type": "text", "name": "password", "title": "Password", "inputType": "password" },
+          { "type": "text", "name": "phone", "title": "Phone (pattern mask)", "maskType": "pattern", "maskSettings": { "pattern": "+1 (999) 999-9999" }, "startWithNewLine": false },
+          { "type": "text", "name": "budget", "title": "Budget (currency mask)", "maskType": "currency", "maskSettings": { "prefix": "$" } },
+          { "type": "text", "name": "website", "title": "Website", "inputType": "url", "titleLocation": "left", "startWithNewLine": false },
+          { "type": "comment", "name": "about", "title": "Long text", "description": "A comment question with a character limit.", "maxLength": 300, "rows": 3 },
+          {
+            "type": "multipletext",
+            "name": "address",
+            "title": "Multiple text",
+            "colCount": 2,
+            "items": [
+              { "name": "street", "title": "Street", "isRequired": true },
+              { "name": "city", "title": "City" },
+              { "name": "zip", "title": "ZIP code", "inputType": "number" },
+              { "name": "country", "title": "Country" }
+            ]
+          },
+          { "type": "expression", "name": "ageNextYear", "title": "Expression", "expression": "iif({age} notempty, {age} + 1, 0)", "displayStyle": "decimal" },
+          { "type": "expression", "name": "budgetWithTax", "title": "Expression (currency)", "expression": "{budget} * 1.2", "displayStyle": "currency", "currency": "USD", "startWithNewLine": false },
+          { "type": "html", "name": "richText", "html": "<h3>HTML question</h3><p>Paragraph with a <a href='#'>link</a>, <strong>bold</strong> and <em>italic</em> text.</p><ul><li>First item</li><li>Second item</li></ul><table><tr><th>Plan</th><th>Price</th></tr><tr><td>Basic</td><td>$10</td></tr></table>" },
+          { "type": "image", "name": "banner", "imageLink": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Crect width='400' height='120' fill='%230ea5e9'/%3E%3Ctext x='200' y='68' font-size='24' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EImage question%3C/text%3E%3C/svg%3E", "imageWidth": "400px", "imageHeight": "120px" }
+        ]
+      },
+      {
+        "name": "choices",
+        "title": "Choices",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "plan",
+            "title": "Radio group with Other and None",
+            "isRequired": true,
+            "colCount": 3,
+            "showOtherItem": true,
+            "showNoneItem": true,
+            "choices": ["Basic", "Standard", "Premium", "Enterprise with a much longer label that wraps onto the next line"]
+          },
+          {
+            "type": "checkbox",
+            "name": "features",
+            "title": "Checkboxes with Select All, Other and a comment",
+            "isRequired": true,
+            "colCount": 2,
+            "showSelectAllItem": true,
+            "showOtherItem": true,
+            "showCommentArea": true,
+            "commentText": "Anything else?",
+            "choices": ["Reports", "Integrations", "API access", "Priority support"]
+          },
+          { "type": "dropdown", "name": "country", "title": "Dropdown", "showOtherItem": true, "choices": ["Germany", "France", "Spain", "Italy"] },
+          { "type": "tagbox", "name": "languages", "title": "Tag box", "choices": ["English", "German", "French", "Spanish", "Japanese"], "startWithNewLine": false },
+          { "type": "ranking", "name": "priorities", "title": "Ranking", "choices": ["Price", "Quality", "Speed", "Support"] },
+          {
+            "type": "imagepicker",
+            "name": "animal",
+            "title": "Image picker with labels",
+            "showLabel": true,
+            "imageFit": "cover",
+            "imageWidth": 160,
+            "imageHeight": 100,
+            "choices": [
+              { "value": "red", "text": "Red", "imageLink": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='100'%3E%3Crect width='160' height='100' fill='%23ef4444'/%3E%3C/svg%3E" },
+              { "value": "green", "text": "Green", "imageLink": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='100'%3E%3Crect width='160' height='100' fill='%2322c55e'/%3E%3C/svg%3E" },
+              { "value": "blue", "text": "Blue", "imageLink": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='100'%3E%3Crect width='160' height='100' fill='%233b82f6'/%3E%3C/svg%3E" }
+            ]
+          },
+          { "type": "boolean", "name": "subscribe", "title": "Boolean (segmented)", "labelTrue": "Yes", "labelFalse": "No" },
+          { "type": "boolean", "name": "terms", "title": "I accept the terms (boolean as a checkbox)", "titleLocation": "hidden", "renderAs": "checkbox", "isRequired": true },
+          { "type": "boolean", "name": "newsletter", "title": "Boolean as radio buttons", "displayMode": "radio" },
+          { "type": "boolean", "name": "darkMode", "title": "Boolean as a switch", "displayMode": "switch", "startWithNewLine": false }
+        ]
+      },
+      {
+        "name": "ratings",
+        "title": "Rating and slider",
+        "elements": [
+          { "type": "rating", "name": "satisfaction", "title": "Rating (numbers)", "isRequired": true, "rateCount": 10, "rateMax": 10, "minRateDescription": "Not likely", "maxRateDescription": "Very likely" },
+          { "type": "rating", "name": "stars", "title": "Rating (stars)", "rateType": "stars" },
+          { "type": "rating", "name": "mood", "title": "Rating (smileys, colored)", "rateType": "smileys", "scaleColorMode": "colored", "startWithNewLine": false },
+          { "type": "rating", "name": "effort", "title": "Rating (text values)", "rateValues": ["Low", "Medium", "High", "Extreme"] },
+          { "type": "rating", "name": "score", "title": "Rating as a dropdown", "displayMode": "dropdown", "rateCount": 5, "startWithNewLine": false },
+          { "type": "slider", "name": "volume", "title": "Slider", "min": 0, "max": 100, "step": 5 },
+          { "type": "slider", "name": "priceRange", "title": "Range slider", "sliderType": "range", "min": 0, "max": 1000, "step": 50 }
+        ]
+      },
+      {
+        "name": "matrices",
+        "title": "Matrices",
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "quality",
+            "title": "Single-select matrix",
+            "isAllRowRequired": true,
+            "isRequired": true,
+            "columns": ["Poor", "Fair", "Good", "Excellent"],
+            "rows": ["Price", "Quality", "Delivery speed"]
+          },
+          {
+            "type": "matrixdropdown",
+            "name": "devices",
+            "title": "Multi-select matrix",
+            "columns": [
+              { "name": "os", "title": "OS", "cellType": "dropdown", "choices": ["Windows", "macOS", "Linux"] },
+              { "name": "count", "title": "Count", "cellType": "text", "inputType": "number", "totalType": "sum" },
+              { "name": "owned", "title": "Owned", "cellType": "boolean" },
+              { "name": "rating", "title": "Rating", "cellType": "rating", "rateCount": 3 },
+              { "name": "uses", "title": "Uses", "cellType": "checkbox", "choices": ["Work", "Home"] }
+            ],
+            "rows": ["Laptop", "Desktop"]
+          },
+          {
+            "type": "matrixdynamic",
+            "name": "team",
+            "title": "Dynamic matrix with a detail panel",
+            "rowCount": 2,
+            "minRowCount": 1,
+            "addRowText": "Add member",
+            "detailPanelMode": "underRow",
+            "detailElements": [{ "type": "comment", "name": "notes", "title": "Notes" }],
+            "columns": [
+              { "name": "name", "title": "Name", "cellType": "text", "isRequired": true },
+              { "name": "role", "title": "Role", "cellType": "dropdown", "choices": ["Developer", "Designer", "Manager"] },
+              { "name": "remote", "title": "Remote", "cellType": "boolean" }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "panels",
+        "title": "Panels",
+        "elements": [
+          {
+            "type": "panel",
+            "name": "contactPanel",
+            "title": "Panel",
+            "description": "A panel with a title, a description and two questions in a row.",
+            "state": "expanded",
+            "elements": [
+              { "type": "text", "name": "panelFirstName", "title": "First name", "isRequired": true },
+              { "type": "text", "name": "panelLastName", "title": "Last name", "startWithNewLine": false }
+            ]
+          },
+          {
+            "type": "paneldynamic",
+            "name": "children",
+            "title": "Dynamic panel (list)",
+            "panelCount": 2,
+            "templateTitle": "Child #{panelIndex}",
+            "panelAddText": "Add a child",
+            "panelRemoveText": "Remove",
+            "templateElements": [
+              { "type": "text", "name": "childName", "title": "Name", "isRequired": true },
+              { "type": "text", "name": "childAge", "title": "Age", "inputType": "number", "startWithNewLine": false }
+            ]
+          },
+          {
+            "type": "paneldynamic",
+            "name": "offices",
+            "title": "Dynamic panel (tabs)",
+            "displayMode": "tab",
+            "panelCount": 2,
+            "templateTabTitle": "Office #{panelIndex}",
+            "templateElements": [{ "type": "text", "name": "officeCity", "title": "City" }]
+          },
+          {
+            "type": "paneldynamic",
+            "name": "slides",
+            "title": "Dynamic panel (carousel)",
+            "displayMode": "carousel",
+            "panelCount": 3,
+            "templateElements": [{ "type": "text", "name": "slideNote", "title": "Note" }]
+          }
+        ]
+      },
+      {
+        "name": "files",
+        "title": "Files and signature",
+        "elements": [
+          { "type": "file", "name": "attachments", "title": "File upload", "allowMultiple": true, "storeDataAsText": false, "maxSize": 1048576 },
+          { "type": "signaturepad", "name": "signature", "title": "Signature", "isRequired": true },
+          { "type": "text", "name": "readOnlyNote", "title": "Read-only question", "readOnly": true, "defaultValue": "This value cannot be changed." }
+        ]
+      }
+    ]
+  },
+  "data": {
+    "fullName": "Jane Doe",
+    "email": "jane@example.com",
+    "age": 34,
+    "birthDate": "1991-04-12",
+    "meetingTime": "2026-05-01T10:30",
+    "favoriteColor": "#3366cc",
+    "password": "secret",
+    "phone": "5551234567",
+    "budget": 1500,
+    "website": "https://example.com",
+    "about": "Some longer text that the respondent typed into the comment box.",
+    "address": { "street": "Main St 1", "city": "Berlin", "zip": 10115, "country": "Germany" },
+    "plan": "Standard",
+    "features": ["Reports", "API access"],
+    "features-Comment": "Single sign-on, please.",
+    "country": "France",
+    "languages": ["English", "German"],
+    "priorities": ["Quality", "Price", "Support", "Speed"],
+    "animal": "green",
+    "subscribe": true,
+    "terms": true,
+    "newsletter": false,
+    "darkMode": true,
+    "satisfaction": 8,
+    "stars": 4,
+    "mood": 3,
+    "effort": "Medium",
+    "score": 4,
+    "volume": 40,
+    "priceRange": [200, 600],
+    "quality": { "Price": "Good", "Quality": "Excellent", "Delivery speed": "Fair" },
+    "devices": { "Laptop": { "os": "macOS", "count": 2, "owned": true, "rating": 3, "uses": ["Work"] }, "Desktop": { "os": "Linux", "count": 1, "owned": false, "rating": 2, "uses": ["Home"] } },
+    "team": [{ "name": "Alex", "role": "Developer", "remote": true }, { "name": "Sam", "role": "Designer", "remote": false }],
+    "panelFirstName": "Jane",
+    "panelLastName": "Doe",
+    "children": [{ "childName": "Ann", "childAge": 7 }, { "childName": "Tom", "childAge": 4 }],
+    "offices": [{ "officeCity": "Berlin" }, { "officeCity": "Paris" }],
+    "slides": [{ "slideNote": "One" }, { "slideNote": "Two" }, { "slideNote": "Three" }],
+    "signature": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='100'%3E%3Cpath d='M10 70 C 60 10, 90 90, 140 40 S 230 60, 290 30' stroke='%23000' stroke-width='3' fill='none'/%3E%3C/svg%3E"
+  }
+}

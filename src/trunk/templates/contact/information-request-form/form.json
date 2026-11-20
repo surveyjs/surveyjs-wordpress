@@ -241,9 +241,8 @@
     {
       "type": "boolean",
       "name": "marketingConsent",
-      "title": "Marketing consent",
+      "title": "I'd like to receive occasional news and offers by email. I can unsubscribe at any time.",
       "titleLocation": "hidden",
-      "label": "I'd like to receive occasional news and offers by email. I can unsubscribe at any time.",
       "renderAs": "checkbox"
     }
   ],

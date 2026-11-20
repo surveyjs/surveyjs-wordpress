@@ -91,9 +91,8 @@
         {
           "type": "boolean",
           "name": "subscriptionConsent",
-          "title": "Subscription consent",
+          "title": "Yes, send me emails about the topics I selected.",
           "titleLocation": "hidden",
-          "label": "Yes, send me emails about the topics I selected.",
           "description": "You can unsubscribe at any time with the link at the bottom of every email.",
           "renderAs": "checkbox",
           "isRequired": true,

@@ -134,8 +134,14 @@
           "title": "Zip Code",
           "description": "MN zip codes range from 55001 to 56763.",
           "autocomplete": "postal-code",
-          "min": 55001,
-          "max": 56763,
+          "validators": [
+            {
+              "type": "numeric",
+              "minValue": 55001,
+              "maxValue": 56763,
+              "text": "Enter a Minnesota zip code from 55001 to 56763."
+            }
+          ],
           "maskType": "pattern",
           "maskSettings": {
             "pattern": "99999"

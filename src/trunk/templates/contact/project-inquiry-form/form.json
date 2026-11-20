@@ -363,9 +363,8 @@
         {
           "type": "boolean",
           "name": "ndaRequired",
-          "title": "NDA",
+          "title": "I'd like a non-disclosure agreement signed before we discuss the details.",
           "titleLocation": "hidden",
-          "label": "I'd like a non-disclosure agreement signed before we discuss the details.",
           "renderAs": "checkbox"
         }
       ]

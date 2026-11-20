@@ -249,9 +249,8 @@
         {
           "type": "boolean",
           "name": "contactConsent",
-          "title": "Consent to be contacted",
+          "title": "I agree to be contacted about this demo request.",
           "titleLocation": "hidden",
-          "label": "I agree to be contacted about this demo request.",
           "renderAs": "checkbox",
           "isRequired": true,
           "validators": [

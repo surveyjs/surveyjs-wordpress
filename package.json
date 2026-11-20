@@ -4,7 +4,9 @@
   "scripts": {
     "test:e2e": "playwright test --project=setup --project=e2e",
     "test:unit": "playwright test --project=unit",
-    "update-templates": "node scripts/update-templates.js"
+    "test:theme-qa": "playwright test --project=setup --project=e2e tests/e2e/theme-qa.spec.js",
+    "update-templates": "node scripts/update-templates.js",
+    "build:isolated-css": "node scripts/isolate-css.js"
   },
   "devDependencies": {
     "@playwright/test": "1.48.2"

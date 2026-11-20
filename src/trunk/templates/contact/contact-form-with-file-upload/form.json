@@ -63,9 +63,8 @@
           "type": "boolean",
           "name": "noSensitiveDataConfirmed",
           "visibleIf": "{attachments} notempty",
-          "title": "Sensitive data check",
+          "title": "I confirm that the attached files contain no passwords, payment card details, or other information I shouldn't share.",
           "titleLocation": "hidden",
-          "label": "I confirm that the attached files contain no passwords, payment card details, or other information I shouldn't share.",
           "renderAs": "checkbox",
           "isRequired": true,
           "validators": [

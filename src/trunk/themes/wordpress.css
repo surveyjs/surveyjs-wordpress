@@ -77,6 +77,7 @@
   --sjs2-layout-component-survey-box-padding-top: 0px;
   --sjs2-layout-component-survey-box-padding-bottom: 0px;
   --sjs2-layout-component-page-content-area-padding-horizontal: 0px;
+  --sjs2-layout-component-page-header-padding-horizontal: 0px;
   --sjs2-layout-component-survey-header-padding-horizontal: 0px;
   --sjs2-layout-component-survey-title-padding-horizontal: 0px;
   --sjs2-layout-component-survey-description-padding-horizontal: 0px;
@@ -134,72 +135,8 @@
 }
 
 .wp-sjs-adaptive .sjs-theme-overrides .sv-scroll__container {
+  box-sizing: border-box;
   padding: 4px;
-}
-
-/* Themes style every input and button on the page (input[type="text"], button, [type="button"], :hover),
-   which outranks the single-class survey-core rules, so the survey's own controls get them back here.
-   .sd-root-modern lifts these rules above :not() chains such as Twenty Twenty-One's
-   button:not(:hover):not(:active):not(.has-background). */
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-formbox__input,
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-dropdown__filter-string-input {
-  height: auto;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  outline: none;
-  box-shadow: none;
-  background: none;
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-formbox__input {
-  min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
-  padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
-  color: var(--sjs2-color-component-input-default-value);
-  font-family: var(--sjs2-typography-font-family-component-input-content), inherit;
-  font-size: var(--sjs2-typography-font-size-component-input-content);
-  font-weight: var(--sjs2-typography-font-weight-component-input-content);
-  line-height: var(--sjs2-typography-line-height-component-input-content);
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-dropdown__filter-string-input {
-  padding: 0;
-  color: inherit;
-  font: inherit;
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action {
-  width: auto;
-  height: auto;
-  min-height: 0;
-  margin: 0;
-  padding: var(--sd-action-padding);
-  border: none;
-  outline: none;
-  border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action));
-  box-shadow: none;
-  background: var(--sd-action-background);
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action.sd-action--border {
-  box-shadow: var(--sd-action-boxshadow);
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action:hover:not(:disabled, .sd-action--disabled),
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action:focus:not(:disabled, .sd-action--disabled) {
-  background: var(--sd-action-hover-background);
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border:hover:not(:disabled, .sd-action--disabled) {
-  box-shadow: var(--sd-action-hover-box-shadow);
-}
-
-.wp-sjs-adaptive .sd-root-modern.sjs-theme-overrides .sd-action--border:focus-visible:not(:disabled, .sd-action--disabled) {
-  box-shadow: var(--sd-action-boxshadow), var(--sjs2-border-effect-component-action-a11y);
 }
 
 /* --sjs2-color-utility-shadow-trigger-default is transparent so filled buttons stay flat, but Previous / Next
@@ -207,6 +144,20 @@
 .wp-sjs-adaptive .sjs-theme-overrides .sd-action--tertiary-surface {
   --sd-action-boxshadow: 0 0 0 1px var(--sjs2-color-component-formbox-default-border);
   --sd-action-hover-box-shadow: 0 0 0 1px var(--sjs2-color-component-formbox-hovered-border);
+}
+
+/* survey-core hangs question numbers in the page padding to the left of the title; without that padding they would be
+   cut off, so they stay inline, as survey-core does on mobile. */
+.wp-sjs-adaptive .sjs-theme-overrides .sd-element__title .sd-element__num {
+  float: none;
+  width: auto;
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+}
+
+.wp-sjs-adaptive .sjs-theme-overrides .sd-element__title .sd-element__num + span {
+  float: none;
+  width: auto;
 }
 
 .wp-sjs-adaptive .sjs-theme-overrides .sv-header--mobile {
