@@ -133,7 +133,7 @@ test.describe("AI connection (MCP)", () => {
     await expect(page.locator(".nav-tab-wrapper").getByRole("link", { name: "AI MCP" })).toHaveClass(/nav-tab-active/);
     await expect(page.locator(".nav-tab-wrapper").getByRole("link", { name: "AI Client" })).toBeVisible();
     await expect(page.getByRole("link", { name: "AI Client", exact: true }).last()).toHaveAttribute("href", /tab=ai-client/);
-    for (const client of ["Claude", "ChatGPT", "Cursor", "Claude Code", "Codex", "VS Code"]) {
+    for (const client of ["Claude", "ChatGPT", "Cursor", "Claude Code", "Codex", "GitHub Copilot in VS Code"]) {
       await expect(page.locator(".wp-sjs-ai__lead")).toContainText(client);
     }
     await expect(page.locator(".wp-sjs-ai__examples")).toContainText("Add a required phone number question");

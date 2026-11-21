@@ -501,3 +501,14 @@
 .wp-sjs-ai__billing-note .dashicons {
     color: #996800;
 }
+
+.wp-sjs-ai__entries-warning {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    color: #50575e;
+}
+
+.wp-sjs-ai__entries-warning .dashicons {
+    color: #996800;
+}

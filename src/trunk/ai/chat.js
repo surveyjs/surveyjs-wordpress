@@ -1,26 +1,45 @@
 (function () {
     const { __, sprintf } = wp.i18n;
     const options = window.surveyjsAiChat;
-    const siteMode = Boolean(options) && !options.formId;
+    const mode = (options && options.mode) || "form";
+    const siteMode = mode !== "form";
     const editor = siteMode ? null : window.surveyjsEditor;
     const rootElement = document.querySelector(siteMode ? "#wpbody-content > .wrap" : ".wp-sjs-editor");
     if (!options || (!siteMode && !editor) || !rootElement) return;
 
-    const OPEN_KEY = siteMode ? "surveyjs-ai-chat-site-open" : "surveyjs-ai-chat-open";
+    const OPEN_KEY = "surveyjs-ai-chat-" + mode + "-open";
     const PROGRESS_MS = 1200;
     const SVG_NS = "http://www.w3.org/2000/svg";
-    const SUGGESTIONS = siteMode ? [
-        __("Create a contact form with name, email and message", "surveyjs"),
-        __("Create an event registration form from a template and add a dietary needs question", "surveyjs"),
-        __("Where do I set up CAPTCHA?", "surveyjs"),
-        __("How do I put a form on a page?", "surveyjs")
-    ] : [
-        __("Add a required phone number question", "surveyjs"),
-        __("Make all questions required", "surveyjs"),
-        __("Translate this form into German", "surveyjs"),
-        __("Send new entries to sales@example.com", "surveyjs"),
-        __("How do I put this form on a page?", "surveyjs")
-    ];
+    function suggestions() {
+        const entries = Boolean(state && state.entries);
+        if (mode === "results") {
+            return entries ? [
+                __("Summarize the latest entries", "surveyjs"),
+                __("What are the most common answers to each question?", "surveyjs"),
+                __("Compare this month's entries with last month's", "surveyjs"),
+                __("How do I export entries to CSV?", "surveyjs")
+            ] : [
+                __("How do I export entries to CSV?", "surveyjs"),
+                __("How do I find entries from last week?", "surveyjs"),
+                __("How do I download an entry as a PDF?", "surveyjs"),
+                __("How do I delete old entries automatically?", "surveyjs")
+            ];
+        }
+        if (mode === "site") {
+            return [
+                __("Create a contact form with name, email and message", "surveyjs"),
+                __("Create an event registration form from a template and add a dietary needs question", "surveyjs"),
+                entries ? __("Which form got the most entries this month?", "surveyjs") : __("Where do I set up CAPTCHA?", "surveyjs"),
+                __("How do I put a form on a page?", "surveyjs")
+            ];
+        }
+        return [
+            __("Add a required phone number question", "surveyjs"),
+            __("Translate this form into German", "surveyjs"),
+            __("Send new entries to sales@example.com", "surveyjs"),
+            entries ? __("Summarize the latest entries of this form", "surveyjs") : __("How do I put this form on a page?", "surveyjs")
+        ];
+    }
 
     function callEditor(method, ...args) {
         return editor && editor[method] ? editor[method](...args) : undefined;
@@ -32,6 +51,7 @@
     let loading = null;
     let lastError = null;
     let pendingText = "";
+    let pendingFiles = [];
     let progressTimer = null;
 
     function element(tag, className, text) {
@@ -65,9 +85,15 @@
         return node;
     }
 
-    function post(action, data) {
-        const body = new URLSearchParams(Object.assign({ action: "surveyjs_ai_chat_" + action, _ajax_nonce: options.nonce, id: options.formId }, data));
-        return fetch(options.ajaxUrl, { method: "POST", credentials: "same-origin", body: body })
+    function post(action, data, extra) {
+        const fields = Object.assign({ action: "surveyjs_ai_chat_" + action, _ajax_nonce: options.nonce, id: options.formId, mode: mode }, data);
+        let body = new URLSearchParams(fields);
+        if (extra && extra.files && extra.files.length) {
+            body = new FormData();
+            Object.keys(fields).forEach((key) => body.append(key, fields[key]));
+            extra.files.forEach((item) => body.append("files[]", item, item.name));
+        }
+        return fetch(options.ajaxUrl, { method: "POST", credentials: "same-origin", body: body, signal: extra && extra.signal })
             .then((response) => response.json().catch(() => ({ success: false, data: { message: response.statusText || __("The server did not answer. Try again.", "surveyjs") } })))
             .then((result) => {
                 if (!result || !result.success) {
@@ -178,15 +204,34 @@
     input.id = "wp-sjs-chat-input";
     input.rows = 3;
     input.maxLength = options.maxLength;
-    input.placeholder = __("Ask for a change or ask a question…", "surveyjs");
+    input.placeholder = mode === "results" ? __("Ask about the entries or how to work with them…", "surveyjs") : __("Ask for a change or ask a question…", "surveyjs");
     input.setAttribute("aria-label", __("Message to the AI assistant", "surveyjs"));
     const counter = element("span", "wp-sjs-chat__counter");
     const sendButton = element("button", "button button-primary wp-sjs-chat__send", __("Send", "surveyjs"));
     sendButton.type = "submit";
+    const tools = element("div", "wp-sjs-chat__tools");
+    const fileInput = element("input");
+    fileInput.type = "file";
+    fileInput.multiple = true;
+    fileInput.hidden = true;
+    const attachButton = button("", "wp-sjs-chat__icon-button wp-sjs-chat__attach", () => fileInput.click());
+    attachButton.append(dashicon("paperclip"));
+    attachButton.hidden = true;
+    const micButton = button("", "wp-sjs-chat__icon-button wp-sjs-chat__mic", () => toggleDictation());
+    micButton.append(dashicon("microphone"));
+    micButton.hidden = true;
+    const webLabel = element("label", "wp-sjs-chat__web");
+    const webToggle = element("input");
+    webToggle.type = "checkbox";
+    webLabel.append(webToggle, " ", __("Search the web", "surveyjs"));
+    webLabel.hidden = true;
+    tools.append(attachButton, micButton, webLabel, fileInput);
+    const attachmentList = element("ul", "wp-sjs-chat__attachments");
+    attachmentList.hidden = true;
     const composerRow = element("div", "wp-sjs-chat__composer-row");
-    composerRow.append(counter, sendButton);
+    composerRow.append(tools, counter, sendButton);
     const privacy = element("p", "wp-sjs-chat__privacy");
-    composer.append(input, composerRow, privacy);
+    composer.append(attachmentList, input, composerRow, privacy);
     composer.hidden = true;
 
     panel.append(header, modelRow, log, status, composer);
@@ -207,15 +252,148 @@
 
     function updateCounter() {
         counter.textContent = sprintf(__("%1$d / %2$d", "surveyjs"), input.value.length, options.maxLength);
-        sendButton.disabled = busy || input.value.trim() === "";
+        sendButton.disabled = stopping || (!busy && input.value.trim() === "");
+        sendButton.textContent = busy ? (stopping ? __("Stopping…", "surveyjs") : __("Stop", "surveyjs")) : __("Send", "surveyjs");
+        sendButton.classList.toggle("is-stop", busy);
+    }
+
+    let attachments = [];
+    let stopping = false;
+    let controller = null;
+    let currentRequest = "";
+
+    function acceptedTypes() {
+        const kinds = state && state.choice ? state.choice.files || [] : [];
+        return kinds.flatMap((kind) => options.fileTypes[kind] || []);
+    }
+
+    function updateTools() {
+        const choice = state && state.choice;
+        const types = acceptedTypes();
+        attachButton.hidden = !types.length;
+        fileInput.accept = types.join(",");
+        const kinds = (choice && choice.files) || [];
+        attachButton.title = sprintf(__("Attach images, PDF or audio the model can read (%s): for example a photo or scan of a paper form. Up to %d files; files are sent to the AI provider with this message and are not stored on the site.", "surveyjs"), kinds.join(", "), options.maxFiles);
+        attachButton.setAttribute("aria-label", __("Attach files", "surveyjs"));
+        webLabel.hidden = !(choice && choice.webSearch);
+        webLabel.title = choice ? sprintf(__("%s searches the web while answering this message. The search words go to the provider and the search may cost extra.", "surveyjs"), choice.providerName) : "";
+        if (webLabel.hidden) webToggle.checked = false;
+        attachments = attachments.filter((item) => types.includes(item.type));
+        renderAttachments();
+    }
+
+    function renderAttachments() {
+        attachmentList.replaceChildren();
+        attachmentList.hidden = attachments.length === 0;
+        attachments.forEach((item, index) => {
+            const chip = element("li", "wp-sjs-chat__attachment");
+            chip.append(dashicon(item.type.startsWith("image/") ? "format-image" : (item.type.startsWith("audio/") ? "format-audio" : "media-document")), element("span", "", item.name));
+            const remove = button("", "wp-sjs-chat__icon-button", () => {
+                attachments.splice(index, 1);
+                renderAttachments();
+            });
+            remove.append(dashicon("no-alt"));
+            remove.setAttribute("aria-label", sprintf(__("Remove %s", "surveyjs"), item.name));
+            chip.append(remove);
+            attachmentList.append(chip);
+        });
+    }
+
+    function addFiles(list) {
+        const types = acceptedTypes();
+        const problems = [];
+        Array.from(list || []).forEach((item) => {
+            const total = attachments.reduce((sum, other) => sum + other.size, 0) + item.size;
+            if (!types.includes(item.type)) {
+                problems.push(sprintf(__("%s: this model can't read this kind of file.", "surveyjs"), item.name));
+            } else if (attachments.length >= options.maxFiles) {
+                problems.push(sprintf(__("Attach up to %d files at a time.", "surveyjs"), options.maxFiles));
+            } else if (item.size > options.maxFileBytes || total > options.maxTotalBytes) {
+                problems.push(sprintf(__("%1$s is too large: up to %2$s MB per file.", "surveyjs"), item.name, Math.floor(options.maxFileBytes / 1048576)));
+            } else {
+                attachments.push(item);
+            }
+        });
+        lastError = problems.length ? { message: problems.join(" ") } : lastError;
+        renderAttachments();
+        if (problems.length) render();
+    }
+
+    let recognition = null;
+    let dictationBase = "";
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const dictationNote = __("Dictate. Your browser turns speech into text and may send the audio to its speech service (Google in Chrome, Microsoft in Edge, Apple in Safari). SurveyJS Forms never receives the audio; only the text goes to your AI provider when you send it.", "surveyjs");
+    if (Recognition) {
+        micButton.hidden = false;
+        micButton.title = dictationNote;
+        micButton.setAttribute("aria-label", __("Dictate a message", "surveyjs"));
+        micButton.setAttribute("aria-pressed", "false");
+    }
+
+    function stopDictation() {
+        if (recognition) recognition.stop();
+    }
+
+    function toggleDictation() {
+        if (recognition) {
+            stopDictation();
+            return;
+        }
+        const lang = options.locale || navigator.language || "en-US";
+        const start = (local) => {
+            recognition = new Recognition();
+            recognition.lang = lang;
+            recognition.interimResults = true;
+            recognition.continuous = true;
+            if (local) recognition.processLocally = true;
+            dictationBase = input.value ? input.value.replace(/s*$/, " ") : "";
+            recognition.onresult = (event) => {
+                let finalText = "";
+                let interim = "";
+                for (let i = 0; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) finalText += event.results[i][0].transcript;
+                    else interim += event.results[i][0].transcript;
+                }
+                input.value = (dictationBase + finalText + interim).slice(0, options.maxLength);
+                updateCounter();
+            };
+            recognition.onerror = (event) => {
+                if (["not-allowed", "service-not-allowed", "network", "language-not-supported", "audio-capture"].includes(event.error)) {
+                    micButton.hidden = true;
+                    lastError = { message: __("Dictation is not available in this browser or was blocked. Type your message instead.", "surveyjs") };
+                    render();
+                }
+            };
+            recognition.onend = () => {
+                recognition = null;
+                micButton.classList.remove("is-active");
+                micButton.setAttribute("aria-pressed", "false");
+                input.focus();
+            };
+            micButton.title = local ? __("Dictate. Speech is recognized on this device; the audio does not leave it.", "surveyjs") : dictationNote;
+            micButton.classList.add("is-active");
+            micButton.setAttribute("aria-pressed", "true");
+            recognition.start();
+        };
+        if (typeof Recognition.available === "function") {
+            Recognition.available({ langs: [lang], processLocally: true })
+                .then((result) => start(result === "available"))
+                .catch(() => start(false));
+        } else {
+            start(false);
+        }
     }
 
     function updatePrivacy() {
         privacy.replaceChildren();
         if (!state || !state.choice) return;
-        privacy.append(billingLine(state.choice.providerName) + " " + (siteMode
-            ? sprintf(__("Your message and the forms and settings the AI reads go to %s. Form entries are never sent.", "surveyjs"), state.choice.providerName)
-            : sprintf(__("Your message and this form's questions and settings go to %s. Form entries are never sent.", "surveyjs"), state.choice.providerName)));
+        const sent = mode === "form"
+            ? sprintf(__("Your message and this form's questions and settings go to %s.", "surveyjs"), state.choice.providerName)
+            : sprintf(__("Your message and the forms and settings the AI reads go to %s.", "surveyjs"), state.choice.providerName);
+        const entries = state.entries
+            ? __("Entries the AI reads are sent too, because reading entries is allowed.", "surveyjs")
+            : __("Form entries are never sent.", "surveyjs");
+        privacy.append(billingLine(state.choice.providerName) + " " + sent + " " + entries);
     }
 
     function renderModels() {
@@ -259,6 +437,11 @@
         const bubble = element("div", "wp-sjs-chat__bubble");
         if (message.role === "user") {
             bubble.textContent = message.text;
+            (message.files || []).forEach((name) => {
+                const chip = element("span", "wp-sjs-chat__file");
+                chip.append(dashicon("paperclip"), element("span", "", name));
+                bubble.append(chip);
+            });
         } else {
             renderText(bubble, message.text);
         }
@@ -302,7 +485,8 @@
             }
             node.append(box);
         }
-        const meta = element("div", "wp-sjs-chat__meta", message.role === "user" ? message.time : [message.model, message.time].filter(Boolean).join(" · "));
+        const meta = element("div", "wp-sjs-chat__meta", message.role === "user" ? message.time : [message.stopped ? __("Stopped", "surveyjs") : "", message.model, message.time].filter(Boolean).join(" · "));
+        if (message.stopped) node.classList.add("is-stopped");
         node.append(meta);
         return node;
     }
@@ -310,7 +494,18 @@
     function renderEmpty() {
         const box = element("div", "wp-sjs-chat__empty");
         box.append(sparkle());
-        if (siteMode) {
+        if (mode === "results") {
+            box.append(element("p", "wp-sjs-chat__greeting", state && state.entries
+                ? __("Ask me about the entries of this form: summaries, common answers, trends, or how to export and filter them.", "surveyjs")
+                : __("Ask me how to export, filter or download entries, or how to set up this form.", "surveyjs")));
+            if (!(state && state.entries)) {
+                const hint = element("p", "wp-sjs-chat__hint", __("I can't read the entries: reading them is turned off. ", "surveyjs"));
+                const link = element("a", "", __("Allow the AI chat to read entries", "surveyjs"));
+                link.href = options.settingsUrl + "#wp-sjs-ai-chat-entries";
+                hint.append(link);
+                box.append(hint);
+            }
+        } else if (siteMode) {
             box.append(element("p", "wp-sjs-chat__greeting", __("Ask me to create a form, start one from a template, change a form or its settings, or ask how to do something in SurveyJS Forms.", "surveyjs")));
             box.append(element("p", "wp-sjs-chat__hint", __("Everything I create or change is saved as a draft: you open the form, review it and click Save. I can't put forms on pages, but I can tell you how.", "surveyjs")));
         } else {
@@ -319,7 +514,7 @@
         }
         if (state && state.choice) box.append(element("p", "wp-sjs-chat__billing", billingLine(state.choice.providerName)));
         const list = element("div", "wp-sjs-chat__suggestions");
-        SUGGESTIONS.forEach((text) => list.append(button(text, "wp-sjs-chat__suggestion", () => {
+        suggestions().forEach((text) => list.append(button(text, "wp-sjs-chat__suggestion", () => {
             input.value = text;
             updateCounter();
             input.focus();
@@ -395,11 +590,12 @@
         newChat.hidden = messages.length === 0;
         if (messages.length === 0 && !pendingText) log.append(renderEmpty());
         messages.forEach((message) => log.append(renderMessage(message)));
-        if (pendingText) log.append(renderMessage({ id: "pending", role: "user", text: pendingText, time: "" }));
+        if (pendingText) log.append(renderMessage({ id: "pending", role: "user", text: pendingText, files: pendingFiles, time: "" }));
         if (lastError) log.append(renderError());
         composer.hidden = false;
         renderModels();
         updatePrivacy();
+        updateTools();
         updateCounter();
         log.scrollTop = log.scrollHeight;
     }
@@ -425,6 +621,11 @@
 
     function setBusy(value, label) {
         busy = value;
+        if (!value) stopping = false;
+        attachButton.disabled = value;
+        micButton.disabled = value;
+        webToggle.disabled = value;
+        if (value) stopDictation();
         callEditor("setAiBusy", value);
         panel.classList.toggle("is-busy", value);
         input.disabled = value;
@@ -445,9 +646,44 @@
         }, PROGRESS_MS);
     }
 
+    function finishStopped(request) {
+        const started = Date.now();
+        const poll = () => post("state", {}).then((data) => {
+            const reply = data.messages.findIndex((message) => message.role === "user" && message.request === request);
+            if (reply === -1 && Date.now() - started < 180000) {
+                setTimeout(poll, 1500);
+                return;
+            }
+            state = data;
+            messages = data.messages;
+            const answer = reply === -1 ? null : data.messages[reply + 1];
+            if (answer && answer.changes) callEditor("applyAiDraft", data.draft);
+            clearInterval(progressTimer);
+            pendingText = "";
+            setBusy(false);
+            render();
+        }).catch(() => setTimeout(poll, 3000));
+        poll();
+    }
+
+    function stop() {
+        if (!busy || stopping || !currentRequest) return;
+        stopping = true;
+        setBusy(true, __("Stopping…", "surveyjs"));
+        const request = currentRequest;
+        post("cancel", { request: request }).finally(() => {
+            if (controller) controller.abort();
+            finishStopped(request);
+        });
+    }
+
     function send(text) {
+        if (busy) {
+            stop();
+            return;
+        }
         text = text.trim();
-        if (!text || busy) return;
+        if (!text) return;
         const snapshot = siteMode ? {} : callEditor("getSnapshot");
         if (!snapshot) {
             lastError = { message: __("Fix the JSON errors in the editor first: the AI works on what you see there.", "surveyjs") };
@@ -455,18 +691,27 @@
             return;
         }
         const request = Math.random().toString(36).slice(2, 14);
+        const files = attachments.slice();
+        const fields = siteMode ? { message: text, request: request } : { message: text, editor: JSON.stringify(snapshot), request: request };
+        if (webToggle.checked && !webLabel.hidden) fields.web = 1;
         lastError = null;
         pendingText = text;
+        pendingFiles = files.map((item) => item.name);
         input.value = "";
+        attachments = [];
+        renderAttachments();
+        currentRequest = request;
+        controller = typeof AbortController === "function" ? new AbortController() : null;
         setBusy(true);
         render();
         watchProgress(request);
-        post("send", siteMode ? { message: text, request: request } : { message: text, editor: JSON.stringify(snapshot), request: request })
+        post("send", fields, { files: files, signal: controller ? controller.signal : undefined })
             .then((data) => {
                 messages = data.messages;
                 if (data.changed) callEditor("applyAiDraft", data.draft);
             })
             .catch((error) => {
+                if (error.name === "AbortError" || stopping) return;
                 const data = error.data || {};
                 if (data.changed) callEditor("applyAiDraft", data.draft);
                 if (data.setup) {
@@ -474,11 +719,18 @@
                     return;
                 }
                 if (!input.value) input.value = text;
-                lastError = { message: error.message, details: data.details, link: data.link, retry: data.retry !== false, text: text };
+                if (!attachments.length) {
+                    attachments = files;
+                    renderAttachments();
+                }
+                lastError = { message: error.message, details: data.details, link: data.link, retry: data.retry !== false && !files.length, text: text };
             })
             .finally(() => {
+                if (stopping) return;
+                currentRequest = "";
                 clearInterval(progressTimer);
                 pendingText = "";
+                pendingFiles = [];
                 setBusy(false);
                 render();
                 input.focus();
@@ -556,6 +808,31 @@
         if (event.key === "Escape") setOpen(false);
     });
     input.addEventListener("input", updateCounter);
+    fileInput.addEventListener("change", () => {
+        addFiles(fileInput.files);
+        fileInput.value = "";
+    });
+    input.addEventListener("paste", (event) => {
+        const pasted = Array.from((event.clipboardData && event.clipboardData.files) || []);
+        if (pasted.length && !attachButton.hidden) {
+            event.preventDefault();
+            addFiles(pasted);
+        }
+    });
+    panel.addEventListener("dragover", (event) => {
+        if (attachButton.hidden || busy || !event.dataTransfer || !Array.from(event.dataTransfer.types).includes("Files")) return;
+        event.preventDefault();
+        panel.classList.add("is-dropping");
+    });
+    panel.addEventListener("dragleave", (event) => {
+        if (!panel.contains(event.relatedTarget)) panel.classList.remove("is-dropping");
+    });
+    panel.addEventListener("drop", (event) => {
+        panel.classList.remove("is-dropping");
+        if (attachButton.hidden || busy || !event.dataTransfer) return;
+        event.preventDefault();
+        addFiles(event.dataTransfer.files);
+    });
     input.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
             event.preventDefault();
@@ -571,6 +848,7 @@
             .then((choice) => {
                 state.choice = choice;
                 updatePrivacy();
+                updateTools();
             })
             .catch((error) => {
                 lastError = { message: error.message };

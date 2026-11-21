@@ -19,9 +19,10 @@
             __("Save the file. Back in the MCP settings, \"%s\" shows a green dot when it is connected. Then ask in the Cursor chat (Agent mode): \"List my SurveyJS forms\".", "surveyjs")
         ],
         vscode: [
+            __("This is for GitHub Copilot in VS Code (agent mode). If you use Claude Code or Codex inside VS Code, choose Claude Code or Codex in the list instead.", "surveyjs"),
             __("In VS Code press Ctrl+Shift+P (Cmd+Shift+P on a Mac), type \"MCP: Open User Configuration\" and press Enter. VS Code opens the file mcp.json.", "surveyjs"),
             __("Click Copy settings below. If the file is empty or has only {}, replace everything in it with what you copied. If it already has \"servers\", add the \"%s\": { … } part inside it, separated by a comma.", "surveyjs"),
-            __("Save the file and click Start above \"%s\" in the file. Then open the Chat view, switch it to Agent mode and ask: \"List my SurveyJS forms\".", "surveyjs")
+            __("Save the file and click Start above \"%s\" in the file. Then open the Copilot Chat view, switch it to Agent mode and ask: \"List my SurveyJS forms\".", "surveyjs")
         ],
         "claude-code": [
             __("Open a terminal: Terminal on a Mac, PowerShell or Git Bash on Windows.", "surveyjs"),
@@ -398,6 +399,9 @@
         });
     }
 
+    document.querySelectorAll("form[data-confirm]").forEach((form) => form.addEventListener("submit", (event) => {
+        if (!window.confirm(form.dataset.confirm)) event.preventDefault();
+    }));
     initCopyButtons();
     initInstall();
     initConnections();

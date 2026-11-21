@@ -36,7 +36,7 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - Entries are stored in WordPress unless "Save submitted entries in the database" is off for the form. The Entries screen has a column per question, an entry view and CSV export.
 - Save & Resume lets respondents continue later; "Save partial entries" keeps unfinished multi-page forms (deleted after 30 days unless kept).
 - Delete old entries: for the whole site in Settings, or per form on the Entries tab.
-- AI assistants (MCP and the editor chat) never get access to entries.
+- AI assistants read entries only when the site owner allows it: "Allow AI apps to read entries" on the AI MCP tab and "Allow the AI chat to read entries" on the AI Client tab, both off by default. Even then entries are read-only and uploaded files, signatures and passwords are never included. The AI chat on the Entries screen then summarizes and compares answers; without it, it helps with export, filters and PDF.
 
 ## Restrictions tab
 
@@ -56,8 +56,8 @@ Entries work with Tools > Export Personal Data and Erase Personal Data. IP addre
 
 ## AI features
 
-- **MCP connection** (Settings > AI MCP): connects the user's own AI assistant (Claude, ChatGPT, Cursor, Claude Code, Codex, VS Code and others) to the site through the free MCP Adapter plugin. Off by default; read-only until "Enable MCP write access" is on.
-- **AI chat** (set up in Settings > AI Client; the "AI assistant" button on the forms list and in the form editor): needs WordPress 7.0 or later and an AI provider connected in Settings > Connectors with the user's own API key. Requests are billed by the AI provider, not by SurveyJS.
+- **MCP connection** (Settings > AI MCP): connects the user's own AI assistant (Claude, ChatGPT, Cursor, Claude Code, Codex, GitHub Copilot in VS Code and others) to the site through the free MCP Adapter plugin. Off by default; read-only until "Enable MCP write access" is on.
+- **AI chat** (set up in Settings > AI Client; the "AI assistant" button on the forms list and in the form editor): needs WordPress 7.0 or later and an AI provider connected in Settings > Connectors with the user's own API key. Requests are billed by the AI provider, not by SurveyJS. In the chat you can attach images, PDFs or audio (when the chosen model reads them, for example a photo of a paper form to turn into a form), turn on "Search the web" (when the model supports it), dictate with the microphone (speech recognition of the browser) and stop an answer with Stop.
 - Every AI change is a draft: the live form changes only when the person reviews it in the editor and clicks Save. "Undo" in the chat reverts the last AI change; "Discard AI changes" drops the whole draft.
 
 ## Getting help

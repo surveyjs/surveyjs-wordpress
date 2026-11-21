@@ -446,3 +446,111 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
     padding: 4px 10px;
     text-align: left;
 }
+
+.wp-sjs-chat__composer-row {
+    gap: 8px;
+}
+
+.wp-sjs-chat__tools {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+}
+
+.wp-sjs-chat__tools .wp-sjs-chat__icon-button.button {
+    padding: 0 4px;
+    min-height: 28px;
+}
+
+.wp-sjs-chat__mic.is-active {
+    color: #d63638;
+    background: #fcf0f1;
+}
+
+.wp-sjs-chat__mic.is-active .dashicons {
+    animation: wp-sjs-chat-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes wp-sjs-chat-pulse {
+    50% {
+        opacity: 0.4;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wp-sjs-chat__mic.is-active .dashicons {
+        animation: none;
+    }
+}
+
+.wp-sjs-chat__web {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #50575e;
+}
+
+.wp-sjs-chat__send.is-stop {
+    background: #fff;
+    border-color: #d63638;
+    color: #d63638;
+}
+
+.wp-sjs-chat__attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 8px;
+    list-style: none;
+}
+
+.wp-sjs-chat__attachments[hidden] {
+    display: none;
+}
+
+.wp-sjs-chat__attachment {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    max-width: 100%;
+    margin: 0;
+    padding: 2px 2px 2px 8px;
+    border: 1px solid #c3c4c7;
+    border-radius: 14px;
+    background: #f6f7f7;
+    font-size: 12px;
+}
+
+.wp-sjs-chat__attachment span:not(.dashicons) {
+    overflow: hidden;
+    max-width: 220px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wp-sjs-chat__file {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.wp-sjs-chat__file .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+.wp-sjs-chat.is-dropping {
+    outline: 3px dashed var(--wp-sjs-chat-accent);
+    outline-offset: -8px;
+}
+
+.wp-sjs-chat__message.is-stopped .wp-sjs-chat__bubble {
+    border-left: 3px solid #dba617;
+}
