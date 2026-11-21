@@ -91,6 +91,22 @@
         theme: JSON.stringify(config.theme, null, 2)
     };
     const saved = { name: config.name, survey: sources.survey, theme: sources.theme };
+    const aiConfig = config.ai || {};
+    let aiDraft = aiConfig.draft || null;
+    let aiBusy = false;
+    const aiNoticeElement = document.getElementById("wp-sjs-ai-draft-notice");
+    let aiRevision = "";
+    let knownAiRevision = aiDraft ? aiDraft.revision : "";
+    let dismissedAiRevision = "";
+    let pendingName = null;
+    let aiBaseline = null;
+    let leavingOnPurpose = false;
+    if (aiDraft) {
+        sources.survey = JSON.stringify(aiDraft.json, null, 2);
+        sources.theme = JSON.stringify(aiDraft.theme, null, 2);
+        aiRevision = aiDraft.revision;
+        if (aiDraft.name !== config.name) pendingName = aiDraft.name;
+    }
     const rules = SurveyLinter.getRules();
 
     let monaco = null;
@@ -121,19 +137,26 @@
     let uiBuilderPollTimer = null;
     let uiBuilderConnected = false;
 
-    nameText.textContent = config.name;
-    settingInputs.forEach((input) => {
-        const value = config.settings[input.dataset.setting];
-        if (input.type === "checkbox") {
-            input.checked = "checkedValue" in input.dataset ? value === input.dataset.checkedValue : Boolean(value);
-        } else if (pickers.some((picker) => picker.select === input)) {
-            renderPickerOptions(pickers.find((picker) => picker.select === input), value);
-        } else {
-            input.value = value;
-            input.placeholder = config.settingPlaceholders[input.dataset.setting] ?? "";
-        }
-    });
+    nameText.textContent = pendingName ?? config.name;
+    function fillSettings(values) {
+        settingInputs.forEach((input) => {
+            const value = values[input.dataset.setting];
+            if (input.type === "checkbox") {
+                input.checked = "checkedValue" in input.dataset ? value === input.dataset.checkedValue : Boolean(value);
+            } else if (pickers.some((picker) => picker.select === input)) {
+                renderPickerOptions(pickers.find((picker) => picker.select === input), value);
+            } else {
+                input.value = value;
+                input.placeholder = config.settingPlaceholders[input.dataset.setting] ?? "";
+            }
+        });
+    }
+    fillSettings(config.settings);
     saved.settings = JSON.stringify(readSettings());
+    if (aiDraft) {
+        fillSettings(aiDraft.settings);
+        aiBaseline = { survey: sources.survey, theme: sources.theme, settings: JSON.stringify(readSettings()) };
+    }
 
     document.querySelectorAll("input[data-hint]").forEach((checkbox) => {
         const hint = document.getElementById(checkbox.dataset.hint);
@@ -503,7 +526,13 @@
     }
 
     function isDirty() {
-        return (!nameForm.hidden && nameInput.value.trim() !== saved.name) || sources.survey !== saved.survey || sources.theme !== saved.theme || JSON.stringify(readSettings()) !== saved.settings;
+        return (!nameForm.hidden && nameInput.value.trim() !== saved.name) || (pendingName !== null && pendingName !== saved.name) || sources.survey !== saved.survey || sources.theme !== saved.theme || JSON.stringify(readSettings()) !== saved.settings;
+    }
+
+    function hasOwnUnsavedChanges() {
+        if (!isDirty()) return false;
+        if (!aiRevision || !aiBaseline) return true;
+        return (!nameForm.hidden && nameInput.value.trim() !== (pendingName ?? saved.name)) || sources.survey !== aiBaseline.survey || sources.theme !== aiBaseline.theme || JSON.stringify(readSettings()) !== aiBaseline.settings;
     }
 
     function updateState() {
@@ -976,21 +1005,28 @@
         const issueCount = SurveyLinter.lintSurvey(survey.json).findings.length;
         const settings = readSettings();
         const snapshot = { survey: sources.survey, theme: sources.theme, settings: JSON.stringify(settings) };
+        const savedName = pendingName;
+        const savedAiRevision = aiRevision;
+        const body = new URLSearchParams({
+            Id: config.id,
+            Json: JSON.stringify(survey.json),
+            Theme: JSON.stringify(theme.json),
+            Settings: snapshot.settings,
+            _wpnonce: config.saveNonce
+        });
+        if (savedName !== null) body.set("Name", savedName);
+        if (savedAiRevision) body.set("AiDraft", savedAiRevision);
         saveButton.disabled = true;
-        return fetch(config.saveUrl, {
-            method: "POST",
-            body: new URLSearchParams({
-                Id: config.id,
-                Json: JSON.stringify(survey.json),
-                Theme: JSON.stringify(theme.json),
-                Settings: snapshot.settings,
-                _wpnonce: config.saveNonce
-            })
-        })
+        return fetch(config.saveUrl, { method: "POST", body: body })
             .then((response) => response.ok ? response.json() : Promise.reject(new Error(response.statusText)))
             .then((data) => {
                 if (data.IsSuccess !== 1) throw new Error(__("The form was not saved.", "surveyjs"));
                 Object.assign(saved, snapshot);
+                if (savedName !== null) {
+                    saved.name = savedName;
+                    if (pendingName === savedName) pendingName = null;
+                }
+                if (savedAiRevision) onAiDraftSaved(savedAiRevision);
                 saveNotice = issueCount > 0
                     ? { type: "warning", message: sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issueCount, "surveyjs"), issueCount) }
                     : { type: "success", message: __("Form saved.", "surveyjs") };
@@ -1005,14 +1041,14 @@
     }
 
     function showName() {
-        nameText.textContent = saved.name;
+        nameText.textContent = pendingName ?? saved.name;
         nameForm.hidden = true;
         nameView.hidden = false;
     }
 
     function saveName() {
         const name = nameInput.value.trim();
-        if (!name || name === saved.name) {
+        if (!name || (name === saved.name && pendingName === null)) {
             showName();
             return;
         }
@@ -1025,6 +1061,7 @@
             .then((data) => {
                 if (data.IsSuccess !== 1) throw new Error(__("The name was not saved.", "surveyjs"));
                 saved.name = name;
+                pendingName = null;
                 showName();
             })
             .catch((error) => showNotice("error", sprintf(__("Save failed: %s", "surveyjs"), error.message)))
@@ -1584,7 +1621,7 @@
         if (event.key === "Escape" && fullPreviewOpen) setFullPreview(false);
     });
     nameEditButton.addEventListener("click", () => {
-        nameInput.value = saved.name;
+        nameInput.value = pendingName ?? saved.name;
         nameView.hidden = true;
         nameForm.hidden = false;
         nameInput.focus();
@@ -1597,7 +1634,7 @@
         if (event.key === "Escape") showName();
     });
     window.addEventListener("beforeunload", (event) => {
-        if (!isDirty()) return;
+        if (leavingOnPurpose || !hasOwnUnsavedChanges()) return;
         event.preventDefault();
         event.returnValue = "";
     });
@@ -1708,6 +1745,206 @@
         window.history.replaceState(null, "", cleanUrl.toString());
     }
 
+    function findTab(tab) {
+        return Array.from(tabs).find((candidate) => candidate.dataset.tab === tab);
+    }
+
+    function aiChanges(draft) {
+        const groups = [];
+        const add = (tab, label) => {
+            if (!tab || !findTab(tab)) return;
+            let group = groups.find((item) => item.tab === tab);
+            if (!group) {
+                group = { tab: tab, labels: [] };
+                groups.push(group);
+            }
+            if (label && !group.labels.includes(label)) group.labels.push(label);
+        };
+        const jsonTab = ["creator", "survey"].find((tab) => tabNames.includes(tab));
+        if (draft.changedJson) add(jsonTab);
+        if (draft.changedTheme) add("theme");
+        (draft.changedSettings || []).forEach((key) => {
+            const input = settingInput(key);
+            const panel = input && input.closest("[data-panel]");
+            const row = input && input.closest("tr");
+            if (row) row.classList.add("wp-sjs-editor__ai-changed");
+            const heading = row && row.querySelector("th");
+            add(panel ? panel.dataset.panel : (key === "themeMode" || key === "transparentBackground" ? "theme" : null), heading ? heading.textContent.trim() : "");
+        });
+        groups.forEach((group) => findTab(group.tab).classList.add("wp-sjs-editor__tab--ai"));
+        const parts = groups.map((group) => {
+            const label = findTab(group.tab).textContent.trim();
+            return group.labels.length ? label + " (" + group.labels.join(", ") + ")" : label;
+        });
+        if (draft.changedName) parts.unshift(__("Form name", "surveyjs"));
+        return parts;
+    }
+
+    function aiButton(label, className, onClick) {
+        const button = element("button", "button" + (className ? " " + className : ""), label);
+        button.type = "button";
+        button.addEventListener("click", onClick);
+        return button;
+    }
+
+    function leaveAndReload() {
+        leavingOnPurpose = true;
+        window.location.reload();
+    }
+
+    function discardAiDraft(button) {
+        const question = aiDraft && aiDraft.created
+            ? __("Discard the form the AI created? The form stays empty; delete it in All Forms if you don't need it. This cannot be undone.", "surveyjs")
+            : __("Discard the AI changes? The form goes back to its last saved version. This cannot be undone.", "surveyjs");
+        if (!window.confirm(question)) return;
+        button.disabled = true;
+        fetch(aiConfig.discardUrl, {
+            method: "POST",
+            body: new URLSearchParams({ id: config.id, revision: knownAiRevision, _ajax_nonce: aiConfig.nonce })
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                if (!result.success) throw new Error(result.data && result.data.message ? result.data.message : __("The AI changes were not discarded.", "surveyjs"));
+                leaveAndReload();
+            })
+            .catch((error) => {
+                button.disabled = false;
+                renderNotice(aiNoticeElement, "error", error.message);
+            });
+    }
+
+    function renderAiDraftNotice() {
+        aiNoticeElement.replaceChildren();
+        if (!aiDraft || !aiRevision) return;
+        const notice = element("div", "notice notice-warning inline wp-sjs-editor__ai-notice");
+        notice.setAttribute("role", "region");
+        notice.setAttribute("aria-label", __("AI changes", "surveyjs"));
+        const title = element("p", "wp-sjs-editor__ai-title");
+        title.append(icon("admin-site-alt3"), element("strong", "", aiDraft.created
+            ? __("This form was created by AI and is not saved yet.", "surveyjs")
+            : __("AI changes are loaded into the editor but not saved yet.", "surveyjs")));
+        notice.append(title);
+        const author = aiDraft.author
+            ? sprintf(__("Made with AI as %1$s on %2$s.", "surveyjs"), aiDraft.author, aiDraft.time)
+            : sprintf(__("Made with AI on %s.", "surveyjs"), aiDraft.time);
+        const effect = aiDraft.created
+            ? __("Review the form and the preview, then click Save. Until then the form is empty on your site.", "surveyjs")
+            : __("Review them in the editor and the preview, then click Save to publish them. Until then your live form is unchanged.", "surveyjs");
+        notice.append(element("p", "", author + " " + effect));
+        const changes = aiChanges(aiDraft);
+        if (changes.length && !aiDraft.created) {
+            notice.append(element("p", "wp-sjs-editor__ai-changes", sprintf(__("Changed: %s.", "surveyjs"), changes.join("; "))));
+        }
+        if (aiDraft.emailChanged) {
+            const warning = element("p", "wp-sjs-editor__ai-alert");
+            warning.append(element("strong", "", __("Check the Email tab:", "surveyjs")), " ", __("the AI changed who receives emails or which files they include. Save only if you asked for this.", "surveyjs"));
+            notice.append(warning);
+        }
+        if (aiDraft.outdated) {
+            notice.append(element("p", "wp-sjs-editor__ai-alert", __("The form was saved after the AI started these changes. Saving replaces the edits made since then.", "surveyjs")));
+        }
+        const actions = element("p", "wp-sjs-editor__ai-actions");
+        const discard = aiButton(__("Discard AI changes", "surveyjs"), "", () => discardAiDraft(discard));
+        actions.append(aiButton(__("Save", "surveyjs"), "button-primary", () => save()), " ", discard);
+        notice.append(actions);
+        aiNoticeElement.append(notice);
+    }
+
+    function onAiDraftSaved(revision) {
+        if (revision !== aiRevision) return;
+        aiRevision = "";
+        aiBaseline = null;
+        if (knownAiRevision === revision) knownAiRevision = "";
+        aiNoticeElement.replaceChildren();
+        clearAiMarks();
+    }
+
+    function clearAiMarks() {
+        rootElement.querySelectorAll(".wp-sjs-editor__ai-changed").forEach((row) => row.classList.remove("wp-sjs-editor__ai-changed"));
+        tabs.forEach((tab) => tab.classList.remove("wp-sjs-editor__tab--ai"));
+    }
+
+    function applyAiDraft(draft, content) {
+        clearAiMarks();
+        const shown = content || draft || { name: saved.name, json: JSON.parse(saved.survey), theme: JSON.parse(saved.theme), settings: JSON.parse(saved.settings) };
+        if (draft) {
+            fillSettings(draft.settings);
+            aiBaseline = { survey: JSON.stringify(draft.json, null, 2), theme: JSON.stringify(draft.theme, null, 2), settings: JSON.stringify(readSettings()) };
+        }
+        replaceSource("survey", shown.json);
+        replaceSource("theme", shown.theme);
+        fillSettings(shown.settings);
+        pendingName = shown.name !== saved.name ? shown.name : null;
+        aiDraft = draft || null;
+        aiRevision = draft ? draft.revision : "";
+        knownAiRevision = aiRevision;
+        if (!draft) aiBaseline = null;
+        if (nameForm.hidden) nameText.textContent = pendingName ?? saved.name;
+        document.querySelectorAll("input[data-hint]").forEach((checkbox) => checkbox.dispatchEvent(new Event("change")));
+        renderThemePreset();
+        updateThemePreset();
+        updateThemeJsonLock();
+        saveNotice = null;
+        updateState();
+        renderPreview();
+        runLint();
+        renderAiDraftNotice();
+        document.dispatchEvent(new CustomEvent("surveyjs:editor-external-change"));
+    }
+
+    function editorSnapshot() {
+        document.dispatchEvent(new CustomEvent("surveyjs:editor-flush"));
+        const survey = parse(sources.survey);
+        const theme = parse(sources.theme);
+        if (survey.error || theme.error) return null;
+        return {
+            name: !nameForm.hidden && nameInput.value.trim() ? nameInput.value.trim() : (pendingName ?? saved.name),
+            json: survey.json,
+            theme: theme.json,
+            settings: readSettings()
+        };
+    }
+
+    function settingLabel(key) {
+        const input = settingInput(key);
+        const heading = input && input.closest("tr") && input.closest("tr").querySelector("th");
+        const tab = input && input.closest("[data-panel]") ? findTab(input.closest("[data-panel]").dataset.panel) : null;
+        if (!heading) return key;
+        return (tab ? tab.textContent.trim() + ": " : "") + heading.textContent.trim();
+    }
+
+    function onAiHeartbeat(state) {
+        if (aiBusy || !state.revision || state.revision === knownAiRevision || state.revision === dismissedAiRevision) return;
+        const notice = element("div", "notice notice-warning inline wp-sjs-editor__ai-notice");
+        notice.setAttribute("role", "alert");
+        const title = element("p", "wp-sjs-editor__ai-title");
+        title.append(icon("admin-site-alt3"), element("strong", "", __("An AI app changed this form while you had it open.", "surveyjs")));
+        notice.append(title);
+        notice.append(element("p", "", (state.time ? sprintf(__("The changes were saved as a draft on %s.", "surveyjs"), state.time) + " " : "")
+            + __("Load them to review and save them. Loading replaces what is in the editor now.", "surveyjs")));
+        const actions = element("p", "wp-sjs-editor__ai-actions");
+        actions.append(aiButton(__("Load AI changes", "surveyjs"), "button-primary", () => {
+            if (hasOwnUnsavedChanges() && !window.confirm(__("Your unsaved changes in the editor will be lost. Load the AI changes anyway?", "surveyjs"))) return;
+            leaveAndReload();
+        }), " ", aiButton(__("Not now", "surveyjs"), "", () => {
+            dismissedAiRevision = state.revision;
+            renderAiDraftNotice();
+        }));
+        notice.append(actions);
+        aiNoticeElement.replaceChildren(notice);
+    }
+
+    renderAiDraftNotice();
+    if (window.jQuery && window.wp && wp.heartbeat && aiConfig.heartbeatKey) {
+        wp.heartbeat.interval(15);
+        window.jQuery(document).on("heartbeat-send", (event, data) => {
+            data[aiConfig.heartbeatKey] = { id: config.id };
+        });
+        window.jQuery(document).on("heartbeat-tick", (event, data) => {
+            if (data && data[aiConfig.heartbeatKey]) onAiHeartbeat(data[aiConfig.heartbeatKey]);
+        });
+    }
+
     const monacoLoaded = loadMonaco();
 
     window.surveyjsEditor = {
@@ -1723,6 +1960,14 @@
             if (tabNames.includes(tab) && (editor || !(tab in sources))) switchTab(tab);
         },
         isDirty: isDirty,
+        hasAiDraft: () => Boolean(aiRevision),
+        getSnapshot: editorSnapshot,
+        hasEditsAfterAi: () => Boolean(aiRevision) && hasOwnUnsavedChanges(),
+        applyAiDraft: applyAiDraft,
+        setAiBusy: (busy) => {
+            aiBusy = Boolean(busy);
+        },
+        settingLabel: settingLabel,
         save: save,
         isFullPreviewOpen: () => fullPreviewOpen,
         setPreviewShowInvisibleElements: (show) => {

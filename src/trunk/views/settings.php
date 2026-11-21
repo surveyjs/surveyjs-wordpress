@@ -149,17 +149,35 @@ class SurveyJS_SettingsPage {
 
 
 	public static function surveyjs_render_settings() {
+		$tabs = array(
+			'general'        => __( 'General', 'surveyjs' ),
+			SurveyJS_AI::TAB      => __( 'AI MCP', 'surveyjs' ),
+			SurveyJS_AI_Chat::TAB => __( 'AI Client', 'surveyjs' ),
+		);
+		$tab = sanitize_key( wp_unslash( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks the tab to show.
+		$tab = isset( $tabs[ $tab ] ) ? $tab : 'general';
 		?>
 		<div class="wrap">
             <h2><?php esc_html_e( 'SurveyJS Settings', 'surveyjs' ); ?></h2>
-            <?php if ( ! empty( $_GET['settings-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-                <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Successfully updated!', 'surveyjs' ); ?></p></div>
+            <nav class="nav-tab-wrapper wp-clearfix" aria-label="<?php esc_attr_e( 'Settings sections', 'surveyjs' ); ?>">
+                <?php foreach ( $tabs as $slug => $label ) : ?>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'surveyjs-settings', 'tab' => $slug ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab<?php echo $slug === $tab ? ' nav-tab-active' : ''; ?>"<?php echo $slug === $tab ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $label ); ?></a>
+                <?php endforeach; ?>
+            </nav>
+            <?php if ( SurveyJS_AI::TAB === $tab ) : ?>
+                <?php SurveyJS_AI::render_tab(); ?>
+            <?php elseif ( SurveyJS_AI_Chat::TAB === $tab ) : ?>
+                <?php SurveyJS_AI_Chat::render_tab(); ?>
+            <?php else : ?>
+                <?php if ( ! empty( $_GET['settings-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+                    <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Successfully updated!', 'surveyjs' ); ?></p></div>
+                <?php endif; ?>
+                <form action="options.php" method="POST">
+                    <?php settings_fields( 'surveyjs-settings-group' ); ?>
+                    <?php do_settings_sections( 'surveyjs-settings-page' ); ?>
+                    <?php submit_button(); ?>
+                </form>
             <?php endif; ?>
-            <form action="options.php" method="POST">
-                <?php settings_fields( 'surveyjs-settings-group' ); ?>
-                <?php do_settings_sections( 'surveyjs-settings-page' ); ?>
-                <?php submit_button(); ?>
-            </form>
         </div>
 		<?php
 	}

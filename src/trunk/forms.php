@@ -94,10 +94,10 @@ class SurveyJS_Forms {
 
     public static function names() {
         global $wpdb;
-        return $wpdb->get_results( $wpdb->prepare(
+        return SurveyJS_AI_Drafts::without_unsaved_new_forms( $wpdb->get_results( $wpdb->prepare(
             "SELECT ID AS id, post_title AS name FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish' ORDER BY post_title, ID",
             self::POST_TYPE
-        ) );
+        ) ) );
     }
 
     public static function exists() {

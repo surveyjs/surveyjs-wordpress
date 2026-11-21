@@ -20,6 +20,15 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 - **Adding a form to a page**: the **SurveyJS** block, or the shortcode `[surveyjs id="1"]` (the old `[Survey id="1"]` still works).
 - **Importers** for forms (and entries, where available) from WPForms, Contact Form 7, Ninja Forms, Fluent Forms and Gravity Forms. A Gravity Forms export file (.json) can be imported without Gravity Forms installed.
 
+### AI assistants (MCP)
+
+- **Edit forms by chat** from Claude Code, Claude Desktop, Cursor, VS Code or any MCP client: SurveyJS Forms > Settings > AI MCP. Off by default; needs WordPress 6.9+ (Abilities API) and the free [MCP Adapter](https://wordpress.org/plugins/mcp-adapter/) plugin, which the tab installs and activates in one click (or explains how to add it when plugins are installed from code).
+- **Read-only by default:** write tools refuse until "Enable MCP write access" is on (option `surveyjs_ai_write`). Connecting: the AI MCP tab gives a connection file and a setup prompt per assistant (Claude Code, Codex, Cursor, VS Code) and lists each connection's last activity.
+- **AI chat** (SurveyJS Forms > Settings > AI Client; WordPress 7.0+ AI Client, the site owner's provider key in Settings > Connectors): `ai/chat.php`, `ai/chat.js`. Same abilities, own tool loop through `WP_AI_Client_Ability_Function_Resolver`, changes go to the form's AI draft, per-reply Undo, per-user history in post meta `_sjs_ai_chat_<user_id>`. The AI Client tab checks the steps (provider connected in Connectors, function calling, Google provider 1.2.1+).
+- **Configuration only:** list forms, read and change form JSON, theme and settings, create forms, read the plugin's site settings, search the SurveyJS docs. No access to entries, nothing can be deleted.
+- **Drafts:** every AI write goes to a draft (post meta `_sjs_ai_draft`); the live form changes only when a person clicks Save in the form editor. The editor loads the draft, lists what changed, warns about changed email recipients and, through the WordPress Heartbeat, about AI changes made while the form is open. Discard AI changes restores the saved version.
+- **Connections:** Create connection makes a WordPress Application Password (app ID `SurveyJS_AI::APP_ID`) that authenticates only on the SurveyJS MCP route `/wp-json/mcp/surveyjs`; other REST routes and XML-RPC reject it. Ready-made configs for Claude Code, Claude Desktop (via `@automattic/mcp-wordpress-remote`), Cursor and VS Code. Revoke on the same tab; deactivating the plugin deletes all connections.
+
 ### Email
 
 - **Email notification** to the site owner: Send To, From Name, From Email, Reply-To (an email question of the form), Subject, Message.
@@ -181,6 +190,7 @@ SurveyJS Forms and SurveyJS Forms Pro are always released together, with the sam
 SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_results` table) and exposes generic hooks; Pro adds its features through them. Without anything hooked in, the plugin behaves as before. The full contract (constants, admin pages, the `window.surveyjsEditor` JavaScript API, every hook with its arguments) is described in the Pro repository's DEVELOPMENT.md, section "Developer: the extension contract in SurveyJS Forms (Base)".
 
 - Actions: `surveyjs_admin_menu`, `surveyjs_admin_enqueue_scripts`, `surveyjs_register_settings`, `surveyjs_render_editor`, `surveyjs_editor_email_rows`, `surveyjs_render_results_view`, `surveyjs_results_title_actions`, `surveyjs_entries_bulk_action_<action>`, `surveyjs_enqueue_form_assets`, `wp_surveyjs_save_result`.
+- AI (MCP): action `surveyjs_ai_register_abilities` (register more abilities with `SurveyJS_AI_Abilities::register_ability()`; category `surveyjs`), filters `surveyjs_ai_form_settings_schema`, `surveyjs_ai_read_only_form_settings`, `surveyjs_ai_sensitive_form_settings`, `surveyjs_ai_question_types`, `surveyjs_ai_instructions`, `surveyjs_ai_docs_server_url`. Details in the Pro repository's DEVELOPMENT.md.
 - Filters: `surveyjs_editor_tabs`, `surveyjs_form_settings_defaults`, `surveyjs_form_settings_sanitize`, `surveyjs_form_row_actions`, `surveyjs_results_views`, `surveyjs_entry_row_actions`, `surveyjs_entries_bulk_actions`, `surveyjs_form_client_config`, `surveyjs_save_result_response`, `surveyjs_notification_attachments`, `surveyjs_notification_tags`, `surveyjs_form_locale`, `surveyjs_show_pro_upsell`.
 - Other settings: `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter (surveyjs.io address, default `https://surveyjs.io`; the UI Builder and Pro page URLs are built from it; the Pro download URL is `surveyjs_pro_package_url`), `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size`, `surveyjs_unattached_upload_lifetime`, `surveyjs_partial_entry_lifetime`, `surveyjs_entry_ip`, `surveyjs_import_entries_per_request`.
 
@@ -288,6 +298,7 @@ With S3 Uploads and the default storage, objects get the plugin-wide ACL (`S3_UP
 All of them are optional; form answers are never sent to them.
 
 - **SurveyJS UI Builder** (surveyjs.io): only when the user clicks Open in free UI Builder. The form ID, name, form JSON and theme JSON are sent. [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
+- **SurveyJS documentation MCP server** (`https://mcp.surveyjs.io/mcp`, Streamable HTTP, no auth): only when the AI connection is on and a connected AI app calls `surveyjs-search-docs` or `surveyjs-find-api-docs`. The search words (or class and property name) are sent with `wp_safe_remote_post()`; nothing about the site. URL filter: `surveyjs_ai_docs_server_url`.
 - **Google reCAPTCHA** and **Cloudflare Turnstile**: only when chosen in Settings and turned on for a form. See "External services" in `src/trunk/readme.txt`.
 - **SurveyJS Forms Pro** downloads its updates from surveyjs.io (see [Updates](#updates-surveyjs-forms-and-surveyjs-forms-pro)).
 

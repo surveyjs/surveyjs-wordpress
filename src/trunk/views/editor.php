@@ -114,6 +114,7 @@ class SurveyJS_Editor {
             'privacyPolicyUrl' => get_privacy_policy_url(),
             'isNew'     => ! empty( $_GET['new'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only decides whether to show a hint.
             'nextSteps' => SurveyJS_Welcome::editor_next_steps(),
+            'ai'        => SurveyJS_AI_Drafts::editor_config( $survey ),
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $captcha_configured = SurveyJS_Captcha::is_configured();
@@ -138,6 +139,7 @@ class SurveyJS_Editor {
                 </div>
                 <a href="<?php echo esc_url( SurveyJS_Templates::save_url( $survey->id ) ); ?>" class="button wp-sjs-editor__save-template" id="wp-sjs-save-template"><?php esc_html_e( 'Save as Template', 'surveyjs' ); ?></a>
             </div>
+            <div id="wp-sjs-ai-draft-notice"></div>
             <div id="wp-sjs-editor-notice"></div>
             <?php SurveyJS_Embed::render_panel( $survey ); ?>
 

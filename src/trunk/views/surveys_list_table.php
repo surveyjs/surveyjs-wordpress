@@ -133,10 +133,19 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         }
         $actions = apply_filters( 'surveyjs_form_row_actions', $actions, $item );
 
+        $ai_draft = SurveyJS_AI_Drafts::get( $item->id );
+        $unsaved_new = $ai_draft && SurveyJS_AI_Drafts::is_unsaved_new_form( SurveyJS_Forms::find( $item->id ) );
+        $state = $ai_draft ? sprintf(
+            ' — <span class="post-state" title="%s">%s</span>',
+            $unsaved_new ? esc_attr__( 'An AI app created this form. It is not shown on the site and can\'t be added to pages until you open it, review it and click Save.', 'surveyjs' ) : esc_attr__( 'Open the form to review the AI changes and click Save to publish them.', 'surveyjs' ),
+            $unsaved_new ? esc_html__( 'AI draft — not saved yet', 'surveyjs' ) : esc_html__( 'AI changes to review', 'surveyjs' )
+        ) : '';
+
         return sprintf(
-            '<strong><a class="row-title" href="%s">%s</a></strong>%s',
+            '<strong><a class="row-title" href="%s">%s</a>%s</strong>%s',
             esc_url( $edit_url ),
             esc_html( $item->name ),
+            $state,
             $this->row_actions( $actions )
         );
     }

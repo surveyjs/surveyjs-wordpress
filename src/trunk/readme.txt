@@ -48,6 +48,20 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 * **Uninstall**: by default, deleting the plugin keeps your forms, entries and files. Turn on SurveyJS Forms > Settings > Uninstall to delete all forms, entries, uploaded files and settings when the plugin is deleted.
 * Form answers stay on your site and are sent only in the emails you set up. The optional CAPTCHA services and the free online UI Builder never receive form answers (see External services below).
 
+= Use SurveyJS with your favorite AI =
+Build and change forms by simply asking: "Create a contact form with name, email and message", "Make the phone question required", "Send entries to sales@example.com", "Close the form after 100 entries", "How do I put this form on a page?". Two ways, each on its own tab of SurveyJS Forms > Settings:
+
+* **AI MCP: your AI assistant**, free with the AI app you already use: Claude, ChatGPT, Cursor, Claude Code, Codex, VS Code and other MCP apps.
+* **AI Client: AI chat right in your WordPress admin**, with your own API key from Anthropic, OpenAI or Google, connected once in Settings > Connectors (WordPress 7.0 or later). The provider bills each request. Changes show up in the editor right away, with Undo.
+
+* **Safe by design:** the AI can't see form entries and can't delete forms or anything else. Every AI change is saved as a draft: your live form changes only when you open it in the form editor, review the changes and click Save. The editor shows what the AI changed, warns when it changed email recipients, and warns when an AI app changes a form you have open.
+* **What the AI can do:** list forms, read and change form JSON, theme and settings (emails, restrictions, schedule, spam protection and more), create forms, look up the SurveyJS documentation and explain how the plugin works. With SurveyJS Forms Pro it also changes PDF settings and the Pro admin settings.
+* **Easy to connect your assistant:** turn the AI connection on and install the free MCP Adapter plugin by the WordPress team in one click. Then either let your assistant set itself up (download a connection file, copy one setup prompt into Claude Code, Codex, Cursor, VS Code or another assistant that runs commands; it connects itself, tests the connection and deletes the file) or set it up manually with ready-made settings and step-by-step instructions for Claude Desktop, Cursor, VS Code, Claude Code, Codex and other apps. A connection is a standard WordPress Application Password that works only with the SurveyJS MCP server; the list of connections shows the last activity of each, and you can revoke any of them at any time.
+* **Read-only by default:** AI apps can read forms and settings until you turn on "Enable MCP write access".
+* **AI chat:** click "AI assistant" in the form editor. The chat works on what you see in the editor, including unsaved edits, and shows every change with "Undo the last AI change". The AI Client tab checks step by step what is missing: an AI provider connected in Settings > Connectors and a provider whose models can call functions (Anthropic, OpenAI, Google with AI Provider for Google 1.2.1 or later, Mistral).
+* The MCP connection is off by default and needs WordPress 6.9 or later and HTTPS (or a local development site). claude.ai and ChatGPT on the web will work when WordPress adds OAuth sign-in.
+* Your AI app or AI provider receives the forms and settings the AI reads, under its terms. Form entries are never sent. With the MCP connection the plugin itself never sends forms to an AI service.
+
 = Form builder =
 * **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. The email notification is off in a new form until you turn it on on the Email tab; Reply-To is already set to the respondent's email.
 * **Save as Template**: save any form as your own template and reuse it from My Templates.
@@ -115,6 +129,14 @@ The plugin works without this service: you can create and edit forms in the buil
 
 This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
 
+= SurveyJS documentation search (AI connection) =
+When you connect an AI app on the SurveyJS Forms > Settings > AI MCP tab (off by default) and the AI app asks to search the SurveyJS documentation, your site sends the search words chosen by the AI app (and, for API lookups, a SurveyJS class and property name) to the SurveyJS documentation service at [mcp.surveyjs.io](https://mcp.surveyjs.io/mcp), provided by Devsoft Baltic OÜ, and passes the found articles back to the AI app. Your forms, entries, settings and site address are never sent. Nothing is sent while the AI connection is off.
+
+This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
+
+= AI provider you connect (AI chat) =
+The AI chat (WordPress 7.0 or later) sends requests only when you send a chat message. It uses the WordPress AI Client and the AI provider you connected in Settings > Connectors with your own API key, for example Anthropic, OpenAI or Google. Each request contains your message, earlier messages of the same chat, the plugin's instructions and what the AI reads with its tools: the form JSON, theme and settings, the plugin guide and SurveyJS documentation search results. Form entries are never sent. The provider bills the requests under your account, and its terms and privacy policy apply: [Anthropic](https://www.anthropic.com/legal/privacy), [OpenAI](https://openai.com/policies/privacy-policy/), [Google](https://policies.google.com/privacy). Nothing is sent until you connect a provider and send a message; you can turn the chat off in SurveyJS Forms > Settings > AI Client.
+
 = SurveyJS Forms Pro download page =
 The **Get Pro – Free** links in the admin menu and the admin bar, and the SurveyJS Forms Pro links on the Getting Started page, the dashboard widget and in the form editor open the SurveyJS Forms Pro download page at [surveyjs.io/wordpress-pro](https://surveyjs.io/wordpress-pro) in your browser. The link carries the address of your site's admin area (`wp_admin_url`) and labels of where in the plugin it was clicked (`utm_source`, `utm_medium`). Nothing is sent until you click a link.
 
@@ -179,6 +201,12 @@ In Local, add it to `conf/nginx/site.conf.hbs` in the site folder and restart th
 
 = My custom CSS does not change the form. Why? =
 The plugin protects forms from the styles of your WordPress theme, so a form looks right in any theme. The same protection outweighs ordinary custom CSS. To change colors, fonts, corners and sizes, use the **Theme** tab of the form editor. For other changes, add `!important` to your rule, for example `.sd-btn { border-radius: 0 !important; }`.
+
+= How do I connect Claude, Codex or Cursor? =
+Open SurveyJS Forms > Settings > AI MCP, turn on the AI connection, install MCP Adapter with one click and confirm that a connection password may be created. Then either download the connection file and paste the setup prompt into your assistant (it adds the connection, tests it and deletes the file), or choose your app under "Set it up manually", click Create connection and follow the steps. To let the AI change forms, also click "Enable MCP write access". The site must use HTTPS; on a local development site add `define( 'WP_ENVIRONMENT_TYPE', 'local' );` to wp-config.php. If the AI app gets "401" errors on shared hosting, your server may drop the Authorization header; ask your host to pass it to PHP.
+
+= Does the AI chat cost money? =
+The chat uses your own API key from an AI provider, and the provider bills each request, usually a few cents per chat. Subscriptions such as Claude Pro or ChatGPT Plus don't include API credits. Google AI Studio has a free tier. The MCP connection works with the AI app you already pay for and costs nothing extra.
 
 == Screenshots ==
 

@@ -36,7 +36,11 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
             }
 
             if ( ! empty( $data ) ) {
-                wp_send_json( array('IsSuccess' => SurveyJS_Forms::update( $id, $data ) ? 1 : 0) );
+                $updated = SurveyJS_Forms::update( $id, $data );
+                if ( $updated && isset( $_POST['AiDraft'] ) ) {
+                    SurveyJS_AI_Drafts::discard( $id, sanitize_key( wp_unslash( $_POST['AiDraft'] ) ) );
+                }
+                wp_send_json( array('IsSuccess' => $updated ? 1 : 0) );
             }
         }
     }

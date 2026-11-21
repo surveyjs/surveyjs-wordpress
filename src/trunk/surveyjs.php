@@ -53,6 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         SurveyJS_Drafts::unschedule_cleanup();
         SurveyJS_Entries::unschedule_partial_cleanup();
         SurveyJS_Entry_Retention::unschedule();
+        SurveyJS_AI::revoke_all_connections();
     }
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
@@ -95,6 +96,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/ninja_forms_importer.php" );
     include( __DIR__ . "/fluent_forms_importer.php" );
     include( __DIR__ . "/gravity_forms_importer.php" );
+
+    include( __DIR__ . "/ai/drafts.php" );
+    include( __DIR__ . "/ai/abilities.php" );
+    include( __DIR__ . "/ai/chat.php" );
+    include( __DIR__ . "/ai/ai.php" );
+    SurveyJS_AI_Drafts::init();
+    SurveyJS_AI_Chat::init();
+    SurveyJS_AI::init();
 
     include( __DIR__ . "/drafts.php" );
     new SurveyJS_Drafts();

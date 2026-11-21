@@ -167,20 +167,7 @@ class SurveyJS_Templates {
     }
 
     public static function settings( $form = array(), $theme_mode = 'adaptive' ) {
-        $settings = array(
-            'notificationEnabled' => false,
-            'themeMode'           => $theme_mode,
-        );
-        foreach ( SurveyJS_Survey_Values::survey_questions( $form ) as $question ) {
-            $type = $question['type'] ?? '';
-            if ( empty( $settings['notificationReplyTo'] ) && 'text' === $type && 'email' === ( $question['inputType'] ?? '' ) ) {
-                $settings['notificationReplyTo'] = $question['name'];
-            }
-            if ( empty( $settings['notificationAttachments'] ) && 'file' === $type ) {
-                $settings['notificationAttachments'] = $question['name'];
-            }
-        }
-        return SurveyJS_Form_Settings::sanitize( $settings );
+        return SurveyJS_Form_Settings::for_new_form( $form, $theme_mode );
     }
 
     public static function create( $id, $name = '' ) {

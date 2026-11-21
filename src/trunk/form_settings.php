@@ -54,6 +54,23 @@ class SurveyJS_Form_Settings {
         );
     }
 
+    public static function for_new_form( $form = array(), $theme_mode = 'adaptive' ) {
+        $settings = array(
+            'notificationEnabled' => false,
+            'themeMode'           => $theme_mode,
+        );
+        foreach ( SurveyJS_Survey_Values::survey_questions( $form ) as $question ) {
+            $type = $question['type'] ?? '';
+            if ( empty( $settings['notificationReplyTo'] ) && 'text' === $type && 'email' === ( $question['inputType'] ?? '' ) ) {
+                $settings['notificationReplyTo'] = $question['name'];
+            }
+            if ( empty( $settings['notificationAttachments'] ) && 'file' === $type ) {
+                $settings['notificationAttachments'] = $question['name'];
+            }
+        }
+        return self::sanitize( $settings );
+    }
+
     public static function theme_modes() {
         return array( 'adaptive', 'surveyjs' );
     }

@@ -693,3 +693,33 @@ body.wp-sjs-editor-full-preview-open {
 .wp-sjs-editor-next .button-link {
     vertical-align: baseline;
 }
+
+.wp-sjs-editor__ai-notice .wp-sjs-editor__ai-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wp-sjs-editor__ai-notice .wp-sjs-editor__ai-alert {
+    color: #8a2424;
+}
+
+.wp-sjs-editor__ai-notice .wp-sjs-editor__ai-actions .button {
+    margin-right: 4px;
+}
+
+.wp-sjs-editor .form-table tr.wp-sjs-editor__ai-changed > th {
+    box-shadow: inset 3px 0 0 #dba617;
+    padding-left: 10px;
+}
+
+.wp-sjs-editor__tabs .nav-tab.wp-sjs-editor__tab--ai::after {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #dba617;
+    vertical-align: middle;
+}

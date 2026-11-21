@@ -164,7 +164,7 @@ JS
     }
 
     public static function steps() {
-        $forms = SurveyJS_Forms::all();
+        $forms = SurveyJS_AI_Drafts::without_unsaved_new_forms( SurveyJS_Forms::all() );
         $form_ids = array_map( 'intval', wp_list_pluck( $forms, 'id' ) );
         $latest_id = $form_ids ? $form_ids[0] : 0;
         $placement = self::find_placement( $form_ids );
