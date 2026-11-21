@@ -2,7 +2,7 @@
 /*
 Plugin Name: SurveyJS Forms
 Plugin URI: https://surveyjs.io/
-Description: Contact forms, surveys and quizzes powered by SurveyJS. Email notifications, auto-replies, file uploads and entries in WordPress — free.
+Description: AI form builder for contact forms, surveys and quizzes, powered by SurveyJS. Email notifications, auto-replies, file uploads, entries and an AI assistant — free.
 Version: 3.2.4
 Requires at least: 6.5
 Requires PHP: 8.2
