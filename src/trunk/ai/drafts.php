@@ -8,6 +8,10 @@ class SurveyJS_AI_Drafts {
     const META = '_sjs_ai_draft';
     const DISCARD_ACTION = 'surveyjs_ai_discard_draft';
     const HEARTBEAT_KEY = 'surveyjs_ai_draft';
+
+    // Who writes drafts in this request: "chat" while the editor's AI chat runs, "mcp" otherwise. The editor
+    // already shows the chat's changes itself, so only drafts from MCP apps get the "AI app changed this form" notice.
+    public static $source = 'mcp';
     const EMAIL_KEYS = array( 'notificationEnabled', 'notificationTo', 'notificationReplyTo', 'notificationAttachments', 'autoReplyEnabled', 'autoReplyAttachments' );
 
     public static function init() {
@@ -91,6 +95,7 @@ class SurveyJS_AI_Drafts {
         $draft = array_merge( $draft, array_map( 'strval', array_intersect_key( $changes, array_flip( array( 'name', 'json', 'theme', 'settings' ) ) ) ) );
         $draft['time'] = time();
         $draft['user'] = get_current_user_id();
+        $draft['source'] = self::$source;
         $draft['revision'] = self::revision( (object) $draft );
         update_post_meta( (int) $form->id, self::META, wp_slash( (string) wp_json_encode( $draft, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) ) );
         return $draft;
@@ -189,6 +194,7 @@ class SurveyJS_AI_Drafts {
             'revision' => $draft ? $draft['revision'] : '',
             'time'     => $draft ? self::time_text( $draft ) : '',
             'author'   => $draft ? self::author_name( $draft ) : '',
+            'source'   => $draft ? (string) ( $draft['source'] ?? 'mcp' ) : '',
         );
         return $response;
     }

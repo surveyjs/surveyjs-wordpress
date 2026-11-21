@@ -1914,7 +1914,7 @@
     }
 
     function onAiHeartbeat(state) {
-        if (aiBusy || !state.revision || state.revision === knownAiRevision || state.revision === dismissedAiRevision) return;
+        if (aiBusy || state.source === "chat" || !state.revision || state.revision === knownAiRevision || state.revision === dismissedAiRevision) return;
         const notice = element("div", "notice notice-warning inline wp-sjs-editor__ai-notice");
         notice.setAttribute("role", "alert");
         const title = element("p", "wp-sjs-editor__ai-title");

@@ -488,3 +488,16 @@
     margin-left: 8px;
     vertical-align: middle;
 }
+
+.wp-sjs-ai__billing-note {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    padding: 8px 12px;
+    border-left: 4px solid #dba617;
+    background: #fcf9e8;
+}
+
+.wp-sjs-ai__billing-note .dashicons {
+    color: #996800;
+}

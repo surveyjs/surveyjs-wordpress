@@ -160,6 +160,7 @@ class SurveyJS_AI {
             '- Before writing or changing form JSON, call surveyjs-get-json-guide once: it describes the SurveyJS JSON format for the SurveyJS version on this site. For anything it does not cover, call surveyjs-search-docs or surveyjs-find-api-docs.',
             '- For questions about the plugin itself (where a setting is, how to embed a form, emails, entries, restrictions), call surveyjs-get-plugin-guide.',
             '- To change a form, call surveyjs-get-form, edit the JSON and send the complete JSON to surveyjs-update-form with the revision you got.',
+            '- To create a form from a plugin template, call surveyjs-list-templates, read one with surveyjs-get-template, change its JSON as asked and pass it to surveyjs-create-form.',
             '- Emails, entry limits, schedule, login requirement, CAPTCHA, theme mode and other options are form settings: surveyjs-get-form-settings lists every key with its description, surveyjs-update-form-settings changes them.',
             '- Answer in the language of the user.',
         );

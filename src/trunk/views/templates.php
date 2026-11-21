@@ -146,6 +146,19 @@ class SurveyJS_Templates {
         return self::all()[ $id ] ?? null;
     }
 
+    public static function content( $id ) {
+        $template = self::find( $id );
+        if ( ! $template ) {
+            return null;
+        }
+        $theme = self::raw( $template, 'theme' );
+        return array(
+            'json'       => self::raw( $template, 'form' ),
+            'theme'      => $theme,
+            'theme_mode' => self::theme_mode( $template, $theme ),
+        );
+    }
+
     private static function category_labels() {
         $labels = include dirname( __DIR__ ) . '/templates/categories.php';
         return array( self::MINE => __( 'My Templates', 'surveyjs' ) ) + ( is_array( $labels ) ? $labels : array() );

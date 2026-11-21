@@ -1,20 +1,30 @@
 (function () {
     const { __, sprintf } = wp.i18n;
     const options = window.surveyjsAiChat;
-    const editor = window.surveyjsEditor;
-    const rootElement = document.querySelector(".wp-sjs-editor");
-    if (!options || !editor || !rootElement) return;
+    const siteMode = Boolean(options) && !options.formId;
+    const editor = siteMode ? null : window.surveyjsEditor;
+    const rootElement = document.querySelector(siteMode ? "#wpbody-content > .wrap" : ".wp-sjs-editor");
+    if (!options || (!siteMode && !editor) || !rootElement) return;
 
-    const OPEN_KEY = "surveyjs-ai-chat-open";
+    const OPEN_KEY = siteMode ? "surveyjs-ai-chat-site-open" : "surveyjs-ai-chat-open";
     const PROGRESS_MS = 1200;
     const SVG_NS = "http://www.w3.org/2000/svg";
-    const SUGGESTIONS = [
+    const SUGGESTIONS = siteMode ? [
+        __("Create a contact form with name, email and message", "surveyjs"),
+        __("Create an event registration form from a template and add a dietary needs question", "surveyjs"),
+        __("Where do I set up CAPTCHA?", "surveyjs"),
+        __("How do I put a form on a page?", "surveyjs")
+    ] : [
         __("Add a required phone number question", "surveyjs"),
         __("Make all questions required", "surveyjs"),
         __("Translate this form into German", "surveyjs"),
         __("Send new entries to sales@example.com", "surveyjs"),
         __("How do I put this form on a page?", "surveyjs")
     ];
+
+    function callEditor(method, ...args) {
+        return editor && editor[method] ? editor[method](...args) : undefined;
+    }
 
     let state = null;
     let messages = [];
@@ -70,11 +80,30 @@
             });
     }
 
+    function adminLink(label, url) {
+        let target = null;
+        try {
+            target = new URL(url, window.location.href);
+        } catch (error) {
+            return null;
+        }
+        if (target.origin !== window.location.origin || !target.pathname.includes("/wp-admin/")) return null;
+        const link = element("a", "", label);
+        link.href = target.href;
+        return link;
+    }
+
     function appendInline(parent, text) {
-        const pattern = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+        const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)\s]+\))/g;
         let last = 0;
         text.replace(pattern, (match, token, offset) => {
             if (offset > last) parent.append(text.slice(last, offset));
+            if (token.startsWith("[")) {
+                const parts = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+                parent.append(adminLink(parts[1], parts[2]) || parts[1]);
+                last = offset + token.length;
+                return match;
+            }
             parent.append(token.startsWith("**") ? element("strong", "", token.slice(2, -2)) : element("code", "", token.slice(1, -1)));
             last = offset + token.length;
             return match;
@@ -162,8 +191,19 @@
 
     panel.append(header, modelRow, log, status, composer);
     rootElement.append(panel);
-    const anchor = document.getElementById("wp-sjs-full-preview") || document.getElementById("wp-sjs-save");
-    if (anchor) anchor.before(toggle);
+    if (siteMode) {
+        toggle.className = "page-title-action wp-sjs-chat-toggle";
+        const actions = rootElement.querySelectorAll(".page-title-action");
+        const last = actions[actions.length - 1] || rootElement.querySelector("h1");
+        if (last) last.after(toggle);
+    } else {
+        const anchor = document.getElementById("wp-sjs-full-preview") || document.getElementById("wp-sjs-save");
+        if (anchor) anchor.before(toggle);
+    }
+
+    function billingLine(provider) {
+        return sprintf(__("Requests use your own API key and are billed by %s, not by SurveyJS.", "surveyjs"), provider);
+    }
 
     function updateCounter() {
         counter.textContent = sprintf(__("%1$d / %2$d", "surveyjs"), input.value.length, options.maxLength);
@@ -173,7 +213,9 @@
     function updatePrivacy() {
         privacy.replaceChildren();
         if (!state || !state.choice) return;
-        privacy.append(sprintf(__("Your message and this form's questions and settings go to %s under your API key; the provider bills each request. Form entries are never sent.", "surveyjs"), state.choice.providerName));
+        privacy.append(billingLine(state.choice.providerName) + " " + (siteMode
+            ? sprintf(__("Your message and the forms and settings the AI reads go to %s. Form entries are never sent.", "surveyjs"), state.choice.providerName)
+            : sprintf(__("Your message and this form's questions and settings go to %s. Form entries are never sent.", "surveyjs"), state.choice.providerName)));
     }
 
     function renderModels() {
@@ -204,7 +246,7 @@
         if (changes.removed.length) items.push(sprintf(__("Removed: %s", "surveyjs"), changes.removed.join(", ")));
         if (changes.survey) items.push(__("Form properties", "surveyjs"));
         if (changes.theme) items.push(__("Theme", "surveyjs"));
-        if (changes.settings.length) items.push(sprintf(__("Settings: %s", "surveyjs"), changes.settings.map(editor.settingLabel).join("; ")));
+        if (changes.settings.length) items.push(sprintf(__("Settings: %s", "surveyjs"), changes.settings.map((key) => callEditor("settingLabel", key) || key).join("; ")));
         return items;
     }
 
@@ -238,6 +280,28 @@
             }
             node.append(box);
         }
+        if (message.forms && message.forms.length) {
+            const box = element("div", "wp-sjs-chat__changes wp-sjs-chat__forms");
+            const heading = element("p", "wp-sjs-chat__changes-title");
+            heading.append(dashicon("edit"), __("Saved as drafts", "surveyjs"));
+            box.append(heading);
+            message.forms.forEach((form) => {
+                const row = element("p", "wp-sjs-chat__form");
+                const link = element("a", "button", sprintf(__("Open \"%s\" to review and click Save", "surveyjs"), form.name));
+                link.href = form.editUrl;
+                row.append(link);
+                if (form.created) row.append(" ", element("span", "wp-sjs-chat__hint", __("New form, not on the site until you save it.", "surveyjs")));
+                box.append(row);
+            });
+            if (message.forms.some((form) => form.created)) {
+                const reload = element("a", "", __("Reload the list of forms", "surveyjs"));
+                reload.href = window.location.href;
+                const reloadRow = element("p", "wp-sjs-chat__hint");
+                reloadRow.append(reload);
+                box.append(reloadRow);
+            }
+            node.append(box);
+        }
         const meta = element("div", "wp-sjs-chat__meta", message.role === "user" ? message.time : [message.model, message.time].filter(Boolean).join(" · "));
         node.append(meta);
         return node;
@@ -246,8 +310,14 @@
     function renderEmpty() {
         const box = element("div", "wp-sjs-chat__empty");
         box.append(sparkle());
-        box.append(element("p", "wp-sjs-chat__greeting", __("Tell me what to change in this form, or ask how to do something in SurveyJS Forms.", "surveyjs")));
-        box.append(element("p", "wp-sjs-chat__hint", __("I work on what you see in the editor, including unsaved edits. My changes show up here as a draft: you review them and click Save.", "surveyjs")));
+        if (siteMode) {
+            box.append(element("p", "wp-sjs-chat__greeting", __("Ask me to create a form, start one from a template, change a form or its settings, or ask how to do something in SurveyJS Forms.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__hint", __("Everything I create or change is saved as a draft: you open the form, review it and click Save. I can't put forms on pages, but I can tell you how.", "surveyjs")));
+        } else {
+            box.append(element("p", "wp-sjs-chat__greeting", __("Tell me what to change in this form, or ask how to do something in SurveyJS Forms.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__hint", __("I work on what you see in the editor, including unsaved edits. My changes show up here as a draft: you review them and click Save.", "surveyjs")));
+        }
+        if (state && state.choice) box.append(element("p", "wp-sjs-chat__billing", billingLine(state.choice.providerName)));
         const list = element("div", "wp-sjs-chat__suggestions");
         SUGGESTIONS.forEach((text) => list.append(button(text, "wp-sjs-chat__suggestion", () => {
             input.value = text;
@@ -355,7 +425,7 @@
 
     function setBusy(value, label) {
         busy = value;
-        editor.setAiBusy(value);
+        callEditor("setAiBusy", value);
         panel.classList.toggle("is-busy", value);
         input.disabled = value;
         modelSelect.disabled = value;
@@ -378,7 +448,7 @@
     function send(text) {
         text = text.trim();
         if (!text || busy) return;
-        const snapshot = editor.getSnapshot();
+        const snapshot = siteMode ? {} : callEditor("getSnapshot");
         if (!snapshot) {
             lastError = { message: __("Fix the JSON errors in the editor first: the AI works on what you see there.", "surveyjs") };
             render();
@@ -391,14 +461,14 @@
         setBusy(true);
         render();
         watchProgress(request);
-        post("send", { message: text, editor: JSON.stringify(snapshot), request: request })
+        post("send", siteMode ? { message: text, request: request } : { message: text, editor: JSON.stringify(snapshot), request: request })
             .then((data) => {
                 messages = data.messages;
-                if (data.changed) editor.applyAiDraft(data.draft);
+                if (data.changed) callEditor("applyAiDraft", data.draft);
             })
             .catch((error) => {
                 const data = error.data || {};
-                if (data.changed) editor.applyAiDraft(data.draft);
+                if (data.changed) callEditor("applyAiDraft", data.draft);
                 if (data.setup) {
                     load(true);
                     return;
@@ -417,13 +487,13 @@
 
     function undo(messageId, force, trigger) {
         if (busy) return;
-        if (!force && editor.hasEditsAfterAi() && !window.confirm(__("Undo also discards the edits you made in the editor after this AI change. Continue?", "surveyjs"))) return;
+        if (!force && callEditor("hasEditsAfterAi") && !window.confirm(__("Undo also discards the edits you made in the editor after this AI change. Continue?", "surveyjs"))) return;
         if (trigger) trigger.disabled = true;
         setBusy(true, __("Undoing…", "surveyjs"));
         post("undo", { message: messageId, force: force ? 1 : 0 })
             .then((data) => {
                 messages = data.messages;
-                editor.applyAiDraft(data.draft, data.editor);
+                callEditor("applyAiDraft", data.draft, data.editor);
                 lastError = null;
             })
             .catch((error) => {
@@ -470,7 +540,7 @@
         panel.hidden = !open;
         toggle.setAttribute("aria-expanded", String(open));
         toggle.classList.toggle("is-active", open);
-        rootElement.classList.toggle("wp-sjs-editor--chat-open", open);
+        rootElement.classList.toggle("wp-sjs-chat-open", open);
         remember(open);
         if (open) {
             if (!state && !loading) load(false);

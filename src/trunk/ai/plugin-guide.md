@@ -57,7 +57,7 @@ Entries work with Tools > Export Personal Data and Erase Personal Data. IP addre
 ## AI features
 
 - **MCP connection** (Settings > AI MCP): connects the user's own AI assistant (Claude, ChatGPT, Cursor, Claude Code, Codex, VS Code and others) to the site through the free MCP Adapter plugin. Off by default; read-only until "Enable MCP write access" is on.
-- **AI chat** (set up in Settings > AI Client; the "AI assistant" button in the form editor): needs WordPress 7.0 or later and an AI provider connected in Settings > Connectors with the user's own API key. Requests are billed by the provider.
+- **AI chat** (set up in Settings > AI Client; the "AI assistant" button on the forms list and in the form editor): needs WordPress 7.0 or later and an AI provider connected in Settings > Connectors with the user's own API key. Requests are billed by the AI provider, not by SurveyJS.
 - Every AI change is a draft: the live form changes only when the person reviews it in the editor and clicks Save. "Undo" in the chat reverts the last AI change; "Discard AI changes" drops the whole draft.
 
 ## Getting help

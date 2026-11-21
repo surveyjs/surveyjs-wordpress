@@ -49,11 +49,11 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
 }
 
 @media screen and (min-width: 961px) {
-    .wp-sjs-editor.wp-sjs-editor--chat-open {
+    .wp-sjs-chat-open {
         padding-right: 400px;
     }
 
-    .wp-sjs-editor.wp-sjs-editor--chat-open.wp-sjs-pro-fullscreen {
+    .wp-sjs-editor.wp-sjs-chat-open.wp-sjs-pro-fullscreen {
         padding-right: 416px;
     }
 }
@@ -418,7 +418,31 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
     line-height: 1.4;
 }
 
-.wp-sjs-editor--chat-open .wp-sjs-editor__tabs {
+.wp-sjs-chat-open .wp-sjs-editor__tabs {
     flex-wrap: wrap;
     row-gap: 6px;
+}
+
+.wp-sjs-chat-toggle.page-title-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wp-sjs-chat__billing {
+    margin-top: 12px;
+    color: #50575e;
+    font-size: 12px;
+}
+
+.wp-sjs-chat__form {
+    margin: 0 0 6px;
+}
+
+.wp-sjs-chat__form .button {
+    white-space: normal;
+    height: auto;
+    line-height: 1.4;
+    padding: 4px 10px;
+    text-align: left;
 }
