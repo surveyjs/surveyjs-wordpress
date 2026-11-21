@@ -1,4 +1,4 @@
-=== SurveyJS Forms - AI Form Builder: Contact Forms, Surveys, Quizzes & More ===
+=== SurveyJS Forms - AI, Contact Forms, Form Builder, Surveys, Quizzes & More ===
 Contributors: devsoftbaltic
 Tags: contact form, form builder, ai, survey, quiz
 Requires at least: 6.5
@@ -6,11 +6,11 @@ Tested up to: 7.1
 Stable tag: 3.2.4
 Requires PHP: 8.2
 
-AI form builder for contact forms, surveys and quizzes, powered by SurveyJS. Email notifications, file uploads, entries and an AI assistant — free.
+Contact forms, surveys and quizzes powered by SurveyJS, with an AI assistant. Email notifications, file uploads and entries — free.
 
 == Description ==
 
-SurveyJS is an **AI form builder** for **contact forms, surveys, quizzes and multi-page forms** of any complexity: build a form yourself, start from a template or just ask AI to build it for you, then add it to any page with a block or a shortcode. Forms run on the open-source SurveyJS Form Library.
+SurveyJS is a form builder for **contact forms, surveys, quizzes and multi-page forms** of any complexity: build a form yourself, start from a template or just ask AI to build it for you, then add it to any page with a block or a shortcode. Forms run on the open-source SurveyJS Form Library.
 
 = Use SurveyJS with your favorite AI =
 Build and change forms by simply asking: "Create a contact form with name, email and message", "Make the phone question required", "Send entries to sales@example.com", "Close the form after 100 entries", "How do I put this form on a page?". Two ways, each on its own tab of SurveyJS Forms > Settings:
