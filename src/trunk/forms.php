@@ -131,7 +131,8 @@ class SurveyJS_Forms {
         if ( isset( $fields['json'] ) ) {
             $postarr['post_content'] = (string) $fields['json'];
         }
-        if ( count( $postarr ) > 1 && ! self::save( $postarr ) ) {
+        // Saved even when only post meta changes, so post_modified (the "Last modified" column) moves too.
+        if ( ! self::save( $postarr ) ) {
             return false;
         }
         self::save_meta( $id, $fields );

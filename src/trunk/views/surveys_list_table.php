@@ -27,6 +27,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             $columns['views'] = __( 'Views', 'surveyjs' );
             $columns['conversion'] = __( 'Conversion', 'surveyjs' );
         }
+        $columns['modified'] = __( 'Last modified', 'surveyjs' );
         return $columns;
     }
 
@@ -36,6 +37,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             'results'    => array( 'results', true ),
             'views'      => array( 'views', true ),
             'conversion' => array( 'conversion', true ),
+            'modified'   => array( 'modified', true, '', '', 'desc' ),
         );
     }
 
@@ -51,12 +53,18 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         global $wpdb;
 
         $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
-        $orderby_columns = array( 'name' => 'name', 'results' => 'results' );
+        $orderby_columns = array( 'name' => 'name', 'results' => 'results', 'modified' => 'modified_gmt' );
         if ( SurveyJS_Form_Stats::enabled() ) {
             $orderby_columns += array( 'views' => 'views', 'conversion' => 'conversion_rate' );
         }
-        $orderby = $orderby_columns[ sanitize_key( $_REQUEST['orderby'] ?? '' ) ] ?? 'id';
-        $order = 'desc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'DESC' : 'ASC';
+        $requested = sanitize_key( $_REQUEST['orderby'] ?? '' );
+        if ( isset( $orderby_columns[ $requested ] ) ) {
+            $orderby = $orderby_columns[ $requested ];
+            $order = 'desc' === sanitize_key( $_REQUEST['order'] ?? '' ) ? 'DESC' : 'ASC';
+        } else {
+            $orderby = 'modified_gmt';
+            $order = 'DESC';
+        }
 
         $like = '%' . $wpdb->esc_like( $search ) . '%';
 
@@ -70,14 +78,14 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
         $entries = SurveyJS_Entries::table();
         $this->items = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.ID AS id, p.post_title AS name, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results,
+            "SELECT p.ID AS id, p.post_title AS name, p.post_modified_gmt AS modified_gmt, COUNT(r.id) AS entries, SUM(CASE WHEN r.status NOT IN ( 'spam', 'partial' ) THEN 1 ELSE 0 END) AS results,
                 COALESCE( MAX(s.views), 0 ) AS views, COALESCE( MAX(s.submissions), 0 ) AS submissions, MAX(s.submissions) / NULLIF( MAX(s.views), 0 ) AS conversion_rate
             FROM {$wpdb->posts} p
             LEFT JOIN %i r ON r.form_id = p.ID
             LEFT JOIN ( SELECT form_id, SUM(views) AS views, SUM(submissions) AS submissions FROM %i GROUP BY form_id ) s ON s.form_id = p.ID
             WHERE p.post_type = %s AND p.post_status = 'publish' AND ( %s = '' OR p.post_title LIKE %s )
-            GROUP BY p.ID, p.post_title
-            ORDER BY " . sanitize_sql_orderby( $orderby . ' ' . $order ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
+            GROUP BY p.ID, p.post_title, p.post_modified_gmt
+            ORDER BY " . sanitize_sql_orderby( "$orderby $order, id $order" ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
             ' LIMIT %d OFFSET %d',
             $entries,
             SurveyJS_Form_Stats::table(),
@@ -168,6 +176,23 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             number_format_i18n( (int) $item->views )
         );
         return sprintf( '<span title="%s">%s</span>', esc_attr( $title ), esc_html( SurveyJS_Form_Stats::format_conversion( (int) $item->views, (int) $item->submissions ) ) );
+    }
+
+    protected function column_modified( $item ) {
+        if ( empty( $item->modified_gmt ) || '0000-00-00 00:00:00' === $item->modified_gmt ) {
+            return '&mdash;';
+        }
+        $timestamp = strtotime( $item->modified_gmt . ' UTC' );
+        return sprintf(
+            '<time datetime="%s">%s</time>',
+            esc_attr( gmdate( 'c', $timestamp ) ),
+            esc_html( sprintf(
+                /* translators: 1: date, 2: time */
+                __( '%1$s at %2$s', 'surveyjs' ),
+                wp_date( get_option( 'date_format' ), $timestamp ),
+                wp_date( get_option( 'time_format' ), $timestamp )
+            ) )
+        );
     }
 
     public static function page_url( $page, $args = array() ) {

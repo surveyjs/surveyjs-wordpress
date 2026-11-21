@@ -5,6 +5,7 @@ test.describe("survey list", () => {
   let name;
 
   test.afterEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1400, height: 900 });
     await deleteSurveys(page, name);
   });
 
@@ -58,12 +59,49 @@ test.describe("survey list", () => {
     await expect(page.locator(".notice-success")).toContainText("Form duplicated.");
 
     await page.goto(listUrl(name));
-    await expect(page.locator("#the-list .row-title")).toHaveText([name, `Copy of ${name}`]);
+    await expect(page.locator("#the-list .row-title")).toHaveText([`Copy of ${name}`, name]);
 
     await page.locator("#the-list .row-title", { hasText: `Copy of ${name}` }).click();
     await expect(page.frameLocator("#wp-sjs-preview").getByText("What is your name?")).toBeVisible();
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     expect(await page.evaluate(() => window.monaco.editor.getEditors()[0].getValue())).toContain("e2e-theme");
+  });
+
+  test("shows the last modified date and sorts by it", async ({ page }) => {
+    name = uniqueName("E2E modified");
+    const first = `${name} first`;
+    const second = `${name} second`;
+    const firstId = await createSurvey(page, first);
+    await createSurvey(page, second);
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${firstId}`);
+    await expect(page.locator(".monaco-editor")).toBeVisible();
+    await saveSurvey(page);
+
+    await page.goto(listUrl(name));
+    const titles = page.locator("#the-list .row-title");
+    await expect(titles).toHaveText([first, second]);
+    const cell = page.locator("#the-list tr", { hasText: first }).locator("td.column-modified");
+    await expect(cell).toContainText(" at ");
+    expect(Date.parse(await cell.locator("time").getAttribute("datetime"))).toBeGreaterThan(Date.now() - 10 * 60 * 1000);
+
+    const header = page.locator("thead th#modified");
+    await expect(header).toHaveClass(/sorted desc/);
+    await expect(header).toContainText("Last modified");
+    await header.locator("a").click();
+    await expect(page).toHaveURL(/orderby=modified&order=asc/);
+    await expect(titles).toHaveText([second, first]);
+
+    await page.locator("thead th#modified a").click();
+    await expect(page).toHaveURL(/orderby=modified&order=desc/);
+    await expect(titles).toHaveText([first, second]);
+
+    await page.setViewportSize({ width: 375, height: 800 });
+    const row = page.locator("#the-list tr", { hasText: first });
+    await expect(page.locator("thead th#modified")).toBeHidden();
+    await expect(row.locator("td.column-modified")).toBeHidden();
+    await row.locator("button.toggle-row").last().click();
+    await expect(row.locator("td.column-modified")).toBeVisible();
+    await expect(row.locator("td.column-modified")).toHaveAttribute("data-colname", "Last modified");
   });
 
   test("deletes a survey", async ({ page }) => {
