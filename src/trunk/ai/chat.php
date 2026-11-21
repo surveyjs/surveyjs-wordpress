@@ -261,7 +261,8 @@ class SurveyJS_AI_Chat {
             if ( 'inputModalities' !== ( $option['name'] ?? '' ) || ! is_array( $option['supportedValues'] ?? null ) ) {
                 continue;
             }
-            foreach ( $option['supportedValues'] as $combination ) {
+            // The values are ModalityEnum objects; JSON encoding turns them into their string values.
+            foreach ( (array) json_decode( (string) wp_json_encode( $option['supportedValues'] ), true ) as $combination ) {
                 $combination = (array) $combination;
                 if ( in_array( 'text', $combination, true ) ) {
                     $kinds = array_merge( $kinds, array_intersect( $combination, array_keys( self::FILE_TYPES ) ) );
