@@ -7,25 +7,40 @@
     const rootElement = document.querySelector(siteMode ? "#wpbody-content > .wrap" : ".wp-sjs-editor");
     if (!options || (!siteMode && !editor) || !rootElement) return;
 
+    const context = (options && options.context) || {};
+    const screen = context.screen || "forms";
+    const entriesScreen = screen === "results" || screen === "dashboard";
     const OPEN_KEY = "surveyjs-ai-chat-" + mode + "-open";
     const PROGRESS_MS = 1200;
     const SVG_NS = "http://www.w3.org/2000/svg";
     function suggestions() {
         const entries = Boolean(state && state.entries);
-        if (mode === "results") {
+        if (entriesScreen) {
             return entries ? [
-                __("Summarize the latest entries", "surveyjs"),
-                __("What are the most common answers to each question?", "surveyjs"),
-                __("Compare this month's entries with last month's", "surveyjs"),
-                __("How do I export entries to CSV?", "surveyjs")
+                __("Summarize entries for the last 30 days", "surveyjs"),
+                __("Which form gets the most entries?", "surveyjs"),
+                __("Find common themes in answers", "surveyjs")
             ] : [
                 __("How do I export entries to CSV?", "surveyjs"),
                 __("How do I find entries from last week?", "surveyjs"),
-                __("How do I download an entry as a PDF?", "surveyjs"),
+                __("How do I download an entry as a PDF?", "surveyjs")
+            ];
+        }
+        if (screen === "welcome") {
+            return [
+                __("What can this plugin do?", "surveyjs"),
+                __("Create my first form", "surveyjs"),
+                __("How do I put a form on a page?", "surveyjs")
+            ];
+        }
+        if (screen === "settings") {
+            return [
+                __("Where do I set up CAPTCHA?", "surveyjs"),
+                __("Explain this setting", "surveyjs"),
                 __("How do I delete old entries automatically?", "surveyjs")
             ];
         }
-        if (mode === "site") {
+        if (siteMode) {
             return [
                 __("Create a contact form with name, email and message", "surveyjs"),
                 __("Create an event registration form from a template and add a dietary needs question", "surveyjs"),
@@ -87,7 +102,8 @@
     }
 
     function post(action, data, extra) {
-        const fields = Object.assign({ action: "surveyjs_ai_chat_" + action, _ajax_nonce: options.nonce, id: options.formId, mode: mode }, data);
+        const where = siteMode ? { context_page: context.page || "", context_tab: context.tab || "", context_form: context.form || 0, context_view: context.view || "" } : {};
+        const fields = Object.assign({ action: "surveyjs_ai_chat_" + action, _ajax_nonce: options.nonce, id: options.formId }, where, data);
         let body = new URLSearchParams(fields);
         if (extra && extra.files && extra.files.length) {
             body = new FormData();
@@ -205,7 +221,7 @@
     input.id = "wp-sjs-chat-input";
     input.rows = 3;
     input.maxLength = options.maxLength;
-    input.placeholder = mode === "results" ? __("Ask about the entries or how to work with them…", "surveyjs") : __("Ask for a change or ask a question…", "surveyjs");
+    input.placeholder = entriesScreen ? __("Ask about the entries or how to work with them…", "surveyjs") : __("Ask for a change or ask a question…", "surveyjs");
     input.setAttribute("aria-label", __("Message to the AI assistant", "surveyjs"));
     const counter = element("span", "wp-sjs-chat__counter");
     const sendButton = element("button", "button button-primary wp-sjs-chat__send", __("Send", "surveyjs"));
@@ -238,13 +254,16 @@
     panel.append(header, modelRow, log, status, composer);
     rootElement.append(panel);
     const starters = document.querySelectorAll("[data-sjs-ai-start]");
-    if (starters.length) {
-        toggle.hidden = true;
-    } else if (siteMode) {
+    if (siteMode) {
         toggle.className = "page-title-action wp-sjs-chat-toggle";
         const actions = rootElement.querySelectorAll(".page-title-action");
-        const last = actions[actions.length - 1] || rootElement.querySelector("h1");
+        const heading = rootElement.querySelector("h1, h2");
+        if (!actions.length && heading) heading.classList.add("wp-heading-inline");
+        const last = actions[actions.length - 1] || heading;
         if (last) last.after(toggle);
+        else rootElement.prepend(toggle);
+        // WordPress moves admin notices below .wp-header-end, or right below the first heading when there is none.
+        if (!rootElement.querySelector(".wp-header-end")) toggle.after(element("hr", "wp-header-end"));
     } else {
         const anchor = document.getElementById("wp-sjs-full-preview") || document.getElementById("wp-sjs-save");
         if (anchor) anchor.before(toggle);
@@ -517,10 +536,12 @@
     function renderEmpty() {
         const box = element("div", "wp-sjs-chat__empty");
         box.append(sparkle());
-        if (mode === "results") {
+        if (entriesScreen) {
             box.append(element("p", "wp-sjs-chat__greeting", state && state.entries
-                ? __("Ask me about the entries of this form: summaries, common answers, trends, or how to export and filter them.", "surveyjs")
-                : __("Ask me how to export, filter or download entries, or how to set up this form.", "surveyjs")));
+                ? (screen === "dashboard"
+                    ? __("Ask me about the entries of all your forms: which forms get the most entries, trends, summaries and common answers.", "surveyjs")
+                    : __("Ask me about the entries of this form: summaries, common answers, trends, or how to export and filter them.", "surveyjs"))
+                : __("Ask me how to export, filter or download entries, or how to set up your forms.", "surveyjs")));
             if (!(state && state.entries)) {
                 const hint = element("p", "wp-sjs-chat__hint", __("I can't read the entries: reading them is turned off. ", "surveyjs"));
                 const link = element("a", "", __("Allow the AI chat to read entries", "surveyjs"));
@@ -528,6 +549,12 @@
                 hint.append(link);
                 box.append(hint);
             }
+        } else if (screen === "welcome") {
+            box.append(element("p", "wp-sjs-chat__greeting", __("Ask me what SurveyJS Forms can do, or let me create your first form from your description or a template.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__hint", __("Everything I create or change is saved as a draft: you open the form, review it and click Save.", "surveyjs")));
+        } else if (screen === "settings") {
+            box.append(element("p", "wp-sjs-chat__greeting", __("Ask me what a setting does or where to find it. I can't see this screen, so name the setting you mean.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__hint", __("I never get your keys and passwords: CAPTCHA secret keys, the license key and AI provider keys stay on the site.", "surveyjs")));
         } else if (siteMode) {
             box.append(element("p", "wp-sjs-chat__greeting", __("Ask me to create a form, start one from a template, change a form or its settings, or ask how to do something in SurveyJS Forms.", "surveyjs")));
             box.append(element("p", "wp-sjs-chat__hint", __("Everything I create or change is saved as a draft: you open the form, review it and click Save. I can't put forms on pages, but I can tell you how.", "surveyjs")));
@@ -823,7 +850,7 @@
             if (!state && !loading) load(false);
             setTimeout(() => (composer.hidden ? close : input).focus(), 0);
         } else {
-            (starters.length ? starters[0] : toggle).focus();
+            toggle.focus();
         }
         window.dispatchEvent(new Event("resize"));
     }
@@ -893,5 +920,5 @@
     } catch (error) {
         reopen = false;
     }
-    if (reopen && !starters.length) setOpen(true);
+    if (reopen) setOpen(true);
 })();

@@ -429,6 +429,11 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
     gap: 4px;
 }
 
+.wrap > h2.wp-heading-inline {
+    display: inline-block;
+    margin-right: 5px;
+}
+
 .wp-sjs-chat__billing {
     margin-top: 12px;
     color: #50575e;

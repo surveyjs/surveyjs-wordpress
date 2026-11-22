@@ -18,7 +18,11 @@ class SurveyJS_AI_Abilities {
     private static $chat_form_id = 0;
     private static $written = array();
     private static $entries_read = false;
-    const ENTRY_ABILITIES = array( 'surveyjs/list-entries', 'surveyjs/get-entry', 'surveyjs/summarize-entries' );
+    const ENTRY_ABILITIES = array( 'surveyjs/count-entries', 'surveyjs/list-entries', 'surveyjs/get-entry', 'surveyjs/summarize-entries' );
+    const COUNT_MAX_ROWS = 2000;
+    const HIDDEN = '[hidden]';
+    const UNREDACTED_KEYS = array( 'json', 'theme' );
+    private static $secrets = null;
     // Files and signatures uploaded by visitors and passwords never go to an AI.
     const HIDDEN_ENTRY_TYPES = array( 'file', 'signaturepad' );
     const ENTRY_TEXT_LIMIT = 1000;
@@ -63,6 +67,12 @@ class SurveyJS_AI_Abilities {
                 return $refusal ? $refusal : call_user_func_array( $callback, $arguments );
             };
         }
+        if ( isset( $args['execute_callback'] ) ) {
+            $execute = $args['execute_callback'];
+            $args['execute_callback'] = function ( ...$arguments ) use ( $execute ) {
+                return self::redact( call_user_func_array( $execute, $arguments ) );
+            };
+        }
         return wp_register_ability( $name, array_merge(
             array(
                 'category'            => SurveyJS_AI::CATEGORY,
@@ -75,6 +85,64 @@ class SurveyJS_AI_Abilities {
 
     public static function can_manage() {
         return current_user_can( SurveyJS_SurveyJS::CAPABILITY );
+    }
+
+    // No function returns the site's secrets today; this keeps it so if one ever reads them by mistake.
+    // Form and theme JSON are left as they are, because the AI writes them back whole with update-form.
+    public static function redact( $value ) {
+        if ( is_string( $value ) ) {
+            $secrets = self::secret_values();
+            return $secrets ? str_replace( $secrets, self::HIDDEN, $value ) : $value;
+        }
+        if ( is_array( $value ) ) {
+            foreach ( $value as $item_key => $item ) {
+                $value[ $item_key ] = in_array( $item_key, self::UNREDACTED_KEYS, true ) ? $item : self::redact( $item );
+            }
+        } elseif ( $value instanceof stdClass ) {
+            foreach ( get_object_vars( $value ) as $item_key => $item ) {
+                $value->$item_key = in_array( $item_key, self::UNREDACTED_KEYS, true ) ? $item : self::redact( $item );
+            }
+        }
+        return $value;
+    }
+
+    public static function has_hidden( $value ) {
+        return false !== strpos( is_string( $value ) ? $value : (string) wp_json_encode( $value ), self::HIDDEN );
+    }
+
+    private static function hidden_error() {
+        return new WP_Error( 'surveyjs_hidden_value', 'The input contains ' . self::HIDDEN . ', which only stands for a secret you were not shown. Nothing was changed. Send the real value from the person, or leave that part out.' );
+    }
+
+    private static function secret_values() {
+        if ( null !== self::$secrets ) {
+            return self::$secrets;
+        }
+        $values = array( SurveyJS_Captcha::settings()['secretKey'] );
+        foreach ( function_exists( 'wp_get_connectors' ) ? (array) wp_get_connectors() : array() as $connector ) {
+            $auth = is_array( $connector['authentication'] ?? null ) ? $connector['authentication'] : array();
+            if ( ! empty( $auth['setting_name'] ) ) {
+                $values[] = get_option( $auth['setting_name'], '' );
+            }
+            if ( ! empty( $auth['constant_name'] ) && defined( $auth['constant_name'] ) ) {
+                $values[] = constant( $auth['constant_name'] );
+            }
+            if ( ! empty( $auth['env_var_name'] ) ) {
+                $values[] = getenv( $auth['env_var_name'] );
+            }
+        }
+        foreach ( array( 'WPMS_SMTP_PASS', 'SMTP_PASS', 'SMTP_PASSWORD' ) as $constant ) {
+            if ( defined( $constant ) ) {
+                $values[] = constant( $constant );
+            }
+        }
+        $values = (array) apply_filters( 'surveyjs_ai_secret_values', $values );
+        self::$secrets = array_values( array_unique( array_filter( array_map( function ( $value ) {
+            return is_scalar( $value ) ? trim( (string) $value ) : '';
+        }, $values ), function ( $value ) {
+            return strlen( $value ) >= 8;
+        } ) ) );
+        return self::$secrets;
     }
 
     // A form ID limits the chat in the form editor to that form; CHAT_ALL_FORMS is the chat on the forms list.
@@ -391,6 +459,29 @@ class SurveyJS_AI_Abilities {
                 'description' => 'Only entries submitted on or before this date (YYYY-MM-DD, site time zone).',
             ),
         );
+        self::register_ability( 'surveyjs/count-entries', array(
+            'label'            => __( 'Count form entries', 'surveyjs' ),
+            'description'      => 'Counts entries (responses) per form, for all forms or one form, optionally per day, week or month. Returns only numbers and form names: no answers and no personal data. Use it to compare forms and periods, see trends and answer questions like "which form gets the most entries". Read-only. Works only while the site owner allows AI to read entries.',
+            'input_schema'     => array(
+                'type'       => 'object',
+                'properties' => array_merge( $entry_filters, array(
+                    'form_id'  => array(
+                        'type'        => 'integer',
+                        'minimum'     => 1,
+                        'description' => 'Only this form. Leave out for all forms.',
+                    ),
+                    'group_by' => array(
+                        'type'        => 'string',
+                        'enum'        => array( 'none', 'day', 'week', 'month' ),
+                        'description' => 'none (default): one count per form; day, week or month: counts per period in the site time zone.',
+                    ),
+                ) ),
+                'default'    => array(),
+            ),
+            'execute_callback' => array( __CLASS__, 'count_entries_by_form' ),
+            'meta'             => $readonly,
+        ) );
+
         self::register_ability( 'surveyjs/list-entries', array(
             'label'            => __( 'List form entries', 'surveyjs' ),
             'description'      => 'Lists entries (responses) of a form, newest first, with their answers, page by page. Read-only: entries can\'t be changed, deleted or exported here. Uploaded files, signatures and passwords are never included; long answers are shortened. Works only while the site owner allows AI to read entries. ' . self::ENTRY_NOTICE,
@@ -530,6 +621,76 @@ class SurveyJS_AI_Abilities {
             AND ( %s = '' OR created_at >= NULLIF( %s, '' ) ) AND ( %s = '' OR created_at < NULLIF( %s, '' ) )",
             array_merge( array( SurveyJS_Entries::table(), (int) $form_id ), $statuses, array( $after, $after, $before, $before ) )
         ) );
+    }
+
+    public static function count_entries_by_form( $input ) {
+        global $wpdb;
+        $refusal = self::entries_refusal();
+        if ( $refusal ) {
+            return $refusal;
+        }
+        $input = is_array( $input ) ? $input : array();
+        $form_id = absint( $input['form_id'] ?? 0 );
+        if ( $form_id && ! SurveyJS_Forms::find( $form_id ) ) {
+            return self::find_form( $form_id );
+        }
+        $formats = array(
+            'day'   => '%Y-%m-%d',
+            'week'  => '%x-W%v',
+            'month' => '%Y-%m',
+        );
+        $group = (string) ( $input['group_by'] ?? 'none' );
+        $group = isset( $formats[ $group ] ) ? $group : 'none';
+        $args = self::entry_args( $input );
+        $statuses = (array) $args['status'];
+        $after = (string) ( $args['after'] ?? '' );
+        $before = (string) ( $args['before'] ?? '' );
+        $offset = (int) wp_timezone()->getOffset( new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) ) );
+        // A format without % gives the same text for every row, so 'none' groups by form only.
+        $rows = $wpdb->get_results( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- an aggregate with the same filters as SurveyJS_Entries::query(), see count_entries().
+            'SELECT form_id, DATE_FORMAT( DATE_ADD( created_at, INTERVAL %d SECOND ), %s ) AS period, COUNT(*) AS entries FROM %i
+            WHERE status IN ( ' . implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) . " )
+            AND ( %d = 0 OR form_id = %d )
+            AND ( %s = '' OR created_at >= NULLIF( %s, '' ) ) AND ( %s = '' OR created_at < NULLIF( %s, '' ) )
+            GROUP BY form_id, period ORDER BY period LIMIT %d",
+            array_merge(
+                array( $offset, $formats[ $group ] ?? 'all', SurveyJS_Entries::table() ),
+                $statuses,
+                array( $form_id, $form_id, $after, $after, $before, $before, self::COUNT_MAX_ROWS + 1 )
+            )
+        ) );
+        $forms = array();
+        foreach ( SurveyJS_Forms::names() as $form ) {
+            if ( ! $form_id || (int) $form->id === $form_id ) {
+                $forms[ (int) $form->id ] = array(
+                    'id'      => (int) $form->id,
+                    'name'    => (string) $form->name,
+                    'entries' => 0,
+                );
+            }
+        }
+        foreach ( array_slice( (array) $rows, 0, self::COUNT_MAX_ROWS ) as $row ) {
+            $id = (int) $row->form_id;
+            if ( ! isset( $forms[ $id ] ) ) {
+                continue;
+            }
+            $forms[ $id ]['entries'] += (int) $row->entries;
+            if ( 'none' !== $group ) {
+                $forms[ $id ]['periods'][ (string) $row->period ] = (int) $row->entries;
+            }
+        }
+        usort( $forms, function ( $a, $b ) {
+            return $b['entries'] - $a['entries'];
+        } );
+        return array(
+            'total'    => array_sum( array_column( $forms, 'entries' ) ),
+            'group_by' => $group,
+            'from'     => (string) ( $input['from'] ?? '' ),
+            'to'       => (string) ( $input['to'] ?? '' ),
+            'forms'    => $forms,
+            'note'     => count( (array) $rows ) > self::COUNT_MAX_ROWS ? 'Too many periods: only part of them is counted. Use a shorter date range or group by week or month.' : '',
+            'notice'   => self::DATA_NOTICE,
+        );
     }
 
     public static function list_entries( $input ) {
@@ -716,7 +877,8 @@ class SurveyJS_AI_Abilities {
                 'ai_mcp'      => SurveyJS_AI::tab_url(),
                 'ai_client'   => SurveyJS_AI_Chat::tab_url(),
                 'connectors'  => admin_url( 'options-connectors.php' ),
-            ),
+                'getting_started' => admin_url( 'admin.php?page=surveyjs-getting-started' ),
+            ) + (array) apply_filters( 'surveyjs_ai_admin_urls', array() ),
         );
     }
 
@@ -931,6 +1093,9 @@ class SurveyJS_AI_Abilities {
         if ( '' === $name ) {
             return new WP_Error( 'surveyjs_invalid_name', 'The form name is empty.' );
         }
+        if ( self::has_hidden( $name ) ) {
+            return self::hidden_error();
+        }
         $live_settings = SurveyJS_Form_Settings::for_new_form();
         $id = SurveyJS_Forms::create( array(
             'name'     => $name,
@@ -988,6 +1153,9 @@ class SurveyJS_AI_Abilities {
             $name = sanitize_text_field( (string) $input['name'] );
             if ( '' === $name ) {
                 return new WP_Error( 'surveyjs_invalid_name', 'The form name is empty.' );
+            }
+            if ( self::has_hidden( $name ) ) {
+                return self::hidden_error();
             }
             $changes['name'] = $name;
         }
@@ -1082,6 +1250,8 @@ class SurveyJS_AI_Abilities {
                 $ignored[ $key ] = 'unknown setting';
             } elseif ( in_array( $key, $read_only, true ) ) {
                 $ignored[ $key ] = 'read-only: a person changes it in the form editor';
+            } elseif ( self::has_hidden( $value ) ) {
+                $ignored[ $key ] = 'contains ' . self::HIDDEN . ', which only stands for a secret you were not shown; the setting was not changed';
             } else {
                 $accepted[ $key ] = $value;
             }
@@ -1212,6 +1382,9 @@ class SurveyJS_AI_Abilities {
         if ( strlen( $text ) > self::MAX_JSON_BYTES ) {
             return new WP_Error( 'surveyjs_json_too_large', 'The JSON is larger than 1 MB.' );
         }
+        if ( self::has_hidden( $text ) ) {
+            return self::hidden_error();
+        }
         return array(
             'text'     => self::kses( $text ),
             'warnings' => $warnings,
@@ -1235,6 +1408,9 @@ class SurveyJS_AI_Abilities {
         $text = (string) wp_json_encode( $input['theme'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
         if ( strlen( $text ) > self::MAX_JSON_BYTES ) {
             return new WP_Error( 'surveyjs_json_too_large', 'The theme JSON is larger than 1 MB.' );
+        }
+        if ( self::has_hidden( $text ) ) {
+            return self::hidden_error();
         }
         return self::kses( $text );
     }
