@@ -368,6 +368,7 @@ class SurveyJS_Templates {
                                     <button type="submit" name="template" value="<?php echo esc_attr( self::BLANK ); ?>" class="button button-primary"><?php esc_html_e( 'Create blank form', 'surveyjs' ); ?></button>
                                 </div>
                             </li>
+                            <?php SurveyJS_AI_Chat::render_template_tile(); ?>
                             <?php foreach ( $templates as $id => $template ) : ?>
                                 <?php
                                 $labels = array_map( function ( $slug ) use ( $categories ) {

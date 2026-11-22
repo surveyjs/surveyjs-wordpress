@@ -153,6 +153,18 @@
     background: #f6f7f7;
 }
 
+.wp-sjs-template--ai {
+    border-style: dashed;
+    border-color: var(--wp-admin-theme-color, #2271b1);
+    background: #f0f6fc;
+}
+
+.wp-sjs-template__ai-icon {
+    width: 36px;
+    height: 36px;
+    fill: var(--wp-admin-theme-color, #2271b1);
+}
+
 .wp-sjs-template--blank .wp-sjs-template__thumbnail .dashicons {
     width: 32px;
     height: 32px;

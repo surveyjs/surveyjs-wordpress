@@ -46,6 +46,7 @@
     }
 
     let state = null;
+    let intro = false;
     let messages = [];
     let busy = false;
     let loading = null;
@@ -236,7 +237,10 @@
 
     panel.append(header, modelRow, log, status, composer);
     rootElement.append(panel);
-    if (siteMode) {
+    const starters = document.querySelectorAll("[data-sjs-ai-start]");
+    if (starters.length) {
+        toggle.hidden = true;
+    } else if (siteMode) {
         toggle.className = "page-title-action wp-sjs-chat-toggle";
         const actions = rootElement.querySelectorAll(".page-title-action");
         const last = actions[actions.length - 1] || rootElement.querySelector("h1");
@@ -491,6 +495,25 @@
         return node;
     }
 
+    function renderIntro() {
+        const node = element("div", "wp-sjs-chat__message is-assistant wp-sjs-chat__intro");
+        const bubble = element("div", "wp-sjs-chat__bubble");
+        bubble.append(element("p", "", __("What form do you want to create? Describe it in your own words. I can find a ready-made template, adapt a template or build a new form from scratch.", "surveyjs")));
+        node.append(bubble);
+        const list = element("div", "wp-sjs-chat__suggestions");
+        [
+            __("Find a ready-made template for a customer feedback survey", "surveyjs"),
+            __("Take the event registration template and add a question about dietary needs", "surveyjs"),
+            __("Create a new job application form with name, email, a CV upload and a cover letter", "surveyjs")
+        ].forEach((text) => list.append(button(text, "wp-sjs-chat__suggestion", () => {
+            input.value = text;
+            updateCounter();
+            input.focus();
+        })));
+        node.append(list);
+        return node;
+    }
+
     function renderEmpty() {
         const box = element("div", "wp-sjs-chat__empty");
         box.append(sparkle());
@@ -588,8 +611,9 @@
             return;
         }
         newChat.hidden = messages.length === 0;
-        if (messages.length === 0 && !pendingText) log.append(renderEmpty());
+        if (messages.length === 0 && !pendingText && !intro) log.append(renderEmpty());
         messages.forEach((message) => log.append(renderMessage(message)));
+        if (intro && !pendingText) log.append(renderIntro());
         if (pendingText) log.append(renderMessage({ id: "pending", role: "user", text: pendingText, files: pendingFiles, time: "" }));
         if (lastError) log.append(renderError());
         composer.hidden = false;
@@ -691,6 +715,7 @@
             return;
         }
         const request = Math.random().toString(36).slice(2, 14);
+        intro = false;
         const files = attachments.slice();
         const fields = siteMode ? { message: text, request: request } : { message: text, editor: JSON.stringify(snapshot), request: request };
         if (webToggle.checked && !webLabel.hidden) fields.web = 1;
@@ -798,12 +823,18 @@
             if (!state && !loading) load(false);
             setTimeout(() => (composer.hidden ? close : input).focus(), 0);
         } else {
-            toggle.focus();
+            (starters.length ? starters[0] : toggle).focus();
         }
         window.dispatchEvent(new Event("resize"));
     }
 
     toggle.addEventListener("click", () => setOpen(panel.hidden));
+    starters.forEach((start) => start.addEventListener("click", () => {
+        intro = true;
+        if (panel.hidden) setOpen(true);
+        else render();
+        setTimeout(() => input.focus(), 0);
+    }));
     panel.addEventListener("keydown", (event) => {
         if (event.key === "Escape") setOpen(false);
     });
@@ -862,5 +893,5 @@
     } catch (error) {
         reopen = false;
     }
-    if (reopen) setOpen(true);
+    if (reopen && !starters.length) setOpen(true);
 })();

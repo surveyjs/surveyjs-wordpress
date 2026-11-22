@@ -358,6 +358,9 @@ class SurveyJS_AI_Chat {
         ?>
         <div class="wp-sjs-ai">
             <?php SurveyJS_AI::updated_notice( array( 'chat-on', 'chat-off' ) ); ?>
+            <?php if ( ! empty( $_GET['ai-setup'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only shows a hint. ?>
+                <div class="notice notice-info"><p><strong><?php esc_html_e( 'Set up the AI chat', 'surveyjs' ); ?></strong> · <?php esc_html_e( 'Follow the steps below. Then go back to Add New Form and click Create with AI: the chat suggests a template, adapts one or builds a new form from your description.', 'surveyjs' ); ?></p></div>
+            <?php endif; ?>
             <h2 class="wp-sjs-ai__title"><?php esc_html_e( 'AI chat right in your WordPress admin', 'surveyjs' ); ?></h2>
             <section class="wp-sjs-ai__chat" id="wp-sjs-ai-chat" aria-label="<?php esc_attr_e( 'AI chat', 'surveyjs' ); ?>">
                 <?php self::render_section(); ?>
@@ -375,6 +378,31 @@ class SurveyJS_AI_Chat {
                 ?>
             </p>
         </div>
+        <?php
+    }
+
+    public static function render_template_tile() {
+        if ( self::is_disabled() || ! current_user_can( SurveyJS_SurveyJS::CAPABILITY ) ) {
+            return;
+        }
+        $ready = self::is_available() && null !== self::choice( self::providers() );
+        ?>
+        <li class="wp-sjs-template wp-sjs-template--ai">
+            <div class="wp-sjs-template__thumbnail wp-sjs-template__thumbnail--empty">
+                <svg class="wp-sjs-template__ai-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2zm7 11l.9 2.6 2.6.9-2.6.9L19 20l-.9-2.6-2.6-.9 2.6-.9L19 13zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7L5 15z"/></svg>
+            </div>
+            <div class="wp-sjs-template__body">
+                <h2 class="wp-sjs-template__name"><?php esc_html_e( 'Create with AI', 'surveyjs' ); ?></h2>
+                <p class="wp-sjs-template__description"><?php esc_html_e( 'AI picks a ready-made template, builds a form on one or creates a new form from your description.', 'surveyjs' ); ?></p>
+            </div>
+            <div class="wp-sjs-template__actions">
+                <?php if ( $ready ) : ?>
+                    <button type="button" class="button button-primary" data-sjs-ai-start><?php esc_html_e( 'Create with AI', 'surveyjs' ); ?></button>
+                <?php else : ?>
+                    <a class="button button-primary" href="<?php echo esc_url( self::tab_url( array( 'ai-setup' => '1' ) ) ); ?>"><?php esc_html_e( 'Set up the AI chat', 'surveyjs' ); ?></a>
+                <?php endif; ?>
+            </div>
+        </li>
         <?php
     }
 
@@ -598,7 +626,7 @@ class SurveyJS_AI_Chat {
         $form_id = absint( wp_unslash( $_GET['id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- see above.
         $editor = 'surveyjs_editor' === $page && $form_id;
         $results = 'surveyjs_results' === $page && $form_id;
-        if ( ! ( $editor || $results || SurveyJS_SurveyJS::MENU_SLUG === $page ) || ! self::is_available() || ! current_user_can( SurveyJS_SurveyJS::CAPABILITY ) ) {
+        if ( ! ( $editor || $results || in_array( $page, array( SurveyJS_SurveyJS::MENU_SLUG, 'surveyjs-templates' ), true ) ) || ! self::is_available() || ! current_user_can( SurveyJS_SurveyJS::CAPABILITY ) ) {
             return;
         }
         $form_id = $editor || $results ? $form_id : 0;
