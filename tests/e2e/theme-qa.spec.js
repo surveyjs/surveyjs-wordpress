@@ -18,6 +18,7 @@ const ACCEPTED = [
   [/^theme-leak fieldset\S*: (margin-\w+|display):/, "the browser's 2px fieldset margin and Twenty Twenty-One's display: grid on fieldsets that hold a single child"],
   [/^theme-leak label\.sd-item\.sd-radio: /, "labels of matrix cells, which show no text"],
   [/^theme-leak span\.sd-item__decorator\.sd-radio__decorator: margin-top:/, "survey-core derives it from the label font size"],
+  [/^theme-leak span\.sd-file__drag-area-placeholder: padding-(left|right):/, "survey-core's container query narrows this padding below 496px; the theme's page padding, not a rule on the form, makes the narrow editor preview cross it"],
   [/^clipped div\.sd-slider__tooltip-panel: /, "the value tooltip of a slider thumb at the minimum or maximum sticks out of a survey without side padding (open question)"]
 ];
 const READ_ONLY_CONTRAST = "survey-core dims read-only captions; the default SurveyJS theme does the same";

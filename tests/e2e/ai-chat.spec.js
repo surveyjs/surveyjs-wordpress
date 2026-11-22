@@ -88,13 +88,13 @@ test.describe("AI chat in the form editor", () => {
     stub({ off: true });
     await page.goto(`${AI_TAB}&ai-refresh=1`);
     await expect(page.getByRole("heading", { name: "AI chat right in your WordPress admin" })).toBeVisible();
-    await expect(chat).not.toContainText("form editor");
-    await expect(chat).toContainText("Uses your own API key, billed by your AI provider.");
-    await expect(chat).toContainText("form entries never are");
+    await expect(chat).toContainText("Chat with AI on the forms list and in the form editor.");
+    await expect(chat).toContainText("Uses your own API key, billed by your AI provider, not by SurveyJS.");
+    await expect(chat).toContainText("form entries are sent only if you allow the chat to read them below");
     await expect(step(/WordPress 7.0 or later/)).toHaveClass(/is-done/);
     await expect(connect).toHaveClass(/is-current/);
     await expect(connect).toContainText("Works with Anthropic (Claude), OpenAI (GPT) and Google (Gemini, provider plugin 1.2.1 or later)");
-    await expect(connect.getByRole("link", { name: "Open Settings > Connectors" })).toHaveAttribute("href", /options-connectors\.php$/);
+    await expect(connect.getByRole("link", { name: "Open Settings > Connectors" })).toHaveAttribute("href", /options-connectors\.php\?surveyjs-return=ai-client$/);
     await expect(chat.getByRole("button", { name: /^Install / })).toHaveCount(0);
     await expect(step(/A provider that can edit forms/)).toHaveClass(/is-pending/);
 
@@ -140,7 +140,7 @@ test.describe("AI chat in the form editor", () => {
     const panel = await openChat(page, formId);
     await expect(panel).toContainText("Tell me what to change in this form");
     await expect(panel.getByLabel("Model")).toHaveValue("sjsstub|stub-small");
-    await expect(panel.locator(".wp-sjs-chat__privacy")).toContainText("go to Stub AI under your API key");
+    await expect(panel.locator(".wp-sjs-chat__privacy")).toContainText("billed by Stub AI, not by SurveyJS. Your message and this form's questions and settings go to Stub AI.");
 
     const reply = await send(panel, "E2E_ADD_PHONE add a phone question");
     await expect(reply).toContainText("Added a required phone number question");
@@ -248,16 +248,17 @@ test.describe("AI chat in the form editor", () => {
     expect(fixture("chat", formId, WP_USERNAME)).toBeNull();
   });
 
-  test("can be turned off on the AI tab", async ({ page }) => {
+  test("can be turned off on the AI Client tab", async ({ page }) => {
     await page.goto(AI_TAB);
     await page.getByRole("button", { name: "Turn off AI chat" }).click();
-    await expect(page.getByText("The AI chat is turned off.")).toBeVisible();
+    await expect(page.locator(".notice-success")).toHaveText("The AI chat is turned off.");
+    await expect(page.locator("#wp-sjs-ai-chat-body")).toContainText("The AI chat is turned off.");
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${formId}`);
     await expect(page.locator("#wp-sjs-save")).toBeVisible();
     await expect(page.getByRole("button", { name: "AI assistant" })).toHaveCount(0);
     await page.goto(AI_TAB);
     await page.getByRole("button", { name: "Turn on AI chat" }).click();
-    await expect(page.getByText("The AI chat is turned on.")).toBeVisible();
+    await expect(page.locator(".notice-success")).toHaveText("The AI chat is turned on.");
   });
 
   test("is unavailable below WordPress 7.0", async ({ page }) => {

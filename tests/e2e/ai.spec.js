@@ -137,7 +137,7 @@ test.describe("AI connection (MCP)", () => {
       await expect(page.locator(".wp-sjs-ai__lead")).toContainText(client);
     }
     await expect(page.locator(".wp-sjs-ai__examples")).toContainText("Add a required phone number question");
-    await expect(page.getByText("The AI can't see form entries.")).toBeVisible();
+    await expect(page.getByText("The AI can't see form entries unless you allow it below.")).toBeVisible();
     await expect(page.getByText("The AI can't delete forms or anything else.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Turn on AI connection" })).toBeVisible();
     expect((await api.post(MCP_ROUTE, { data: "{}" })).status()).toBe(404);

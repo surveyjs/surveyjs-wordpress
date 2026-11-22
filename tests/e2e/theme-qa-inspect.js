@@ -237,11 +237,13 @@ function inspectSurvey(rootSelector) {
     add(container ? "clipped" : "overflow", el, `${Math.round(rect.left - box.left)}..${Math.round(rect.right - box.left)} of ${Math.round(box.width)}px`);
   }
 
+  // survey-core's mobile Multiple Text shows the item title in place of an empty input and widens the input on focus or answer.
+  const EMPTY_FLOATING_LABEL_ITEM = ".sd-multipletext--mobile .sd-multipletext__item-container:not(.sd-multipletext__item-container--answered)";
   for (const el of root.querySelectorAll("button, input, select, textarea, [role='button'], .sd-action")) {
     const style = getComputedStyle(el);
     if (style.display === "none" || el.closest(".sd-visuallyhidden") || el.classList.contains("sd-visuallyhidden")) continue;
     const rect = el.getBoundingClientRect();
-    if (el.getClientRects().length && (rect.width < 8 || rect.height < 8) && style.opacity !== "0" && !/^(checkbox|radio|file|hidden)$/.test(el.type) && !el.classList.contains("sd-tagbox__filter-string-input")) {
+    if (el.getClientRects().length && (rect.width < 8 || rect.height < 8) && style.opacity !== "0" && !/^(checkbox|radio|file|hidden)$/.test(el.type) && !el.classList.contains("sd-tagbox__filter-string-input") && !el.closest(EMPTY_FLOATING_LABEL_ITEM)) {
       add("collapsed", el, `${Math.round(rect.width)}x${Math.round(rect.height)}`);
     }
     if (/^(outset|inset)$/.test(style.borderTopStyle)) add("ua-default", el, `border-style: ${style.borderTopStyle}`);
