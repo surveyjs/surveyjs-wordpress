@@ -139,32 +139,40 @@ JS
         $pages = self::pages();
         $panel_id = 'wp-sjs-embed-panel';
         ?>
-        <div class="wp-sjs-embed card" id="<?php echo esc_attr( $panel_id ); ?>" hidden>
-            <h2><?php esc_html_e( 'Embed the form', 'surveyjs' ); ?></h2>
-            <p class="wp-sjs-embed__unsaved" hidden><?php esc_html_e( 'The form has unsaved changes. They are saved before the page opens.', 'surveyjs' ); ?></p>
-            <h3><label for="wp-sjs-embed-shortcode"><?php esc_html_e( 'Shortcode', 'surveyjs' ); ?></label></h3>
-            <p class="wp-sjs-embed__row">
-                <input type="text" id="wp-sjs-embed-shortcode" class="regular-text code" readonly value="<?php echo esc_attr( self::shortcode( $form->id ) ); ?>" />
-                <button type="button" class="button" id="wp-sjs-embed-copy" data-copied="<?php esc_attr_e( 'Copied!', 'surveyjs' ); ?>"><?php esc_html_e( 'Copy', 'surveyjs' ); ?></button>
-            </p>
-            <h3><?php esc_html_e( 'New page', 'surveyjs' ); ?></h3>
-            <p><a class="button button-primary" id="wp-sjs-embed-create" data-sjs-embed-save href="<?php echo esc_url( self::create_page_url( $form->id ) ); ?>"><?php esc_html_e( 'Create a page with this form', 'surveyjs' ); ?></a></p>
-            <h3><label for="wp-sjs-embed-page"><?php esc_html_e( 'Add to an existing page', 'surveyjs' ); ?></label></h3>
-            <?php if ( $pages ) : ?>
-                <form class="wp-sjs-embed__row" method="get" action="<?php echo esc_url( admin_url( 'post.php' ) ); ?>" data-sjs-embed-save>
-                    <input type="hidden" name="action" value="edit" />
-                    <input type="hidden" name="<?php echo esc_attr( self::PARAM ); ?>" value="<?php echo esc_attr( $form->id ); ?>" />
-                    <select id="wp-sjs-embed-page" name="post">
-                        <?php foreach ( $pages as $page ) : ?>
-                            <option value="<?php echo esc_attr( $page->ID ); ?>"><?php echo esc_html( ( '' !== $page->post_title ? $page->post_title : __( '(no title)', 'surveyjs' ) ) . ( 'publish' === $page->post_status ? '' : ' — ' . get_post_status_object( $page->post_status )->label ) ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit" class="button"><?php esc_html_e( 'Add to page', 'surveyjs' ); ?></button>
-                </form>
-            <?php else : ?>
-                <p class="description"><?php esc_html_e( 'There are no pages yet.', 'surveyjs' ); ?></p>
-            <?php endif; ?>
-        </div>
+        <dialog class="wp-sjs-embed" id="<?php echo esc_attr( $panel_id ); ?>" aria-labelledby="wp-sjs-embed-title">
+            <div class="wp-sjs-embed__header">
+                <h2 id="wp-sjs-embed-title"><?php esc_html_e( 'Embed the form', 'surveyjs' ); ?></h2>
+                <button type="button" class="button-link wp-sjs-embed__close" data-close aria-label="<?php esc_attr_e( 'Close', 'surveyjs' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>
+            </div>
+            <div class="wp-sjs-embed__body">
+                <p class="wp-sjs-embed__unsaved" hidden><?php esc_html_e( 'The form has unsaved changes. They are saved before the page opens.', 'surveyjs' ); ?></p>
+                <h3><label for="wp-sjs-embed-shortcode"><?php esc_html_e( 'Shortcode', 'surveyjs' ); ?></label></h3>
+                <p class="wp-sjs-embed__row">
+                    <input type="text" id="wp-sjs-embed-shortcode" class="regular-text code" readonly value="<?php echo esc_attr( self::shortcode( $form->id ) ); ?>" />
+                    <button type="button" class="button" id="wp-sjs-embed-copy" data-copied="<?php esc_attr_e( 'Copied!', 'surveyjs' ); ?>"><?php esc_html_e( 'Copy', 'surveyjs' ); ?></button>
+                </p>
+                <h3><?php esc_html_e( 'New page', 'surveyjs' ); ?></h3>
+                <p><a class="button button-primary" id="wp-sjs-embed-create" data-sjs-embed-save href="<?php echo esc_url( self::create_page_url( $form->id ) ); ?>"><?php esc_html_e( 'Create a page with this form', 'surveyjs' ); ?></a></p>
+                <h3><label for="wp-sjs-embed-page"><?php esc_html_e( 'Add to an existing page', 'surveyjs' ); ?></label></h3>
+                <?php if ( $pages ) : ?>
+                    <form class="wp-sjs-embed__row" method="get" action="<?php echo esc_url( admin_url( 'post.php' ) ); ?>" data-sjs-embed-save>
+                        <input type="hidden" name="action" value="edit" />
+                        <input type="hidden" name="<?php echo esc_attr( self::PARAM ); ?>" value="<?php echo esc_attr( $form->id ); ?>" />
+                        <select id="wp-sjs-embed-page" name="post">
+                            <?php foreach ( $pages as $page ) : ?>
+                                <option value="<?php echo esc_attr( $page->ID ); ?>"><?php echo esc_html( ( '' !== $page->post_title ? $page->post_title : __( '(no title)', 'surveyjs' ) ) . ( 'publish' === $page->post_status ? '' : ' — ' . get_post_status_object( $page->post_status )->label ) ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="button"><?php esc_html_e( 'Add to page', 'surveyjs' ); ?></button>
+                    </form>
+                <?php else : ?>
+                    <p class="description"><?php esc_html_e( 'There are no pages yet.', 'surveyjs' ); ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="wp-sjs-embed__footer">
+                <button type="button" class="button" data-close><?php esc_html_e( 'Close', 'surveyjs' ); ?></button>
+            </div>
+        </dialog>
         <?php
     }
 }

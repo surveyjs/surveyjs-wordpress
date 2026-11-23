@@ -139,6 +139,73 @@ test.describe("JSON editor", () => {
     await expect(page.locator("#wp-sjs-set-logo")).toBeVisible();
     await expect(page.locator("#wp-sjs-gdpr-agreement-label")).toBeVisible();
   });
+
+  test("closes the Embed dialog back to the editor in every usual way", async ({ page }) => {
+    name = uniqueName("E2E embed close");
+    const id = await createSurvey(page, name);
+    const editorUrl = `/wp-admin/admin.php?page=surveyjs_editor&id=${id}`;
+    await page.goto(editorUrl);
+    await expect(page.locator(".monaco-editor")).toBeVisible();
+
+    const embedButton = page.locator("#wp-sjs-embed");
+    const dialog = page.getByRole("dialog", { name: "Embed the form" });
+    const open = async () => {
+      await embedButton.click();
+      await expect(dialog).toBeVisible();
+      await expect(embedButton).toHaveAttribute("aria-expanded", "true");
+      await expect(page.locator("#wp-sjs-embed-shortcode")).toBeFocused();
+    };
+    const expectClosed = async () => {
+      await expect(dialog).toBeHidden();
+      await expect(embedButton).toHaveAttribute("aria-expanded", "false");
+      await expect(embedButton).toBeFocused();
+      await expect(page).toHaveURL(new RegExp(`page=surveyjs_editor&id=${id}$`));
+      await expect(page.locator(".monaco-editor")).toBeVisible();
+    };
+
+    await open();
+    await dialog.locator(".wp-sjs-embed__header").getByRole("button", { name: "Close" }).click();
+    await expectClosed();
+
+    await open();
+    await dialog.locator(".wp-sjs-embed__footer").getByRole("button", { name: "Close" }).click();
+    await expectClosed();
+
+    await open();
+    await page.keyboard.press("Escape");
+    await expectClosed();
+
+    await open();
+    const shortcodeBox = await page.locator("#wp-sjs-embed-shortcode").boundingBox();
+    await page.mouse.move(shortcodeBox.x + 10, shortcodeBox.y + shortcodeBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(5, 5);
+    await page.mouse.up();
+    await expect(dialog).toBeVisible();
+    await page.mouse.click(5, 5);
+    await expectClosed();
+
+    await open();
+    await page.goBack();
+    await expectClosed();
+    await page.goForward();
+    await expect(dialog).toBeVisible();
+    await dialog.locator(".wp-sjs-embed__footer").getByRole("button", { name: "Close" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(new RegExp(`page=surveyjs_editor&id=${id}$`));
+
+    await page.setViewportSize({ width: 360, height: 640 });
+    await open();
+    const box = await dialog.boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(360);
+    expect(box.y + box.height).toBeLessThanOrEqual(640);
+    await expect(dialog.locator(".wp-sjs-embed__header").getByRole("button", { name: "Close" })).toBeInViewport();
+    await expect(dialog.locator(".wp-sjs-embed__footer").getByRole("button", { name: "Close" })).toBeInViewport();
+    await page.keyboard.press("Escape");
+    await expectClosed();
+    await page.setViewportSize({ width: 1400, height: 900 });
+  });
 });
 
 test.describe("admin menu", () => {

@@ -88,6 +88,8 @@ test.describe.serial("getting started on a site without forms", () => {
     await hint.getByRole("button", { name: "Embed the form" }).click();
     await expect(page.locator("#wp-sjs-embed-panel")).toBeVisible();
     await expect(page.locator("#wp-sjs-embed")).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#wp-sjs-embed-panel")).toBeHidden();
 
     await hint.getByRole("button", { name: "Dismiss this notice." }).click();
     await expect(hint).toHaveCount(0);
@@ -110,7 +112,7 @@ test.describe.serial("getting started on a site without forms", () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`[surveyjs id="${formId}"]`);
 
     await setEditorJson(page, { ...SURVEY_JSON, title: "Saved before embedding" });
-    await page.locator("#wp-sjs-embed").click();
+    await page.keyboard.press("Escape");
     await page.locator("#wp-sjs-embed").click();
     await expect(page.locator(".wp-sjs-embed__unsaved")).toBeVisible();
     await page.getByRole("link", { name: "Create a page with this form" }).click();

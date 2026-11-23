@@ -1654,14 +1654,27 @@
     const embedCopy = document.getElementById("wp-sjs-embed-copy");
     const embedCopyLabel = embedCopy.textContent;
     const NEXT_HINT_DISMISSED = "surveyjs-next-hint-dismissed";
+    const EMBED_HISTORY_KEY = "surveyjsEmbed";
+    let embedPressedOnBackdrop = false;
 
-    function toggleEmbed(open) {
-        embedPanel.hidden = !open;
-        embedButton.setAttribute("aria-expanded", String(open));
-        if (!open) return;
+    function embedHistoryEntryIsCurrent() {
+        return Boolean(window.history.state && window.history.state[EMBED_HISTORY_KEY]);
+    }
+
+    function openEmbed() {
+        if (embedPanel.open) return;
         embedPanel.querySelector(".wp-sjs-embed__unsaved").hidden = !isDirty();
+        embedPanel.showModal();
+        embedButton.setAttribute("aria-expanded", "true");
+        // The browser Back button then closes the dialog instead of leaving the editor, as on phones.
+        if (!embedHistoryEntryIsCurrent()) window.history.pushState({ ...window.history.state, [EMBED_HISTORY_KEY]: true }, "");
         embedShortcode.focus();
         embedShortcode.select();
+    }
+
+    function onEmbedClosed() {
+        embedButton.setAttribute("aria-expanded", "false");
+        if (embedHistoryEntryIsCurrent()) window.history.back();
     }
 
     function copyShortcode() {
@@ -1705,7 +1718,7 @@
             if (index) text.append(" · ");
             const action = element("button", "button-link", step.label);
             action.type = "button";
-            action.addEventListener("click", () => (step.key === "placement" ? toggleEmbed(true) : focusNotification()));
+            action.addEventListener("click", () => (step.key === "placement" ? openEmbed() : focusNotification()));
             text.append(action);
         });
         const dismiss = element("button", "notice-dismiss");
@@ -1724,7 +1737,19 @@
         noticeElement.append(hint);
     }
 
-    embedButton.addEventListener("click", () => toggleEmbed(embedPanel.hidden));
+    embedButton.addEventListener("click", openEmbed);
+    embedPanel.addEventListener("close", onEmbedClosed);
+    embedPanel.addEventListener("pointerdown", (event) => {
+        embedPressedOnBackdrop = event.target === embedPanel;
+    });
+    embedPanel.addEventListener("click", (event) => {
+        // A drag that starts inside, for example selecting the shortcode, and ends on the backdrop also clicks the dialog.
+        if ((event.target === embedPanel && embedPressedOnBackdrop) || event.target.closest("[data-close]")) embedPanel.close();
+    });
+    window.addEventListener("popstate", () => {
+        if (embedHistoryEntryIsCurrent()) openEmbed();
+        else if (embedPanel.open) embedPanel.close();
+    });
     embedCopy.addEventListener("click", copyShortcode);
     embedPanel.querySelectorAll("[data-sjs-embed-save]").forEach((target) => {
         if (target.tagName === "FORM") {
@@ -1738,11 +1763,11 @@
     }
     const requestedParams = new URLSearchParams(window.location.search);
     if (requestedParams.get("focus") === "notification") focusNotification();
-    if (requestedParams.get("embed") === "1") toggleEmbed(true);
+    if (requestedParams.get("embed") === "1" || embedHistoryEntryIsCurrent()) openEmbed();
     if (requestedParams.has("new")) {
         const cleanUrl = new URL(window.location.href);
         cleanUrl.searchParams.delete("new");
-        window.history.replaceState(null, "", cleanUrl.toString());
+        window.history.replaceState(window.history.state, "", cleanUrl.toString());
     }
 
     function findTab(tab) {

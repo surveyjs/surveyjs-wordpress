@@ -149,7 +149,7 @@ class SurveyJS_Editor {
                     <a href="#" class="nav-tab<?php echo $tab === $initial_tab ? ' nav-tab-active' : ''; ?>" data-tab="<?php echo esc_attr( $tab ); ?>"><?php echo esc_html( $label ); ?></a>
                 <?php endforeach; ?>
                 <button type="button" class="button wp-sjs-editor__full-preview" id="wp-sjs-full-preview" aria-controls="wp-sjs-preview-panel" aria-expanded="false"><span class="dashicons dashicons-visibility" aria-hidden="true"></span><?php esc_html_e( 'Open full preview', 'surveyjs' ); ?></button>
-                <button type="button" class="button wp-sjs-editor__embed" id="wp-sjs-embed" aria-controls="wp-sjs-embed-panel" aria-expanded="false"><span class="dashicons dashicons-shortcode" aria-hidden="true"></span><?php esc_html_e( 'Embed', 'surveyjs' ); ?></button>
+                <button type="button" class="button wp-sjs-editor__embed" id="wp-sjs-embed" aria-haspopup="dialog" aria-controls="wp-sjs-embed-panel" aria-expanded="false"><span class="dashicons dashicons-shortcode" aria-hidden="true"></span><?php esc_html_e( 'Embed', 'surveyjs' ); ?></button>
                 <button type="button" class="button button-primary wp-sjs-editor__save" id="wp-sjs-save"><?php esc_html_e( 'Save', 'surveyjs' ); ?></button>
             </nav>
 
