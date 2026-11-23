@@ -110,6 +110,9 @@ JS;
                         'default' => 'none',
                     ),
                 ),
+                'supports'        => array(
+                    'align' => array( 'wide', 'full' ),
+                ),
                 'editor_script' => $blockscriptname,
                 'render_callback' => array( self::class, 'render_callback_shortcode' ),
             )
@@ -129,7 +132,8 @@ JS;
     }
 
     public static function render_callback_shortcode( $attributes ) {
-		return do_shortcode( sanitize_text_field( $attributes['shortcode'] ) );
+		$html = trim( do_shortcode( sanitize_text_field( $attributes['shortcode'] ) ) );
+		return '' === $html ? '' : '<div ' . get_block_wrapper_attributes() . '>' . $html . '</div>';
 	}
 
     public function enqueue_admin_scripts() {

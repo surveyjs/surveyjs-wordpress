@@ -193,6 +193,9 @@
             Object.entries(config.variables.values).forEach(([name, value]) => survey.setVariable(name, value));
         }
         const container = configElement.parentElement.querySelector(".wp-sjs-survey");
+        if ((config.json.widthMode || "auto") === "auto" && !config.json.width && container.closest(".wp-block-sjs-gutenberg-block:is(.alignwide, .alignfull)")) {
+            survey.widthMode = "responsive";
+        }
         if (config.themeMode === "adaptive" && window.SurveyWordPress) {
             container.classList.add("wp-sjs-adaptive");
             SurveyWordPress.applyWordPressStyles(container);

@@ -68,4 +68,40 @@ test.describe("Gutenberg block", () => {
     await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
     await expect(page.locator("#the-list .no-items")).toBeVisible();
   });
+
+  test("wide and full alignment widen the form", async ({ page }) => {
+    name = uniqueName("E2E block align");
+    const surveyId = await createSurvey(page, name);
+    const block = (align) => `<!-- wp:sjs/gutenberg-block ${JSON.stringify(Object.assign(
+      { shortcode: `[surveyjs id="${surveyId}" title="${name}"] `, surveyid: String(surveyId) },
+      align ? { align } : {}
+    ))} /-->`;
+
+    restNonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
+    const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
+      headers: { "X-WP-Nonce": restNonce },
+      data: { title: name, status: "publish", content: [block(""), block("wide"), block("full")].join("\n\n") }
+    })).json();
+    postId = post.id;
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(post.link);
+    const blocks = page.locator(".wp-block-sjs-gutenberg-block");
+    await expect(blocks).toHaveCount(3);
+    await expect(blocks.nth(0)).not.toHaveClass(/\balign(wide|full)\b/);
+    await expect(blocks.nth(1)).toHaveClass(/\balignwide\b/);
+    await expect(blocks.nth(2)).toHaveClass(/\balignfull\b/);
+
+    const bodies = blocks.locator(".sd-body");
+    await expect(bodies.nth(0)).toHaveClass(/\bsd-body--static\b/);
+    await expect(bodies.nth(1)).toHaveClass(/\bsd-body--responsive\b/);
+    await expect(bodies.nth(2)).toHaveClass(/\bsd-body--responsive\b/);
+
+    const [defaultWidth, fullWidth] = await Promise.all([0, 2].map(async (i) => (await bodies.nth(i).boundingBox()).width));
+    expect(fullWidth).toBeGreaterThan(defaultWidth);
+    const fullBox = await blocks.nth(2).boundingBox();
+    const fullBody = await bodies.nth(2).boundingBox();
+    expect(fullBody.x).toBeGreaterThan(fullBox.x);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
 });

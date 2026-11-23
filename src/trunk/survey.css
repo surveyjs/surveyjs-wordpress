@@ -63,3 +63,15 @@
     text-transform: none;
     cursor: pointer;
 }
+
+.wp-block-sjs-gutenberg-block.alignfull {
+    box-sizing: border-box;
+    padding-left: var(--wp--style--root--padding-left, clamp(16px, 4vw, 40px));
+    padding-right: var(--wp--style--root--padding-right, clamp(16px, 4vw, 40px));
+}
+
+/* The adaptive survey root bleeds 4px past its container (see themes/wordpress.css); at the viewport edge that
+   would add a horizontal scrollbar. */
+.wp-block-sjs-gutenberg-block:is(.alignwide, .alignfull) {
+    overflow-x: clip;
+}

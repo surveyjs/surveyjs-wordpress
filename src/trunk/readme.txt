@@ -225,6 +225,9 @@ In Local, add it to `conf/nginx/site.conf.hbs` in the site folder and restart th
 = My custom CSS does not change the form. Why? =
 The plugin protects forms from the styles of your WordPress theme, so a form looks right in any theme. The same protection outweighs ordinary custom CSS. To change colors, fonts, corners and sizes, use the **Theme** tab of the form editor. For other changes, add `!important` to your rule, for example `.sd-btn { border-radius: 0 !important; }`.
 
+= How do I make a form wider? =
+By default a form is as wide as your theme's content column. Select the SurveyJS Forms block and choose **Wide width** or **Full width** in the Align menu of the block toolbar; the form then fills the wider area. The options appear when your theme supports wide alignment, as most current themes do.
+
 = How do I connect Claude, Codex or Cursor? =
 Open SurveyJS Forms > Settings > AI MCP, turn on the AI connection, install MCP Adapter with one click and confirm that a connection password may be created. Then either download the connection file and paste the setup prompt into your assistant (it adds the connection, tests it and deletes the file), or choose your app under "Set it up manually", click Create connection and follow the steps. To let the AI change forms, also click "Enable MCP write access". The site must use HTTPS; on a local development site add `define( 'WP_ENVIRONMENT_TYPE', 'local' );` to wp-config.php. If the AI app gets "401" errors on shared hosting, your server may drop the Authorization header; ask your host to pass it to PHP.
 

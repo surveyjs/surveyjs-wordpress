@@ -49,6 +49,10 @@ registerBlockType("sjs/gutenberg-block", {
 
   category: "common",
 
+  supports: {
+    align: ["wide", "full"]
+  },
+
   edit: function(props) {
     var attributes = props.attributes;
     var setAttributes = props.setAttributes;
