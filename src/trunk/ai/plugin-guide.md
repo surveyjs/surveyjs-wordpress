@@ -44,7 +44,7 @@ Entry limit (total or per day/week/month/year), entries per person (by user acco
 
 ## Spam Protection tab
 
-A hidden honeypot field is always on. CAPTCHA (Google reCAPTCHA v2, v3 or Cloudflare Turnstile) needs keys in Settings > General first, then "Enable CAPTCHA" on this tab.
+A hidden honeypot field is always on. CAPTCHA (Google reCAPTCHA v2, v3, Cloudflare Turnstile or hCaptcha) needs keys in Settings > General first, then "Enable CAPTCHA" on this tab. "Check entries with Akismet" works when the Akismet plugin is active and connected to an Akismet account: entries Akismet flags are saved with the Spam status and send no emails. "Reject entries sent too soon after the form opens" blocks bots that post the form within the minimum time; it is on in new forms with 3 seconds, and forms created before keep it off until turned on. People don't notice it, because the form waits until the time has passed.
 
 ## Advanced tab
 

@@ -5,6 +5,8 @@ const SETTINGS_URL = "/wp-admin/admin.php?page=surveyjs-settings";
 const TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
 const TURNSTILE_PASS_SECRET = "1x0000000000000000000000000000000AA";
 const TURNSTILE_FAIL_SECRET = "2x0000000000000000000000000000000AA";
+const HCAPTCHA_SITE_KEY = "10000000-ffff-ffff-ffff-000000000001";
+const HCAPTCHA_SECRET = "0x0000000000000000000000000000000000000000";
 
 async function setCaptcha(page, type, siteKey = "", secretKey = "") {
   await page.goto(SETTINGS_URL);
@@ -74,6 +76,25 @@ test.describe("CAPTCHA", () => {
     await expect(page.locator(".wp-sjs-captcha")).toBeAttached();
     await page.getByLabel("What is your name?").fill("Human");
     await expect(page.locator(".wp-sjs-captcha input[name='cf-turnstile-response']")).not.toHaveValue("", { timeout: 15000 });
+    const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
+    await page.getByRole("button", { name: "Complete" }).click();
+    expect((await saved).ok()).toBe(true);
+    await expect(page.locator(".sd-completedpage")).toBeVisible();
+
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
+    await expect(page.locator("#the-list")).toContainText("Human");
+  });
+
+  test("saves the entry when hCaptcha passes", async ({ page }) => {
+    name = uniqueName("E2E captcha hcaptcha");
+    const surveyId = await createSurvey(page, name);
+    await setCaptcha(page, "hcaptcha", HCAPTCHA_SITE_KEY, HCAPTCHA_SECRET);
+    await enableCaptcha(page, surveyId);
+
+    await page.goto(await publish(page, surveyId));
+    await page.getByLabel("What is your name?").fill("Human");
+    await page.frameLocator(".wp-sjs-captcha iframe[title*='checkbox']").locator("#checkbox").click();
+    await expect(page.locator(".wp-sjs-captcha textarea[name='h-captcha-response']")).not.toHaveValue("", { timeout: 15000 });
     const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveResult"));
     await page.getByRole("button", { name: "Complete" }).click();
     expect((await saved).ok()).toBe(true);

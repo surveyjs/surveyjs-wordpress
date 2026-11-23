@@ -28,6 +28,7 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
     );
 
     const IGNORED_TYPES = array( 'submit', 'note' );
+    const CAPTCHA_TYPES = array( 'recaptcha' => 'recaptcha', 'recaptcha_v3' => 'recaptcha', 'hcaptcha' => 'hcaptcha', 'turnstile' => 'turnstile' );
 
     public static function source() {
         return 'ninja-forms';
@@ -200,6 +201,7 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
         $notes = array();
         $taken = array();
         $refs = array();
+        $source_captcha = '';
         $settings = (array) ( $form['settings'] ?? array() );
         $fields = array_values( array_filter( (array) ( $form['fields'] ?? array() ), 'is_array' ) );
         usort( $fields, function ( $a, $b ) {
@@ -224,6 +226,10 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
                     $type = (string) ( $field['type'] ?? '' );
                     if ( 'submit' === $type && '' !== self::text( $field['label'] ?? '' ) ) {
                         $json['completeText'] = self::text( $field['label'] );
+                    }
+                    if ( isset( self::CAPTCHA_TYPES[ $type ] ) ) {
+                        $source_captcha = SurveyJS_Captcha::SOURCE_LABELS[ self::CAPTCHA_TYPES[ $type ] ];
+                        continue;
                     }
                     if ( in_array( $type, self::IGNORED_TYPES, true ) ) {
                         continue;
@@ -281,10 +287,14 @@ class SurveyJS_Ninja_Forms_Importer extends SurveyJS_Importer {
             }
         }
         self::form_notes( $settings, $notes );
+        $form_settings = self::notification_settings( $actions, $by_key, $notes );
+        if ( '' !== $source_captcha ) {
+            SurveyJS_Captcha::import( $form_settings, $notes, $source_captcha );
+        }
 
         return array(
             'json'     => $json,
-            'settings' => self::notification_settings( $actions, $by_key, $notes ),
+            'settings' => $form_settings,
             'skipped'  => $skipped,
             'notes'    => $notes,
             'refs'     => $refs,

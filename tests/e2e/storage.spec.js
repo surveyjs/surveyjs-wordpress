@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, createSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const FORMS_URL = "/wp-admin/admin.php?page=surveyjs-main-menu";
@@ -40,7 +40,7 @@ async function surveyConfig(page, link) {
 
 async function submitEntry(page, config, data) {
   const response = await page.request.post(config.saveResultUrl, {
-    form: { SurveyId: String(config.id), Json: JSON.stringify(data), Website: "", _wpnonce: config.saveResultNonce }
+    form: { SurveyId: String(config.id), Json: JSON.stringify(data), Website: "", _wpnonce: config.saveResultNonce, ...(await submitTimeFields(config)) }
   });
   expect(response.ok()).toBe(true);
 }

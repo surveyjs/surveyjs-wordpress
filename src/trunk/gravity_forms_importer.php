@@ -13,8 +13,6 @@ class SurveyJS_Gravity_Forms_Importer extends SurveyJS_Importer {
 
     const REF_DEFAULTS = array( 'separator' => '', 'email' => false, 'multiple' => false, 'decimal_comma' => false, 'columns' => array() );
 
-    const CAPTCHAS = array( 'recaptcha' => 'Google reCAPTCHA', 'turnstile' => 'Cloudflare Turnstile', 'hcaptcha' => 'hCaptcha' );
-
     const REQUIRED_PARTS = array( 'name' => array( '3', '6' ), 'address' => array( '1', '3', '4', '5', '6' ) );
 
     const USER_MERGE_TAGS = array(
@@ -528,7 +526,7 @@ class SurveyJS_Gravity_Forms_Importer extends SurveyJS_Importer {
             return array();
         }
         if ( 'captcha' === $type ) {
-            $this->captcha = self::CAPTCHAS[ (string) ( $field['captchaType'] ?? 'recaptcha' ) ] ?? __( 'a CAPTCHA', 'surveyjs' );
+            $this->captcha = SurveyJS_Captcha::SOURCE_LABELS[ (string) ( $field['captchaType'] ?? 'recaptcha' ) ] ?? __( 'a CAPTCHA', 'surveyjs' );
             return array();
         }
         if ( isset( self::POST_TYPES[ $type ] ) ) {

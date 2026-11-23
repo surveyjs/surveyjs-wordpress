@@ -33,7 +33,9 @@ Build and change forms by simply asking: "Create a contact form with name, email
 * **Auto-reply** to the respondent.
 * **Tags** in the subject and message: all answers at once or the answer to a single question.
 * **HTML emails**, **file attachments** and a **test email** button.
-* **Spam protection** with a hidden honeypot field and optional **CAPTCHA**: Google reCAPTCHA v2 (checkbox), reCAPTCHA v3 (invisible) or Cloudflare Turnstile.
+* **Spam protection** with a hidden honeypot field and optional **CAPTCHA**: Google reCAPTCHA v2 (checkbox), reCAPTCHA v3 (invisible), Cloudflare Turnstile or hCaptcha.
+* **Akismet spam filter**: when the Akismet plugin is active, turn on **Check entries with Akismet** for a form. Entries that Akismet flags are kept with the Spam status, send no emails, and can be restored with **Not Spam**.
+* **Minimum time to submit**: reject entries that bots send right after the page loads. On by default in new forms (3 seconds); people never notice it.
 
 = Entries =
 * Submitted entries are stored in WordPress; you can turn this off for any form.
@@ -61,7 +63,7 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 * A respondent can remove an uploaded file before submitting the form, and the file is deleted right away. Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old (30 days for forms with Save & Resume). This also works on hosts where folders cannot be listed, such as WordPress VIP.
 * The privacy export includes links to the person's files; the links work as long as the export file is kept.
 * **Uninstall**: by default, deleting the plugin keeps your forms, entries and files. Turn on SurveyJS Forms > Settings > Uninstall to delete all forms, entries, uploaded files and settings when the plugin is deleted.
-* Form answers stay on your site and are sent only in the emails you set up, and to AI only if you allow it. The optional CAPTCHA services and the free online UI Builder never receive form answers (see External services below).
+* Form answers stay on your site and are sent only in the emails you set up, and to AI only if you allow it. The optional CAPTCHA services and the free online UI Builder never receive form answers. Only when you turn on the Akismet check for a form, the respondent's name, email, website and text answers are sent to Akismet (see External services below).
 
 = Form builder =
 * **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. The email notification is off in a new form until you turn it on on the Email tab; Reply-To is already set to the respondent's email.
@@ -162,6 +164,20 @@ The plugin can protect forms from spam with Cloudflare Turnstile. It is off by d
 On pages with such a form, the visitor's browser loads the Turnstile script from challenges.cloudflare.com. Cloudflare receives the visitor's IP address, browser and device data, and the results of the browser challenge. When the form is submitted, your site sends the Turnstile token and your secret key to [https://challenges.cloudflare.com/turnstile/v0/siteverify](https://challenges.cloudflare.com/turnstile/v0/siteverify) to check that the respondent is not a bot. Form answers are never sent to Cloudflare.
 
 This service is provided by Cloudflare, Inc.: [Terms of Use](https://www.cloudflare.com/website-terms/), [Turnstile Privacy Addendum](https://www.cloudflare.com/turnstile-privacy-policy/), [Privacy Policy](https://www.cloudflare.com/privacypolicy/).
+
+= hCaptcha =
+The plugin can protect forms from spam with hCaptcha. It is off by default and is used only when you choose hCaptcha in SurveyJS Forms > Settings, enter your keys, and turn on CAPTCHA for a form.
+
+On pages with such a form, the visitor's browser loads the hCaptcha script from js.hcaptcha.com. hCaptcha receives the visitor's IP address, browser and device data, and the visitor's interaction with the widget. When the form is submitted, your site sends the hCaptcha token, your site key and your secret key to [https://api.hcaptcha.com/siteverify](https://api.hcaptcha.com/siteverify) to check that the respondent is not a bot. Form answers are never sent to hCaptcha.
+
+This service is provided by Intuition Machines, Inc.: [Terms of Service](https://www.hcaptcha.com/terms), [Privacy Policy](https://www.hcaptcha.com/privacy).
+
+= Akismet =
+The plugin can check entries for spam with Akismet. It is off by default and is used only when the Akismet plugin is active and connected to your Akismet account and you turn on "Check entries with Akismet" for a form.
+
+When such a form is submitted, your site sends to Akismet through the Akismet plugin: the respondent's IP address, browser user agent, the address of the page with the form, the answers that look like the respondent's name, email and website, and the other text answers, together with your site address, language and the role of a logged-in respondent. Akismet answers whether the entry is spam. Choice, rating, file and other non-text answers are not sent.
+
+This service is provided by Automattic Inc.: [Terms of Service](https://akismet.com/tos/), [Privacy Policy](https://automattic.com/privacy/).
 
 == Installation ==
 

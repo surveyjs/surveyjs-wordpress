@@ -99,6 +99,12 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
         if ( $source_captcha ) {
             SurveyJS_Captcha::import( $settings, $notes, $source_captcha );
         }
+        $uses_akismet = array_filter( $tags, function ( $tag ) {
+            return $tag->has_option( 'akismet' );
+        } );
+        if ( $uses_akismet ) {
+            SurveyJS_Akismet::import( $settings, $notes );
+        }
         if ( $cf7->is_true( 'subscribers_only' ) ) {
             $notes[] = __( 'The subscribers_only setting was not imported: the form is open to all visitors.', 'surveyjs' );
         }

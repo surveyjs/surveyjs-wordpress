@@ -30,7 +30,7 @@
         element.className = "wp-sjs-captcha";
         element.hidden = true;
         container.after(element);
-        const apiName = captcha.type === "turnstile" ? "turnstile" : "grecaptcha";
+        const apiName = { turnstile: "turnstile", hcaptcha: "hcaptcha" }[captcha.type] || "grecaptcha";
         let widget = null;
         // Rendered on first show: Turnstile may fail its challenge in a hidden element, and a token solved on an earlier page could expire.
         const renderWidget = () => captchaApi(apiName).then((api) => new Promise((resolve) => {
@@ -209,13 +209,21 @@
             survey.onPartialSend.add((sender) => partial.send(sender.data, sender.currentPageNo + 2));
         }
 
+        const shownAt = Date.now();
+        function minimumTimePassed() {
+            const left = config.submitTime ? shownAt + config.submitTime.wait - Date.now() : 0;
+            return left > 0 ? new Promise((resolve) => setTimeout(resolve, left)) : Promise.resolve();
+        }
+
         function saveResult(data, fields) {
             const detail = { id: config.id, survey: survey, config: config, container: container, data: data };
+            const submitTime = config.submitTime ? { SubmitToken: config.submitTime.token } : {};
             return (partial ? partial.idle() : Promise.resolve())
                 .then(() => extraSubmitFields(detail))
+                .then((extra) => minimumTimePassed().then(() => extra))
                 .then((extra) => fetch(config.saveResultUrl, {
                     method: "POST",
-                    body: requestBody(Object.assign(extra, { SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, partial ? partial.fields() : {}, fields))
+                    body: requestBody(Object.assign(extra, { SurveyId: config.id, Json: JSON.stringify(data), Website: honeypot ? honeypot.value : "", _wpnonce: config.saveResultNonce }, submitTime, partial ? partial.fields() : {}, fields))
                 }))
                 .then((response) => {
                     if (response.ok) {

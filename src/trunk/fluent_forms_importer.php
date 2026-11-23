@@ -21,6 +21,7 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
     private $notes = array();
     private $json = array();
     private $titles = array();
+    private $captcha = '';
 
     public static function source() {
         return 'fluentform';
@@ -226,9 +227,18 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
             $this->notes[] = __( 'The conversational form was imported as a regular form.', 'surveyjs' );
         }
 
+        $settings = $this->notification_settings( array_filter( (array) ( $metas['notifications'] ?? array() ), 'is_array' ) );
+        if ( '' !== $this->captcha ) {
+            SurveyJS_Captcha::import( $settings, $this->notes, $this->captcha );
+        }
+        $global = (array) get_option( '_fluentform_global_form_settings', array() );
+        if ( 'yes' === ( is_array( $global['misc'] ?? null ) ? ( $global['misc']['akismet_status'] ?? '' ) : '' ) ) {
+            SurveyJS_Akismet::import( $settings, $this->notes );
+        }
+
         return array(
             'json'     => $json,
-            'settings' => $this->notification_settings( array_filter( (array) ( $metas['notifications'] ?? array() ), 'is_array' ) ),
+            'settings' => $settings,
             'skipped'  => $this->skipped,
             'notes'    => $this->notes,
             'refs'     => $this->refs,
@@ -272,6 +282,12 @@ class SurveyJS_Fluent_Forms_Importer extends SurveyJS_Importer {
         };
 
         switch ( $type ) {
+            case 'recaptcha':
+            case 'hcaptcha':
+            case 'turnstile':
+                $this->captcha = SurveyJS_Captcha::SOURCE_LABELS[ $type ];
+                return array();
+
             case 'input_text':
             case 'input_email':
             case 'input_url':

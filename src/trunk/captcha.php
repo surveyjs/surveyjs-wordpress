@@ -5,6 +5,11 @@ class SurveyJS_Captcha {
 
     const DEFAULT_THRESHOLD = 0.5;
     const V3_ACTION = 'surveyjs_submit';
+    const SOURCE_LABELS = array(
+        'recaptcha' => 'Google reCAPTCHA',
+        'turnstile' => 'Cloudflare Turnstile',
+        'hcaptcha'  => 'hCaptcha',
+    );
 
     public static function types() {
         return array(
@@ -12,6 +17,7 @@ class SurveyJS_Captcha {
             'recaptcha_v2' => __( 'Google reCAPTCHA v2 (checkbox)', 'surveyjs' ),
             'recaptcha_v3' => __( 'Google reCAPTCHA v3 (invisible)', 'surveyjs' ),
             'turnstile'    => __( 'Cloudflare Turnstile', 'surveyjs' ),
+            'hcaptcha'     => __( 'hCaptcha', 'surveyjs' ),
         );
     }
 
@@ -59,6 +65,8 @@ class SurveyJS_Captcha {
                 return add_query_arg( 'render', rawurlencode( $captcha['siteKey'] ), 'https://www.google.com/recaptcha/api.js' );
             case 'turnstile':
                 return 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Turnstile must be loaded from Cloudflare.
+            case 'hcaptcha':
+                return 'https://js.hcaptcha.com/1/api.js?render=explicit&recaptchacompat=off';
         }
         return '';
     }
@@ -89,15 +97,16 @@ class SurveyJS_Captcha {
         if ( '' === $token ) {
             return new WP_Error( 'captcha_missing', __( 'Please complete the CAPTCHA.', 'surveyjs' ) );
         }
-        $url = 'turnstile' === $captcha['type']
-            ? 'https://challenges.cloudflare.com/turnstile/v0/siteverify' // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- server-side API endpoint, not an asset.
-            : 'https://www.google.com/recaptcha/api/siteverify';
-        $response = wp_remote_post( $url, array(
+        $body = array(
+            'secret'   => $captcha['secretKey'],
+            'response' => $token,
+        );
+        if ( 'hcaptcha' === $captcha['type'] ) {
+            $body['sitekey'] = $captcha['siteKey'];
+        }
+        $response = wp_remote_post( self::verify_url( $captcha['type'] ), array(
             'timeout' => 3,
-            'body'    => array(
-                'secret'   => $captcha['secretKey'],
-                'response' => $token,
-            ),
+            'body'    => $body,
         ) );
         if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
             return new WP_Error( 'captcha_unavailable', __( 'The CAPTCHA could not be verified. Please try again later.', 'surveyjs' ) );
@@ -113,6 +122,16 @@ class SurveyJS_Captcha {
             }
         }
         return true;
+    }
+
+    private static function verify_url( $type ) {
+        switch ( $type ) {
+            case 'turnstile':
+                return 'https://challenges.cloudflare.com/turnstile/v0/siteverify'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- server-side API endpoint, not an asset.
+            case 'hcaptcha':
+                return 'https://api.hcaptcha.com/siteverify';
+        }
+        return 'https://www.google.com/recaptcha/api/siteverify';
     }
 
     public static function import( &$settings, &$notes, $source_captcha ) {

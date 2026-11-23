@@ -82,10 +82,11 @@ class SurveyJS_SettingsPage {
 		echo '<p>' . esc_html__( 'Protect forms from spam bots. Choose a service, paste the keys from its admin console, then turn on CAPTCHA for a form on its Spam Protection tab.', 'surveyjs' ) . '</p>';
 		echo '<p>' . wp_kses(
 			sprintf(
-				/* translators: 1: Google reCAPTCHA admin console URL, 2: Cloudflare Turnstile dashboard URL */
-				__( 'Get the keys in the <a href="%1$s" target="_blank" rel="noopener noreferrer">Google reCAPTCHA admin console</a> or the <a href="%2$s" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile dashboard</a>. reCAPTCHA v2 and v3 use different keys.', 'surveyjs' ),
+				/* translators: 1: Google reCAPTCHA admin console URL, 2: Cloudflare Turnstile dashboard URL, 3: hCaptcha dashboard URL */
+				__( 'Get the keys in the <a href="%1$s" target="_blank" rel="noopener noreferrer">Google reCAPTCHA admin console</a>, the <a href="%2$s" target="_blank" rel="noopener noreferrer">Cloudflare Turnstile dashboard</a> or the <a href="%3$s" target="_blank" rel="noopener noreferrer">hCaptcha dashboard</a>. reCAPTCHA v2 and v3 use different keys.', 'surveyjs' ),
 				'https://www.google.com/recaptcha/admin',
-				'https://dash.cloudflare.com/?to=/:account/turnstile' // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- link to the Cloudflare dashboard, not an asset.
+				'https://dash.cloudflare.com/?to=/:account/turnstile', // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- link to the Cloudflare dashboard, not an asset.
+				'https://dashboard.hcaptcha.com/sites'
 			),
 			array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
 		) . '</p>';

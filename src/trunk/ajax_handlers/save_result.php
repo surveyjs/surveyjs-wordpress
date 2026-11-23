@@ -36,6 +36,13 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             }
             $settings = SurveyJS_Form_Settings::get( $survey );
             SurveyJS_Restrictions::reject_if_closed( $survey, $settings );
+            if ( SurveyJS_Submit_Time::is_enabled( $settings ) ) {
+                $submit_time = SurveyJS_Submit_Time::verify( $survey->id, $settings, sanitize_text_field( wp_unslash( $_POST['SubmitToken'] ?? '' ) ) );
+                if ( is_wp_error( $submit_time ) ) {
+                    wp_send_json_error( array( 'message' => $submit_time->get_error_message() ), 403 );
+                    return;
+                }
+            }
             if ( SurveyJS_Captcha::is_enabled( $settings ) ) {
                 $captcha = SurveyJS_Captcha::verify( sanitize_text_field( wp_unslash( $_POST['CaptchaToken'] ?? '' ) ) );
                 if ( is_wp_error( $captcha ) ) {
@@ -49,10 +56,12 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             $partial_id = $settings['storeEntries'] ? SurveyJS_Entries::unfinished_id( $survey->id, $partial_id, $partial_token ) : 0;
             $data = SurveyJS_Uploaded_Files::filter_submitted( json_decode( $Json, true ), $survey->id, $partial_id );
             $Json = wp_json_encode( $data );
+            $is_spam = SurveyJS_Akismet::is_enabled( $settings ) && SurveyJS_Akismet::is_spam( $survey, $settings, $data );
 
             $entry_id = 0;
             if ( $settings['storeEntries'] ) {
                 $entry_args = array(
+                    'status'  => $is_spam ? 'spam' : 'unread',
                     'user_id' => get_current_user_id(),
                     'ip'      => SurveyJS_Entries::client_ip(),
                     'ip_hash' => SurveyJS_Restrictions::entry_ip_hash( $settings ),
@@ -67,6 +76,13 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             }
 
             SurveyJS_Drafts::delete( get_current_user_id(), $SurveyId );
+
+            if ( $is_spam ) {
+                if ( ! $entry_id ) {
+                    SurveyJS_Uploaded_Files::delete_later( SurveyJS_Uploaded_Files::referenced_names( $data ) );
+                }
+                return;
+            }
 
             SurveyJS_Notification::send( $survey, $settings, $data, $entry_id );
 

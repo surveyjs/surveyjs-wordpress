@@ -551,6 +551,9 @@ JS;
         if ( SurveyJS_Captcha::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
             $config['captcha'] = SurveyJS_Captcha::client_config();
         }
+        if ( SurveyJS_Submit_Time::is_enabled( SurveyJS_Form_Settings::get( $row ) ) ) {
+            $config['submitTime'] = SurveyJS_Submit_Time::client_config( $id, SurveyJS_Form_Settings::get( $row ) );
+        }
         $view_url = SurveyJS_Form_Stats::view_url( $id );
         if ( '' !== $view_url ) {
             $config['viewUrl'] = $view_url;

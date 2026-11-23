@@ -118,6 +118,7 @@ class SurveyJS_Editor {
         );
         $list_url = add_query_arg( array( 'page' => 'surveyjs-main-menu' ), admin_url( 'admin.php' ) );
         $captcha_configured = SurveyJS_Captcha::is_configured();
+        $akismet_available = SurveyJS_Akismet::is_available();
         $site_retention_days = SurveyJS_Entry_Retention::site_days();
         $settings_url = add_query_arg( array( 'page' => 'surveyjs-settings' ), admin_url( 'admin.php' ) );
         $tabs = self::tabs( $survey );
@@ -386,6 +387,36 @@ class SurveyJS_Editor {
                                     </div>
                                 <?php endif; ?>
                                 <p class="description"><?php esc_html_e( 'A hidden honeypot field is always on and blocks simple spam bots.', 'surveyjs' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Akismet', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="akismetEnabled" <?php disabled( ! $akismet_available ); ?> /> <?php esc_html_e( 'Check entries with Akismet', 'surveyjs' ); ?></label>
+                                <?php if ( $akismet_available ) : ?>
+                                    <p class="description"><?php esc_html_e( 'The respondent\'s name, email, website and text answers, IP address and browser are sent to Akismet. Entries that Akismet flags are saved with the Spam status, without emails, and the respondent sees the usual confirmation. Review them in the Spam view of the entries and click Not Spam if Akismet was wrong. If the form does not store entries, flagged entries are dropped.', 'surveyjs' ); ?></p>
+                                <?php else : ?>
+                                    <div class="notice notice-info inline">
+                                        <p>
+                                            <?php esc_html_e( 'Akismet is not active or not connected to an Akismet account, so the check cannot be turned on.', 'surveyjs' ); ?>
+                                            <a href="<?php echo esc_url( SurveyJS_Akismet::plugin_url() ); ?>"><?php esc_html_e( 'Set up Akismet', 'surveyjs' ); ?></a>
+                                        </p>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Submission time', 'surveyjs' ); ?></th>
+                            <td>
+                                <label><input type="checkbox" data-setting="minSubmitTimeEnabled" /> <?php esc_html_e( 'Reject entries sent too soon after the form opens', 'surveyjs' ); ?></label>
+                            </td>
+                        </tr>
+                        <tr data-enabled-by="minSubmitTimeEnabled">
+                            <th scope="row"><label for="wp-sjs-min-submit-time"><?php esc_html_e( 'Minimum time', 'surveyjs' ); ?></label></th>
+                            <td>
+                                <input type="number" id="wp-sjs-min-submit-time" class="small-text" min="1" max="<?php echo esc_attr( SurveyJS_Submit_Time::MAX_SECONDS ); ?>" step="1" data-setting="minSubmitTime" />
+                                <?php esc_html_e( 'seconds', 'surveyjs' ); ?>
+                                <p class="description"><?php esc_html_e( 'Bots often send a form right after loading the page. People never notice this check: if someone clicks Complete sooner, the form waits and then sends the entry.', 'surveyjs' ); ?></p>
                             </td>
                         </tr>
                     </table>

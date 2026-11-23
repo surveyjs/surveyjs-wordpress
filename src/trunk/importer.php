@@ -113,13 +113,14 @@ abstract class SurveyJS_Importer {
         if ( $id ) {
             $survey = SurveyJS_Forms::find( $id );
             $current = SurveyJS_Form_Settings::get( $survey );
-            $settings += array_intersect_key( $current, array_flip( array( 'storeEntries', 'themeMode', 'transparentBackground', 'captchaEnabled' ) ) );
+            $settings += array_intersect_key( $current, array_flip( array( 'storeEntries', 'themeMode', 'transparentBackground', 'captchaEnabled', 'akismetEnabled', 'minSubmitTimeEnabled', 'minSubmitTime' ) ) );
             $settings += array_diff_key( $current, SurveyJS_Form_Settings::base_defaults() );
             SurveyJS_Forms::update( $id, array(
                 'json'     => wp_json_encode( $form['json'] ),
                 'settings' => wp_json_encode( SurveyJS_Form_Settings::sanitize( $settings, $survey ) ),
             ) );
         } else {
+            $settings += array( 'minSubmitTimeEnabled' => true );
             $id = SurveyJS_Forms::create( array(
                 'name'     => sanitize_text_field( $form['name'] ),
                 'json'     => wp_json_encode( $form['json'] ),

@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, saveSurvey, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, saveSurvey, createSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
@@ -160,7 +160,7 @@ function storageTests(label) {
       const uploaded = await upload(visitor, "foreign.txt", Buffer.from("E2E foreign"));
       const config = await surveyConfig(visitor.request, target.link);
       const response = await visitor.request.post(config.saveResultUrl, {
-        form: { SurveyId: String(config.id), Json: JSON.stringify({ note: "kept", document: [{ name: "foreign.txt", type: "text/plain", content: uploaded.url }] }), Website: "", _wpnonce: config.saveResultNonce }
+        form: { SurveyId: String(config.id), Json: JSON.stringify({ note: "kept", document: [{ name: "foreign.txt", type: "text/plain", content: uploaded.url }] }), Website: "", _wpnonce: config.saveResultNonce, ...(await submitTimeFields(config)) }
       });
       expect(response.ok()).toBe(true);
       await visitor.close();

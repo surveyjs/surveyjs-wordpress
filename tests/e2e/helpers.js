@@ -73,4 +73,12 @@ async function lintIssues(page, json) {
   return page.evaluate(survey => window.SurveyLinter.lintSurvey(survey).findings.map(finding => `${finding.ruleId} at ${finding.path}: ${finding.message}`), json);
 }
 
-module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, currentUser, lintIssues };
+// New forms reject entries sent sooner than the minimum time after the form was rendered, so a direct POST waits like survey.js does.
+async function submitTimeFields(config) {
+  if (!config.submitTime) return {};
+  const left = Number(config.submitTime.token.split(".")[0]) * 1000 + config.submitTime.wait + 1000 - Date.now();
+  if (left > 0) await new Promise((resolve) => setTimeout(resolve, left));
+  return { SubmitToken: config.submitTime.token };
+}
+
+module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, currentUser, lintIssues, submitTimeFields };

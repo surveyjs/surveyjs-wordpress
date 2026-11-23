@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, createSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
 
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
 
@@ -117,7 +117,7 @@ test.describe("uploaded files", () => {
     const config = JSON.parse(html.match(/<script type="application\/json" class="wp-sjs-survey-config">([\s\S]*?)<\/script>/)[1]);
     const dataUrl = `data:image/png;base64,${PNG.toString("base64")}`;
     const submitted = await page.request.post(config.saveResultUrl, {
-      form: { SurveyId: String(config.id), Json: JSON.stringify({ photo: [{ name: "old.png", type: "image/png", content: dataUrl }] }), Website: "", _wpnonce: config.saveResultNonce }
+      form: { SurveyId: String(config.id), Json: JSON.stringify({ photo: [{ name: "old.png", type: "image/png", content: dataUrl }] }), Website: "", _wpnonce: config.saveResultNonce, ...(await submitTimeFields(config)) }
     });
     expect(submitted.ok()).toBe(true);
 

@@ -88,6 +88,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/site_health.php" );
     include( __DIR__ . "/notification.php" );
     include( __DIR__ . "/captcha.php" );
+    include( __DIR__ . "/akismet.php" );
+    include( __DIR__ . "/submit_time.php" );
     include( __DIR__ . "/restrictions.php" );
     include( __DIR__ . "/entry_retention.php" );
     include( __DIR__ . "/importer.php" );

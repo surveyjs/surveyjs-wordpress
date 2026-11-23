@@ -228,7 +228,7 @@ class SurveyJS_Entries {
             self::table(),
             array(
                 'json'       => $json,
-                'status'     => 'spam' === $row->status ? 'spam' : 'unread',
+                'status'     => in_array( 'spam', array( $row->status, $args['status'] ?? '' ), true ) ? 'spam' : 'unread',
                 'user_id'    => (int) $args['user_id'],
                 'ip'         => $args['ip'],
                 'ip_hash'    => $args['ip_hash'] ?? null,

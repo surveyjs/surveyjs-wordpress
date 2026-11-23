@@ -55,7 +55,9 @@ On the Restrictions tab of the form editor; all off by default.
 
 ### Spam protection and privacy
 
-- Hidden honeypot field on every form. Optional CAPTCHA: Google reCAPTCHA v2/v3 or Cloudflare Turnstile.
+- Hidden honeypot field on every form. Optional CAPTCHA: Google reCAPTCHA v2/v3, Cloudflare Turnstile or hCaptcha (one type and one key pair per site, `SurveyJS_Captcha`; turned on per form with `captchaEnabled`).
+- Akismet check per form (`akismetEnabled`, `SurveyJS_Akismet`): available when the Akismet plugin is active and has an API key. `comment-check` gets `comment_type=contact-form`, the IP (`SurveyJS_Entries::remote_ip()`, also when IP storage is off), user agent, the form page as `permalink` and the user role; the Reply-To question or the first `inputType: "email"` answer as the email, `inputType: "url"` as the website, text questions whose name or title contains "name" as the author, and the other `text`/`comment`/`multipletext` answers as the content. Filter `surveyjs_akismet_request` ( `$request, $survey, $data` ) changes the request. A spam entry is stored with the `spam` status (a partial entry it completes too), and the request ends there: no emails, no `wp_surveyjs_save_result`, no `surveyjs_save_result_response`; the respondent gets the usual success. Without stored entries it is dropped. If Akismet can't be reached, the entry is accepted. Importers turn it on for WPForms forms with Akismet, CF7 forms with `akismet:` tag options and Fluent Forms with the global Akismet setting.
+- Minimum time to submit per form (`minSubmitTimeEnabled`, `minSubmitTime` seconds, 1-60, default 3, `SurveyJS_Submit_Time`). On in new forms (`SurveyJS_Form_Settings::for_new_form()`: blank, templates, AI; importer: new forms unless the source has its own time limit setting); forms without the stored key keep it off, so a direct POST from an integration to an existing form does not start getting 403. the form config gets `submitTime.token` = render time + `wp_hash()` signature, `survey.js` sends it as `SubmitToken` and waits until the time has passed since the form was shown, so people are never rejected; the server rejects (403) a missing or bad token or one younger than the minimum. On a cached page the token is older, so the check passes. The WPForms importer maps `anti_spam.time_limit`.
 - GDPR agreement checkbox linked to your Privacy Policy page.
 - Entries work with Tools > Export Personal Data and Tools > Erase Personal Data.
 - IP addresses are not stored unless you turn this on in Settings. The per-person limit by IP address stores only a hash of the address (HMAC with the site salt).
@@ -295,11 +297,12 @@ With S3 Uploads and the default storage, objects get the plugin-wide ACL (`S3_UP
 
 ### External services
 
-All of them are optional; form answers are never sent to them.
+All of them are optional; form answers are never sent to them, except to Akismet when its check is on for a form.
 
 - **SurveyJS UI Builder** (surveyjs.io): only when the user clicks Open in free UI Builder. The form ID, name, form JSON and theme JSON are sent. [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
 - **SurveyJS documentation MCP server** (`https://mcp.surveyjs.io/mcp`, Streamable HTTP, no auth): only when the AI connection is on and a connected AI app calls `surveyjs-search-docs` or `surveyjs-find-api-docs`. The search words (or class and property name) are sent with `wp_safe_remote_post()`; nothing about the site. URL filter: `surveyjs_ai_docs_server_url`.
-- **Google reCAPTCHA** and **Cloudflare Turnstile**: only when chosen in Settings and turned on for a form. See "External services" in `src/trunk/readme.txt`.
+- **Google reCAPTCHA**, **Cloudflare Turnstile** and **hCaptcha**: only when chosen in Settings and turned on for a form. See "External services" in `src/trunk/readme.txt`.
+- **Akismet** (through the Akismet plugin's `Akismet::http_post()`): only when Akismet is active and connected and "Check entries with Akismet" is on for a form. The respondent's name, email, website and text answers, IP address and user agent are sent.
 - **SurveyJS Forms Pro** downloads its updates from surveyjs.io (see [Updates](#updates-surveyjs-forms-and-surveyjs-forms-pro)).
 
 ### UI Builder messages

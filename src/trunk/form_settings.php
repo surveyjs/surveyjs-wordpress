@@ -34,6 +34,9 @@ class SurveyJS_Form_Settings {
             'themeMode'             => 'adaptive',
             'transparentBackground' => false,
             'captchaEnabled'        => false,
+            'akismetEnabled'        => false,
+            'minSubmitTimeEnabled'  => false,
+            'minSubmitTime'         => SurveyJS_Submit_Time::DEFAULT_SECONDS,
             'limitEntries'          => false,
             'entryLimit'            => 100,
             'entryLimitPeriod'      => 'total',
@@ -56,8 +59,9 @@ class SurveyJS_Form_Settings {
 
     public static function for_new_form( $form = array(), $theme_mode = 'adaptive' ) {
         $settings = array(
-            'notificationEnabled' => false,
-            'themeMode'           => $theme_mode,
+            'notificationEnabled'  => false,
+            'minSubmitTimeEnabled' => true,
+            'themeMode'            => $theme_mode,
         );
         foreach ( SurveyJS_Survey_Values::survey_questions( $form ) as $question ) {
             $type = $question['type'] ?? '';
@@ -157,6 +161,9 @@ class SurveyJS_Form_Settings {
             'themeMode'             => in_array( $input['themeMode'], self::theme_modes(), true ) ? $input['themeMode'] : 'adaptive',
             'transparentBackground' => ! empty( $input['transparentBackground'] ),
             'captchaEnabled'        => ! empty( $input['captchaEnabled'] ),
+            'akismetEnabled'        => ! empty( $input['akismetEnabled'] ),
+            'minSubmitTimeEnabled'  => ! empty( $input['minSubmitTimeEnabled'] ),
+            'minSubmitTime'         => SurveyJS_Submit_Time::sanitize_seconds( $input['minSubmitTime'] ),
             'limitEntries'          => ! empty( $input['limitEntries'] ),
             'entryLimit'            => max( 1, absint( $input['entryLimit'] ) ),
             'entryLimitPeriod'      => self::choice( $input['entryLimitPeriod'], SurveyJS_Restrictions::PERIODS ),

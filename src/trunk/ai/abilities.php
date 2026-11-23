@@ -118,7 +118,7 @@ class SurveyJS_AI_Abilities {
         if ( null !== self::$secrets ) {
             return self::$secrets;
         }
-        $values = array( SurveyJS_Captcha::settings()['secretKey'] );
+        $values = array( SurveyJS_Captcha::settings()['secretKey'], SurveyJS_Akismet::api_key() );
         foreach ( function_exists( 'wp_get_connectors' ) ? (array) wp_get_connectors() : array() as $connector ) {
             $auth = is_array( $connector['authentication'] ?? null ) ? $connector['authentication'] : array();
             if ( ! empty( $auth['setting_name'] ) ) {
@@ -1228,6 +1228,10 @@ class SurveyJS_AI_Abilities {
                 'configured' => SurveyJS_Captcha::is_configured(),
                 'note'       => 'A form uses CAPTCHA when its setting captchaEnabled is true and CAPTCHA is configured here.',
             ),
+            'akismet'              => array(
+                'available' => SurveyJS_Akismet::is_available(),
+                'note'      => 'A form checks entries with Akismet when its setting akismetEnabled is true and the Akismet plugin is active and connected to an Akismet account.',
+            ),
             'count_form_views'     => SurveyJS_SettingsPage::option( SurveyJS_Form_Stats::SETTING, true ),
             'store_ip_addresses'   => ! empty( $settings['store_ip'] ),
             'delete_entries_after_days' => SurveyJS_SettingsPage::retention_days() ? SurveyJS_SettingsPage::retention_days() : null,
@@ -1302,6 +1306,9 @@ class SurveyJS_AI_Abilities {
             'themeMode'               => '"adaptive": the form takes the look of the WordPress theme; "surveyjs": the form uses its SurveyJS theme JSON.',
             'transparentBackground'   => 'Adaptive mode only: no form background, the page background shows through.',
             'captchaEnabled'          => 'Protect the form with CAPTCHA. Works only when CAPTCHA is configured for the site (surveyjs-get-site-settings).',
+            'akismetEnabled'          => 'Check entries with Akismet; flagged entries are saved as spam without emails. Works only when Akismet is available (surveyjs-get-site-settings). Sends the respondent\'s name, email, website, text answers, IP address and browser to Akismet.',
+            'minSubmitTimeEnabled'    => 'Reject entries sent sooner than minSubmitTime seconds after the form was opened. New forms have it on; forms without the setting have it off. Respondents do not notice it: the form waits until the time has passed.',
+            'minSubmitTime'           => 'Minimum time in seconds, 1 to ' . SurveyJS_Submit_Time::MAX_SECONDS . '.',
             'limitEntries'            => 'Close the form after entryLimit entries.',
             'entryLimit'              => 'Maximum number of entries in entryLimitPeriod.',
             'entryLimitPeriod'        => 'Period of the entry limit.',

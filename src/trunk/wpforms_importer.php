@@ -275,6 +275,17 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
         if ( '' !== $source_captcha ) {
             SurveyJS_Captcha::import( $form_settings, $notes, $source_captcha );
         }
+        if ( ! empty( $settings['akismet'] ) ) {
+            SurveyJS_Akismet::import( $form_settings, $notes );
+        }
+        $anti_spam = is_array( $settings['anti_spam'] ?? null ) ? $settings['anti_spam'] : array();
+        if ( is_array( $anti_spam['time_limit'] ?? null ) ) {
+            $time_limit = $anti_spam['time_limit'];
+            $form_settings['minSubmitTimeEnabled'] = ! empty( $time_limit['enable'] );
+            if ( $form_settings['minSubmitTimeEnabled'] ) {
+                $form_settings['minSubmitTime'] = SurveyJS_Submit_Time::sanitize_seconds( $time_limit['duration'] ?? SurveyJS_Submit_Time::DEFAULT_SECONDS );
+            }
+        }
 
         return array(
             'json'     => $json,
@@ -439,12 +450,7 @@ class SurveyJS_WPForms_Importer extends SurveyJS_Importer {
 
     private static function captcha() {
         $provider = function_exists( 'wpforms_setting' ) ? wpforms_setting( 'captcha-provider', 'recaptcha' ) : 'recaptcha';
-        $labels = array(
-            'recaptcha' => 'Google reCAPTCHA',
-            'turnstile' => 'Cloudflare Turnstile',
-            'hcaptcha'  => 'hCaptcha',
-        );
-        return $labels[ $provider ] ?? '';
+        return SurveyJS_Captcha::SOURCE_LABELS[ $provider ] ?? '';
     }
 
     private static function elements( $field, &$taken, &$refs, &$notes ) {

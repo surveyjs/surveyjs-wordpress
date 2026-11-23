@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, createSurvey, saveSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, createSurvey, saveSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 
@@ -50,9 +50,9 @@ async function fillAndComplete(page, answer) {
   return saved;
 }
 
-function postEntry(request, config, surveyId) {
+async function postEntry(request, config, surveyId) {
   return request.post(config.saveResultUrl, {
-    form: { SurveyId: String(surveyId), Json: JSON.stringify({ e2e_question: "Direct" }), Website: "", _wpnonce: config.saveResultNonce }
+    form: { SurveyId: String(surveyId), Json: JSON.stringify({ e2e_question: "Direct" }), Website: "", _wpnonce: config.saveResultNonce, ...(await submitTimeFields(config)) }
   });
 }
 
