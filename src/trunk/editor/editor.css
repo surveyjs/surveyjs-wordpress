@@ -443,6 +443,38 @@ html:has(.wp-sjs-embed[open]) {
     min-height: 300px;
 }
 
+/* WordPress styles every .button, input and textarea in the admin, and Monaco's widgets (find and replace, command
+   palette) use that class and those elements but set only what they need, so this resets just the properties Monaco
+   leaves to WordPress, in Base's JSON editor and Survey Creator's alike. WordPress marks disabled buttons !important. */
+body.wp-core-ui .monaco-editor .button {
+    min-height: auto;
+    margin-block: 0;
+    border: 0;
+    box-shadow: none;
+    box-sizing: content-box;
+    color: inherit;
+    vertical-align: baseline;
+    white-space: normal;
+}
+
+body.wp-core-ui .monaco-editor .button:is(.disabled, [aria-disabled="true"]) {
+    color: inherit !important;
+    background: transparent !important;
+}
+
+body.wp-core-ui .monaco-editor :is(input, textarea) {
+    min-height: auto;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+/* Monaco leaves the keyboard focus ring of these to the browser, and WordPress removes it from every div and input. */
+body.wp-core-ui .monaco-editor :where(.button, .monaco-custom-toggle, input):focus {
+    outline: revert;
+}
+
 .wp-sjs-editor__settings {
     min-width: 0;
 }

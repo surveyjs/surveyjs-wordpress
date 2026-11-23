@@ -130,6 +130,30 @@ test.describe("JSON editor", () => {
     await expect(gdpr).toBeHidden();
   });
 
+  test("keeps WordPress button and input styles out of the find widget", async ({ page }) => {
+    name = uniqueName("E2E find");
+    await createSurvey(page, name);
+
+    await page.locator("#wp-sjs-monaco .view-lines").click();
+    await page.keyboard.press("Control+h");
+    const widget = page.locator("#wp-sjs-monaco .find-widget.visible");
+    await expect(widget).toBeVisible();
+
+    const leaks = await widget.evaluate(node => {
+      const color = getComputedStyle(node).color;
+      return [...node.querySelectorAll(".button, textarea")].flatMap(element => {
+        const style = getComputedStyle(element);
+        const found = [];
+        if (style.borderTopStyle !== "none") found.push("border");
+        if (style.minHeight !== "auto" && style.minHeight !== "0px") found.push("min-height " + style.minHeight);
+        if (style.boxShadow !== "none") found.push("box-shadow");
+        if (element.matches(".button") && style.color !== color) found.push("color");
+        return found.map(leak => element.className + ": " + leak);
+      });
+    });
+    expect(leaks).toEqual([]);
+  });
+
   test("does not warn about unsaved changes when nothing changed", async ({ page }) => {
     name = uniqueName("E2E unsaved");
     const id = await createSurvey(page, name);
