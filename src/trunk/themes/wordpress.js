@@ -2,6 +2,7 @@
     const probeCss = "position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none;";
     // A browser-default button has about 6px of side padding; anything smaller means the theme does not style buttons.
     const MIN_STYLED_BUTTON_PADDING = 8;
+    const ISOLATION_CONTAINER = ".wp-sjs-survey";
 
     function parseColor(color) {
         const match = /^rgba?\(([^)]+)\)$/.exec(color || "");
@@ -54,7 +55,10 @@
         const set = (name, value, isValid = !!value) => {
             if (isValid) result[name] = value;
         };
-        const parent = container.parentElement || container;
+        // The theme-isolation reset reverts everything inside .wp-sjs-survey to browser defaults, so probes placed
+        // there would read the browser's grey button instead of the site's.
+        const isolated = container.closest(ISOLATION_CONTAINER) || container;
+        const parent = isolated.parentElement || isolated;
 
         const buttonWrapper = createProbe(parent, "div", (el) => {
             el.className = "wp-block-button";
