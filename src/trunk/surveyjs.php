@@ -100,6 +100,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/gravity_forms_importer.php" );
 
     include( __DIR__ . "/ai/drafts.php" );
+    include( __DIR__ . "/ai/issues.php" );
     include( __DIR__ . "/ai/abilities.php" );
     include( __DIR__ . "/ai/chat.php" );
     include( __DIR__ . "/ai/ai.php" );

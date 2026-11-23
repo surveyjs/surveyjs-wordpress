@@ -314,6 +314,23 @@ html:has(.wp-sjs-embed[open]) {
     gap: 12px;
 }
 
+.wp-sjs-editor__issues {
+    margin: 0 0 8px 18px;
+    list-style: disc;
+}
+
+.wp-sjs-editor__issues li {
+    margin-bottom: 2px;
+    overflow-wrap: anywhere;
+}
+
+.wp-sjs-editor__issue-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
 #wp-sjs-ai-notice {
     flex-basis: 100%;
 }

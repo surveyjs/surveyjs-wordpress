@@ -1,5 +1,6 @@
 (function () {
     const LINT_DEBOUNCE_MS = 300;
+    const SHOWN_ISSUES = 3;
     const PREVIEW_DEBOUNCE_MS = 400;
     const COPIED_LABEL_MS = 2000;
     const UI_BUILDER_CONNECT_TIMEOUT_MS = 15000;
@@ -120,6 +121,7 @@
     let expanded = false;
     let autoExpanded = false;
     let lintTimer = null;
+    let lintOptions;
     let previewTimer = null;
     let saveNotice = null;
     let previewFocusName = null;
@@ -505,16 +507,67 @@
         return element("span", "dashicons dashicons-" + name + (className ? " " + className : ""));
     }
 
-    function renderNotice(container, type, message) {
+    function renderNotice(container, type, message, issues) {
         container.querySelectorAll(".wp-sjs-editor__message").forEach((notice) => notice.remove());
         if (!message) return;
         const notice = element("div", "notice notice-" + type + " inline wp-sjs-editor__message");
         notice.append(element("p", "", message));
+        if (issues) notice.append(...issueDetails(issues));
         container.prepend(notice);
     }
 
-    function showNotice(type, message) {
-        renderNotice(noticeElement, type, message);
+    function showNotice(type, message, issues) {
+        renderNotice(noticeElement, type, message, issues);
+    }
+
+    function lint(json) {
+        return SurveyLinter.lintSurvey(json, lintOptions);
+    }
+
+    function currentIssues() {
+        const json = parse(sources.survey).json;
+        if (!json) return null;
+        return lint(json).findings.map((finding) => ({ ruleId: finding.ruleId, severity: finding.severity, message: finding.message, path: finding.path }));
+    }
+
+    function hasFormChat() {
+        return Boolean(window.surveyjsAiChat && window.surveyjsAiChat.mode === "form");
+    }
+
+    function issueDetails(issues) {
+        const list = element("ul", "wp-sjs-editor__issues");
+        issues.slice(0, SHOWN_ISSUES).forEach((issue) => list.append(element("li", "", issue.message)));
+        const parts = [list];
+        if (issues.length > SHOWN_ISSUES) {
+            parts.push(element("p", "description", sprintf(_n("And %d more.", "And %d more.", issues.length - SHOWN_ISSUES, "surveyjs"), issues.length - SHOWN_ISSUES)));
+        }
+        const actions = element("p", "wp-sjs-editor__issue-actions");
+        actions.append(aiButton(__("Review and fix", "surveyjs"), "button-secondary", () => reviewIssues(issues[0].path)));
+        if (hasFormChat()) {
+            actions.append(" ", aiButton(__("Fix with AI", "surveyjs"), "", () => {
+                document.dispatchEvent(new CustomEvent("surveyjs:ai-chat-ask", { detail: { text: __("Fix the JSON issues the form editor shows.", "surveyjs") } }));
+            }));
+        }
+        parts.push(actions);
+        return parts;
+    }
+
+    // Survey Creator with Pro replaces the Config tab and shows the issues in its own JSON Editor tab, so it may take over.
+    function reviewIssues(path) {
+        if (!document.dispatchEvent(new CustomEvent("surveyjs:editor-review-issues", { cancelable: true, detail: { path: path } }))) return;
+        if (!editor || !tabNames.includes("survey")) return;
+        runLint();
+        selectedPath = path;
+        expanded = true;
+        const located = analysis.kind === "done" ? analysis.located.find((item) => item.finding.path === path) : null;
+        if (located && located.line !== null) {
+            revealLine(located.line);
+        } else if (activeTab !== "survey") {
+            switchTab("survey");
+        }
+        renderMarkers();
+        renderLint();
+        if ((!located || located.line === null) && lintElement) lintElement.scrollIntoView({ block: "center" });
     }
 
     function syntaxError() {
@@ -556,7 +609,7 @@
         if (error) {
             showNotice("error", error);
         } else if (saveNotice) {
-            showNotice(saveNotice.type, saveNotice.message);
+            showNotice(saveNotice.type, saveNotice.message, saveNotice.issues);
         } else {
             showNotice();
         }
@@ -581,7 +634,7 @@
             analysis = { kind: "waiting" };
         } else {
             const startedAt = performance.now();
-            const result = SurveyLinter.lintSurvey(parsed.json);
+            const result = lint(parsed.json);
             const durationMs = performance.now() - startedAt;
             const index = buildPathIndex(sources.survey);
             analysis = {
@@ -1002,7 +1055,7 @@
         const survey = parse(sources.survey);
         const theme = parse(sources.theme);
         if (!survey.json || !theme.json) return Promise.resolve(false);
-        const issueCount = SurveyLinter.lintSurvey(survey.json).findings.length;
+        const issues = currentIssues();
         const settings = readSettings();
         const snapshot = { survey: sources.survey, theme: sources.theme, settings: JSON.stringify(settings) };
         const savedName = pendingName;
@@ -1012,6 +1065,7 @@
             Json: JSON.stringify(survey.json),
             Theme: JSON.stringify(theme.json),
             Settings: snapshot.settings,
+            Issues: JSON.stringify(issues),
             _wpnonce: config.saveNonce
         });
         if (savedName !== null) body.set("Name", savedName);
@@ -1027,8 +1081,8 @@
                     if (pendingName === savedName) pendingName = null;
                 }
                 if (savedAiRevision) onAiDraftSaved(savedAiRevision);
-                saveNotice = issueCount > 0
-                    ? { type: "warning", message: sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issueCount, "surveyjs"), issueCount) }
+                saveNotice = issues.length > 0
+                    ? { type: "warning", message: sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issues.length, "surveyjs"), issues.length), issues: issues }
                     : { type: "success", message: __("Form saved.", "surveyjs") };
                 document.dispatchEvent(new CustomEvent("surveyjs:editor-saved", { detail: { id: config.id, json: survey.json, theme: theme.json, settings: settings } }));
                 return true;
@@ -1786,7 +1840,7 @@
             if (label && !group.labels.includes(label)) group.labels.push(label);
         };
         const jsonTab = ["creator", "survey"].find((tab) => tabNames.includes(tab));
-        if (draft.changedJson) add(jsonTab);
+        if (draft.changedJson) add(jsonTab, __("survey JSON", "surveyjs"));
         if (draft.changedTheme) add("theme");
         (draft.changedSettings || []).forEach((key) => {
             const input = settingInput(key);
@@ -1994,6 +2048,11 @@
         },
         settingLabel: settingLabel,
         save: save,
+        getIssues: currentIssues,
+        setLintOptions: (options) => {
+            lintOptions = options || undefined;
+            runLint();
+        },
         isFullPreviewOpen: () => fullPreviewOpen,
         setPreviewShowInvisibleElements: (show) => {
             if (previewShowInvisibleElements === Boolean(show)) return;

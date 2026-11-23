@@ -745,6 +745,8 @@
         intro = false;
         const files = attachments.slice();
         const fields = siteMode ? { message: text, request: request } : { message: text, editor: JSON.stringify(snapshot), request: request };
+        const issues = siteMode ? null : callEditor("getIssues");
+        if (issues) fields.issues = JSON.stringify(issues);
         if (webToggle.checked && !webLabel.hidden) fields.web = 1;
         lastError = null;
         pendingText = text;
@@ -856,6 +858,19 @@
     }
 
     toggle.addEventListener("click", () => setOpen(panel.hidden));
+    document.addEventListener("surveyjs:ai-chat-ask", (event) => {
+        const text = event.detail && event.detail.text;
+        if (!text || busy) return;
+        if (panel.hidden) setOpen(true);
+        Promise.resolve(loading).then(() => {
+            if (busy) return;
+            if (composer.hidden) {
+                input.value = text;
+                return;
+            }
+            send(text);
+        });
+    });
     starters.forEach((start) => start.addEventListener("click", () => {
         intro = true;
         if (panel.hidden) setOpen(true);

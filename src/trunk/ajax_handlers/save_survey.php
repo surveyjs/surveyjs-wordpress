@@ -37,6 +37,9 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
 
             if ( ! empty( $data ) ) {
                 $updated = SurveyJS_Forms::update( $id, $data );
+                if ( $updated && isset( $data['json'], $_POST['Issues'] ) ) {
+                    SurveyJS_AI_Issues::remember( $id, $data['json'], json_decode( wp_unslash( $_POST['Issues'] ), true ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- SurveyJS_AI_Issues::sanitize() keeps only known fields and sanitizes each value.
+                }
                 if ( $updated && isset( $_POST['AiDraft'] ) ) {
                     SurveyJS_AI_Drafts::discard( $id, sanitize_key( wp_unslash( $_POST['AiDraft'] ) ) );
                 }

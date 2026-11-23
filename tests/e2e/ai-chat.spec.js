@@ -229,6 +229,29 @@ test.describe("AI chat in the form editor", () => {
     await expect(reply.locator("strong")).toHaveText("SurveyJS Forms");
   });
 
+  test("knows the JSON issues of the editor and fixes them from the save notice", async ({ page }) => {
+    fixture("option-delete", LOG_OPTION);
+    const issuesId = fixture("create-form", uniqueName("E2E AI chat issues"), JSON.stringify({ elements: [{ type: "checkbox", name: "methods", choices: ["Medication", "Other"], showOtherItem: true }] })).id;
+    try {
+      await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${issuesId}`);
+      const saved = page.waitForResponse((response) => response.url().includes("action=SurveyJS_SaveSurvey"));
+      await page.locator("#wp-sjs-save").click();
+      await saved;
+      const notice = page.locator("#wp-sjs-editor-notice");
+      await expect(notice).toContainText("Form saved with 1 issue.");
+      await notice.getByRole("button", { name: "Fix with AI" }).click();
+
+      const panel = page.locator("#wp-sjs-chat");
+      await expect(panel.locator(".wp-sjs-chat__message.is-assistant").last()).toContainText("Stub reply to: Fix the JSON issues the form editor shows.", { timeout: 120000 });
+      const entry = fixture("option-get", LOG_OPTION).pop();
+      expect(entry.request).toBe("Fix the JSON issues the form editor shows.");
+      expect(entry.system).toContain('The choices of "methods" contain "Other" while showOtherItem is on');
+      expect(entry.system).toContain("(choices/duplicate, warning)");
+    } finally {
+      fixture("delete-form", issuesId);
+    }
+  });
+
   test("explains a provider error and keeps the message", async ({ page }) => {
     const panel = await openChat(page, formId);
     const input = panel.locator("#wp-sjs-chat-input");

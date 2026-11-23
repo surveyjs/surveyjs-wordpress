@@ -17,6 +17,12 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - "GDPR agreement" checkbox (above the JSON editor) adds a required consent checkbox with a link to the Privacy Policy page.
 - "Save as Template" in the editor header saves the form as a template for new forms.
 
+## JSON issues ("Form saved with N issues")
+
+- The form editor checks the form JSON with the SurveyJS linter: in Survey Creator's JSON Editor tab with SurveyJS Forms Pro, in the Static analysis panel under the JSON editor of the Config tab without Pro. The form still saves; Save then says "Form saved with N issues", lists the first ones and offers "Review and fix" (opens the JSON editor at the first issue) and, when the AI chat is set up, "Fix with AI".
+- The list of checks is at the end of the SurveyJS JSON guide (surveyjs-get-json-guide). surveyjs-get-form returns the issues of the current JSON in `issues`; in the form editor's chat they are also in the context. When the person asks to "fix the issue" or "fix the errors", fix these.
+- A frequent one: a choice "Other" (or "None") while `showOtherItem` (`showNoneItem`) is on collides with the built-in item. Keep the built-in item and remove the choice; set `otherText` (`noneText`) to change its label.
+
 ## Showing a form on the site
 
 - Block editor: add the "SurveyJS Forms" block and pick the form.

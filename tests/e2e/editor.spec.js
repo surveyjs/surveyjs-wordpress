@@ -40,6 +40,38 @@ test.describe("JSON editor", () => {
     await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Form saved with 1 issue.");
   });
 
+  test("lists the issues after Save and opens the first one in the JSON editor", async ({ page }) => {
+    name = uniqueName("E2E save issues");
+    await createSurvey(page, name);
+
+    await setEditorJson(page, { elements: [
+      { type: "text", name: "q1" },
+      { type: "checkbox", name: "methods", choices: ["Medication", "Other"], showOtherItem: true }
+    ] });
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    const notice = page.locator("#wp-sjs-editor-notice");
+    await expect(notice).toContainText("Form saved with 1 issue.");
+    await expect(notice.locator(".wp-sjs-editor__issues li")).toHaveText(/The choices of "methods" contain "Other" while showOtherItem is on/);
+
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
+    await notice.getByRole("button", { name: "Review and fix" }).click();
+    await expect(page.locator(".wp-sjs-editor__tabs .nav-tab-active")).toHaveText("Config");
+    await expect(page.locator(".wp-sjs-lint__finding.is-selected")).toContainText("elements[1].choices[1]");
+    const line = await page.evaluate(() => window.monaco.editor.getEditors()[0].getPosition().lineNumber);
+    const text = await page.evaluate((number) => window.monaco.editor.getEditors()[0].getModel().getLineContent(number), line);
+    expect(text).toContain("\"Other\"");
+  });
+
+  test("sends the linter findings with Save for AI tools", async ({ page }) => {
+    name = uniqueName("E2E save issues meta");
+    await createSurvey(page, name);
+    await setEditorJson(page, { elements: [{ type: "checkbox", name: "methods", choices: ["Other"], showOtherItem: true }] });
+    const request = page.waitForRequest((item) => item.method() === "POST" && (item.postData() || "").includes("Issues="));
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    const issues = JSON.parse(new URLSearchParams((await request).postData()).get("Issues"));
+    expect(issues).toEqual([expect.objectContaining({ ruleId: "choices/duplicate", path: "elements[0].choices[0]" })]);
+  });
+
   test("blocks saving invalid JSON and formats valid JSON", async ({ page }) => {
     name = uniqueName("E2E format");
     await createSurvey(page, name);
