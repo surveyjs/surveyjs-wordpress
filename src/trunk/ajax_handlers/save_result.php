@@ -85,6 +85,7 @@ class SurveyJS_SaveResult extends SurveyJS_AJAX_Handler {
             }
 
             SurveyJS_Notification::send( $survey, $settings, $data, $entry_id );
+            SurveyJS_Webhooks::dispatch( $survey, $settings, $data, $entry_id );
 
             do_action( 'wp_surveyjs_save_result', $survey->id, $Json, 'sjs_results', $entry_id );
 

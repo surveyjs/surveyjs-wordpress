@@ -6,7 +6,7 @@ Tested up to: 7.1
 Stable tag: 3.2.4
 Requires PHP: 8.2
 
-Contact forms, surveys and quizzes powered by SurveyJS, with an AI assistant. Email notifications, file uploads and entries — free.
+Contact forms, surveys and quizzes powered by SurveyJS, with an AI assistant. Email notifications, webhooks, file uploads and entries — free.
 
 == Description ==
 
@@ -18,7 +18,7 @@ Build and change forms by simply asking: "Create a contact form with name, email
 * **AI MCP: your AI assistant**, free with the AI app you already use: Claude, ChatGPT, Cursor, Claude Code, Codex, GitHub Copilot in VS Code and other MCP apps.
 * **AI Client: AI chat right in your WordPress admin**, with your own API key from Anthropic, OpenAI or Google, connected once in Settings > Connectors (WordPress 7.0 or later). Requests are billed by your AI provider, not by SurveyJS. The chat is on every SurveyJS Forms screen (create forms from a description or a template, change forms, ask how to do something, analyze entries when you allow it), with one conversation for all screens, and in the form editor, where changes show up right away, with Undo.
 
-* **Safe by design:** the AI can't see form entries unless you allow it, and can't change, delete or export entries or delete forms or anything else. Every AI change is saved as a draft: your live form changes only when you open it in the form editor, review the changes and click Save. The editor shows what the AI changed, warns when it changed email recipients, and warns when an AI app changes a form you have open.
+* **Safe by design:** the AI can't see form entries unless you allow it, and can't change, delete or export entries or delete forms or anything else. Every AI change is saved as a draft: your live form changes only when you open it in the form editor, review the changes and click Save. The editor shows what the AI changed, warns when it changed email recipients or webhooks, and warns when an AI app changes a form you have open. Webhook header values are never shown to the AI.
 * **What the AI can do:** list forms, read and change form JSON, theme and settings (emails, restrictions, schedule, spam protection and more), create forms, look up the SurveyJS documentation and explain how the plugin works. With SurveyJS Forms Pro it also changes PDF settings and the Pro admin settings.
 * **Easy to connect your assistant:** turn the AI connection on and install the free MCP Adapter plugin by the WordPress team in one click. Then either let your assistant set itself up (download a connection file, copy one setup prompt into Claude Code, Codex, Cursor, GitHub Copilot in VS Code or another assistant that runs commands; it connects itself, tests the connection and deletes the file) or set it up manually with ready-made settings and step-by-step instructions for Claude Desktop, Cursor, GitHub Copilot (VS Code), Claude Code, Codex and other apps. A connection is a standard WordPress Application Password that works only with the SurveyJS MCP server; the list of connections shows the last activity of each, and you can revoke any of them at any time.
 * **Read-only by default:** AI apps can read forms and settings until you turn on "Enable MCP write access".
@@ -36,6 +36,12 @@ Build and change forms by simply asking: "Create a contact form with name, email
 * **Spam protection** with a hidden honeypot field and optional **CAPTCHA**: Google reCAPTCHA v2 (checkbox), reCAPTCHA v3 (invisible), Cloudflare Turnstile or hCaptcha.
 * **Akismet spam filter**: when the Akismet plugin is active, turn on **Check entries with Akismet** for a form. Entries that Akismet flags are kept with the Spam status, send no emails, and can be restored with **Not Spam**.
 * **Minimum time to submit**: reject entries that bots send right after the page loads. On by default in new forms (3 seconds); people never notice it.
+
+= Webhooks: Zapier, Make, n8n and any app =
+* **Webhooks**: send every entry to Zapier ("Catch Hook"), Make, n8n, a CRM or your own code as JSON. Several webhooks per form, each with its own conditions on the answers.
+* Answers come both as a flat list of question name and answer text, easy to map in Zapier, and as raw SurveyJS data for code. File answers are download links.
+* **Custom headers** for API keys, a **Send test request** button and a log of recent requests.
+* Requests are sent in the background right after the submission, and failed ones are retried after 5 minutes and after 1 hour. Only public addresses are allowed.
 
 = Entries =
 * Submitted entries are stored in WordPress; you can turn this off for any form.
@@ -63,7 +69,7 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 * A respondent can remove an uploaded file before submitting the form, and the file is deleted right away. Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old (30 days for forms with Save & Resume). This also works on hosts where folders cannot be listed, such as WordPress VIP.
 * The privacy export includes links to the person's files; the links work as long as the export file is kept.
 * **Uninstall**: by default, deleting the plugin keeps your forms, entries and files. Turn on SurveyJS Forms > Settings > Uninstall to delete all forms, entries, uploaded files and settings when the plugin is deleted.
-* Form answers stay on your site and are sent only in the emails you set up, and to AI only if you allow it. The optional CAPTCHA services and the free online UI Builder never receive form answers. Only when you turn on the Akismet check for a form, the respondent's name, email, website and text answers are sent to Akismet (see External services below).
+* Form answers stay on your site and are sent only in the emails and to the webhook URLs you set up, and to AI only if you allow it. The optional CAPTCHA services and the free online UI Builder never receive form answers. Only when you turn on the Akismet check for a form, the respondent's name, email, website and text answers are sent to Akismet (see External services below).
 
 = Form builder =
 * **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. The email notification is off in a new form until you turn it on on the Email tab; Reply-To is already set to the respondent's email.
@@ -179,6 +185,9 @@ When such a form is submitted, your site sends to Akismet through the Akismet pl
 
 This service is provided by Automattic Inc.: [Terms of Service](https://akismet.com/tos/), [Privacy Policy](https://automattic.com/privacy/).
 
+= Webhooks you add =
+When you add a webhook to a form (Webhooks tab of the form editor, none by default), every entry of that form that matches the webhook's conditions is sent to the URL you enter: the form ID and name, the entry ID, date and admin link, the site name and address, and all answers, with download links to the uploaded files that work for 7 days. "Send test request" sends the latest entry of the form, or sample answers when there is none. The receiving service is chosen by you, for example Zapier, Make or n8n, and its terms and privacy policy apply; mention it in your privacy policy. Nothing is sent while a form has no active webhook.
+
 == Installation ==
 
 SurveyJS plugin is free. It works on [self-hosted](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) WordPress and on WordPress.com plans that support plugins.
@@ -234,6 +243,9 @@ Open SurveyJS Forms > Settings > AI MCP, turn on the AI connection, install MCP 
 = Does the AI chat cost money? =
 The chat uses your own API key from an AI provider, and the provider bills each request, usually a few cents per chat. Subscriptions such as Claude Pro or ChatGPT Plus don't include API credits. The MCP connection works with the AI app you already pay for and costs nothing extra.
 
+= How do I send entries to Zapier, Make or n8n? =
+Create a webhook trigger in that service: "Catch Hook" in Webhooks by Zapier, "Custom webhook" in Make or the "Webhook" node in n8n (POST). Copy its URL, open your form, go to the Webhooks tab, click Add webhook, paste the URL and click Send test request, so the service sees a sample entry. Then map the fields under "answers" (one per question, by question name) and save the form. Webhooks are sent by WP-Cron right after the submission; on a site without visitors and with a broken loopback request (see Tools > Site Health) they wait for the next page view.
+
 == Screenshots ==
 
 1. All Forms: your forms and the number of entries in each.
@@ -253,6 +265,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
 Added: AI. Build and change forms by asking the AI chat right in your WordPress admin (your own API key, WordPress 7.0 or later) or your own AI assistant such as Claude, ChatGPT or Cursor through MCP. Off by default; AI changes are drafts until you click Save.
 Added: CC and BCC fields for the email notification and the auto-reply; form importers now bring over CC and BCC addresses.
+Added: webhooks. Send every entry as JSON to Zapier, Make, n8n or any URL, with conditions, custom headers, a test button, a request log and automatic retries.
 
 = 2.5.7 =
 Fixed: a survey failed to load on a page when its JSON contained escaped double quotes, for example in an HTML link or an expression.

@@ -37,6 +37,10 @@ if ( 'enable' === $command ) {
         'settings' => $form ? SurveyJS_Form_Settings::get( $form ) : null,
         'draft'    => $draft,
     );
+} elseif ( 'webhook' === $command ) {
+    $form = SurveyJS_Forms::find( (int) $argv[2] );
+    $settings = array_merge( SurveyJS_Form_Settings::get( $form ), array( 'webhooks' => json_decode( $argv[3], true ) ) );
+    SurveyJS_Forms::update( $form->id, array( 'settings' => wp_json_encode( SurveyJS_Form_Settings::sanitize( $settings, $form ) ) ) );
 } elseif ( 'exec' === $command ) {
     wp_set_current_user( get_user_by( 'login', $argv[2] )->ID );
     $output = wp_get_ability( $argv[3] )->execute( json_decode( $argv[4] ?? 'null', true ) );

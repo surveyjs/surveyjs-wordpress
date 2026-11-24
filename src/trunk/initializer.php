@@ -157,6 +157,8 @@ JS;
             wp_enqueue_script('wps-adm--survey.linter.min.js', plugins_url('libs/library/survey.linter.min.js', __FILE__), array(self::CORE_SCRIPT));
             wp_enqueue_script(self::EDITOR_SCRIPT, plugins_url('editor/editor.js', __FILE__), array(self::UI_SCRIPT, 'wps-adm--survey.linter.min.js', 'wp-i18n', 'heartbeat'), self::asset_version('editor/editor.js'), true);
             wp_set_script_translations(self::EDITOR_SCRIPT, 'surveyjs');
+            wp_enqueue_script('wps-adm--webhooks.js', plugins_url('editor/webhooks.js', __FILE__), array(self::EDITOR_SCRIPT, 'wp-i18n'), self::asset_version('editor/webhooks.js'), true);
+            wp_set_script_translations('wps-adm--webhooks.js', 'surveyjs');
             wp_enqueue_style('wps-adm--editor.css', plugins_url('editor/editor.css', __FILE__), array('dashicons'), self::asset_version('editor/editor.css'));
         }
 

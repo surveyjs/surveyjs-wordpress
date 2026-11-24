@@ -479,8 +479,140 @@ body.wp-core-ui .monaco-editor :where(.button, .monaco-custom-toggle, input):foc
     min-width: 0;
 }
 
-.wp-sjs-editor__settings h2:first-child {
+.wp-sjs-editor__settings h2:first-child,
+.wp-sjs-editor__settings > input[type="hidden"] + h2 {
     margin-top: 0;
+}
+
+.wp-sjs-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0 8px;
+}
+
+.wp-sjs-item {
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.wp-sjs-item.is-inactive .wp-sjs-item__name,
+.wp-sjs-item.is-inactive .wp-sjs-item__summary {
+    color: #646970;
+}
+
+.wp-sjs-item__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 0 0 12px;
+}
+
+.wp-sjs-item__active {
+    flex: none;
+    white-space: nowrap;
+}
+
+.wp-sjs-item__title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 12px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.wp-sjs-item__title:focus-visible {
+    outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+    outline-offset: -2px;
+}
+
+.wp-sjs-item__name {
+    font-weight: 600;
+}
+
+.wp-sjs-item__summary {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: #50575e;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wp-sjs-item.is-open .wp-sjs-item__title .dashicons {
+    transform: rotate(180deg);
+}
+
+.wp-sjs-item__body {
+    padding: 0 12px 12px;
+    border-top: 1px solid #dcdcde;
+}
+
+.wp-sjs-item__body .form-table th {
+    width: 160px;
+}
+
+.wp-sjs-item__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0 0;
+}
+
+.wp-sjs-conditions__rules {
+    margin: 0 0 8px;
+}
+
+.wp-sjs-conditions__rule {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.wp-sjs-conditions__rule select,
+.wp-sjs-conditions__rule input[type="text"] {
+    max-width: 240px;
+}
+
+.wp-sjs-conditions__always {
+    margin-top: 0;
+}
+
+.wp-sjs-webhook-headers {
+    margin: 0 0 8px;
+}
+
+.wp-sjs-webhook-headers__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.wp-sjs-webhook-log {
+    max-width: 640px;
+}
+
+.wp-sjs-webhook-log__error {
+    color: #b32d2e;
+}
+
+.wp-sjs-webhook-format pre {
+    max-width: 640px;
+    overflow: auto;
+    padding: 8px 12px;
+    background: #f6f7f7;
 }
 
 .wp-sjs-editor__loading {

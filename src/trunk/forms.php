@@ -150,6 +150,7 @@ class SurveyJS_Forms {
         SurveyJS_Entries::delete_for_form( self::row( $post ) );
         SurveyJS_Form_Stats::delete_for_form( $post_id );
         SurveyJS_Importer::forget( array( $post_id ) );
+        SurveyJS_Webhooks::forget( $post_id );
     }
 
     private static function save( $postarr ) {

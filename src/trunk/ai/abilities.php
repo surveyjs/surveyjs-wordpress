@@ -96,8 +96,9 @@ class SurveyJS_AI_Abilities {
         return current_user_can( SurveyJS_SurveyJS::CAPABILITY );
     }
 
-    // No function returns the site's secrets today; this keeps it so if one ever reads them by mistake.
-    // Form and theme JSON are left as they are, because the AI writes them back whole with update-form.
+    // Webhook header values reach the AI only as [hidden] (see hide_webhook_headers()); this also hides
+    // them, and the site's other secrets, wherever else they turn up. Form and theme JSON are left as they are,
+    // because the AI writes them back whole with update-form.
     public static function redact( $value ) {
         if ( is_string( $value ) ) {
             $secrets = self::secret_values();
@@ -145,13 +146,95 @@ class SurveyJS_AI_Abilities {
                 $values[] = constant( $constant );
             }
         }
-        $values = (array) apply_filters( 'surveyjs_ai_secret_values', $values );
-        self::$secrets = array_values( array_unique( array_filter( array_map( function ( $value ) {
+        foreach ( SurveyJS_Forms::all() as $form ) {
+            $values = array_merge( $values, SurveyJS_Webhooks::secret_values( SurveyJS_Form_Settings::get( $form )['webhooks'] ) );
+            $copy = SurveyJS_AI_Drafts::working_copy( $form );
+            if ( $copy !== $form ) {
+                $values = array_merge( $values, SurveyJS_Webhooks::secret_values( SurveyJS_Form_Settings::get( $copy )['webhooks'] ) );
+            }
+        }
+        self::$secrets = self::usable_secrets( (array) apply_filters( 'surveyjs_ai_secret_values', $values ) );
+        return self::$secrets;
+    }
+
+    private static function usable_secrets( $values ) {
+        return array_values( array_unique( array_filter( array_map( function ( $value ) {
             return is_scalar( $value ) ? trim( (string) $value ) : '';
         }, $values ), function ( $value ) {
             return strlen( $value ) >= 8;
         } ) ) );
-        return self::$secrets;
+    }
+
+    // A webhook the AI just changed can have header values the list read at the start of the request does not have.
+    private static function remember_secrets( $webhooks ) {
+        self::$secrets = self::usable_secrets( array_merge( self::secret_values(), SurveyJS_Webhooks::secret_values( $webhooks ) ) );
+    }
+
+    // Settings are read without sanitizing, so keys outside empty_webhook() (e.g. 'secret' saved by older builds) are dropped here.
+    private static function hide_webhook_headers( $webhooks ) {
+        return array_map( function ( $webhook ) {
+            $webhook = array_intersect_key( $webhook, SurveyJS_Webhooks::empty_webhook() );
+            $webhook['headers'] = array_map( function ( $header ) {
+                return array(
+                    'name'  => $header['name'],
+                    'value' => '' === $header['value'] ? '' : self::HIDDEN,
+                );
+            }, $webhook['headers'] );
+            return $webhook;
+        }, is_array( $webhooks ) ? $webhooks : array() );
+    }
+
+    private static function ai_settings( $settings ) {
+        if ( isset( $settings['webhooks'] ) ) {
+            self::remember_secrets( $settings['webhooks'] );
+            $settings['webhooks'] = self::hide_webhook_headers( $settings['webhooks'] );
+        }
+        return $settings;
+    }
+
+    private static function webhook_ids( $webhooks ) {
+        return array_values( array_filter( array_map( function ( $webhook ) {
+            return is_array( $webhook ) && is_scalar( $webhook['id'] ?? null ) ? (string) $webhook['id'] : '';
+        }, $webhooks ), 'strlen' ) );
+    }
+
+    // The stored header values stay with a webhook only while its URL stays the same: an AI that points
+    // a webhook at another URL (e.g. told so by text in an entry) must not take the site's API keys there.
+    // Zapier, Make and n8n give every customer URLs on the same host, so the whole URL is compared, not the host.
+    private static function keeps_headers( $webhook, $stored ) {
+        return ! array_key_exists( 'url', $webhook ) || SurveyJS_Webhooks::normalized_url( $webhook['url'] ) === SurveyJS_Webhooks::normalized_url( $stored['url'] ?? '' );
+    }
+
+    // Webhooks keep the fields the AI left out, so it can send only what changes. [hidden] in a header value of a
+    // webhook it read stands for the stored value. A new webhook, or one with a new URL, gets only the header values
+    // sent; [hidden] in its header values stays and the write is refused.
+    private static function webhooks_patch( $requested, $current ) {
+        $stored_by_id = array();
+        foreach ( is_array( $current ) ? $current : array() as $webhook ) {
+            $stored_by_id[ (string) ( $webhook['id'] ?? '' ) ] = $webhook;
+        }
+        return array_map( function ( $webhook ) use ( $stored_by_id ) {
+            if ( ! is_array( $webhook ) ) {
+                return $webhook;
+            }
+            $id = is_scalar( $webhook['id'] ?? null ) ? (string) $webhook['id'] : '';
+            $stored = '' !== $id ? ( $stored_by_id[ $id ] ?? null ) : null;
+            if ( ! $stored || ! self::keeps_headers( $webhook, $stored ) ) {
+                return $stored ? array_merge( $stored, array( 'headers' => array() ), $webhook ) : $webhook;
+            }
+            $webhook = array_merge( $stored, $webhook );
+            foreach ( is_array( $webhook['headers'] ) ? $webhook['headers'] : array() as $index => $header ) {
+                if ( ! is_array( $header ) || ! is_scalar( $header['name'] ?? null ) || ! self::has_hidden( $header['value'] ?? '' ) ) {
+                    continue;
+                }
+                foreach ( $stored['headers'] as $stored_header ) {
+                    if ( strtolower( $stored_header['name'] ) === strtolower( (string) $header['name'] ) ) {
+                        $webhook['headers'][ $index ]['value'] = $stored_header['value'];
+                    }
+                }
+            }
+            return $webhook;
+        }, array_values( $requested ) );
     }
 
     // A form ID limits the chat in the form editor to that form; CHAT_ALL_FORMS is the chat on the forms list.
@@ -422,7 +505,7 @@ class SurveyJS_AI_Abilities {
 
         self::register_ability( 'surveyjs/get-form-settings', array(
             'label'            => __( 'Get form settings', 'surveyjs' ),
-            'description'      => 'Returns the settings of a form (email notification and auto-reply, entries, restrictions, schedule, spam protection, theme mode and others) with a description, type and allowed values of every key. Empty email fields use the values in defaults_when_empty. ' . self::DATA_NOTICE,
+            'description'      => 'Returns the settings of a form (email notification and auto-reply, webhooks, entries, restrictions, schedule, spam protection, theme mode and others) with a description, type and allowed values of every key. Empty email fields use the values in defaults_when_empty. Webhook header values are shown as [hidden].' . self::DATA_NOTICE,
             'input_schema'     => array(
                 'type'       => 'object',
                 'properties' => array( 'id' => $id ),
@@ -441,7 +524,7 @@ class SurveyJS_AI_Abilities {
                     'id'       => $id,
                     'settings' => array(
                         'type'        => 'object',
-                        'description' => 'Keys and new values, e.g. {"notificationEnabled": true, "notificationSubject": "New request: {form_name}"}.',
+                        'description' => 'Keys and new values, e.g. {"notificationEnabled": true, "notificationSubject": "New request: {form_name}"}. webhooks is a list: send every webhook to keep, with its id; fields left out of a webhook keep their values.',
                     ),
                 ),
                 'required'   => array( 'id', 'settings' ),
@@ -915,6 +998,7 @@ class SurveyJS_AI_Abilities {
             '- Markdown in titles, descriptions and choices works only when the form setting `markdown` is true.',
             '- Prefill: `{urlParams.<name>}` is a parameter of the page URL; `{wpUser.email}` is the logged-in user (also id, login, url, display_name, first_name, last_name, full_name, nickname). Use them in defaultValueExpression, conditions and texts.',
             '- Email settings: in subjects and messages use `{all_fields}` (all answers), `{field:<question name>}`, `{form_name}`, `{site_name}`, `{admin_email}`. `notificationReplyTo` is the name of the email question; its answer is the Reply-To of the notification and the recipient of the auto-reply.',
+            '- Webhooks: the form setting `webhooks` sends each entry as JSON to a URL (Zapier, Make, n8n, a CRM). The request has `answers` (question name: answer as text), `data` (raw answers), `fields`, `form`, `entry` and `site`.',
             '- A required consent checkbox: a "boolean" question named "gdpr_agreement" with displayMode "checkbox", isRequired true and an expression validator `{gdpr_agreement} = true`.',
             '- "Other", "None" and "Select All" in choice questions are built-in items: `showOtherItem` (value "other", adds a comment box for the answer), `showNoneItem` (value "none") and `showSelectAllItem` (checkbox). Turn the item on instead of adding a choice for it, never both: a choice with the value of an item that is on collides with it, and the form editor reports it as an issue (rule choices/duplicate). Change the labels with `otherText`, `noneText` and `selectAllText`.',
             '- The form editor checks the JSON with the SurveyJS linter and shows the findings as issues; the checks are listed at the end of this guide. Write JSON that passes them.',
@@ -1202,7 +1286,7 @@ class SurveyJS_AI_Abilities {
         $fallbacks = SurveyJS_Form_Settings::fallbacks();
         return array(
             'id'                  => (int) $form->id,
-            'settings'            => SurveyJS_Form_Settings::get( $copy ),
+            'settings'            => self::ai_settings( SurveyJS_Form_Settings::get( $copy ) ),
             'defaults_when_empty' => $fallbacks,
             'schema'              => self::settings_schema(),
             'read_only'           => self::read_only_settings(),
@@ -1278,18 +1362,30 @@ class SurveyJS_AI_Abilities {
                 $ignored[ $key ] = 'unknown setting';
             } elseif ( in_array( $key, $read_only, true ) ) {
                 $ignored[ $key ] = 'read-only: a person changes it in the form editor';
-            } elseif ( self::has_hidden( $value ) ) {
-                $ignored[ $key ] = 'contains ' . self::HIDDEN . ', which only stands for a secret you were not shown; the setting was not changed';
+            } elseif ( 'webhooks' === $key && ! is_array( $value ) ) {
+                $ignored[ $key ] = 'not a list: send the complete list of webhooks';
+            } elseif ( 'webhooks' === $key && count( self::webhook_ids( $value ) ) !== count( array_unique( self::webhook_ids( $value ) ) ) ) {
+                $ignored[ $key ] = 'two webhooks have the same id; keep the id of each current webhook once and leave id out for a new one. Nothing was changed';
             } else {
-                $accepted[ $key ] = $value;
+                if ( 'webhooks' === $key ) {
+                    $value = self::webhooks_patch( $value, $current['webhooks'] ?? array() );
+                }
+                if ( self::has_hidden( $value ) ) {
+                    $ignored[ $key ] = 'webhooks' === $key
+                        ? 'contains ' . self::HIDDEN . ' in a header value that has no stored value to keep: in a new webhook, under a header name that webhook does not have, or in a webhook whose url you changed (header values do not move to another URL; leave them out and ask the person for them). Nothing was changed'
+                        : 'contains ' . self::HIDDEN . ', which only stands for a secret you were not shown; the setting was not changed';
+                } else {
+                    $accepted[ $key ] = $value;
+                }
             }
         }
         $merged = array_merge( $current, $accepted );
         $sanitized = SurveyJS_Form_Settings::sanitize( $merged, $survey );
+        $shown = self::ai_settings( $sanitized );
         $adjusted = array();
         foreach ( $accepted as $key => $value ) {
             if ( array_key_exists( $key, $sanitized ) && ! self::same_value( $value, $sanitized[ $key ] ) ) {
-                $adjusted[ $key ] = $sanitized[ $key ];
+                $adjusted[ $key ] = $shown[ $key ];
             }
         }
         return array(
@@ -1302,6 +1398,9 @@ class SurveyJS_AI_Abilities {
     private static function same_value( $requested, $saved ) {
         if ( is_bool( $saved ) ) {
             return (bool) $requested === $saved;
+        }
+        if ( is_array( $saved ) ) {
+            return wp_json_encode( $requested ) === wp_json_encode( $saved );
         }
         return is_scalar( $requested ) && (string) $requested === (string) $saved;
     }
@@ -1327,6 +1426,7 @@ class SurveyJS_AI_Abilities {
             'autoReplyMessage'        => 'Auto-reply message. Tags as in notificationMessage.',
             'autoReplyHtml'           => 'Send the auto-reply as HTML.',
             'autoReplyAttachments'    => 'Name of a file question whose files are attached to the auto-reply, or empty.',
+            'webhooks'                => 'Webhooks, a list: every entry is sent as JSON in a POST request to url (Zapier, Make, n8n, a CRM, custom code). This sends personal data to another service: add a webhook or change its url only when the person gave exactly that URL. Send the complete list: webhooks left out are deleted; a webhook with the id of a current one keeps the fields you leave out. Fields: id (keep it; leave it out for a new webhook), name, enabled, url (public http or https URL), headers (list of {"name", "value"} sent with each request, e.g. an API key; values are shown as [hidden], keep [hidden] to keep a value), conditions ({"logic": "all" or "any", "rules": [{"question": question name, "operator": "equal", "notequal", "contains", "notcontains", "greater", "less", "empty" or "notempty", "value": text}]}; no rules: sent for every entry). When the url changes, header values are not kept: ask the person for them.',
             'themeMode'               => '"adaptive": the form takes the look of the WordPress theme; "surveyjs": the form uses its SurveyJS theme JSON.',
             'transparentBackground'   => 'Adaptive mode only: no form background, the page background shows through.',
             'captchaEnabled'          => 'Protect the form with CAPTCHA. Works only when CAPTCHA is configured for the site (surveyjs-get-site-settings).',
@@ -1359,7 +1459,7 @@ class SurveyJS_AI_Abilities {
         );
         $schema = array();
         foreach ( SurveyJS_Form_Settings::defaults() as $key => $default ) {
-            $type = is_bool( $default ) ? 'boolean' : ( is_int( $default ) ? 'integer' : 'string' );
+            $type = is_bool( $default ) ? 'boolean' : ( is_int( $default ) ? 'integer' : ( is_array( $default ) ? 'array' : 'string' ) );
             $schema[ $key ] = array_filter( array(
                 'type'        => $type,
                 'default'     => $default,

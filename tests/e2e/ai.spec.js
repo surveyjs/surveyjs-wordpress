@@ -413,6 +413,7 @@ test.describe("AI connection (MCP)", () => {
     await expect(notice).toContainText("AI changes are loaded into the editor but not saved yet.");
     await expect(notice).toContainText("Send To");
     await expect(notice).toContainText("Check the Email tab:");
+    await expect(notice).not.toContainText("Check the Webhooks tab:");
     await expect(page.locator(".wp-sjs-editor__tabs .nav-tab[data-tab='email']")).toHaveClass(/wp-sjs-editor__tab--ai/);
     await expect(page.locator("#wp-sjs-notification-to")).toHaveValue("ai@example.com");
 
@@ -425,6 +426,51 @@ test.describe("AI connection (MCP)", () => {
     const live = fixture("form", formId);
     expect(live.draft).toBeNull();
     expect(live.settings.notificationTo).toBe(recipients);
+  });
+
+  test("hides webhook header values from AI apps and never moves them to another URL", async ({ page }) => {
+    const token = "Bearer e2e-header-token";
+    fixture("webhook", formId, JSON.stringify([{ id: "crm", name: "CRM", url: "https://crm.example.com/hook", headers: [{ name: "Authorization", value: token }] }]));
+    const read = await mcp.tool("surveyjs-get-form-settings", { id: formId });
+    expect(read.isError, read.text).toBe(false);
+    expect(read.text).not.toContain("e2e-header-token");
+    expect(read.data.settings.webhooks).toEqual([expect.objectContaining({ id: "crm", url: "https://crm.example.com/hook", headers: [{ name: "Authorization", value: "[hidden]" }] })]);
+    expect(read.data.schema.webhooks.type).toBe("array");
+
+    const kept = await mcp.tool("surveyjs-update-form-settings", { id: formId, settings: { webhooks: [
+      { ...read.data.settings.webhooks[0], name: "CRM leads" },
+      { name: "Sheet", url: "https://sheet.example.com/hook" }
+    ] } });
+    expect(kept.isError, kept.text).toBe(false);
+    expect(kept.data.changed).toEqual(["webhooks"]);
+    let saved = JSON.parse(fixture("form", formId).draft.settings).webhooks;
+    expect(saved[0]).toMatchObject({ id: "crm", name: "CRM leads", url: "https://crm.example.com/hook", headers: [{ name: "Authorization", value: token }] });
+    expect(saved[1]).toMatchObject({ name: "Sheet", url: "https://sheet.example.com/hook", headers: [] });
+    const sheetId = saved[1].id;
+
+    const duplicate = await mcp.tool("surveyjs-update-form-settings", { id: formId, settings: { webhooks: [{ id: "crm" }, { id: "crm", url: "https://evil.example.com/hook", headers: [{ name: "Authorization", value: "[hidden]" }] }] } });
+    expect(duplicate.data.ignored.webhooks).toContain("same id");
+
+    const moved = await mcp.tool("surveyjs-update-form-settings", { id: formId, settings: { webhooks: [{ id: "crm", url: "https://hooks.example.com/other", headers: [{ name: "Authorization", value: "[hidden]" }] }, { id: sheetId }] } });
+    expect(moved.data.ignored.webhooks).toContain("[hidden]");
+    expect(JSON.parse(fixture("form", formId).draft.settings).webhooks[0].url).toBe("https://crm.example.com/hook");
+
+    const movedWithout = await mcp.tool("surveyjs-update-form-settings", { id: formId, settings: { webhooks: [{ id: "crm", url: "https://hooks.example.com/other" }, { id: sheetId }] } });
+    expect(movedWithout.isError, movedWithout.text).toBe(false);
+    saved = JSON.parse(fixture("form", formId).draft.settings).webhooks;
+    expect(saved[0]).toMatchObject({ id: "crm", url: "https://hooks.example.com/other", headers: [] });
+    expect(saved[1].id).toBe(sheetId);
+
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${formId}`);
+    const notice = page.locator("#wp-sjs-ai-draft-notice");
+    await expect(notice).toContainText("Check the Webhooks tab:");
+    await expect(notice).toContainText("entries will be sent to a new address");
+    await expect(notice).toContainText("Changed: Webhooks.");
+    page.once("dialog", (dialog) => dialog.accept());
+    const reloaded = page.waitForEvent("load");
+    await notice.getByRole("button", { name: "Discard AI changes" }).click();
+    await reloaded;
+    fixture("webhook", formId, "[]");
   });
 
   test("lets the MCP Adapter's default server discover and run only SurveyJS abilities", async () => {

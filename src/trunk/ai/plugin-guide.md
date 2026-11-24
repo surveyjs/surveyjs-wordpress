@@ -8,7 +8,7 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - **SurveyJS Forms > Add New Form**: start from a blank form or a template, or import forms from Contact Form 7, WPForms, Gravity Forms, Ninja Forms and Fluent Forms (Import button).
 - **SurveyJS Forms > Getting Started**: a short checklist for new users.
 - **SurveyJS Forms > Settings**: General tab (CAPTCHA keys, IP addresses, form views, delete old entries, uninstall) AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).
-- **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Open full preview, Embed and Save. Nothing is published until the person clicks Save.
+- **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Webhooks, Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Open full preview, Embed and Save. Nothing is published until the person clicks Save.
 
 ## Building a form
 
@@ -36,6 +36,13 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - Auto-reply to the respondent, HTML emails, file attachments from a file question, and a "Send test email" button.
 - Tags: `{all_fields}`, `{field:question_name}`, `{form_name}`, `{site_name}`, `{admin_email}`.
 - Emails not arriving: send a test email first; most sites need an SMTP plugin, because many hosts block PHP mail. Use a sender address on the site's own domain.
+
+## Webhooks (Webhooks tab)
+
+- Sends every entry as JSON in a POST request to a URL: Zapier ("Catch Hook" in Webhooks by Zapier), Make ("Custom webhook"), n8n ("Webhook" node), a CRM or custom code. Several webhooks per form, each with conditions on the answers ("Send when all / any condition matches").
+- The request has `answers` (question name: answer as text, easy to map in Zapier), `data` (answers as SurveyJS stores them), `fields` (with question titles), `form`, `entry` (id, date, link to the entry) and `site`. Files are download links.
+- Optional headers (e.g. an API key), "Send test request" and a log of recent requests. Failed requests are retried after 5 minutes and after 1 hour.
+- Requests are sent by WP-Cron right after the submission; only public addresses are allowed.
 
 ## Entries (Entries tab and the Entries screen)
 

@@ -147,11 +147,14 @@
                 input.checked = "checkedValue" in input.dataset ? value === input.dataset.checkedValue : Boolean(value);
             } else if (pickers.some((picker) => picker.select === input)) {
                 renderPickerOptions(pickers.find((picker) => picker.select === input), value);
+            } else if (input.dataset.settingType === "json") {
+                input.value = JSON.stringify(value ?? null);
             } else {
                 input.value = value;
                 input.placeholder = config.settingPlaceholders[input.dataset.setting] ?? "";
             }
         });
+        document.dispatchEvent(new CustomEvent("surveyjs:editor-settings-filled"));
     }
     fillSettings(config.settings);
     saved.settings = JSON.stringify(readSettings());
@@ -203,7 +206,7 @@
     function readSettings() {
         const settings = {};
         settingInputs.forEach((input) => {
-            settings[input.dataset.setting] = input.type === "checkbox" ? checkboxValue(input) : input.value;
+            settings[input.dataset.setting] = input.type === "checkbox" ? checkboxValue(input) : input.dataset.settingType === "json" ? JSON.parse(input.value || "null") : input.value;
         });
         return settings;
     }
@@ -1919,6 +1922,14 @@
             warning.append(element("strong", "", __("Check the Email tab:", "surveyjs")), " ", __("the AI changed who receives emails or which files they include. Save only if you asked for this.", "surveyjs"));
             notice.append(warning);
         }
+        if (aiDraft.webhooksChanged) {
+            const warning = element("p", "wp-sjs-editor__ai-alert");
+            const text = aiDraft.webhookUrlChanged
+                ? __("the AI added a webhook URL or changed one, so entries will be sent to a new address. Save only if you gave the AI exactly this URL.", "surveyjs")
+                : __("the AI changed where or when entries are sent to other services. Save only if you asked for this.", "surveyjs");
+            warning.append(element("strong", "", __("Check the Webhooks tab:", "surveyjs")), " ", text);
+            notice.append(warning);
+        }
         if (aiDraft.outdated) {
             notice.append(element("p", "wp-sjs-editor__ai-alert", __("The form was saved after the AI started these changes. Saving replaces the edits made since then.", "surveyjs")));
         }
@@ -1988,7 +1999,7 @@
         const input = settingInput(key);
         const heading = input && input.closest("tr") && input.closest("tr").querySelector("th");
         const tab = input && input.closest("[data-panel]") ? findTab(input.closest("[data-panel]").dataset.panel) : null;
-        if (!heading) return key;
+        if (!heading) return tab ? tab.textContent.trim() : key;
         return (tab ? tab.textContent.trim() + ": " : "") + heading.textContent.trim();
     }
 

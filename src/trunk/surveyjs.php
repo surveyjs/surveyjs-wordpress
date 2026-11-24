@@ -53,6 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         SurveyJS_Drafts::unschedule_cleanup();
         SurveyJS_Entries::unschedule_partial_cleanup();
         SurveyJS_Entry_Retention::unschedule();
+        SurveyJS_Webhooks::unschedule();
         SurveyJS_AI::revoke_all_connections();
     }
     register_deactivation_hook( __FILE__, 'wps_uninstall');
@@ -80,6 +81,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include_once( __DIR__ . "/upgrade_notice.php" );
     include_once( __DIR__ . "/dashboard_widget.php" );
     include( __DIR__ . "/survey_values.php" );
+    include( __DIR__ . "/conditions.php" );
     include( __DIR__ . "/form_settings.php" );
     include( __DIR__ . "/form_variables.php" );
     include( __DIR__ . "/surveyjs_themes.php" );
@@ -87,6 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/uploaded_files.php" );
     include( __DIR__ . "/site_health.php" );
     include( __DIR__ . "/notification.php" );
+    include( __DIR__ . "/webhooks.php" );
     include( __DIR__ . "/captcha.php" );
     include( __DIR__ . "/akismet.php" );
     include( __DIR__ . "/submit_time.php" );
@@ -126,6 +129,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/ajax_handlers/send_test_email.php" );
     new SurveyJS_SendTestEmail();
 
+    include( __DIR__ . "/ajax_handlers/test_webhook.php" );
+    new SurveyJS_TestWebhook();
+
     include( __DIR__ . "/ajax_handlers/upload_files.php" );
     new SurveyJS_UploadFiles();
 
@@ -151,3 +157,4 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     SurveyJS_Restrictions::init();
     SurveyJS_Entry_Retention::init();
+    SurveyJS_Webhooks::init();
