@@ -3,10 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SurveyJS_Webhooks {
 
-    const DELIVER_HOOK = 'surveyjs_webhook_deliver';
-    const QUEUE_PREFIX = 'surveyjs_webhook_queue_';
-    const LOG_PREFIX = 'surveyjs_webhook_log_';
-    const LOG_SIZE = 30;
     const MAX_WEBHOOKS = 50;
     const RETRY_DELAYS = array( 5 * MINUTE_IN_SECONDS, HOUR_IN_SECONDS );
     const EVENT = 'entry.submitted';
@@ -44,25 +40,6 @@ class SurveyJS_Webhooks {
         'fec0::/10',
         'ff00::/8',
     );
-
-    public static function init() {
-        add_action( self::DELIVER_HOOK, array( __CLASS__, 'deliver' ) );
-    }
-
-    public static function unschedule() {
-        wp_unschedule_hook( self::DELIVER_HOOK );
-        self::delete_queue();
-    }
-
-    // Queued requests hold respondents' answers. They are found by name rather than through the cron events, so a
-    // request whose event was lost is deleted too.
-    private static function delete_queue() {
-        global $wpdb;
-        $names = $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( self::QUEUE_PREFIX ) . '%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- runs on deactivation only; the options API cannot list options by prefix.
-        foreach ( $names as $name ) {
-            delete_option( $name );
-        }
-    }
 
     public static function empty_webhook() {
         return array(
@@ -158,72 +135,30 @@ class SurveyJS_Webhooks {
         }
         $body = wp_json_encode( self::payload( $survey, $settings, $data, $entry_id, self::EVENT ) );
         foreach ( $webhooks as $webhook ) {
-            $key = self::delivery_id();
-            add_option( self::QUEUE_PREFIX . $key, array(
-                'form'    => (int) $survey->id,
-                'webhook' => $webhook['id'],
-                'entry'   => (int) $entry_id,
-                'body'    => $body,
-                'attempt' => 1,
-            ), '', false );
-            if ( ! self::schedule( $key, time() ) ) {
-                delete_option( self::QUEUE_PREFIX . $key );
-                self::log( (int) $survey->id, $webhook['id'], array(
-                    'ok'      => false,
-                    'code'    => 0,
-                    'error'   => __( 'WP-Cron could not schedule the request, so it was not sent.', 'surveyjs' ),
-                    'event'   => self::EVENT,
-                    'entry'   => (int) $entry_id,
-                    'attempt' => 1,
-                    'retry'   => false,
-                ) );
-            }
+            SurveyJS_Delivery_Queue::enqueue( 'webhook', $survey->id, $webhook['id'], $entry_id, array( 'body' => $body ) );
         }
-        if ( ! ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) ) {
-            spawn_cron();
-        }
+        SurveyJS_Delivery_Queue::spawn();
     }
 
-    private static function schedule( $key, $time ) {
-        return true === wp_schedule_single_event( $time, self::DELIVER_HOOK, array( $key ), true );
+    public static function retry_delays() {
+        return self::RETRY_DELAYS;
     }
 
-    private static function delivery_id() {
-        return str_replace( '-', '', wp_generate_uuid4() );
-    }
-
-    // The payload stays queued until it is delivered or the last retry fails, so retries send the same body.
-    public static function deliver( $key ) {
-        if ( ! is_string( $key ) || ! preg_match( '/^[a-f0-9]{32}$/', $key ) ) {
-            return;
-        }
-        $item = get_option( self::QUEUE_PREFIX . $key );
-        if ( ! is_array( $item ) ) {
-            return;
-        }
-        $survey = SurveyJS_Forms::find( (int) $item['form'] );
-        $webhook = $survey ? self::find( SurveyJS_Form_Settings::get( $survey ), $item['webhook'] ) : null;
+    // The body is built once per entry, so retries send the same body.
+    public static function deliver_job( $job, $survey ) {
+        $webhook = self::find( SurveyJS_Form_Settings::get( $survey ), $job['item'] );
         if ( ! $webhook || empty( $webhook['enabled'] ) ) {
-            delete_option( self::QUEUE_PREFIX . $key );
-            return;
+            return null;
         }
-        $attempt = (int) $item['attempt'];
-        $result = self::post( $webhook, (string) $item['body'], self::EVENT, $key );
-        $retry = ! $result['ok'] && $attempt <= count( self::RETRY_DELAYS );
-        if ( $retry ) {
-            $item['attempt'] = $attempt + 1;
-            update_option( self::QUEUE_PREFIX . $key, $item, false );
-            $retry = self::schedule( $key, time() + self::RETRY_DELAYS[ $attempt - 1 ] );
+        return self::post( $webhook, (string) $job['body'], self::EVENT, $job['key'] );
+    }
+
+    public static function resend_job( $survey, $settings, $webhook_id, $entry ) {
+        $webhook = self::find( $settings, $webhook_id );
+        if ( ! $webhook || '' === $webhook['url'] ) {
+            return new WP_Error( 'surveyjs_webhook_not_found', __( 'This webhook was deleted or has no URL.', 'surveyjs' ) );
         }
-        if ( ! $retry ) {
-            delete_option( self::QUEUE_PREFIX . $key );
-        }
-        self::log( (int) $item['form'], $webhook['id'], $result + array(
-            'event'   => self::EVENT,
-            'entry'   => (int) $item['entry'],
-            'attempt' => $attempt,
-            'retry'   => $retry,
-        ) );
+        return array( 'body' => wp_json_encode( self::payload( $survey, $settings, $entry->data, $entry->id, self::EVENT, $entry->created_at ) ) );
     }
 
     public static function test( $survey, $settings, $webhook ) {
@@ -231,8 +166,9 @@ class SurveyJS_Webhooks {
         $entry = $entries ? $entries[0] : null;
         $data = $entry ? $entry->data : self::sample_data( $survey );
         $body = wp_json_encode( self::payload( $survey, $settings, $data, $entry ? $entry->id : 0, self::TEST_EVENT, $entry ? $entry->created_at : '' ) );
-        $result = self::post( $webhook, $body, self::TEST_EVENT, self::delivery_id() );
-        self::log( (int) $survey->id, $webhook['id'], $result + array(
+        $result = self::post( $webhook, $body, self::TEST_EVENT, SurveyJS_Delivery_Queue::delivery_id() );
+        SurveyJS_Delivery_Queue::log( (int) $survey->id, $webhook['id'], $result + array(
+            'type'    => 'webhook',
             'event'   => self::TEST_EVENT,
             'entry'   => $entry ? (int) $entry->id : 0,
             'attempt' => 1,
@@ -358,6 +294,12 @@ class SurveyJS_Webhooks {
     }
 
     public static function payload( $survey, $settings, $data, $entry_id, $event, $created_at = '' ) {
+        $payload = self::snapshot( $survey, $settings, $data, $entry_id, $event, $created_at );
+        return apply_filters( 'surveyjs_webhook_payload', $payload, $survey, is_array( $payload['data'] ) ? $payload['data'] : array(), (int) $entry_id );
+    }
+
+    // The answers as text and as stored, without the webhook filter: integrations build their requests from it.
+    public static function snapshot( $survey, $settings, $data, $entry_id, $event, $created_at = '' ) {
         // Files of forms that do not store entries are deleted a day after the submission.
         $lifetime = empty( $settings['storeEntries'] ) ? DAY_IN_SECONDS : WEEK_IN_SECONDS;
         $answers = array();
@@ -381,7 +323,7 @@ class SurveyJS_Webhooks {
         }
         $time = '' !== (string) $created_at ? strtotime( $created_at . ' UTC' ) : time();
         $data = self::with_file_urls( $data, $lifetime );
-        return apply_filters( 'surveyjs_webhook_payload', array(
+        return array(
             'event'   => $event,
             'form'    => array(
                 'id'   => (int) $survey->id,
@@ -399,7 +341,7 @@ class SurveyJS_Webhooks {
             'answers' => $answers ? $answers : new stdClass(),
             'data'    => $data ? $data : new stdClass(),
             'fields'  => $fields,
-        ), $survey, $data, (int) $entry_id );
+        );
     }
 
     private static function with_file_urls( $value, $lifetime ) {
@@ -416,44 +358,12 @@ class SurveyJS_Webhooks {
         return $value;
     }
 
-    private static function sample_data( $survey ) {
+    public static function sample_data( $survey ) {
         $data = array();
         foreach ( SurveyJS_Survey_Values::survey_questions( SurveyJS_Client::decode_survey_json( $survey->json ) ) as $question ) {
             $multiple = in_array( $question['type'] ?? '', array( 'checkbox', 'tagbox', 'ranking' ), true );
             $data[ $question['name'] ] = $multiple ? array( __( 'Sample answer', 'surveyjs' ) ) : __( 'Sample answer', 'surveyjs' );
         }
         return $data;
-    }
-
-    private static function log( $form_id, $webhook_id, $result ) {
-        $log = self::log_entries( $form_id );
-        array_unshift( $log, array(
-            'webhook' => $webhook_id,
-            'time'    => time(),
-            'event'   => $result['event'],
-            'entry'   => $result['entry'],
-            'attempt' => $result['attempt'],
-            'ok'      => $result['ok'],
-            'code'    => $result['code'],
-            'error'   => mb_substr( (string) $result['error'], 0, 300 ),
-            'retry'   => $result['retry'],
-        ) );
-        update_option( self::LOG_PREFIX . (int) $form_id, array_slice( $log, 0, self::LOG_SIZE ), false );
-    }
-
-    public static function log_entries( $form_id ) {
-        $log = get_option( self::LOG_PREFIX . (int) $form_id, array() );
-        return is_array( $log ) ? $log : array();
-    }
-
-    public static function client_log( $form_id ) {
-        return array_map( function ( $item ) {
-            $item['time'] = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $item['time'] );
-            return $item;
-        }, self::log_entries( $form_id ) );
-    }
-
-    public static function forget( $form_id ) {
-        delete_option( self::LOG_PREFIX . (int) $form_id );
     }
 }

@@ -7,8 +7,8 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - **SurveyJS Forms > All Forms**: the list of forms with entries count, views and conversion rate. Hover a form for Edit, Entries, Duplicate, Export and Delete. "AI changes to review" marks a form with an unsaved AI draft.
 - **SurveyJS Forms > Add New Form**: start from a blank form or a template, or import forms from Contact Form 7, WPForms, Gravity Forms, Ninja Forms and Fluent Forms (Import button).
 - **SurveyJS Forms > Getting Started**: a short checklist for new users.
-- **SurveyJS Forms > Settings**: General tab (CAPTCHA keys, IP addresses, form views, delete old entries, uninstall) AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).
-- **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Webhooks, Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Open full preview, Embed and Save. Nothing is published until the person clicks Save.
+- **SurveyJS Forms > Settings**: General tab (CAPTCHA keys, IP addresses, form views, delete old entries, uninstall), Integrations tab (connected Mailchimp accounts), AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).
+- **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Integrations (integrations and webhooks), Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Open full preview, Embed and Save. Nothing is published until the person clicks Save.
 
 ## Building a form
 
@@ -37,7 +37,15 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - Tags: `{all_fields}`, `{field:question_name}`, `{form_name}`, `{site_name}`, `{admin_email}`.
 - Emails not arriving: send a test email first; most sites need an SMTP plugin, because many hosts block PHP mail. Use a sender address on the site's own domain.
 
-## Webhooks (Webhooks tab)
+## Integrations (Integrations tab)
+
+- Sends every entry to a connected account: **Mailchimp** (adds or updates a contact in an audience, with contact fields, tags and double opt-in, on by default).
+- First connect the account on SurveyJS Forms > Settings > Integrations: for Mailchimp an API key (Profile > Extras > API keys). Keys are stored encrypted and never shown again, also not to AI. Several connections per service are allowed (two Mailchimp accounts).
+- Then on the form's Integrations tab: choose the service, "Add integration", pick the connection (a single one is chosen for you), map the answers (Mailchimp: the email question, contact fields, tags), add conditions, "Send test", Save.
+- Mailchimp needs consent: the form is saved only when the integration has a condition on a consent question or "This form is a newsletter signup (submitting it means consent)" is checked. The button "Add "Subscribe me to the newsletter" question" next to Conditions adds the checkbox to the form and the condition.
+- Entries are sent by WP-Cron right after the submission; failed requests are retried after 5 minutes, 1 hour and 6 hours. "Recent requests" shows the log, and "Send again" resends a stored entry. When a key stops working the connection shows "Needs attention" in Settings > Integrations.
+
+## Webhooks (Integrations tab, below the integrations)
 
 - Sends every entry as JSON in a POST request to a URL: Zapier ("Catch Hook" in Webhooks by Zapier), Make ("Custom webhook"), n8n ("Webhook" node), a CRM or custom code. Several webhooks per form, each with conditions on the answers ("Send when all / any condition matches").
 - The request has `answers` (question name: answer as text, easy to map in Zapier), `data` (answers as SurveyJS stores them), `fields` (with question titles), `form`, `entry` (id, date, link to the entry) and `site`. Files are download links.

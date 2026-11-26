@@ -28,7 +28,7 @@ class SurveyJS_TestWebhook extends SurveyJS_AJAX_Handler {
         }
 
         $result = SurveyJS_Webhooks::test( $survey, $settings, $webhook );
-        $log = SurveyJS_Webhooks::client_log( $survey->id );
+        $log = SurveyJS_Delivery_Queue::client_log( $survey->id );
         if ( ! $result['ok'] ) {
             /* translators: %s: error message or HTTP status, for example "404 Not Found" */
             wp_send_json_error( array( 'message' => sprintf( __( 'The test was not delivered: %s', 'surveyjs' ), $result['error'] ), 'log' => $log ) );

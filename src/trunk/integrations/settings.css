@@ -1,0 +1,45 @@
+.sjs-integrations {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.sjs-integrations__service.card {
+    max-width: none;
+    margin: 0;
+}
+
+.sjs-integrations__connections td {
+    vertical-align: top;
+}
+
+.sjs-integrations__actions form {
+    display: inline-block;
+    margin: 0 8px 4px 0;
+}
+
+.sjs-integrations__actions details,
+.sjs-integrations__add {
+    margin-top: 8px;
+}
+
+.sjs-integrations__add summary,
+.sjs-integrations__actions summary {
+    cursor: pointer;
+    color: #2271b1;
+}
+
+.sjs-integrations__status.is-ok {
+    color: #008a20;
+}
+
+.sjs-integrations__status.is-error {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.sjs-integrations__help {
+    margin-top: 12px;
+    border-top: 1px solid #dcdcde;
+}

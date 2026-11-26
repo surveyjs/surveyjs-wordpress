@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         SurveyJS_Drafts::unschedule_cleanup();
         SurveyJS_Entries::unschedule_partial_cleanup();
         SurveyJS_Entry_Retention::unschedule();
-        SurveyJS_Webhooks::unschedule();
+        SurveyJS_Delivery_Queue::unschedule();
         SurveyJS_AI::revoke_all_connections();
     }
     register_deactivation_hook( __FILE__, 'wps_uninstall');
@@ -89,7 +89,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/uploaded_files.php" );
     include( __DIR__ . "/site_health.php" );
     include( __DIR__ . "/notification.php" );
+    include( __DIR__ . "/delivery_queue.php" );
     include( __DIR__ . "/webhooks.php" );
+    include( __DIR__ . "/integrations/service.php" );
+    include( __DIR__ . "/integrations/chat_service.php" );
+    include( __DIR__ . "/integrations/contacts_service.php" );
+    include( __DIR__ . "/integrations/connections.php" );
+    include( __DIR__ . "/integrations/integrations.php" );
+    SurveyJS_Integrations::load_services();
     include( __DIR__ . "/captcha.php" );
     include( __DIR__ . "/akismet.php" );
     include( __DIR__ . "/submit_time.php" );
@@ -132,6 +139,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     include( __DIR__ . "/ajax_handlers/test_webhook.php" );
     new SurveyJS_TestWebhook();
 
+    include( __DIR__ . "/ajax_handlers/integrations.php" );
+    new SurveyJS_TestIntegration();
+    new SurveyJS_IntegrationTargets();
+    new SurveyJS_ResendDelivery();
+
     include( __DIR__ . "/ajax_handlers/upload_files.php" );
     new SurveyJS_UploadFiles();
 
@@ -157,4 +169,5 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
     SurveyJS_Restrictions::init();
     SurveyJS_Entry_Retention::init();
-    SurveyJS_Webhooks::init();
+    SurveyJS_Delivery_Queue::init();
+    SurveyJS_Connections::init();

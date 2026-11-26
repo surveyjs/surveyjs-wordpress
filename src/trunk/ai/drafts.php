@@ -153,6 +153,7 @@ class SurveyJS_AI_Drafts {
             'emailChanged'    => (bool) array_intersect( $changed_settings, (array) apply_filters( 'surveyjs_ai_sensitive_form_settings', self::EMAIL_KEYS ) ),
             'webhooksChanged' => self::webhook_routing( $draft_settings['webhooks'] ?? array() ) !== self::webhook_routing( $live_settings['webhooks'] ?? array() ),
             'webhookUrlChanged' => (bool) array_diff( self::webhook_urls( $draft_settings['webhooks'] ?? array() ), self::webhook_urls( $live_settings['webhooks'] ?? array() ) ),
+            'integrationsChanged' => self::integration_routing( $draft_settings['integrations'] ?? array() ) !== self::integration_routing( $live_settings['integrations'] ?? array() ),
         ) );
         return $config;
     }
@@ -162,6 +163,13 @@ class SurveyJS_AI_Drafts {
         return array_values( array_map( function ( $webhook ) {
             return array_intersect_key( is_array( $webhook ) ? $webhook : array(), array_flip( self::WEBHOOK_ROUTING_FIELDS ) );
         }, is_array( $webhooks ) ? $webhooks : array() ) );
+    }
+
+    // Every field of an integration but its name decides what goes to which account.
+    private static function integration_routing( $integrations ) {
+        return array_values( array_map( function ( $item ) {
+            return array_diff_key( is_array( $item ) ? $item : array(), array( 'name' => true ) );
+        }, is_array( $integrations ) ? $integrations : array() ) );
     }
 
     private static function webhook_urls( $webhooks ) {

@@ -413,7 +413,7 @@ test.describe("AI connection (MCP)", () => {
     await expect(notice).toContainText("AI changes are loaded into the editor but not saved yet.");
     await expect(notice).toContainText("Send To");
     await expect(notice).toContainText("Check the Email tab:");
-    await expect(notice).not.toContainText("Check the Webhooks tab:");
+    await expect(notice).not.toContainText("Check the Integrations tab:");
     await expect(page.locator(".wp-sjs-editor__tabs .nav-tab[data-tab='email']")).toHaveClass(/wp-sjs-editor__tab--ai/);
     await expect(page.locator("#wp-sjs-notification-to")).toHaveValue("ai@example.com");
 
@@ -463,9 +463,9 @@ test.describe("AI connection (MCP)", () => {
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${formId}`);
     const notice = page.locator("#wp-sjs-ai-draft-notice");
-    await expect(notice).toContainText("Check the Webhooks tab:");
+    await expect(notice).toContainText("Check the Integrations tab:");
     await expect(notice).toContainText("entries will be sent to a new address");
-    await expect(notice).toContainText("Changed: Webhooks.");
+    await expect(notice).toContainText("Changed: Integrations.");
     page.once("dialog", (dialog) => dialog.accept());
     const reloaded = page.waitForEvent("load");
     await notice.getByRole("button", { name: "Discard AI changes" }).click();

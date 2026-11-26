@@ -32,6 +32,7 @@ class SurveyJS_Form_Settings {
             'autoReplyHtml'         => false,
             'autoReplyAttachments'  => '',
             'webhooks'              => array(),
+            'integrations'          => array(),
             'themeMode'             => 'adaptive',
             'transparentBackground' => false,
             'captchaEnabled'        => false,
@@ -130,12 +131,12 @@ class SurveyJS_Form_Settings {
     // (e.g. Pro's while Pro is inactive) are kept instead of being dropped.
     public static function sanitize( $input, $survey = null ) {
         $input = array_merge( self::defaults(), is_array( $input ) ? $input : array() );
-        $sanitized = apply_filters( 'surveyjs_form_settings_sanitize', self::sanitize_base( $input ), $input );
+        $sanitized = apply_filters( 'surveyjs_form_settings_sanitize', self::sanitize_base( $input, $survey ), $input );
         $sanitized = array_intersect_key( is_array( $sanitized ) ? $sanitized : array(), self::defaults() );
         return $survey ? $sanitized + array_diff_key( self::stored( $survey ), self::defaults() ) : $sanitized;
     }
 
-    private static function sanitize_base( $input ) {
+    private static function sanitize_base( $input, $survey ) {
         return array(
             'storeEntries'          => ! empty( $input['storeEntries'] ),
             'saveResume'            => ! empty( $input['saveResume'] ),
@@ -160,6 +161,7 @@ class SurveyJS_Form_Settings {
             'autoReplyHtml'         => ! empty( $input['autoReplyHtml'] ),
             'autoReplyAttachments'  => sanitize_text_field( $input['autoReplyAttachments'] ),
             'webhooks'              => SurveyJS_Webhooks::sanitize( $input['webhooks'] ),
+            'integrations'          => SurveyJS_Integrations::sanitize( $input['integrations'], $survey ? ( self::stored( $survey )['integrations'] ?? array() ) : array() ),
             'themeMode'             => in_array( $input['themeMode'], self::theme_modes(), true ) ? $input['themeMode'] : 'adaptive',
             'transparentBackground' => ! empty( $input['transparentBackground'] ),
             'captchaEnabled'        => ! empty( $input['captchaEnabled'] ),

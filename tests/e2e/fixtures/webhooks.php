@@ -4,9 +4,9 @@ require '/var/www/html/wp-load.php'; // phpcs:ignore WordPressVIPMinimum.Files.I
 
 $command = $argv[1] ?? '';
 
-function surveyjs_e2e_queued() {
+function surveyjs_e2e_queue() {
     global $wpdb;
-    return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( SurveyJS_Webhooks::QUEUE_PREFIX ) . '%' ) );
+    return $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_name", $wpdb->esc_like( SurveyJS_Delivery_Queue::QUEUE_PREFIX ) . '%' ) );
 }
 
 function surveyjs_e2e_private( $method, ...$args ) {
@@ -14,34 +14,21 @@ function surveyjs_e2e_private( $method, ...$args ) {
 }
 
 if ( 'run-webhooks' === $command ) {
-    // The sandbox cannot reach its own wp-cron.php, so due deliveries are run here; "all" also runs scheduled retries.
-    $ran = 0;
-    foreach ( _get_cron_array() as $timestamp => $hooks ) {
-        foreach ( $hooks[ SurveyJS_Webhooks::DELIVER_HOOK ] ?? array() as $event ) {
-            if ( 'all' !== ( $argv[2] ?? '' ) && $timestamp > time() ) {
-                continue;
-            }
-            wp_unschedule_event( $timestamp, SurveyJS_Webhooks::DELIVER_HOOK, $event['args'] );
-            SurveyJS_Webhooks::deliver( ...$event['args'] );
-            ++$ran;
-        }
-    }
-    echo wp_json_encode( array( 'ran' => $ran ) );
+    // The sandbox cannot reach its own wp-cron.php, so due deliveries are run here; "all" also runs retries that are not due yet.
+    echo wp_json_encode( array( 'ran' => SurveyJS_Delivery_Queue::run( 'all' === ( $argv[2] ?? '' ) ? PHP_INT_MAX : null ) ) );
 } elseif ( 'webhook-state' === $command ) {
-    $scheduled = array();
-    foreach ( _get_cron_array() as $timestamp => $hooks ) {
-        if ( isset( $hooks[ SurveyJS_Webhooks::DELIVER_HOOK ] ) ) {
-            $scheduled[] = $timestamp - time();
-        }
-    }
+    $queue = surveyjs_e2e_queue();
     echo wp_json_encode( array(
-        'queued'    => surveyjs_e2e_queued(),
-        'scheduled' => $scheduled,
-        'log'       => SurveyJS_Webhooks::log_entries( (int) $argv[2] ),
+        'queued'    => count( $queue ),
+        'scheduled' => array_values( array_filter( array_map( function ( $name ) {
+            return (int) substr( $name, strlen( SurveyJS_Delivery_Queue::QUEUE_PREFIX ), 10 ) - time();
+        }, $queue ), function ( $delay ) {
+            return $delay > 0;
+        } ) ),
+        'log'       => SurveyJS_Delivery_Queue::log_entries( (int) $argv[2] ),
     ) );
 } elseif ( 'clear-webhooks' === $command ) {
-    wp_unschedule_hook( SurveyJS_Webhooks::DELIVER_HOOK );
-    surveyjs_e2e_private( 'delete_queue' );
+    SurveyJS_Delivery_Queue::unschedule();
     echo '{}';
 } elseif ( 'conditions' === $command ) {
     echo wp_json_encode( SurveyJS_Conditions::matches( json_decode( $argv[2], true ), json_decode( $argv[3], true ) ) );
@@ -59,16 +46,17 @@ if ( 'run-webhooks' === $command ) {
     echo wp_json_encode( $result );
 } elseif ( 'unschedulable' === $command ) {
     $form = SurveyJS_Forms::find( (int) $argv[2] );
+    wp_unschedule_hook( SurveyJS_Delivery_Queue::RUN_HOOK );
     add_filter( 'schedule_event', '__return_false' );
     SurveyJS_Webhooks::dispatch( $form, SurveyJS_Form_Settings::get( $form ), array( 'visitor_name' => 'Ann' ), 0 );
     remove_filter( 'schedule_event', '__return_false' );
     echo wp_json_encode( array(
-        'queued' => surveyjs_e2e_queued(),
-        'log'    => SurveyJS_Webhooks::log_entries( (int) $argv[2] ),
+        'queued' => count( surveyjs_e2e_queue() ),
+        'log'    => SurveyJS_Delivery_Queue::log_entries( (int) $argv[2] ),
     ) );
 } elseif ( 'deactivate' === $command ) {
-    add_option( SurveyJS_Webhooks::QUEUE_PREFIX . str_repeat( 'a', 32 ), array( 'body' => '{}' ), '', false );
-    $before = surveyjs_e2e_queued();
-    SurveyJS_Webhooks::unschedule();
-    echo wp_json_encode( array( 'before' => $before, 'after' => surveyjs_e2e_queued() ) );
+    add_option( SurveyJS_Delivery_Queue::QUEUE_PREFIX . '0000000000_' . str_repeat( 'a', 32 ), array( 'body' => '{}' ), '', false );
+    $before = count( surveyjs_e2e_queue() );
+    SurveyJS_Delivery_Queue::unschedule();
+    echo wp_json_encode( array( 'before' => $before, 'after' => count( surveyjs_e2e_queue() ) ) );
 }

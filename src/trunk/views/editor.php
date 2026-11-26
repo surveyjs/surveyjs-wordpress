@@ -36,7 +36,7 @@ class SurveyJS_Editor {
             'survey'  => __( 'Config', 'surveyjs' ),
             'theme'   => __( 'Theme', 'surveyjs' ),
             'email'   => __( 'Email', 'surveyjs' ),
-            'webhooks' => __( 'Webhooks', 'surveyjs' ),
+            'integrations' => __( 'Integrations', 'surveyjs' ),
             'entries' => __( 'Entries', 'surveyjs' ),
             'restrictions' => __( 'Restrictions', 'surveyjs' ),
             'spam'     => __( 'Spam Protection', 'surveyjs' ),
@@ -57,6 +57,7 @@ class SurveyJS_Editor {
     // editor.js opens a JSON tab only once Monaco has loaded, so the page starts on the first tab for those too.
     private static function initial_tab( $tabs ) {
         $requested = sanitize_key( wp_unslash( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks the tab shown first.
+        $requested = 'webhooks' === $requested ? SurveyJS_Integrations::TAB : $requested;
         if ( isset( $tabs[ $requested ] ) && ! in_array( $requested, self::JSON_TABS, true ) ) {
             return $requested;
         }
@@ -69,11 +70,89 @@ class SurveyJS_Editor {
         }
     }
 
-    private static function render_webhooks_panel( $initial_tab ) {
+    public static function render_item_header() {
         ?>
-        <div class="wp-sjs-editor__settings" data-panel="webhooks"<?php self::hidden_unless( 'webhooks', $initial_tab ); ?>>
+        <div class="wp-sjs-item__header">
+            <label class="wp-sjs-item__active"><input type="checkbox" data-field="enabled" /> <?php esc_html_e( 'Active', 'surveyjs' ); ?></label>
+            <button type="button" class="wp-sjs-item__title" data-action="toggle" aria-expanded="false" aria-controls="wp-sjs-item-__KEY__-body">
+                <span class="wp-sjs-item__name" data-name></span>
+                <span class="wp-sjs-item__summary" data-summary></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <?php
+    }
+
+    public static function render_item_actions() {
+        ?>
+        <p class="wp-sjs-item__actions">
+            <button type="button" class="button-link button-link-delete" data-action="delete"><?php esc_html_e( 'Delete', 'surveyjs' ); ?></button>
+        </p>
+        <?php
+    }
+
+    public static function render_conditions_row() {
+        ?>
+        <tr>
+            <th scope="row"><?php esc_html_e( 'Conditions', 'surveyjs' ); ?></th>
+            <td class="wp-sjs-conditions" data-conditions>
+                <p class="wp-sjs-conditions__always" data-when-empty><?php esc_html_e( 'Sent for every entry.', 'surveyjs' ); ?></p>
+                <p data-when-rules>
+                    <label for="wp-sjs-item-__KEY__-logic"><?php esc_html_e( 'Send when', 'surveyjs' ); ?></label>
+                    <select id="wp-sjs-item-__KEY__-logic" data-condition-logic>
+                        <option value="all"><?php esc_html_e( 'all conditions match', 'surveyjs' ); ?></option>
+                        <option value="any"><?php esc_html_e( 'any condition matches', 'surveyjs' ); ?></option>
+                    </select>
+                </p>
+                <ul class="wp-sjs-conditions__rules" data-rules></ul>
+                <button type="button" class="button" data-action="add-rule"><?php esc_html_e( 'Add condition', 'surveyjs' ); ?></button>
+                <p class="description"><?php esc_html_e( 'Conditions are checked against the submitted answers. "Contains" on a multiple-choice question checks the selected choices; text is compared without regard to case.', 'surveyjs' ); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    public static function render_log_row() {
+        ?>
+        <tr>
+            <th scope="row"><?php esc_html_e( 'Recent requests', 'surveyjs' ); ?></th>
+            <td>
+                <p class="description" data-log-empty><?php esc_html_e( 'No requests yet.', 'surveyjs' ); ?></p>
+                <table class="widefat striped wp-sjs-webhook-log" data-log hidden>
+                    <thead><tr><th scope="col"><?php esc_html_e( 'Date', 'surveyjs' ); ?></th><th scope="col"><?php esc_html_e( 'Request', 'surveyjs' ); ?></th><th scope="col"><?php esc_html_e( 'Result', 'surveyjs' ); ?></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </td>
+        </tr>
+        <?php
+    }
+
+    private static function render_integrations_panel( $initial_tab ) {
+        $services = SurveyJS_Integrations::services();
+        ?>
+        <div class="wp-sjs-editor__settings" data-panel="<?php echo esc_attr( SurveyJS_Integrations::TAB ); ?>"<?php self::hidden_unless( SurveyJS_Integrations::TAB, $initial_tab ); ?>>
+            <input type="hidden" data-setting="integrations" data-setting-type="json" id="wp-sjs-integrations-value" />
+            <h2 class="title"><?php esc_html_e( 'Integrations', 'surveyjs' ); ?></h2>
+            <p class="description">
+                <?php esc_html_e( 'Send each entry to the apps you use. Connect an account once on Settings > Integrations, then add it here and choose what to send. Entries are sent in the background right after the submission; failed requests are retried after 5 minutes, 1 hour and 6 hours.', 'surveyjs' ); ?>
+                <a href="<?php echo esc_url( SurveyJS_Integrations::settings_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Open Settings > Integrations', 'surveyjs' ); ?></a>
+            </p>
+            <div class="wp-sjs-items" id="wp-sjs-integrations" data-delete-confirm="<?php esc_attr_e( 'Delete this integration?', 'surveyjs' ); ?>"></div>
+            <?php if ( $services ) : ?>
+                <p class="wp-sjs-integrations__add">
+                    <label for="wp-sjs-integration-service" class="screen-reader-text"><?php esc_html_e( 'Service', 'surveyjs' ); ?></label>
+                    <select id="wp-sjs-integration-service">
+                        <?php foreach ( $services as $service ) : ?>
+                            <option value="<?php echo esc_attr( $service->id() ); ?>"><?php echo esc_html( $service->label() ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="button" id="wp-sjs-integration-add"><?php esc_html_e( 'Add integration', 'surveyjs' ); ?></button>
+                </p>
+            <?php endif; ?>
+            <?php SurveyJS_Integrations::render_templates(); ?>
+
             <input type="hidden" data-setting="webhooks" data-setting-type="json" id="wp-sjs-webhooks-value" />
-            <h2 class="title"><?php esc_html_e( 'Webhooks', 'surveyjs' ); ?></h2>
+            <h2 class="title wp-sjs-integrations__webhooks"><?php esc_html_e( 'Webhooks', 'surveyjs' ); ?></h2>
             <p class="description"><?php esc_html_e( 'Send each entry to another service when the form is submitted: Zapier, Make, n8n, a CRM or your own code. The service gives you a webhook URL ("Catch Hook" in Webhooks by Zapier, "Custom webhook" in Make, the "Webhook" node in n8n); the plugin sends the answers there as JSON in a POST request.', 'surveyjs' ); ?></p>
             <p class="description"><?php esc_html_e( 'Requests are sent in the background by WP-Cron right after the submission. A failed request is retried after 5 minutes and after 1 hour.', 'surveyjs' ); ?></p>
             <div class="wp-sjs-items" id="wp-sjs-webhooks" data-delete-confirm="<?php esc_attr_e( 'Delete this webhook?', 'surveyjs' ); ?>"></div>
@@ -101,14 +180,7 @@ class SurveyJS_Editor {
             </details>
             <template id="wp-sjs-webhook-template">
                 <div class="wp-sjs-item">
-                    <div class="wp-sjs-item__header">
-                        <label class="wp-sjs-item__active"><input type="checkbox" data-field="enabled" /> <?php esc_html_e( 'Active', 'surveyjs' ); ?></label>
-                        <button type="button" class="wp-sjs-item__title" data-action="toggle" aria-expanded="false" aria-controls="wp-sjs-item-__KEY__-body">
-                            <span class="wp-sjs-item__name" data-name></span>
-                            <span class="wp-sjs-item__summary" data-summary></span>
-                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                        </button>
-                    </div>
+                    <?php self::render_item_header(); ?>
                     <div class="wp-sjs-item__body" id="wp-sjs-item-__KEY__-body" hidden>
                         <table class="form-table" role="presentation">
                             <tr>
@@ -132,36 +204,10 @@ class SurveyJS_Editor {
                                     <p class="description"><?php esc_html_e( 'Optional HTTP headers sent with every request, for example an API key the receiving service asks for: Authorization with "Bearer <token>", the header of n8n Header Auth, or x-make-apikey for a Make webhook with API key authentication.', 'surveyjs' ); ?></p>
                                 </td>
                             </tr>
-                            <tr>
-                                <th scope="row"><?php esc_html_e( 'Conditions', 'surveyjs' ); ?></th>
-                                <td class="wp-sjs-conditions" data-conditions>
-                                    <p class="wp-sjs-conditions__always" data-when-empty><?php esc_html_e( 'Sent for every entry.', 'surveyjs' ); ?></p>
-                                    <p data-when-rules>
-                                        <label for="wp-sjs-item-__KEY__-logic"><?php esc_html_e( 'Send when', 'surveyjs' ); ?></label>
-                                        <select id="wp-sjs-item-__KEY__-logic" data-condition-logic>
-                                            <option value="all"><?php esc_html_e( 'all conditions match', 'surveyjs' ); ?></option>
-                                            <option value="any"><?php esc_html_e( 'any condition matches', 'surveyjs' ); ?></option>
-                                        </select>
-                                    </p>
-                                    <ul class="wp-sjs-conditions__rules" data-rules></ul>
-                                    <button type="button" class="button" data-action="add-rule"><?php esc_html_e( 'Add condition', 'surveyjs' ); ?></button>
-                                    <p class="description"><?php esc_html_e( 'Conditions are checked against the submitted answers. "Contains" on a multiple-choice question checks the selected choices; text is compared without regard to case.', 'surveyjs' ); ?></p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row"><?php esc_html_e( 'Recent requests', 'surveyjs' ); ?></th>
-                                <td>
-                                    <p class="description" data-log-empty><?php esc_html_e( 'No requests yet.', 'surveyjs' ); ?></p>
-                                    <table class="widefat striped wp-sjs-webhook-log" data-log hidden>
-                                        <thead><tr><th scope="col"><?php esc_html_e( 'Date', 'surveyjs' ); ?></th><th scope="col"><?php esc_html_e( 'Request', 'surveyjs' ); ?></th><th scope="col"><?php esc_html_e( 'Result', 'surveyjs' ); ?></th></tr></thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </td>
-                            </tr>
+                            <?php self::render_conditions_row(); ?>
+                            <?php self::render_log_row(); ?>
                         </table>
-                        <p class="wp-sjs-item__actions">
-                            <button type="button" class="button-link button-link-delete" data-action="delete"><?php esc_html_e( 'Delete', 'surveyjs' ); ?></button>
-                        </p>
+                        <?php self::render_item_actions(); ?>
                     </div>
                 </div>
             </template>
@@ -169,7 +215,7 @@ class SurveyJS_Editor {
         <?php
     }
 
-    private static function render_webhook_templates() {
+    private static function render_item_templates() {
         $operators = array(
             'equal'       => __( 'is', 'surveyjs' ),
             'notequal'    => __( 'is not', 'surveyjs' ),
@@ -240,7 +286,9 @@ class SurveyJS_Editor {
             'saveUrl'   => add_query_arg( array( 'action' => 'SurveyJS_SaveSurvey' ), admin_url( 'admin-ajax.php' ) ),
             'testEmailUrl' => add_query_arg( array( 'action' => 'SurveyJS_SendTestEmail' ), admin_url( 'admin-ajax.php' ) ),
             'testWebhookUrl' => add_query_arg( array( 'action' => 'SurveyJS_TestWebhook' ), admin_url( 'admin-ajax.php' ) ),
-            'webhookLog' => SurveyJS_Webhooks::client_log( $survey->id ),
+            'resendUrl' => add_query_arg( array( 'action' => 'SurveyJS_ResendDelivery' ), admin_url( 'admin-ajax.php' ) ),
+            'deliveryLog' => SurveyJS_Delivery_Queue::client_log( $survey->id ),
+            'integrations' => SurveyJS_Integrations::editor_config(),
             'saveNonce' => wp_create_nonce( 'surveyjs-save-survey' ),
             'monacoUrl' => plugins_url( '../libs/monaco/', __FILE__ ),
             'themesUrl' => SurveyJS_Themes::url(),
@@ -719,8 +767,8 @@ class SurveyJS_Editor {
                     <?php do_action( 'surveyjs_editor_email_rows', 'end', $survey ); ?>
                 </div>
                 <?php
-                self::render_webhooks_panel( $initial_tab );
-                self::render_webhook_templates();
+                self::render_integrations_panel( $initial_tab );
+                self::render_item_templates();
                 ?>
                 <?php do_action( 'surveyjs_render_editor', $survey, $initial_tab ); ?>
                 <div class="wp-sjs-editor__preview" id="wp-sjs-preview-panel">
