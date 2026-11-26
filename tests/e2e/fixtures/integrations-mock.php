@@ -1,17 +1,19 @@
 <?php
 /*
- * Test double for Mailchimp, installed as a mu-plugin. Only requests to the fake Mailchimp data center us0 are answered here, so real keys entered on the same site still reach the services.
+ * Test double for Slack and Mailchimp, installed as a mu-plugin. Only requests to the fake Slack workspace TDEMO and
+ * to the fake Mailchimp data center us0 are answered here, so real keys entered on the same site still reach the services.
  * A key of 32 "f" characters in data center us0 is rejected like a revoked key.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 const SURVEYJS_MOCK_OPTION = 'surveyjs_e2e_integrations_mock';
+const SURVEYJS_MOCK_SLACK = 'https://hooks.slack.com/services/TDEMO';
 const SURVEYJS_MOCK_MAILCHIMP = 'https://us0.api.mailchimp.com/3.0';
 define( 'SURVEYJS_MOCK_REVOKED_KEY', str_repeat( 'f', 32 ) . '-us0' );
 
 function surveyjs_mock_state() {
     $state = get_option( SURVEYJS_MOCK_OPTION, array() );
-    return array_merge( array( 'members' => array(), 'tags' => array() ), is_array( $state ) ? $state : array() );
+    return array_merge( array( 'slack' => array(), 'members' => array(), 'tags' => array(), 'slack_status' => array() ), is_array( $state ) ? $state : array() );
 }
 
 function surveyjs_mock_response( $code, $body ) {
@@ -79,6 +81,12 @@ function surveyjs_mock_mailchimp( $method, $path, $body, $state ) {
 add_filter( 'pre_http_request', function ( $preempt, $args, $url ) {
     $state = surveyjs_mock_state();
     $body = json_decode( (string) ( $args['body'] ?? '' ), true );
+    if ( 0 === strpos( $url, SURVEYJS_MOCK_SLACK ) ) {
+        $code = (int) ( array_shift( $state['slack_status'] ) ?? 200 );
+        $state['slack'][] = array( 'url' => $url, 'body' => $body );
+        update_option( SURVEYJS_MOCK_OPTION, $state, false );
+        return surveyjs_mock_response( $code, 200 === $code ? 'ok' : 'no_service' );
+    }
     if ( 0 === strpos( $url, SURVEYJS_MOCK_MAILCHIMP ) ) {
         $auth = (string) ( $args['headers']['Authorization'] ?? '' );
         if ( 'Bearer ' . SURVEYJS_MOCK_REVOKED_KEY === $auth ) {

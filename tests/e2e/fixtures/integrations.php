@@ -13,6 +13,11 @@ if ( 'clear' === $command ) {
     update_option( SurveyJS_Connections::OPTION, array_diff_key( SurveyJS_Connections::all(), $e2e_connections() ), false );
     delete_option( 'surveyjs_e2e_integrations_mock' );
     echo '{}';
+} elseif ( 'slack-status' === $command ) {
+    $state = (array) get_option( 'surveyjs_e2e_integrations_mock', array() );
+    $state['slack_status'] = array_map( 'intval', array_slice( $argv, 2 ) );
+    update_option( 'surveyjs_e2e_integrations_mock', $state, false );
+    echo '{}';
 } elseif ( 'set-key' === $command ) {
     // A key revoked in Mailchimp after it was connected: only the stored credentials change.
     $connections = SurveyJS_Connections::all();

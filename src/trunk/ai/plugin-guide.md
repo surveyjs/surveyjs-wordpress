@@ -7,7 +7,7 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - **SurveyJS Forms > All Forms**: the list of forms with entries count, views and conversion rate. Hover a form for Edit, Entries, Duplicate, Export and Delete. "AI changes to review" marks a form with an unsaved AI draft.
 - **SurveyJS Forms > Add New Form**: start from a blank form or a template, or import forms from Contact Form 7, WPForms, Gravity Forms, Ninja Forms and Fluent Forms (Import button).
 - **SurveyJS Forms > Getting Started**: a short checklist for new users.
-- **SurveyJS Forms > Settings**: General tab (CAPTCHA keys, IP addresses, form views, delete old entries, uninstall), Integrations tab (connected Mailchimp accounts), AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).
+- **SurveyJS Forms > Settings**: General tab (CAPTCHA keys, IP addresses, form views, delete old entries, uninstall), Integrations tab (connected Slack and Mailchimp accounts), AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).
 - **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Integrations (integrations and webhooks), Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Open full preview, Embed and Save. Nothing is published until the person clicks Save.
 
 ## Building a form
@@ -39,8 +39,8 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 
 ## Integrations (Integrations tab)
 
-- Sends every entry to a connected account: **Mailchimp** (adds or updates a contact in an audience, with contact fields, tags and double opt-in, on by default).
-- First connect the account on SurveyJS Forms > Settings > Integrations: for Mailchimp an API key (Profile > Extras > API keys). Keys are stored encrypted and never shown again, also not to AI. Several connections per service are allowed (two Mailchimp accounts).
+- Sends every entry to a connected account: **Slack** (a message to a channel with the answers and a "View entry" button) and **Mailchimp** (adds or updates a contact in an audience, with contact fields, tags and double opt-in, on by default).
+- First connect the account on SurveyJS Forms > Settings > Integrations: for Slack paste an incoming webhook URL (Slack app > Incoming Webhooks > Add New Webhook), for Mailchimp an API key (Profile > Extras > API keys). Keys are stored encrypted and never shown again, also not to AI. Several connections per service are allowed (two channels, two Mailchimp accounts).
 - Then on the form's Integrations tab: choose the service, "Add integration", pick the connection (a single one is chosen for you), map the answers (Mailchimp: the email question, contact fields, tags), add conditions, "Send test", Save.
 - Mailchimp needs consent: the form is saved only when the integration has a condition on a consent question or "This form is a newsletter signup (submitting it means consent)" is checked. The button "Add "Subscribe me to the newsletter" question" next to Conditions adds the checkbox to the form and the condition.
 - Entries are sent by WP-Cron right after the submission; failed requests are retried after 5 minutes, 1 hour and 6 hours. "Recent requests" shows the log, and "Send again" resends a stored entry. When a key stops working the connection shows "Needs attention" in Settings > Integrations.
