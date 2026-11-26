@@ -88,9 +88,13 @@ async function unreadTotal(page) {
 
 async function setStoreIp(page, checked) {
   await page.goto(SETTINGS_URL);
-  await page.getByLabel(STORE_IP_LABEL).setChecked(checked);
-  await page.getByRole("button", { name: "Save Changes" }).click();
-  await expect(page.getByText("Successfully updated!")).toBeVisible();
+  const box = page.getByLabel(STORE_IP_LABEL);
+  if ((await box.isChecked()) !== checked) {
+    const saved = page.waitForResponse(r => r.url().includes("/wp-admin/options.php") && r.request().method() === "POST"); // saved as soon as it changes
+    await box.setChecked(checked);
+    await saved;
+  }
+  await page.reload();
   await expect(page.getByLabel(STORE_IP_LABEL)).toBeChecked({ checked });
 }
 
@@ -236,7 +240,7 @@ test.describe("entry storage", () => {
     await expectCounts(page, { all: 3, unread: 3, read: 0, spam: 0 });
 
     await rowAction(page, "E2E Alpha", "Mark as Read");
-    await expect(page.locator(".notice-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
     await expect(entryRow(page, "E2E Alpha").locator("td.column-status")).toHaveText("Read");
     await expectCounts(page, { all: 3, unread: 2, read: 1, spam: 0 });
 
@@ -245,7 +249,7 @@ test.describe("entry storage", () => {
     await expectCounts(page, { all: 3, unread: 3, read: 0, spam: 0 });
 
     await rowAction(page, "E2E Bravo", "Spam");
-    await expect(page.locator(".notice-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
     await expect(entryRow(page, "E2E Bravo")).toHaveCount(0);
     await expectCounts(page, { all: 2, unread: 2, read: 0, spam: 1 });
 
@@ -254,17 +258,17 @@ test.describe("entry storage", () => {
     await expect(page.locator("#the-list tr")).toHaveCount(1);
     await expect(entryRow(page, "E2E Bravo").locator("td.column-status")).toHaveText("Spam");
     await rowAction(page, "E2E Bravo", "Not Spam");
-    await expect(page.locator(".notice-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
     await expect(page.locator("#the-list .no-items")).toBeVisible();
     await expectCounts(page, { all: 3, unread: 2, read: 1, spam: 0 });
 
     await page.goto(resultsUrl(surveyId));
     await bulkAction(page, ["E2E Alpha", "E2E Charlie"], "read");
-    await expect(page.locator(".notice-success")).toContainText("2 results updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("2 results updated.");
     await expectCounts(page, { all: 3, unread: 0, read: 3, spam: 0 });
 
     await bulkAction(page, ["E2E Charlie"], "spam");
-    await expect(page.locator(".notice-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
     await expect(entryRow(page, "E2E Charlie")).toHaveCount(0);
     await expectCounts(page, { all: 2, unread: 0, read: 2, spam: 1 });
 
@@ -287,7 +291,7 @@ test.describe("entry storage", () => {
       dialog.accept();
     });
     await rowAction(page, "E2E Alpha", "Delete");
-    await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
     expect(message).toBe("This action CANNOT be undone! Are you ABSOLUTELY sure?");
     await expect(entryRow(page, "E2E Alpha")).toHaveCount(0);
 
@@ -298,7 +302,7 @@ test.describe("entry storage", () => {
     });
     await bulkAction(page, ["E2E Charlie"], "delete");
     expect(message).toBe("Delete the selected entries? Files uploaded with them will be deleted too. This cannot be undone.");
-    await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
     await expectCounts(page, { all: 1, unread: 0, read: 1, spam: 0 });
   });
 
@@ -330,7 +334,7 @@ test.describe("entry storage", () => {
     });
     await row.hover();
     await row.getByRole("link", { name: "Delete", exact: true }).click();
-    await expect(page.locator(".notice-success")).toContainText("1 form deleted.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form deleted.");
     expect(message).toBe("Delete this form and its 2 entries? Files uploaded with these entries will be deleted too. This cannot be undone.");
 
     for (const href of hrefs) {
@@ -371,7 +375,7 @@ test.describe("entry storage", () => {
 
     await page.goto(resultsUrl(surveyId));
     await rowAction(page, "E2E admin bar answer", "Mark as Read");
-    await expect(page.locator(".notice-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
     expect(await unreadTotal(page)).toBe(before);
   });
 

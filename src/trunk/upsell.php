@@ -15,7 +15,7 @@ class SurveyJS_Upsell {
         if ( ! self::enabled() ) {
             return;
         }
-        wp_add_inline_style( 'admin-menu', '#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:hover,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:focus{background:#00a32a;color:#fff}' );
+        wp_add_inline_style( 'admin-menu', '#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:hover,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:focus{background:#19b394;color:#fff}' );
     }
 
     public static function enabled() {
@@ -38,7 +38,7 @@ class SurveyJS_Upsell {
             return;
         }
         // A full URL as the slug makes WordPress print it as the menu link href instead of an admin.php?page= link.
-        add_submenu_page( $parent_slug, esc_html__( 'Get Pro – Free', 'surveyjs' ), esc_html__( 'Get Pro – Free', 'surveyjs' ), $capability, esc_url( self::url( 'admin-menu' ) ) );
+        add_submenu_page( $parent_slug, esc_html__( 'Get the Free Add-on', 'surveyjs' ), esc_html__( 'Get the Free Add-on', 'surveyjs' ), $capability, esc_url( self::url( 'admin-menu' ) ) );
         global $submenu;
         if ( ! empty( $submenu[ $parent_slug ] ) ) {
             end( $submenu[ $parent_slug ] );
@@ -53,28 +53,10 @@ class SurveyJS_Upsell {
         $admin_bar->add_node( array(
             'parent' => SurveyJS_Admin_Bar::NODE,
             'id'     => SurveyJS_Admin_Bar::NODE . '-upgrade',
-            'title'  => esc_html__( 'Get Pro – Free', 'surveyjs' ),
+            'title'  => esc_html__( 'Get the Free Add-on', 'surveyjs' ),
             'href'   => self::url( 'admin-bar' ),
             'meta'   => array( 'target' => '_blank', 'rel' => 'noopener' ),
         ) );
-    }
-
-    public static function render_getting_started() {
-        if ( ! self::enabled() ) {
-            return;
-        }
-        ?>
-        <div class="card wp-sjs-pro-upsell">
-            <h2><?php esc_html_e( 'SurveyJS Forms Pro', 'surveyjs' ); ?></h2>
-            <p><?php esc_html_e( 'A free add-on for SurveyJS Forms: design forms visually with Survey Creator right in the form editor, export entries to PDF and see answers as charts.', 'surveyjs' ); ?></p>
-            <p>
-                <a href="<?php echo esc_url( self::url( 'getting-started' ) ); ?>" class="button" target="_blank" rel="noopener">
-                    <?php esc_html_e( 'Get SurveyJS Forms Pro for free', 'surveyjs' ); ?>
-                    <span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span>
-                </a>
-            </p>
-        </div>
-        <?php
     }
 
     public static function render_editor_link() {
@@ -82,7 +64,7 @@ class SurveyJS_Upsell {
             return;
         }
         ?>
-        <a href="<?php echo esc_url( self::url( 'editor' ) ); ?>" class="wp-sjs-editor__pro-link" target="_blank" rel="noopener"><?php esc_html_e( 'Or edit visually right here with the free Pro add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
+        <a href="<?php echo esc_url( self::url( 'editor' ) ); ?>" class="button wp-sjs-editor__pro-link" target="_blank" rel="noopener"><?php esc_html_e( 'Get the free Add-on', 'surveyjs' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
         <?php
     }
 
@@ -91,7 +73,7 @@ class SurveyJS_Upsell {
             return;
         }
         ?>
-        | <a href="<?php echo esc_url( self::url( 'dashboard-widget' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'See answers as charts with the free Pro add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
+        | <a href="<?php echo esc_url( self::url( 'dashboard-widget' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'See answers as charts with the free add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
         <?php
     }
 }

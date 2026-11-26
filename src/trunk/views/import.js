@@ -107,7 +107,7 @@
         }
         const forms = Array.from(form.querySelectorAll('input[name="forms[]"]:checked')).map((checkbox) => ({
             id: checkbox.value,
-            name: checkbox.closest("label").textContent.trim()
+            name: checkbox.dataset.name || checkbox.closest("tr, label").textContent.trim()
         }));
         if (!forms.length) {
             return;

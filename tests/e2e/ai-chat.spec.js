@@ -237,7 +237,7 @@ test.describe("AI chat in the form editor", () => {
       const saved = page.waitForResponse((response) => response.url().includes("action=SurveyJS_SaveSurvey"));
       await page.locator("#wp-sjs-save").click();
       await saved;
-      const notice = page.locator("#wp-sjs-editor-notice");
+      const notice = page.locator(".wp-sjs-snackbars");
       await expect(notice).toContainText("Form saved with 1 issue.");
       await notice.getByRole("button", { name: "Fix with AI" }).click();
 
@@ -274,14 +274,14 @@ test.describe("AI chat in the form editor", () => {
   test("can be turned off on the AI Client tab", async ({ page }) => {
     await page.goto(AI_TAB);
     await page.getByRole("button", { name: "Turn off AI chat" }).click();
-    await expect(page.locator(".notice-success")).toHaveText("The AI chat is turned off.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toHaveText("The AI chat is turned off.");
     await expect(page.locator("#wp-sjs-ai-chat-body")).toContainText("The AI chat is turned off.");
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${formId}`);
     await expect(page.locator("#wp-sjs-save")).toBeVisible();
     await expect(page.getByRole("button", { name: "AI assistant" })).toHaveCount(0);
     await page.goto(AI_TAB);
     await page.getByRole("button", { name: "Turn on AI chat" }).click();
-    await expect(page.locator(".notice-success")).toHaveText("The AI chat is turned on.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toHaveText("The AI chat is turned on.");
   });
 
   test("is unavailable below WordPress 7.0", async ({ page }) => {

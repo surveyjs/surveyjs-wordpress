@@ -173,7 +173,10 @@
             "--sjs2-color-utility-body": "transparent",
             "--sjs2-color-utility-surface-survey": "transparent"
         });
-        return Object.assign({}, theme, { cssVariables: cssVariables });
+        // Transparent shows the page behind the form, so a background image of the theme is not drawn either.
+        const transparent = Object.assign({}, theme, { cssVariables: cssVariables });
+        delete transparent.backgroundImage;
+        return transparent;
     }
 
     function initSurvey(configElement) {

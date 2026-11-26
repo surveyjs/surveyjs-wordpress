@@ -65,7 +65,7 @@ test.describe("Gutenberg block", () => {
     await row.hover();
     page.once("dialog", dialog => dialog.accept());
     await row.getByRole("link", { name: "Delete", exact: true }).click();
-    await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
     await expect(page.locator("#the-list .no-items")).toBeVisible();
   });
 

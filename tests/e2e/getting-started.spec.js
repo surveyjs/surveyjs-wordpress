@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, setEditorJson, saveSurvey, SURVEY_JSON } = require("./helpers");
+const { uniqueName, setEditorJson, saveSurvey, renameSurvey, SURVEY_JSON } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const TEMPLATES_URL = "/wp-admin/admin.php?page=surveyjs-templates";
@@ -67,10 +67,10 @@ test.describe.serial("getting started on a site without forms", () => {
 
   test("shows the next steps after the first save of a new form until dismissed", async ({ page }) => {
     await page.goto(TEMPLATES_URL);
-    await page.getByLabel("Form name").fill(name);
     await page.getByRole("button", { name: "Create blank form" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
     await expect(page.locator(".monaco-editor")).toBeVisible();
+    await renameSurvey(page, name);
     await expect(page).not.toHaveURL(/[?&]new=/);
     formId = Number(new URL(page.url()).searchParams.get("id"));
 
@@ -175,7 +175,9 @@ test.describe.serial("getting started on a site without forms", () => {
     const emailStep = step(page, "Set up an email notification");
     await expect(emailStep.locator(".wp-sjs-checklist__optional")).toHaveText("Optional");
     await expect(step(page, "Receive your first entry").locator(".wp-sjs-checklist__optional")).toHaveCount(0);
-    await expect(emailStep).toContainText("if they don't, set up an SMTP plugin");
+    // The entry step is next, so only it is open; the email step shows just its title and a link.
+    await expect(step(page, "Receive your first entry")).toHaveAttribute("aria-current", "step");
+    await expect(emailStep).not.toContainText("if they don't, set up an SMTP plugin");
     await emailStep.getByRole("link", { name: "Set up notification" }).click();
     await expect(page).toHaveURL(/tab=email&focus=notification/);
     const enable = page.locator("input[data-setting=notificationEnabled]");
@@ -207,8 +209,8 @@ test.describe.serial("getting started on a site without forms", () => {
     await expect(card.getByRole("heading", { name: "You're all set!" })).toBeVisible();
     await expect(card.locator("progress")).toHaveCount(0);
     const suggestion = card.locator(".wp-sjs-checklist__suggestion");
-    await expect(suggestion).toContainText("Optional");
-    await expect(suggestion.getByRole("link", { name: "Set up an email notification" })).toHaveAttribute("href", /tab=email&(amp;)?focus=notification/);
+    await expect(step(page, "Set up an email notification").locator(".wp-sjs-checklist__optional")).toHaveText("Optional");
+    await expect(suggestion.getByRole("link", { name: "Set up notification" })).toHaveAttribute("href", /tab=email&(amp;)?focus=notification/);
     await expect(card.getByRole("link", { name: /^Rate SurveyJS Forms on WordPress\.org/ })).toHaveAttribute("href", "https://wordpress.org/support/plugin/surveyjs/reviews/#new-post");
     await expect(page.getByRole("link", { name: /Rate SurveyJS Forms/ })).toHaveCount(1);
 

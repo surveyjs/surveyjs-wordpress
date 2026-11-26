@@ -73,13 +73,11 @@ class SurveyJS_MySurveys {
         );
         ?>
         <div class="wrap">
+            <?php // Notices from WordPress and other plugins go here, above the title, on every plugin page. ?>
+            <hr class="wp-header-end">
             <h1 class="wp-heading-inline"><?php esc_html_e( 'Forms', 'surveyjs' ); ?></h1>
             <a href="<?php echo esc_url( SurveyJS_Templates::url() ); ?>" class="page-title-action"><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></a>
-            <?php foreach ( SurveyJS_Import::sources() as $source => $info ) : ?>
-                <?php if ( $info['importer']::forms() ) : ?>
-                    <a href="<?php echo esc_url( SurveyJS_Import::url( $source ) ); ?>" class="page-title-action"><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), $info['title'] ) ); ?></a>
-                <?php endif; ?>
-            <?php endforeach; ?>
+            <a href="<?php echo esc_url( SurveyJS_Import::url( SurveyJS_Import::default_source() ) ); ?>" class="page-title-action"><?php esc_html_e( 'Import', 'surveyjs' ); ?></a>
             <?php if ( '' !== $search ) : ?>
                 <span class="subtitle">
                     <?php
@@ -88,18 +86,16 @@ class SurveyJS_MySurveys {
                     ?>
                 </span>
             <?php endif; ?>
-            <hr class="wp-header-end">
 
             <?php SurveyJS_Welcome::render_compact(); ?>
 
             <?php if ( isset( $messages[ $message ] ) ) : ?>
-                <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
+                <div class="notice notice-success is-dismissible" data-sjs-snackbar><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
             <?php endif; ?>
 
             <form method="get" id="wp-sjs-forms-list">
                 <input type="hidden" name="page" value="surveyjs-main-menu" />
                 <?php
-                $table->search_box( __( 'Search Forms', 'surveyjs' ), 'surveyjs-survey' );
                 $table->display();
                 ?>
             </form>

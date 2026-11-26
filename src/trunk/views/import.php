@@ -45,7 +45,12 @@ class SurveyJS_Import {
         );
     }
 
+    public static function enqueue_style() {
+        wp_enqueue_style( 'wps-adm--import.css', plugins_url( 'import.css', __FILE__ ), array(), (string) filemtime( __DIR__ . '/import.css' ) );
+    }
+
     public static function handle_actions() {
+        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_style' ) );
         if ( ! current_user_can( 'manage_options' ) || ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
             return;
         }
@@ -163,7 +168,37 @@ class SurveyJS_Import {
 
     private static function source() {
         $source = sanitize_key( $_GET['source'] ?? '' );
-        return isset( self::sources()[ $source ] ) ? $source : 'cf7';
+        return isset( self::sources()[ $source ] ) ? $source : self::default_source();
+    }
+
+    // The first plugin that has forms to import; Gravity Forms otherwise, as its export file can be imported without the plugin.
+    public static function default_source() {
+        foreach ( self::sources() as $source => $info ) {
+            if ( $info['importer']::forms() ) {
+                return $source;
+            }
+        }
+        return 'gravityforms';
+    }
+
+    private static function render_sources( $current ) {
+        ?>
+        <nav class="nav-tab-wrapper wp-sjs-import__sources" aria-label="<?php esc_attr_e( 'Import from', 'surveyjs' ); ?>">
+            <?php foreach ( self::sources() as $source => $info ) : ?>
+                <?php
+                $importer = $info['importer'];
+                $count = $importer::is_available() ? count( (array) $importer::forms() ) : 0;
+                $active = $source === $current;
+                ?>
+                <a href="<?php echo esc_url( self::url( $source ) ); ?>" class="nav-tab<?php echo $active ? ' nav-tab-active' : ''; ?>"<?php echo $active ? ' aria-current="page"' : ''; ?>>
+                    <?php echo esc_html( $info['title'] ); ?>
+                    <?php if ( $count ) : ?>
+                        <span class="wp-sjs-count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
+                    <?php endif; ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+        <?php
     }
 
     private static function edit_url( $id ) {
@@ -185,8 +220,13 @@ class SurveyJS_Import {
         }
         $forms = $importer::forms();
         ?>
-        <div class="wrap">
-            <h1><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), $info['title'] ) ); ?></h1>
+        <div class="wrap wp-sjs-import">
+            <?php // Notices from WordPress and other plugins go here, above the title, on every plugin page. ?>
+            <hr class="wp-header-end">
+            <?php SurveyJS_Admin_Header::breadcrumbs( array( array( __( 'All Forms', 'surveyjs' ), self::list_url() ), array( __( 'Import forms', 'surveyjs' ) ) ) ); ?>
+            <h1><?php esc_html_e( 'Import forms', 'surveyjs' ); ?></h1>
+            <p class="description"><?php esc_html_e( 'Copy forms from another form plugin. The original forms stay unchanged.', 'surveyjs' ); ?></p>
+            <?php self::render_sources( $source ); ?>
 
             <?php if ( is_array( $results ) ) : ?>
                 <?php self::render_results( $results ); ?>
@@ -216,18 +256,41 @@ class SurveyJS_Import {
         <p><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Importing a form again updates the SurveyJS form created from it instead of adding a copy: its fields and email settings are replaced with the ones from %s, and changes you made to them in SurveyJS are lost. The form name, theme and entries are kept.', 'surveyjs' ), $info['title'] ) ); ?></p>
         <form method="post" action="<?php echo esc_url( self::url( $source ) ); ?>" data-sjs-import="<?php echo esc_attr( $source ); ?>" data-entries-per-request="<?php echo esc_attr( self::entries_per_request() ); ?>" onsubmit="this.querySelector('.spinner').classList.add('is-active'); this.querySelector('[type=submit]').disabled = true;">
             <?php wp_nonce_field( 'surveyjs-import-' . $source ); ?>
-            <fieldset>
-                <legend class="screen-reader-text"><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( '%s forms', 'surveyjs' ), $info['title'] ) ); ?></legend>
-                <?php foreach ( $forms as $form_id => $title ) : ?>
-                    <?php $imported_id = $importer::imported_id( $form_id ); ?>
-                    <p>
-                        <label><input type="checkbox" name="forms[]" value="<?php echo esc_attr( $form_id ); ?>" checked /> <?php echo esc_html( $title ); ?></label>
-                        <?php if ( $imported_id ) : ?>
-                            <span class="description">— <?php esc_html_e( 'imported before, will be updated', 'surveyjs' ); ?> (<a href="<?php echo esc_url( self::edit_url( $imported_id ) ); ?>"><?php esc_html_e( 'open', 'surveyjs' ); ?></a>)</span>
-                        <?php endif; ?>
-                    </p>
-                <?php endforeach; ?>
-            </fieldset>
+            <table class="wp-list-table widefat fixed striped wp-sjs-import__forms">
+                <caption class="screen-reader-text"><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( '%s forms', 'surveyjs' ), $info['title'] ) ); ?></caption>
+                <thead>
+                    <tr>
+                        <td class="manage-column column-cb check-column">
+                            <input id="cb-select-all-1" type="checkbox" checked />
+                            <label for="cb-select-all-1"><span class="screen-reader-text"><?php esc_html_e( 'Select All', 'surveyjs' ); ?></span></label>
+                        </td>
+                        <th scope="col" class="manage-column column-primary"><?php esc_html_e( 'Form', 'surveyjs' ); ?></th>
+                        <th scope="col" class="manage-column wp-sjs-import__status"><?php esc_html_e( 'Status', 'surveyjs' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ( $forms as $form_id => $title ) : ?>
+                        <?php
+                        $imported_id = $importer::imported_id( $form_id );
+                        $checkbox_id = 'wp-sjs-import-form-' . sanitize_html_class( (string) $form_id );
+                        ?>
+                        <tr>
+                            <th scope="row" class="check-column">
+                                <input type="checkbox" id="<?php echo esc_attr( $checkbox_id ); ?>" name="forms[]" value="<?php echo esc_attr( $form_id ); ?>" data-name="<?php echo esc_attr( $title ); ?>" checked />
+                            </th>
+                            <td class="column-primary"><label for="<?php echo esc_attr( $checkbox_id ); ?>"><?php echo esc_html( $title ); ?></label></td>
+                            <td class="wp-sjs-import__status">
+                                <?php if ( $imported_id ) : ?>
+                                    <?php esc_html_e( 'Imported before, will be updated', 'surveyjs' ); ?>
+                                    · <a href="<?php echo esc_url( self::edit_url( $imported_id ) ); ?>"><?php esc_html_e( 'Open', 'surveyjs' ); ?></a>
+                                <?php else : ?>
+                                    <span class="wp-sjs-import__new"><?php esc_html_e( 'New form', 'surveyjs' ); ?></span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
             <?php if ( $importer::entries_available() ) : ?>
                 <p>
                     <label><input type="checkbox" name="entries" value="1" /> <?php esc_html_e( 'Import entries', 'surveyjs' ); ?></label><br>
@@ -298,7 +361,7 @@ class SurveyJS_Import {
 
     private static function render_results( $results ) {
         if ( empty( $results ) ) {
-            echo '<div class="notice notice-warning"><p>' . esc_html__( 'No forms were selected.', 'surveyjs' ) . '</p></div>';
+            echo '<div class="notice notice-warning" data-sjs-snackbar><p>' . esc_html__( 'No forms were selected.', 'surveyjs' ) . '</p></div>';
             return;
         }
         echo '<ul class="ul-disc">';

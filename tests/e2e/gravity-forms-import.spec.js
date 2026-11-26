@@ -63,9 +63,7 @@ test.describe("import from Gravity Forms", () => {
   test("imports the forms of an uploaded export file without Gravity Forms", async ({ page }) => {
     test.slow();
     names = [EVENT_FORM, CONTACT_FORM];
-    await page.goto("/wp-admin/admin.php?page=surveyjs-templates");
-    await page.getByRole("link", { name: "Import its forms from an export file" }).click();
-    await expect(page).toHaveURL(/page=surveyjs_import&source=gravityforms/);
+    await page.goto("/wp-admin/admin.php?page=surveyjs_import&source=gravityforms");
     await expect(page.getByText("does not need to be installed on this site")).toBeVisible();
 
     await uploadExport(page);

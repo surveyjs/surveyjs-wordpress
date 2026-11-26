@@ -7,7 +7,8 @@ class SurveyJS_Welcome {
     const REDIRECT_TRANSIENT = 'surveyjs_activation_redirect';
     const CHECKLIST_OPTION = 'surveyjs_checklist';
     const ENTRY_FORMS_OPTION = 'surveyjs_entry_forms';
-    const DOCS_URL = 'https://surveyjs.io/form-library/documentation/overview';
+    const HELP_DESK_URL = 'https://surveyjs.answerdesk.io/';
+    const SUPPORT_EMAIL = 'info@devsoftbaltic.com';
     const CAPABILITY = 'manage_options';
     const REVIEW_URL = 'https://wordpress.org/support/plugin/surveyjs/reviews/#new-post';
     const PROGRESS_TTL = DAY_IN_SECONDS;
@@ -20,7 +21,6 @@ class SurveyJS_Welcome {
         add_action( 'added_post_meta', array( __CLASS__, 'forget_progress_for_meta' ), 10, 3 );
         add_action( 'updated_post_meta', array( __CLASS__, 'forget_progress_for_meta' ), 10, 3 );
         add_action( 'wp_surveyjs_save_result', array( __CLASS__, 'record_entry' ) );
-        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_menu_style' ) );
     }
 
     public static function url() {
@@ -136,10 +136,13 @@ class SurveyJS_Welcome {
     }
 
     public static function enqueue_assets() {
+        if ( self::PAGE === sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            wp_enqueue_style( 'wps-adm--welcome.css', plugins_url( 'welcome.css', __FILE__ ), array( 'common' ), (string) filemtime( __DIR__ . '/welcome.css' ) );
+        }
         if ( ! in_array( sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ), array( self::PAGE, 'surveyjs-main-menu' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             return;
         }
-        wp_add_inline_style( 'common', '.wp-sjs-checklist.card,.wp-sjs-welcome-import.card,.wp-sjs-pro-upsell.card{max-width:640px}.wp-sjs-checklist progress{width:100%}.wp-sjs-checklist__steps{margin:16px 0 0;list-style:none}.wp-sjs-checklist__steps li{display:flex;gap:8px;margin:0;padding:12px 0;border-top:1px solid #f0f0f1}.wp-sjs-checklist__steps p{margin:4px 0 8px}.wp-sjs-checklist .dashicons-yes-alt{color:#00a32a}.wp-sjs-checklist .dashicons-marker{color:#a7aaad}.wp-sjs-checklist[hidden],.wp-sjs-checklist-compact[hidden],.wp-sjs-checklist-hidden[hidden]{display:none}.wp-sjs-checklist .wp-sjs-progress{height:8px;border-radius:4px}.wp-sjs-checklist__optional{display:inline-block;margin-inline-start:6px;padding:0 6px;border-radius:2px;background:#f0f0f1;color:#50575e;font-size:12px;line-height:18px;vertical-align:1px}.wp-sjs-checklist__suggestion .wp-sjs-checklist__optional{margin-inline:0 6px}' . self::PROGRESS_CSS );
+        wp_add_inline_style( 'common', '.wp-sjs-checklist.card,.wp-sjs-welcome-import.card{max-width:640px}.wp-sjs-checklist progress{width:100%}.wp-sjs-checklist__steps{margin:16px 0 0;list-style:none}.wp-sjs-checklist__steps li{display:flex;gap:8px;margin:0;padding:12px 0;border-top:1px solid #f0f0f1}.wp-sjs-checklist__steps p{margin:4px 0 8px}.wp-sjs-checklist .dashicons-yes-alt{color:#00a32a}.wp-sjs-checklist .dashicons-marker{color:#a7aaad}.wp-sjs-checklist[hidden],.wp-sjs-checklist-compact[hidden],.wp-sjs-checklist-hidden[hidden]{display:none}.wp-sjs-checklist .wp-sjs-progress{height:8px;border-radius:4px}.wp-sjs-checklist__optional{display:inline-block;margin-inline-start:6px;padding:0 6px;border-radius:2px;background:#f0f0f1;color:#50575e;font-size:12px;line-height:18px;vertical-align:1px}.wp-sjs-checklist__suggestion .wp-sjs-checklist__optional{margin-inline:0 6px}' . self::PROGRESS_CSS );
         wp_add_inline_script( 'common', 'var surveyjsChecklist = ' . wp_json_encode( array( 'nonce' => wp_create_nonce( 'surveyjs-checklist' ) ) ) . ';' . <<<'JS'
 document.addEventListener("click", function (event) {
     var button = event.target.closest("[data-sjs-checklist]");
@@ -163,6 +166,18 @@ JS
         );
     }
 
+    // The checklist starts with installing Pro while Pro is not active. Once shown, the step stays (ticked)
+    // after Pro is activated; sites that had Pro from the start never see it.
+    private static function has_pro_step() {
+        if ( SurveyJS_Upsell::enabled() ) {
+            if ( empty( self::state()['pro_offered'] ) ) {
+                self::update_state( array( 'pro_offered' => true ) );
+            }
+            return true;
+        }
+        return ! empty( self::state()['pro_offered'] );
+    }
+
     public static function steps() {
         $forms = SurveyJS_AI_Drafts::without_unsaved_new_forms( SurveyJS_Forms::all() );
         $form_ids = array_map( 'intval', wp_list_pluck( $forms, 'id' ) );
@@ -183,7 +198,38 @@ JS
         $placement_url = $placement && is_post_type_viewable( get_post_type( $placement ) ) ? get_permalink( $placement ) : '';
         $titles = self::titles();
 
-        return array(
+        $steps = array();
+        if ( self::has_pro_step() ) {
+            $can_install = current_user_can( 'install_plugins' );
+            $steps['pro'] = array(
+                'done'        => ! SurveyJS_Upsell::enabled(),
+                'title'       => $titles['pro'],
+                'description' => __( 'A free add-on with the full feature set: design forms visually right in the form editor, see answers as charts and export entries to PDF.', 'surveyjs' ),
+                'url'         => SurveyJS_Upsell::url( 'checklist' ),
+                'external'    => true,
+                'action'      => __( 'Download Add-on', 'surveyjs' ),
+                // Two things to do by hand: WordPress.org plugins may not install another plugin themselves.
+                'substeps'    => array(
+                    array(
+                        'text'     => __( 'Download the plugin file from surveyjs.io.', 'surveyjs' ),
+                        'url'      => SurveyJS_Upsell::url( 'checklist' ),
+                        'action'   => __( 'Download Add-on', 'surveyjs' ),
+                        'class'    => 'wp-sjs-button-pro',
+                        'external' => true,
+                    ),
+                    array(
+                        'text'   => $can_install
+                            ? __( 'Install it in WordPress: on the Upload Plugin page, choose the downloaded file, click Install Now and then Activate.', 'surveyjs' )
+                            : __( 'Ask your site administrator to install the downloaded file in WordPress (Plugins > Add New > Upload Plugin) and activate it.', 'surveyjs' ),
+                        'url'    => $can_install ? admin_url( 'plugin-install.php?tab=upload' ) : '',
+                        'action' => __( 'Go to Upload Plugin', 'surveyjs' ),
+                        'class'  => '',
+                    ),
+                ),
+            );
+        }
+
+        return $steps + array(
             'form'         => array(
                 'done'        => (bool) $form_ids,
                 'title'       => $titles['form'],
@@ -241,7 +287,7 @@ JS
     }
 
     private static function titles() {
-        return array(
+        return ( self::has_pro_step() ? array( 'pro' => __( 'Install SurveyJS Forms Add-on', 'surveyjs' ) ) : array() ) + array(
             'form'         => __( 'Create a form', 'surveyjs' ),
             'placement'    => __( 'Add the form to a page', 'surveyjs' ),
             'notification' => __( 'Set up an email notification', 'surveyjs' ),
@@ -293,11 +339,6 @@ JS
         return sprintf( __( '%1$d of %2$d steps completed', 'surveyjs' ), $done, $total );
     }
 
-    public static function menu_progress() {
-        $progress = self::progress();
-        return $progress ? self::progress_markup( $progress ) : '';
-    }
-
     public static function progress_markup( $progress ) {
         /* translators: 1: number of completed steps, 2: total number of steps */
         $short = sprintf( __( '%1$s of %2$s', 'surveyjs' ), number_format_i18n( $progress['done'] ), number_format_i18n( $progress['total'] ) );
@@ -306,12 +347,6 @@ JS
             . '<span class="screen-reader-text">' . esc_html( self::progress_text( $progress['done'], $progress['total'] ) ) . '</span>'
             . '<progress class="wp-sjs-progress" max="' . esc_attr( $progress['total'] ) . '" value="' . esc_attr( $progress['done'] ) . '" aria-hidden="true"></progress>'
             . '</span>';
-    }
-
-    public static function enqueue_menu_style() {
-        if ( self::progress() ) {
-            wp_add_inline_style( 'admin-menu', self::PROGRESS_CSS . '#adminmenu .wp-sjs-menu-progress{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;line-height:1.4}#adminmenu .wp-sjs-menu-progress__text{flex:none;opacity:.85}#adminmenu .wp-sjs-menu-progress .wp-sjs-progress{flex:1;min-width:24px}' );
-        }
     }
 
     // The admin bar resets every property of its descendants with #wpadminbar *, so the bar and the label need ID-level selectors.
@@ -359,84 +394,184 @@ JS
     }
 
     public static function render() {
-        $has_forms = SurveyJS_Forms::exists();
         $checklist = self::checklist();
         $dismissed = self::state()['dismissed'];
-        $import_sources = array_filter( array_map( function ( $info ) {
-            return $info['importer']::forms();
-        }, SurveyJS_Import::sources() ) );
         ?>
-        <div class="wrap">
-            <h1><?php empty( $_GET['welcome'] ) ? esc_html_e( 'Getting Started', 'surveyjs' ) : esc_html_e( 'Welcome to SurveyJS Forms', 'surveyjs' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></h1>
-            <p class="about-description"><?php esc_html_e( 'Build contact forms, surveys and quizzes, add them to any page with a block or a shortcode, get an email on every submission and keep entries right in WordPress.', 'surveyjs' ); ?></p>
-            <p>
-                <a href="<?php echo esc_url( self::add_form_url() ); ?>" class="button button-primary button-hero"><?php $has_forms ? esc_html_e( 'Create a new form', 'surveyjs' ) : esc_html_e( 'Create your first form', 'surveyjs' ); ?></a>
-            </p>
-            <p>
-                <a href="<?php echo esc_url( self::DOCS_URL ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Documentation', 'surveyjs' ); ?></a>
-                &nbsp;|&nbsp; <a href="<?php echo esc_url( SurveyJS_Editor::ui_builder_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'UI Builder', 'surveyjs' ); ?></a>
-            </p>
+        <div class="wrap wp-sjs-welcome">
+            <?php // Notices from WordPress and other plugins go here, above the title, on every plugin page. ?>
+            <hr class="wp-header-end">
+            <h1><?php empty( $_GET['welcome'] ) ? esc_html_e( 'Support', 'surveyjs' ) : esc_html_e( 'Welcome to SurveyJS Forms', 'surveyjs' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></h1>
+            <p class="about-description"><?php esc_html_e( 'Create contact forms, surveys, and quizzes. Add them to WordPress pages with a block or shortcode, set up email notifications, and save submissions in WordPress.', 'surveyjs' ); ?></p>
 
-            <?php SurveyJS_Upgrade_Notice::render_card(); ?>
-
-            <?php foreach ( $import_sources as $source => $source_forms ) : ?>
-                <div class="card wp-sjs-welcome-import">
-                    <h2><?php /* translators: %s: form plugin name */ echo esc_html( sprintf( __( 'Import from %s', 'surveyjs' ), SurveyJS_Import::sources()[ $source ]['title'] ) ); ?></h2>
-                    <?php SurveyJS_Import::render_form( $source, $source_forms ); ?>
+            <div class="wp-sjs-welcome__layout">
+                <div class="wp-sjs-welcome__main">
+                    <?php self::render_import(); ?>
+                    <?php self::render_checklist( $checklist, $dismissed ); ?>
+                    <?php // Under the cards; when Need help is the only card left, welcome.css puts this column below it. ?>
+                    <p class="wp-sjs-checklist-hidden"<?php echo $dismissed ? '' : ' hidden'; ?>><?php esc_html_e( 'The getting-started checklist is hidden.', 'surveyjs' ); ?> <button type="button" class="button-link" data-sjs-checklist="show"><?php esc_html_e( 'Show checklist', 'surveyjs' ); ?></button></p>
                 </div>
-            <?php endforeach; ?>
-
-            <p class="wp-sjs-checklist-hidden"<?php echo $dismissed ? '' : ' hidden'; ?>><?php esc_html_e( 'The getting-started checklist is hidden.', 'surveyjs' ); ?> <button type="button" class="button-link" data-sjs-checklist="show"><?php esc_html_e( 'Show checklist', 'surveyjs' ); ?></button></p>
-            <?php self::render_checklist( $checklist, $dismissed ); ?>
-            <?php SurveyJS_Upsell::render_getting_started(); ?>
+                <div class="wp-sjs-welcome__side">
+                    <?php SurveyJS_Upgrade_Notice::render_card(); ?>
+                    <div class="card wp-sjs-welcome__help">
+                        <h2><?php esc_html_e( 'Need help?', 'surveyjs' ); ?></h2>
+                        <p>
+                            <?php
+                            printf(
+                                /* translators: 1: link to the SurveyJS Help Desk, 2: support email address as a mailto link */
+                                esc_html__( 'Submit a ticket through the %1$s or email us at %2$s.', 'surveyjs' ),
+                                '<a href="' . esc_url( self::HELP_DESK_URL ) . '" target="_blank" rel="noopener">' . esc_html__( 'SurveyJS Help Desk', 'surveyjs' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'surveyjs' ) . '</span></a>',
+                                '<a href="' . esc_url( 'mailto:' . self::SUPPORT_EMAIL ) . '">' . esc_html( self::SUPPORT_EMAIL ) . '</a>'
+                            );
+                            ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
         <?php
     }
 
+    // One line about the forms found in other plugins; each plugin opens its tab on the Import page.
+    private static function render_import() {
+        $sources = array();
+        foreach ( SurveyJS_Import::sources() as $source => $info ) {
+            $importer = $info['importer'];
+            $count = $importer::is_available() ? count( (array) $importer::forms() ) : 0;
+            if ( $count ) {
+                $sources[ $source ] = array( 'title' => $info['title'], 'count' => $count );
+            }
+        }
+        if ( ! $sources ) {
+            return;
+        }
+        // Three plugins fit on the line; the rest are counted, and the Import button opens the first of them.
+        $shown = array_slice( $sources, 0, 3, true );
+        $more = array_slice( $sources, 3, null, true );
+        ?>
+        <div class="card wp-sjs-welcome-import">
+            <span class="dashicons dashicons-download" aria-hidden="true"></span>
+            <span class="wp-sjs-welcome-import__text"><?php esc_html_e( 'Found forms in other plugins:', 'surveyjs' ); ?></span>
+            <ul class="wp-sjs-welcome-import__sources">
+                <?php foreach ( $shown as $source => $item ) : ?>
+                    <?php
+                    /* translators: 1: number of forms, 2: form plugin name */
+                    $label = sprintf( _n( 'Import %1$s form from %2$s', 'Import %1$s forms from %2$s', $item['count'], 'surveyjs' ), number_format_i18n( $item['count'] ), $item['title'] );
+                    ?>
+                    <li>
+                        <a href="<?php echo esc_url( SurveyJS_Import::url( $source ) ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
+                            <?php echo esc_html( $item['title'] ); ?>
+                            <span class="wp-sjs-count" aria-hidden="true"><?php echo esc_html( number_format_i18n( $item['count'] ) ); ?></span>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+                <?php if ( $more ) : ?>
+                    <li class="wp-sjs-welcome-import__more">
+                        <?php
+                        /* translators: %s: number of other form plugins with forms to import */
+                        echo esc_html( sprintf( _n( 'and %s more', 'and %s more', count( $more ), 'surveyjs' ), number_format_i18n( count( $more ) ) ) );
+                        ?>
+                    </li>
+                    <li>
+                        <a class="button" href="<?php echo esc_url( SurveyJS_Import::url( (string) key( $more ) ) ); ?>"><?php esc_html_e( 'Import', 'surveyjs' ); ?></a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+        <?php
+    }
+
+    private static function external_attrs( $step ) {
+        if ( ! empty( $step['external'] ) ) {
+            echo ' target="_blank" rel="noopener"';
+        }
+    }
+
+    private static function external_text( $step ) {
+        if ( ! empty( $step['external'] ) ) {
+            echo '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'surveyjs' ) . '</span><span aria-hidden="true" class="dashicons dashicons-external"></span>';
+        }
+    }
+
+    // The next required step is open with its description and a primary button; the other open steps
+    // show only the title and a link, finished steps only the title and a tick.
     private static function render_checklist( $checklist, $hidden ) {
         $total = $checklist['total'];
         $notification = $checklist['steps']['notification'];
+        $next = $checklist['progress']['next'] ?? '';
         ?>
         <div class="card wp-sjs-checklist"<?php echo $hidden ? ' hidden' : ''; ?>>
             <?php if ( $total === $checklist['done'] ) : ?>
                 <h2><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'You\'re all set!', 'surveyjs' ); ?></h2>
                 <p><?php esc_html_e( 'Your form is live and has received its first entry.', 'surveyjs' ); ?></p>
                 <?php if ( ! $notification['done'] ) : ?>
-                    <p class="wp-sjs-checklist__suggestion">
-                        <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Optional', 'surveyjs' ); ?></span>
-                        <?php esc_html_e( 'Want an email every time someone submits the form?', 'surveyjs' ); ?>
-                        <a href="<?php echo esc_url( $notification['url'] ); ?>"><?php echo esc_html( $notification['title'] ); ?></a>
-                    </p>
+                    <?php // The optional step left undone stays a checklist row, like before the required steps were done. ?>
+                    <ol class="wp-sjs-checklist__steps wp-sjs-checklist__suggestion">
+                        <?php self::render_step( 'notification', $notification, 'open' ); ?>
+                    </ol>
                 <?php endif; ?>
                 <p>
                     <a href="<?php echo esc_url( add_query_arg( 'page', 'surveyjs-main-menu', admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Go to all forms', 'surveyjs' ); ?></a>
                     &nbsp;|&nbsp; <a href="<?php echo esc_url( self::REVIEW_URL ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Rate SurveyJS Forms on WordPress.org', 'surveyjs' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
                 </p>
             <?php else : ?>
-                <h2><?php esc_html_e( 'Get started', 'surveyjs' ); ?></h2>
-                <p><?php echo esc_html( self::progress_text( $checklist['done'], $total ) ); ?></p>
+                <div class="wp-sjs-checklist__header">
+                    <h2><?php esc_html_e( 'Set up your first form', 'surveyjs' ); ?></h2>
+                    <span class="wp-sjs-checklist__count"><?php echo esc_html( self::progress_text( $checklist['done'], $total ) ); ?></span>
+                </div>
                 <progress class="wp-sjs-progress" max="<?php echo esc_attr( $total ); ?>" value="<?php echo esc_attr( $checklist['done'] ); ?>"></progress>
                 <ol class="wp-sjs-checklist__steps">
                     <?php foreach ( $checklist['steps'] as $key => $step ) : ?>
-                        <li>
-                            <span class="dashicons <?php echo $step['done'] ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>" aria-hidden="true"></span>
-                            <div>
-                                <strong><?php echo esc_html( $step['title'] ); ?></strong>
-                                <?php if ( in_array( $key, self::OPTIONAL_STEPS, true ) ) : ?>
-                                    <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Optional', 'surveyjs' ); ?></span>
-                                <?php endif; ?>
-                                <span class="screen-reader-text"><?php $step['done'] ? esc_html_e( '(completed)', 'surveyjs' ) : esc_html_e( '(not completed)', 'surveyjs' ); ?></span>
-                                <?php if ( ! $step['done'] ) : ?>
-                                    <p><?php echo esc_html( $step['description'] ); ?></p>
-                                    <a href="<?php echo esc_url( $step['url'] ); ?>" class="button"><?php echo esc_html( $step['action'] ); ?></a>
-                                <?php endif; ?>
-                            </div>
-                        </li>
+                        <?php self::render_step( $key, $step, $step['done'] ? 'done' : ( $key === $next ? 'next' : 'open' ) ); ?>
                     <?php endforeach; ?>
                 </ol>
             <?php endif; ?>
             <p><button type="button" class="button-link" data-sjs-checklist="dismiss"><?php esc_html_e( 'Hide checklist', 'surveyjs' ); ?></button></p>
         </div>
+        <?php
+    }
+
+    // One checklist row: done (tick and title), next (open, with its description and buttons) or open (title and a link).
+    private static function render_step( $key, $step, $state ) {
+        $icon = 'done' === $state ? 'dashicons-yes-alt' : 'dashicons-marker';
+        ?>
+        <li class="wp-sjs-checklist__step wp-sjs-checklist__step--<?php echo esc_attr( $state ); ?>"<?php echo 'next' === $state ? ' aria-current="step"' : ''; ?>>
+            <span class="dashicons <?php echo esc_attr( $icon ); ?>" aria-hidden="true"></span>
+            <div class="wp-sjs-checklist__body">
+                <div class="wp-sjs-checklist__title">
+                    <strong><?php echo esc_html( $step['title'] ); ?></strong>
+                    <?php if ( in_array( $key, self::OPTIONAL_STEPS, true ) ) : ?>
+                        <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Optional', 'surveyjs' ); ?></span>
+                    <?php elseif ( 'pro' === $key ) : ?>
+                        <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Free', 'surveyjs' ); ?></span>
+                    <?php endif; ?>
+                    <span class="screen-reader-text"><?php $step['done'] ? esc_html_e( '(completed)', 'surveyjs' ) : esc_html_e( '(not completed)', 'surveyjs' ); ?></span>
+                    <?php if ( 'open' === $state ) : ?>
+                        <a href="<?php echo esc_url( $step['url'] ); ?>" class="wp-sjs-checklist__link"<?php self::external_attrs( $step ); ?>><?php echo esc_html( $step['action'] ); ?><?php self::external_text( $step ); ?></a>
+                    <?php endif; ?>
+                </div>
+                <?php if ( 'next' === $state && ! empty( $step['substeps'] ) ) : ?>
+                    <p><?php echo esc_html( $step['description'] ); ?></p>
+                    <ol class="wp-sjs-checklist__substeps">
+                        <?php foreach ( $step['substeps'] as $substep ) : ?>
+                            <li>
+                                <p><?php echo esc_html( $substep['text'] ); ?></p>
+                                <?php if ( $substep['url'] ) : ?>
+                                    <a href="<?php echo esc_url( $substep['url'] ); ?>" class="button <?php echo esc_attr( $substep['class'] ); ?>"<?php self::external_attrs( $substep ); ?>><?php echo esc_html( $substep['action'] ); ?><?php self::external_text( $substep ); ?></a>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                <?php elseif ( 'next' === $state ) : ?>
+                    <p><?php echo esc_html( $step['description'] ); ?></p>
+                    <div class="wp-sjs-checklist__actions">
+                        <a href="<?php echo esc_url( $step['url'] ); ?>" class="button <?php echo 'pro' === $key ? 'wp-sjs-button-pro' : 'button-primary'; ?>"<?php self::external_attrs( $step ); ?>><?php echo esc_html( $step['action'] ); ?><?php self::external_text( $step ); ?></a>
+                        <?php if ( ! empty( $step['secondary_url'] ) ) : ?>
+                            <a href="<?php echo esc_url( $step['secondary_url'] ); ?>" class="button"><?php echo esc_html( $step['secondary_action'] ); ?></a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </li>
         <?php
     }
 }

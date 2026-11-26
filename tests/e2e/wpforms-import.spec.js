@@ -114,7 +114,7 @@ test.describe("import from WPForms", () => {
     await saveSurvey(page);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs_import&source=wpforms");
-    await expect(page.locator("p", { has: page.locator(`input[value="${wpformsId}"]`) })).toContainText("imported before, will be updated");
+    await expect(page.locator("tr", { has: page.locator(`input[value="${wpformsId}"]`) })).toContainText("Imported before, will be updated");
     await importWpForm(page);
     await expect(result).toContainText("updated");
     await result.getByRole("link", { name: "Edit" }).click();

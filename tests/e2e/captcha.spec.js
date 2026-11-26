@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { uniqueName, createSurvey, deleteSurveys } = require("./helpers");
 
-const SETTINGS_URL = "/wp-admin/admin.php?page=surveyjs-settings";
+const SETTINGS_URL = "/wp-admin/admin.php?page=surveyjs-settings&tab=spam";
 const TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
 const TURNSTILE_PASS_SECRET = "1x0000000000000000000000000000000AA";
 const TURNSTILE_FAIL_SECRET = "2x0000000000000000000000000000000AA";
@@ -13,8 +13,12 @@ async function setCaptcha(page, type, siteKey = "", secretKey = "") {
   await page.getByLabel("Type", { exact: true }).selectOption(type);
   await page.getByLabel("Site Key", { exact: true }).fill(siteKey);
   await page.getByLabel("Secret Key", { exact: true }).fill(secretKey);
-  await page.getByRole("button", { name: "Save Changes" }).click();
-  await expect(page.getByText("Successfully updated!")).toBeVisible();
+  // The CAPTCHA tab saves with the Save button next to its title, shown only while something changed.
+  const save = page.locator(".wp-sjs-settings__save");
+  if (await save.isVisible()) {
+    await save.click();
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("Settings saved.");
+  }
 }
 
 async function enableCaptcha(page, surveyId) {
@@ -56,7 +60,7 @@ test.describe("CAPTCHA", () => {
     await setCaptcha(page, "none");
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}&tab=spam`);
     await expect(page.getByLabel("Enable CAPTCHA")).toBeDisabled();
-    await expect(page.getByRole("link", { name: "Set up CAPTCHA" })).toHaveAttribute("href", /page=surveyjs-settings/);
+    await expect(page.getByRole("link", { name: "Set up CAPTCHA" })).toHaveAttribute("href", /page=surveyjs-settings&tab=spam/);
   });
 
   test("the secret key is not printed back", async ({ page }) => {

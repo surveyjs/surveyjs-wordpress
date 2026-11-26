@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, deleteSurveys, renameSurvey } = require("./helpers");
 
 const LIST_URL = "/wp-admin/admin.php?page=surveyjs-main-menu";
 const TEMPLATES_URL = "/wp-admin/admin.php?page=surveyjs-templates";
@@ -8,10 +8,10 @@ const ROI_BRAND_COLOR = "#8B5CF6";
 
 async function useTemplate(page, id, name) {
   await page.goto(TEMPLATES_URL);
-  await page.getByLabel("Form name").fill(name);
   await page.locator(`.wp-sjs-template[data-template="${id}"]`).getByRole("button", { name: "Use template" }).click();
   await expect(page).toHaveURL(/page=surveyjs_editor/);
-  await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
+  await expect(page.locator("#wp-sjs-name-text")).toHaveText(/^New Form \(\d+\)$/);
+  await renameSurvey(page, name);
 }
 
 async function openEmailTab(page) {
@@ -35,7 +35,7 @@ async function deleteTemplates(page, name) {
   while (await cards.count()) {
     page.once("dialog", dialog => dialog.accept());
     await cards.first().getByRole("link", { name: "Delete" }).click();
-    await expect(page.locator(".notice-success")).toContainText("Template deleted");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("Template deleted");
   }
 }
 
@@ -85,13 +85,13 @@ test.describe("form templates", () => {
     await expect(page.locator(".wp-sjs-template[data-template=product-order-form]")).toBeVisible();
 
     await page.getByRole("button", { name: /^All Templates/ }).click();
-    await page.getByLabel("Search templates").fill("pizza order");
+    await page.getByLabel("Search Templates").fill("pizza order");
     await expect(visible).toHaveCount(1);
     await expect(visible).toHaveAttribute("data-template", "pizza-order-form");
-    await page.getByLabel("Search templates").press("Enter");
+    await page.getByLabel("Search Templates").press("Enter");
     await expect(page).toHaveURL(/page=surveyjs-templates/);
 
-    await page.getByLabel("Search templates").fill("zzzz-no-match");
+    await page.getByLabel("Search Templates").fill("zzzz-no-match");
     await expect(visible).toHaveCount(0);
     await expect(page.locator(".wp-sjs-templates__empty")).toBeVisible();
     await expect(page.locator(".wp-sjs-template--blank")).toBeVisible();
@@ -99,7 +99,6 @@ test.describe("form templates", () => {
 
   test("previews a template in its theme and creates the form from the preview", async ({ page }) => {
     await page.goto(TEMPLATES_URL);
-    await page.getByLabel("Form name").fill(name);
     await page.locator(".wp-sjs-template[data-template=roi-calculator]").getByRole("button", { name: "Preview" }).click();
     const dialog = page.locator("#wp-sjs-template-preview");
     await expect(dialog).toBeVisible();
@@ -114,7 +113,7 @@ test.describe("form templates", () => {
     await expect(frame.locator(".sd-question__title").first()).toContainText("Your name");
     await dialog.getByRole("button", { name: "Use template" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
-    await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
+    await renameSurvey(page, name);
   });
 
   test("a Contact Forms template leaves the email notification off with Reply-To and attachments set", async ({ page }) => {
@@ -136,10 +135,9 @@ test.describe("form templates", () => {
 
   test("Blank Form creates an empty form with the email notification off and the Adaptive theme", async ({ page }) => {
     await page.goto(TEMPLATES_URL);
-    await page.getByLabel("Form name").fill(name);
     await page.getByRole("button", { name: "Create blank form" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
-    await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
+    await renameSurvey(page, name);
     await expect(await openEmailTab(page)).not.toBeChecked();
     await expect(await openThemeTab(page)).toBeChecked();
   });
@@ -157,7 +155,7 @@ test.describe("form templates", () => {
     await page.getByRole("button", { name: "Save template" }).click();
 
     await expect(page).toHaveURL(/category=my-templates/);
-    await expect(page.locator(".notice-success")).toContainText("Template saved");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("Template saved");
     await expect(page.getByRole("button", { name: /^My Templates/ })).toHaveAttribute("aria-pressed", "true");
     const card = page.locator(".wp-sjs-template--mine").filter({ hasText: templateName });
     await expect(card).toBeVisible();
@@ -168,10 +166,9 @@ test.describe("form templates", () => {
     await expectBrandColor(page.frameLocator(".wp-sjs-templates__dialog-frame").locator(".sd-root-modern"), ROI_BRAND_COLOR);
     await page.locator("#wp-sjs-template-preview").getByRole("button", { name: "Close", exact: true }).click();
 
-    await page.getByLabel("Form name").fill(`${name} copy`);
     await card.getByRole("button", { name: "Use template" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
-    await expect(page.locator("#wp-sjs-name-text")).toHaveText(`${name} copy`);
+    await renameSurvey(page, `${name} copy`);
     await expect(await openEmailTab(page)).not.toBeChecked();
     await expect(page.locator("#wp-sjs-notification-reply-to")).toHaveValue("email");
     await expect(await openThemeTab(page)).not.toBeChecked();
@@ -184,7 +181,7 @@ test.describe("form templates", () => {
     await page.goto(MY_TEMPLATES_URL);
     page.once("dialog", dialog => dialog.accept());
     await card.getByRole("link", { name: "Delete" }).click();
-    await expect(page.locator(".notice-success")).toContainText("Template deleted");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("Template deleted");
     await expect(card).toHaveCount(0);
   });
 

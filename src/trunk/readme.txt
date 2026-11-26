@@ -19,7 +19,7 @@ Build and change forms by simply asking: "Create a contact form with name, email
 * **AI Client: AI chat right in your WordPress admin**, with your own API key from Anthropic, OpenAI or Google, connected once in Settings > Connectors (WordPress 7.0 or later). Requests are billed by your AI provider, not by SurveyJS. The chat is on every SurveyJS Forms screen (create forms from a description or a template, change forms, ask how to do something, analyze entries when you allow it), with one conversation for all screens, and in the form editor, where changes show up right away, with Undo.
 
 * **Safe by design:** the AI can't see form entries unless you allow it, and can't change, delete or export entries or delete forms or anything else. Every AI change is saved as a draft: your live form changes only when you open it in the form editor, review the changes and click Save. The editor shows what the AI changed, warns when it changed email recipients or webhooks, and warns when an AI app changes a form you have open. Webhook header values are never shown to the AI.
-* **What the AI can do:** list forms, read and change form JSON, theme and settings (emails, restrictions, schedule, spam protection and more), create forms, look up the SurveyJS documentation and explain how the plugin works. With SurveyJS Forms Pro it also changes PDF settings and the Pro admin settings.
+* **What the AI can do:** list forms, read and change form JSON, theme and settings (emails, restrictions, schedule, spam protection and more), create forms, look up the SurveyJS documentation and explain how the plugin works. With SurveyJS Forms Add-on it also changes PDF settings and the Pro admin settings.
 * **Easy to connect your assistant:** turn the AI connection on and install the free MCP Adapter plugin by the WordPress team in one click. Then either let your assistant set itself up (download a connection file, copy one setup prompt into Claude Code, Codex, Cursor, GitHub Copilot in VS Code or another assistant that runs commands; it connects itself, tests the connection and deletes the file) or set it up manually with ready-made settings and step-by-step instructions for Claude Desktop, Cursor, GitHub Copilot (VS Code), Claude Code, Codex and other apps. A connection is a standard WordPress Application Password that works only with the SurveyJS MCP server; the list of connections shows the last activity of each, and you can revoke any of them at any time.
 * **Read-only by default:** AI apps can read forms and settings until you turn on "Enable MCP write access".
 * **AI chat:** click "AI assistant" at the top of any SurveyJS Forms screen. It knows which screen you are on and suggests matching questions. It creates forms from a description or a plugin template, changes forms and their settings and answers "where is…" questions with links; it never puts forms on pages. In the form editor it works on what you see in the editor, including unsaved edits, and shows every change with "Undo the last AI change". The AI Client tab checks step by step what is missing: an AI provider connected in Settings > Connectors and a provider whose models can call functions (Anthropic, OpenAI, Google with AI Provider for Google 1.2.1 or later, Mistral).
@@ -81,7 +81,7 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 * **Adaptive theme**: by default the form takes the colors, fonts, buttons and fields of your site's theme.
 * **AI themes**: copy a prompt with your site's styles into your own AI assistant and paste back a SurveyJS theme that matches your site. The plugin checks the theme and warns about hard-to-read text.
 * Prefer a visual editor? Open the form in the **free online SurveyJS UI Builder** with drag & drop, a logic editor and a theme editor. When you save there, the form comes back to WordPress. Optional: the plugin works fully without it (see External services below).
-* **Survey Creator**, the visual form designer, is now in the free SurveyJS Forms Pro add-on.
+* **Survey Creator**, the visual form designer, is now in the free SurveyJS Forms Add-on.
 
 = Flexible Configuration Options =
 **Every single element of your form is fully customizable**, from titles and helper texts to placeholder texts and error messages&mdash;all to make sure you can provide your respondents with tailored guides and instructions and ensure high-quality user experience.
@@ -152,8 +152,8 @@ The AI chat (WordPress 7.0 or later) sends requests only when you send a chat me
 = Voice input in the AI chat (your browser's speech recognition) =
 The microphone button in the AI chat uses the speech recognition built into your browser (Web Speech API). It is shown only when your browser supports it, and it works only after you click it and allow the microphone. The browser turns your speech into text in the message box; you review the text and send it yourself. Depending on the browser, the audio is processed on your device or sent to the browser maker's speech service: Google in Chrome ([Privacy Policy](https://policies.google.com/privacy)), Microsoft in Edge ([Privacy Statement](https://privacy.microsoft.com/privacystatement)), Apple in Safari ([Privacy Policy](https://www.apple.com/legal/privacy/)). When the browser can recognize your language on the device, the plugin asks it to do so. SurveyJS Forms never receives or stores the audio; only the text you send goes to your AI provider.
 
-= SurveyJS Forms Pro download page =
-The **Get Pro – Free** links in the admin menu and the admin bar, and the SurveyJS Forms Pro links on the Getting Started page, the dashboard widget and in the form editor open the SurveyJS Forms Pro download page at [surveyjs.io/wordpress-pro](https://surveyjs.io/wordpress-pro) in your browser. The link carries the address of your site's admin area (`wp_admin_url`) and labels of where in the plugin it was clicked (`utm_source`, `utm_medium`). Nothing is sent until you click a link.
+= SurveyJS Forms Add-on download page =
+The **Get the Free Add-on** links in the admin menu and the admin bar, and the SurveyJS Forms Add-on links on the Support page, the dashboard widget and in the form editor open the SurveyJS Forms Add-on download page at [surveyjs.io/wordpress-pro](https://surveyjs.io/wordpress-pro) in your browser. The link carries the address of your site's admin area (`wp_admin_url`) and labels of where in the plugin it was clicked (`utm_source`, `utm_medium`). Nothing is sent until you click a link.
 
 This service is provided by Devsoft Baltic OÜ: [Terms of Use](https://surveyjs.io/terms-use), [Privacy Policy](https://surveyjs.io/privacy-policy).
 
@@ -222,7 +222,7 @@ Administrators still open the files through the plugin, so links in the entries,
 == Frequently Asked Questions ==
 
 = Where is the visual form designer? =
-Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component. Your forms and entries are not affected. Without Pro, edit forms in the built-in JSON editor or click **Open in free UI Builder** in the form editor.
+Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Add-on, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component. Your forms and entries are not affected. Without the add-on, edit forms in the built-in JSON editor or click **Open in free UI Builder** in the form editor.
 
 = Does it work on Nginx and Local (localwp.com)? =
 Yes. Nginx does not read the `.htaccess` file that protects `wp-content/uploads/surveyjs/`, so add this rule to the `server` block of the site and reload Nginx:
@@ -262,7 +262,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 == Changelog ==
 
 = 3.2.4 =
-Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
+Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Add-on. Your forms and entries are not affected. Without the add-on, edit forms in the new JSON editor or in the free online UI Builder.
 Added: AI. Build and change forms by asking the AI chat right in your WordPress admin (your own API key, WordPress 7.0 or later) or your own AI assistant such as Claude, ChatGPT or Cursor through MCP. Off by default; AI changes are drafts until you click Save.
 Added: CC and BCC fields for the email notification and the auto-reply; form importers now bring over CC and BCC addresses.
 Added: webhooks. Send every entry as JSON to Zapier, Make, n8n or any URL, with conditions, custom headers, a test button, a request log and automatic retries.
@@ -276,7 +276,7 @@ Security: added permission checks to the file upload and file delete handlers. S
 == Upgrade Notice ==
 
 = 3.2.4 =
-Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Pro add-on. Your forms and entries are not affected. Without Pro, edit forms in the new JSON editor or in the free online UI Builder.
+Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Add-on. Your forms and entries are not affected. Without the add-on, edit forms in the new JSON editor or in the free online UI Builder.
 
 == Support ==
 

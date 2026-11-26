@@ -1,61 +1,250 @@
+/* The form's header bar: white, edge to edge, 56px like the plugin header (admin_header.css). .wrap sits 10px
+   below the top, 22px from the admin menu (#wpcontent padding 20px + .wrap margin 2px) and 20px from the right;
+   the negative margins undo that. */
 .wp-sjs-editor__header {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* the actions never move under the title: actions-overflow.js puts the extra ones in "…" */
     align-items: center;
-    gap: 12px;
+    gap: 8px 24px;
+    box-sizing: border-box;
+    min-height: 56px;
+    margin: -10px -20px 0 -22px;
+    padding: 8px 20px;
+    background: #fff;
+    border-bottom: 1px solid #dcdcde;
 }
 
-.wp-sjs-editor__name {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
+@media screen and (max-width: 782px) {
+    .wp-sjs-editor__header {
+        margin: -10px -12px 0 -10px;
+        padding: 8px 10px;
+    }
 }
 
-.wp-sjs-editor__name[hidden] {
+/* All Forms / form name at 16px: the main text of the bar, a step above the 14px of the plugin header's tabs.
+   The form name is the page h1, in the same size. */
+.wp-sjs-editor .wp-sjs-editor__crumbs {
+    flex: 1 1 auto;
+    min-width: 0; /* shrinks without overflow: hidden, which would clip the focus frame of the name field */
+    margin: 0;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.wp-sjs-editor__crumbs li {
+    min-width: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__crumbs li + li::before {
+    margin: 0 12px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__crumbs h1 {
+    margin-block: 0;
+    padding: 0;
+    color: #1d2327;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+/* Form name, edited in place. The button and the input share padding, border and font with the h1 text; the
+   h1 is pulled left by that padding and border (9px), so the name sits where plain h1 text would and does not
+   move when it turns into the input. Hover and focus follow the WP core field: #949494 border on hover, the
+   theme color with a 1.5px ring on focus. */
+.wp-sjs-editor .wp-sjs-editor__title {
+    min-width: 0;
+    margin-inline: -9px 0;
+}
+
+.wp-sjs-editor__title-button,
+.wp-sjs-editor__title-input {
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: -3px 0;
+    padding: 2px 8px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+}
+
+.wp-sjs-editor__title-button {
+    cursor: text;
+    text-align: start;
+}
+
+.wp-sjs-editor__title-button:hover {
+    border-color: #949494;
+}
+
+.wp-sjs-editor__title-button:focus-visible {
+    outline: none;
+    border-color: var(--wp-admin-theme-color);
+    box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color);
+}
+
+/* WP core text inputs are 40px tall with 12px padding; the title input keeps the h1's size instead. */
+.wp-core-ui .wp-sjs-editor input.wp-sjs-editor__title-input {
+    height: auto;
+    min-height: 0;
+    margin: -3px 0;
+    padding: 2px 8px;
+    font: inherit;
+    line-height: inherit;
+}
+
+.wp-sjs-editor__title-input {
+    min-width: 12ch;
+    field-sizing: content;
+    border-color: var(--wp-admin-theme-color);
+    background: #fff;
+    box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color);
+    min-height: 0;
+}
+
+/* Browsers without field-sizing get a fixed width instead of one that follows the text. */
+@supports not (field-sizing: content) {
+    .wp-sjs-editor__title-input {
+        width: 32ch;
+    }
+}
+
+.wp-core-ui .wp-sjs-editor input.wp-sjs-editor__title-input:focus {
+    border-color: var(--wp-admin-theme-color);
+    box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color);
+}
+
+.wp-sjs-editor__title-button[hidden],
+.wp-sjs-editor__title-input[hidden] {
     display: none;
-}
-
-.wp-sjs-editor__header .wp-sjs-editor__save-template {
-    margin-left: auto;
-}
-
-.wp-sjs-editor .wp-sjs-editor__name h1 {
-    margin-inline-end: 0;
 }
 
 .wp-sjs-editor__tabs {
     display: flex;
     align-items: flex-end;
+    margin-top: 16px;
     margin-bottom: 12px;
 }
 
-.wp-sjs-editor__tabs .wp-sjs-editor__save {
-    margin-block: 0 4px;
-    margin-inline: auto 0;
-}
-
-.wp-sjs-editor__tabs .wp-sjs-editor__full-preview {
-    display: inline-flex;
+/* Editor actions on the title row, right-aligned: Pro's Full screen, Open full preview, Embed,
+   Save as Template and Save. The spacing comes from the gap, not from margins on each button. */
+.wp-sjs-editor__actions {
+    display: flex;
+    flex: none; /* the title gives way first, down to 200px; then actions-overflow.js moves buttons into "…" */
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 4px;
-    margin-block: 0 4px;
-    margin-inline: auto 8px;
+    gap: 8px;
+    min-width: 0;
+    margin-inline-start: auto;
 }
 
-.wp-sjs-editor__tabs .wp-sjs-editor__full-preview ~ .wp-sjs-editor__save {
-    margin-inline-start: 0;
+.wp-sjs-editor__actions > * {
+    flex: none;
 }
 
-.wp-sjs-editor__tabs .wp-sjs-editor__embed {
-    display: inline-flex;
+/* A long form name ends with an ellipsis instead of pushing the actions away. */
+.wp-sjs-editor__crumbs ol {
+    flex-wrap: nowrap;
+}
+
+.wp-sjs-editor__crumbs li:first-child {
+    flex: none;
+    white-space: nowrap;
+}
+
+.wp-sjs-editor__crumbs li:last-child {
+    min-width: 0;
+}
+
+.wp-sjs-editor__title-button {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Actions that do not fit go into the "…" menu (actions-overflow.js). */
+/* (.button in the selector: it must beat .wp-core-ui .button.wp-sjs-button-icon, which is inline-flex.) */
+.wp-core-ui .wp-sjs-editor__actions > .button.wp-sjs-is-overflowed,
+.wp-sjs-editor__more[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__more {
+    position: relative;
+}
+
+/* "…": a square button as high as the others (40px). */
+.wp-core-ui .wp-sjs-editor__more-toggle.button {
+    justify-content: center;
+    width: 40px;
+    padding: 0;
+}
+
+/* The menu looks like the form switcher's menu on Entries: white, 1px #dcdcde border, 2px radius, a soft shadow,
+   rows with the hover gray of core lists; right-aligned under "…". */
+.wp-sjs-editor__more-menu {
+    position: absolute;
+    z-index: 1000;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 200px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid #dcdcde;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    list-style: none;
+}
+
+.wp-sjs-editor__more-menu[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__more-menu li {
+    margin: 0;
+}
+
+.wp-sjs-editor__more-item {
+    display: flex;
     align-items: center;
-    gap: 4px;
-    margin-block: 0 4px;
-    margin-inline-end: 8px;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 2px;
+    background: none;
+    color: #1d2327;
+    font: inherit;
+    font-size: 13px;
+    line-height: 20px;
+    text-align: start;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
-.wp-sjs-editor__tabs .wp-sjs-editor__embed[aria-expanded="true"] {
+.wp-sjs-editor__more-item:hover,
+.wp-sjs-editor__more-item:focus {
+    outline: none;
+    background: #f0f0f1;
+}
+
+.wp-sjs-editor__more-item .dashicons,
+.wp-sjs-editor__more-item svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    line-height: 1;
+    color: #50575e;
+    fill: currentColor;
+}
+
+.wp-sjs-editor__actions .wp-sjs-editor__embed[aria-expanded="true"] {
     background: #f0f0f1;
     border-color: #0a4b78;
     color: #0a4b78;
@@ -149,41 +338,61 @@ html:has(.wp-sjs-embed[open]) {
     max-width: 100%;
 }
 
-.wp-sjs-editor__full-preview .dashicons,
-.wp-sjs-editor__embed .dashicons,
-.wp-sjs-editor__preview-close .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-}
-
 .wp-sjs-editor__pane-header {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 12px;
+    gap: 8px 16px;
     padding: 8px 12px;
     border-bottom: 1px solid #c3c4c7;
     background: #f6f7f7;
 }
 
+/* Theme tab, compact: one line without titles or hints, 12px from the edges.
+   Line 1: Adaptive, then what applies to it (Customize Adaptive theme when on; the theme and Transparent background
+   when off), 16px apart, wrapped lines 12px apart. Match your site with AI ends the line and opens a dialog. */
+.wp-sjs-editor__theme-mode[hidden] {
+    display: none;
+}
+
 .wp-sjs-editor__theme-mode {
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.wp-sjs-editor__theme-line {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 16px 12px;
-    padding: 32px 12px;
-    border-bottom: 1px solid #c3c4c7;
+    gap: 12px 16px;
+    padding: 12px;
+}
+
+.wp-sjs-editor__theme-line > span:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+}
+
+.wp-sjs-editor__theme-line > [hidden] {
+    display: none;
+}
+
+.wp-sjs-editor__theme-line .wp-sjs-editor__theme-label {
+    font-size: 14px;
+    line-height: 20px;
+    color: #1d2327;
 }
 
 .wp-sjs-editor__media {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 16px 8px;
-    padding: 32px 12px;
-    border-bottom: 1px solid #c3c4c7;
+    gap: 8px;
+    padding: 16px 12px;
+    border-top: 1px solid #c3c4c7;
+}
+
+.wp-sjs-editor__media > .description {
+    flex-basis: 100%;
 }
 
 .wp-sjs-editor__media .button {
@@ -267,47 +476,6 @@ html:has(.wp-sjs-embed[open]) {
     opacity: 0.5;
 }
 
-.wp-sjs-editor__theme-mode[hidden] {
-    display: none;
-}
-
-.wp-sjs-editor__theme-preset {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-inline-end: 8px;
-}
-
-.wp-sjs-editor__theme-mode .description {
-    flex-basis: 100%;
-    margin: 0 0 24px;
-}
-
-.wp-sjs-editor__ai-theme {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    flex-basis: 100%;
-    gap: 16px 8px;
-    padding-top: 32px;
-    border-top: 1px solid #dcdcde;
-}
-
-.wp-sjs-editor__ai-theme .description {
-    margin-bottom: 0;
-}
-
-.wp-sjs-editor__ai-form {
-    display: flex;
-    flex-direction: column;
-    flex-basis: 100%;
-    gap: 8px;
-}
-
-.wp-sjs-editor__ai-form[hidden] {
-    display: none;
-}
-
 .wp-sjs-editor__ai-actions {
     display: flex;
     align-items: center;
@@ -347,59 +515,22 @@ html:has(.wp-sjs-embed[open]) {
     font-size: 12px;
 }
 
-.wp-sjs-editor__pane-header .wp-sjs-editor__ui-builder {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-inline-start: auto;
-}
-
-.wp-sjs-editor__pane-header .wp-sjs-editor__ui-builder .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-}
-
+/* One row: Open in free UI Builder, Copy JSON 8px after it, the add-on link pushed to the right end (it wraps
+   under them on a narrow pane). Status messages take the full width under the row. */
 .wp-sjs-editor__pane-header .wp-sjs-editor__pro-link {
-    flex-basis: 100%;
-    text-align: end;
+    margin-left: auto;
 }
 
-.wp-sjs-editor__ui-builder-status,
-.wp-sjs-editor__ui-builder-manual {
+.wp-sjs-editor__ui-builder-status {
     flex-basis: 100%;
 }
 
-.wp-sjs-editor__ui-builder-status:empty,
-#wp-sjs-ui-builder-manual-notice:empty {
+.wp-sjs-editor__ui-builder-status:empty {
     display: none;
 }
 
-.wp-sjs-editor__ui-builder-status .notice,
-#wp-sjs-ui-builder-manual-notice .notice {
+.wp-sjs-editor__ui-builder-status .notice {
     margin: 0;
-}
-
-.wp-sjs-editor__ui-builder-manual {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.wp-sjs-editor__ui-builder-manual[hidden] {
-    display: none;
-}
-
-.wp-sjs-editor__ui-builder-manual .description {
-    margin: 0;
-}
-
-.wp-sjs-editor__ui-builder-manual-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 12px;
 }
 
 .wp-sjs-editor__columns {
@@ -915,19 +1046,6 @@ body.wp-sjs-editor-full-preview-open {
     gap: 8px;
 }
 
-.wp-sjs-editor__empty-actions .button {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.wp-sjs-editor__empty-actions .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-}
-
 .wp-sjs-editor .button.wp-sjs-editor__highlight {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #00a32a;
 }
@@ -964,4 +1082,329 @@ body.wp-sjs-editor-full-preview-open {
     border-radius: 50%;
     background: #dba617;
     vertical-align: middle;
+}
+
+/* Settings tabs of the form editor (Email, Webhooks, Entries, Restrictions, Spam Protection, Advanced, the
+   Add-on's PDF): sections on the page background, no cards.
+   - A section is a top-level row: its title (14px semibold) and 8px under it the checkbox or field.
+     Sections are 16px above and below a 1px #dcdcde line.
+   - The settings a checkbox turns on (rows with data-enabled-by) are hidden while it is off and sit under it,
+     24px in from the section: label in a 176px column, field 24px from it, so fields line up at 224px.
+     A label next to a 40px field sits in its middle (10px down). Rows in a section are 16px apart.
+   - Fields: 350px for a text, email, URL, date or a select on its own; 120px for a number; textareas fill the
+     column. Fields in a sentence ("10 per day", "Identify people by …") keep their own size.
+   - Tab titles (Webhooks) are 16.9px / 22px.
+   The tables inside a webhook keep their own compact layout. */
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table),
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody {
+    display: block;
+    margin: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+    padding: 16px 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[hidden] {
+    display: none;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr:first-child {
+    padding-top: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr:not([data-enabled-by]):not(:first-child) {
+    border-top: 1px solid #dcdcde;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr > th,
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr > td {
+    display: block;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr > th {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[data-enabled-by] {
+    grid-template-columns: 176px minmax(0, 1fr);
+    column-gap: 24px;
+    padding: 0 0 16px 24px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[data-enabled-by] > th {
+    font-weight: 400;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[data-enabled-by]:has(> td > :is(input:not([type="checkbox"]), select, .wp-sjs-inline-fields):first-child) > th {
+    padding-top: 10px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[data-enabled-by]:has(> td > textarea:first-child) > th {
+    padding-top: 4px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > :is(input[type="text"], input[type="email"], input[type="url"], input[type="password"], input[type="datetime-local"], select):first-child:not(:has(+ :is(input, select, label, span))) {
+    width: 350px;
+    max-width: 100%;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) input.small-text {
+    width: 120px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) textarea.large-text {
+    width: 100%;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td .description {
+    margin-top: 8px;
+}
+
+/* A group of rows after the tab's main rows (Auto-reply, PDF link in emails) is one more section. */
+.wp-sjs-editor .wp-sjs-editor__settings > .form-table + [role="group"],
+.wp-sjs-editor .wp-sjs-editor__settings > [role="group"] + [role="group"] {
+    border-top: 1px solid #dcdcde;
+    padding-top: 16px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings > h2 {
+    margin: 32px 0 8px;
+    font-size: 16.9px;
+    line-height: 22px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings > h2:first-child,
+.wp-sjs-editor .wp-sjs-editor__settings > input[type="hidden"] + h2 {
+    margin-top: 0;
+}
+
+/* Send test email: on its own line under Send To, 8px below the field. */
+.wp-core-ui .wp-sjs-editor #wp-sjs-send-test-email {
+    display: block;
+    margin-top: 8px;
+}
+
+/* Notices inside a settings row ("CAPTCHA is not set up yet"): 8px under the checkbox and 8px above the next hint. */
+.wp-sjs-editor .wp-sjs-editor__settings .form-table td > .notice.inline {
+    margin: 8px 0 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table td > .notice.inline + .description {
+    margin-top: 8px;
+}
+
+/* Webhooks tab: title, 8px, intro paragraphs 8px apart, then the list, Add webhook and Request format 16px apart. */
+.wp-sjs-editor .wp-sjs-editor__settings[data-panel="webhooks"] > p.description {
+    margin: 0 0 8px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings[data-panel="webhooks"] > .wp-sjs-items {
+    margin: 16px 0 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings[data-panel="webhooks"] .wp-sjs-items__empty {
+    margin: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings[data-panel="webhooks"] > p:has(> #wp-sjs-webhook-add) {
+    margin: 16px 0 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings[data-panel="webhooks"] > .wp-sjs-webhook-format {
+    margin-top: 16px;
+}
+
+/* A notice above a tab's settings ("Entry limits … work only when Store entries is on"): 16px above the first row. */
+.wp-sjs-editor .wp-sjs-editor__settings > .notice.inline:first-child {
+    margin: 0 0 16px;
+}
+
+/* Fields in a sentence ("100 in total", "1 Identify people by User account", "Delete after … 90 days"):
+   one centered line with 8px between the parts. */
+.wp-sjs-editor .wp-sjs-inline-fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.wp-sjs-editor .wp-sjs-inline-fields > * {
+    margin: 0;
+}
+
+.wp-sjs-editor .wp-sjs-inline-fields > span:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Hints on the settings tabs and the Theme tab look the same everywhere: 14px / 21px, #646970, as the hints under
+   the fields of the settings rows (WordPress sets those to 14px). */
+.wp-sjs-editor .wp-sjs-editor__settings .description,
+.wp-sjs-editor .wp-sjs-ai-dialog .description,
+.wp-sjs-editor .wp-sjs-editor__media .description {
+    font-size: 14px;
+    line-height: 21px;
+    color: #646970;
+}
+
+/* Everything under a field in a settings row is 8px apart: hints, "Add a … question" checkboxes, Use HTML content type,
+   the accent color swatch. A textarea is a block, so no descender gap is left under it. */
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > textarea {
+    display: block;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > p:not(.description),
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > div:not(.wp-sjs-inline-fields):not(.notice) > p {
+    margin: 8px 0 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > div:not(.wp-sjs-inline-fields):not(.notice) {
+    margin: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > span[data-enabled-by]:not([hidden]) {
+    display: block;
+    margin-top: 8px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > fieldset {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > fieldset > br {
+    display: none;
+}
+
+/* A note under all the rows of a tab ("Messages replace the form…") is one more section: a line, then 16px. */
+.wp-sjs-editor .wp-sjs-editor__settings > .form-table + p.description {
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid #dcdcde;
+}
+
+/* WordPress gives fieldset labels .35em / .5em margins with !important; here checkboxes in a list are 8px apart. */
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) td > fieldset > label {
+    margin: 0 !important;
+    line-height: 20px;
+}
+
+/* A dependent setting that is just a checkbox (Partial entries, PDF Attachment) needs no label column and no indent:
+   the checkbox text says it, at the left edge like the checkbox it depends on. The row header stays in the markup for the AI draft notice, hidden here. */
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[data-enabled-by]:has(> td > label:first-child > input[type="checkbox"]) {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 0;
+}
+
+.wp-sjs-editor .wp-sjs-editor__settings .form-table:not(.wp-sjs-item .form-table) > tbody > tr[data-enabled-by]:has(> td > label:first-child > input[type="checkbox"]) > th {
+    display: none;
+}
+
+/* GDPR agreement is a setting, not one of the image buttons: 16px from Set logo (8px + the 8px gap). */
+.wp-sjs-editor__media .wp-sjs-editor__gdpr {
+    margin-left: 8px;
+}
+
+/* Picking an image (Insert image, Set logo, the PDF logo): the WordPress media window, kept as it is, but not over
+   the whole screen: 960 x 640px in the middle, smaller on small screens. Below 900px WordPress makes it full screen. */
+@media screen and (min-width: 901px) {
+    .media-modal:has(.wp-sjs-media-frame) {
+        top: 50%;
+        right: auto;
+        bottom: auto;
+        left: 50%;
+        width: min(960px, calc(100vw - 60px));
+        height: min(640px, calc(100vh - 60px));
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Under the JSON: the image buttons and the static analysis bar stay pinned to the bottom of the window while the
+   JSON scrolls, as one footer of the pane. The list of chosen images scrolls inside it after 160px. */
+.wp-sjs-editor__pane-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: #fff;
+}
+
+.wp-sjs-editor__pane-footer .wp-sjs-lint {
+    position: static;
+}
+
+.wp-sjs-editor__pane-footer .wp-sjs-editor__images {
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+/* Match your site with AI dialog: the Embed dialog's frame (640px, header, footer with the buttons on the right).
+   The intro is 16px under the header; each step title 16px above its control, 8px under it. */
+.wp-sjs-ai-dialog .wp-sjs-embed__body > .description {
+    margin: 16px 0 0;
+}
+
+.wp-sjs-ai-dialog .wp-sjs-embed__body h3 {
+    margin: 16px 0 8px;
+}
+
+.wp-sjs-ai-dialog .wp-sjs-embed__body h3 + p {
+    margin: 0;
+}
+
+.wp-sjs-ai-dialog #wp-sjs-ai-answer {
+    display: block;
+}
+
+.wp-sjs-ai-dialog #wp-sjs-ai-notice:not(:empty) {
+    margin-top: 8px;
+}
+
+.wp-sjs-ai-dialog #wp-sjs-ai-notice .notice {
+    margin: 0;
+}
+
+/* Customize (Adaptive on) and Match your site with AI: a group at the right end of the line, 8px apart. */
+.wp-sjs-editor__theme-line > .wp-sjs-editor__theme-actions {
+    gap: 8px;
+    margin-left: auto;
+}
+
+.wp-sjs-editor__theme-actions > .button[hidden] {
+    display: none;
+}
+
+/* The image block under the JSON is for the Config tab only (hidden on Theme). */
+.wp-sjs-editor__media[hidden] {
+    display: none;
+}
+
+/* Background image (Theme tab, Adaptive off): the button, then Remove 8px after it when the theme has an image. */
+#wp-sjs-theme-bg-image-row {
+    gap: 8px;
+}
+
+#wp-sjs-theme-bg-image-row > [hidden] {
+    display: none;
+}
+
+/* The theme list (Adaptive off) takes the free width of its line. */
+.wp-sjs-editor__theme-line > #wp-sjs-theme-preset-row {
+    flex: 1 1 200px;
+}
+
+.wp-sjs-editor__theme-line #wp-sjs-theme-preset {
+    width: 100%;
+    max-width: none;
 }

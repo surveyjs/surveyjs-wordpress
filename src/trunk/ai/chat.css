@@ -53,6 +53,11 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
         padding-right: 400px;
     }
 
+    /* The plugin header (with the AI assistant button) also ends at the panel: its 20px + the panel's 400px. */
+    .wp-sjs-chat-is-open .wp-sjs-header {
+        padding-right: 420px;
+    }
+
     .wp-sjs-editor.wp-sjs-chat-open.wp-sjs-pro-fullscreen {
         padding-right: 416px;
     }
@@ -84,7 +89,34 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
 
 .wp-sjs-chat__header-actions {
     display: flex;
-    gap: 4px;
+    align-items: center;
+    gap: 8px;
+}
+
+/* New chat: core's outlined (secondary) button, in the compact 32px size of the list-table buttons. */
+.wp-core-ui .wp-sjs-chat__new.button {
+    min-height: 32px;
+    padding: 0 12px;
+    line-height: 30px;
+}
+
+/* Close: a square 32px outlined button with the x in its middle. */
+.wp-core-ui .wp-sjs-chat__close.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    min-height: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+.wp-core-ui .wp-sjs-chat__close.button .dashicons {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    font-size: 20px;
+    line-height: 1;
 }
 
 .wp-sjs-chat__icon-button.button {
@@ -97,14 +129,27 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
 }
 
 .wp-sjs-chat__icon-button.button:hover,
-.wp-sjs-chat__icon-button.button:focus {
+.wp-sjs-chat__icon-button.button:focus-visible {
     background: #f0f0f1;
 }
 
-.wp-sjs-chat__icon-button .dashicons {
-    font-size: 18px;
+/* Opening the chat moves focus to the close button; after a click that showed core's focus frame around the x.
+   The frame stays for keyboard focus only. */
+.wp-core-ui .wp-sjs-chat__icon-button.button:focus:not(:focus-visible),
+.wp-core-ui .wp-sjs-chat__close.button:focus:not(:focus-visible) {
+    box-shadow: none;
+    outline: none;
+}
+
+/* Core gives a dashicon in a .button a 1.9 line height and vertical-align: top, which put the icon off the
+   middle of its label ("+ New chat") and of the button (x, the attach and mic icons). */
+.wp-core-ui .wp-sjs-chat__icon-button.button .dashicons {
     width: 18px;
     height: 18px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1;
+    vertical-align: middle;
 }
 
 .wp-sjs-chat__model {
@@ -289,20 +334,46 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
     font-weight: 600;
 }
 
+/* Example requests as chips: compact (core's .button is 40px high), white with a light gray border like the
+   example chips on the AI MCP tab, dark text; the admin color on hover. A long request wraps inside its chip. */
 .wp-sjs-chat__suggestions {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 6px;
-    margin-top: 12px;
+    gap: 8px;
+    margin-top: 16px;
 }
 
-.wp-sjs-chat__suggestion.button {
-    border-radius: 14px;
-    white-space: normal;
+.wp-core-ui .wp-sjs-chat__suggestion.button {
+    min-height: 0;
+    margin: 0;
+    padding: 6px 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: none;
+    color: #1d2327;
+    font-size: 13px;
+    line-height: 18px;
     text-align: left;
-    line-height: 1.4;
-    padding: 4px 10px;
+    white-space: normal;
+}
+
+.wp-core-ui .wp-sjs-chat__suggestion.button:hover {
+    border-color: var(--wp-admin-theme-color, #2271b1);
+    background: color-mix(in srgb, var(--wp-admin-theme-color, #2271b1) 6%, #fff);
+    color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.wp-core-ui .wp-sjs-chat__suggestion.button:focus {
+    border-color: var(--wp-admin-theme-color, #2271b1);
+    box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
+    outline: none;
+}
+
+.wp-core-ui .wp-sjs-chat__suggestion.button:focus:not(:focus-visible) {
+    border-color: #dcdcde;
+    box-shadow: none;
 }
 
 .wp-sjs-chat__setup h3 {
@@ -434,12 +505,6 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
     margin-right: 5px;
 }
 
-.wp-sjs-chat__billing {
-    margin-top: 12px;
-    color: #50575e;
-    font-size: 12px;
-}
-
 .wp-sjs-chat__form {
     margin: 0 0 6px;
 }
@@ -494,8 +559,15 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    margin-left: 8px; /* 16px from the attach and mic buttons: a setting, not one of them */
     font-size: 12px;
     color: #50575e;
+}
+
+/* Core moves checkboxes 4px up (margin-top: -0.25rem) to sit on the text baseline; in this flex row the row
+   centers them. */
+.wp-sjs-chat__web input[type="checkbox"] {
+    margin: 0;
 }
 
 .wp-sjs-chat__send.is-stop {

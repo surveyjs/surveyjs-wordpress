@@ -8,7 +8,6 @@ class SurveyJS_Upgrade_Notice {
     const DISMISSED_META = 'surveyjs_upgrade_notice_dismissed';
     const DISMISS_ACTION = 'surveyjs_dismiss_upgrade_notice';
     const CAPABILITY = 'manage_options';
-    const WHAT_CHANGED_URL = 'https://wordpress.org/support/plugin/surveyjs/';
 
     public static function init() {
         add_action( 'init', array( __CLASS__, 'store_version' ), 2 );
@@ -60,7 +59,7 @@ class SurveyJS_Upgrade_Notice {
         if ( ! self::is_active() || ! self::on_getting_started() ) {
             return;
         }
-        wp_add_inline_style( 'common', '.wp-sjs-upgrade-card.card{max-width:640px}.wp-sjs-upgrade-card .wp-sjs-upgrade__actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}' );
+        // The card's styles are in views/welcome.css: the card shows only on the Support page.
         wp_add_inline_script( 'common', 'var surveyjsUpgradeNotice = ' . wp_json_encode( array( 'action' => self::DISMISS_ACTION, 'nonce' => wp_create_nonce( self::DISMISS_ACTION ) ) ) . ';' . <<<'JS'
 document.addEventListener("click", function (event) {
     var button = event.target.closest("[data-sjs-upgrade-dismiss]");
@@ -87,16 +86,18 @@ JS
         }
         ?>
         <div class="card wp-sjs-upgrade-card">
-            <h2><?php /* translators: %s: plugin version */ echo esc_html( sprintf( __( 'What changed in %s', 'surveyjs' ), SURVEYJS_VERSION ) ); ?></h2>
-        <p><?php esc_html_e( 'Your forms, entries and settings are unchanged and keep working on your site.', 'surveyjs' ); ?></p>
-        <p><?php esc_html_e( 'To edit forms, SurveyJS Forms now has a built-in JSON editor and an "Open in free UI Builder" button that opens the visual editor in a new tab.', 'surveyjs' ); ?></p>
-        <p><?php esc_html_e( 'To design forms visually right inside WordPress, as before, install the free SurveyJS Forms Pro add-on. It also adds charts and PDF export, and picks up your SurveyJS license key automatically.', 'surveyjs' ); ?></p>
-        <p><?php esc_html_e( 'Why the change: WordPress.org hosts only GPL-licensed code, and Survey Creator is a commercial SurveyJS component, so it now ships in a separate add-on.', 'surveyjs' ); ?></p>
-        <p class="wp-sjs-upgrade__actions">
-            <a href="<?php echo esc_url( SurveyJS_Upsell::url( 'getting-started-upgrade' ) ); ?>" class="button button-primary" target="_blank" rel="noopener"><?php esc_html_e( 'Get SurveyJS Forms Pro', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
-            <a href="<?php echo esc_url( self::WHAT_CHANGED_URL ); ?>" class="button" target="_blank" rel="noopener"><?php esc_html_e( 'What changed', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
-            <a href="<?php echo esc_url( self::dismiss_url() ); ?>" class="button-link" data-sjs-upgrade-dismiss><?php esc_html_e( 'Dismiss', 'surveyjs' ); ?></a>
-        </p>
+            <?php // No-break spaces after "to" and a no-break hyphen in "add-on" keep "to the free add-on" on one line. ?>
+            <h2><?php esc_html_e( 'Visual editing has moved to the free add‑on', 'surveyjs' ); ?></h2>
+            <p><?php
+            /* translators: %s: the installed version of SurveyJS Forms, e.g. 3.2.4 */
+            echo esc_html( sprintf( __( "In SurveyJS Forms %s, you can edit your form's JSON and preview the result in the Config tab.", 'surveyjs' ), SURVEYJS_VERSION ) );
+            ?></p>
+            <p><?php esc_html_e( 'Install the free SurveyJS Forms Add-on to open and edit your existing forms visually with Survey Creator in the same tab. The add-on also lets you export forms and submissions as PDFs, view charts for individual forms, and track submissions across all forms in the Dashboard.', 'surveyjs' ); ?></p>
+            <p><?php esc_html_e( 'The add-on is available as a separate download from the SurveyJS website because it includes commercial SurveyJS libraries. You can use it as provided on a live WordPress site for free, with no license key required.', 'surveyjs' ); ?></p>
+            <p class="wp-sjs-upgrade__actions">
+                <a href="<?php echo esc_url( SurveyJS_Upsell::url( 'getting-started-upgrade' ) ); ?>" class="button button-primary" target="_blank" rel="noopener"><?php esc_html_e( 'Learn about the free add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
+                <a href="<?php echo esc_url( self::dismiss_url() ); ?>" class="button-link" data-sjs-upgrade-dismiss><?php esc_html_e( 'Dismiss', 'surveyjs' ); ?></a>
+            </p>
         </div>
         <?php
     }

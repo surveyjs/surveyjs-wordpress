@@ -11,14 +11,16 @@
     const config = JSON.parse(document.getElementById("wp-sjs-editor-config").textContent);
     const nameInput = document.getElementById("wp-sjs-survey-name");
     const nameText = document.getElementById("wp-sjs-name-text");
-    const nameView = document.getElementById("wp-sjs-name-view");
-    const nameForm = document.getElementById("wp-sjs-name-form");
+    // The name is edited in place: the title button turns into the input and back.
     const nameEditButton = document.getElementById("wp-sjs-name-edit");
-    const nameSaveButton = document.getElementById("wp-sjs-name-save");
-    const nameCancelButton = document.getElementById("wp-sjs-name-cancel");
+    const nameView = nameEditButton;
+    const nameForm = nameInput;
     const formatButton = document.getElementById("wp-sjs-format");
     const insertImageButton = document.getElementById("wp-sjs-insert-image");
     const setLogoButton = document.getElementById("wp-sjs-set-logo");
+    const mediaElement = document.getElementById("wp-sjs-media");
+    const backgroundImageButton = document.getElementById("wp-sjs-bg-image");
+    const backgroundImageRemove = document.getElementById("wp-sjs-bg-image-remove");
     const gdprLabel = document.getElementById("wp-sjs-gdpr-agreement-label");
     const gdprCheckbox = document.getElementById("wp-sjs-gdpr-agreement");
     const GDPR_NAME = "gdpr_agreement";
@@ -27,12 +29,7 @@
     const uiBuilderButton = document.getElementById("wp-sjs-ui-builder");
     const uiBuilderOrigin = new URL(config.uiBuilderUrl).origin;
     const uiBuilderStatus = document.getElementById("wp-sjs-ui-builder-status");
-    const uiBuilderManual = document.getElementById("wp-sjs-ui-builder-manual");
-    const uiBuilderManualToggle = document.getElementById("wp-sjs-ui-builder-manual-toggle");
     const uiBuilderCopyButton = document.getElementById("wp-sjs-ui-builder-copy");
-    const uiBuilderPasteInput = document.getElementById("wp-sjs-ui-builder-paste");
-    const uiBuilderApplyButton = document.getElementById("wp-sjs-ui-builder-apply");
-    const uiBuilderManualNotice = document.getElementById("wp-sjs-ui-builder-manual-notice");
     const noticeElement = document.getElementById("wp-sjs-editor-notice");
     const emptyHint = document.getElementById("wp-sjs-empty-hint");
     const emptyHintUiBuilderButton = document.getElementById("wp-sjs-empty-ui-builder");
@@ -56,7 +53,7 @@
     const aiPromptButton = document.getElementById("wp-sjs-ai-prompt");
     const aiPasteButton = document.getElementById("wp-sjs-ai-paste");
     const aiConvertButton = document.getElementById("wp-sjs-ai-convert");
-    const aiForm = document.getElementById("wp-sjs-ai-form");
+    const aiDialog = document.getElementById("wp-sjs-ai-dialog");
     const aiAnswerInput = document.getElementById("wp-sjs-ai-answer");
     const aiApplyButton = document.getElementById("wp-sjs-ai-apply");
     const aiCancelButton = document.getElementById("wp-sjs-ai-cancel");
@@ -123,7 +120,7 @@
     let lintTimer = null;
     let lintOptions;
     let previewTimer = null;
-    let saveNotice = null;
+    let saveSnackbar = null;
     let previewFocusName = null;
     let previewShowInvisibleElements = false;
     let previewReady = false;
@@ -140,6 +137,8 @@
     let uiBuilderConnected = false;
 
     nameText.textContent = pendingName ?? config.name;
+    document.querySelectorAll("[data-sjs-form-name]").forEach((node) => { node.textContent = nameText.textContent; });
+
     function fillSettings(values) {
         settingInputs.forEach((input) => {
             const value = values[input.dataset.setting];
@@ -175,11 +174,13 @@
     function updateDependentRows() {
         dependentRows.forEach((row) => {
             const enabled = rowToggles(row).some((toggle) => toggle.checked);
+            row.hidden = !enabled;
             row.querySelectorAll("input, select, textarea, button").forEach((control) => { control.disabled = !enabled; });
         });
         valueDependents.forEach((element) => {
             const [setting, value] = element.dataset.enabledIf.split("=");
             const enabled = settingInput(setting).value === value;
+            element.hidden = !enabled;
             element.querySelectorAll("input, select, textarea, button").forEach((control) => { control.disabled = !enabled; });
         });
         const jsonInvalid = Boolean(parse(sources.survey).error);
@@ -321,7 +322,7 @@
         }
         pickers.forEach((item) => renderPickerOptions(item, item === picker ? selected : item.select.value));
         renderFieldTags();
-        saveNotice = null;
+        closeSaveSnackbar();
         updateState();
     }
 
@@ -523,6 +524,32 @@
         renderNotice(noticeElement, type, message, issues);
     }
 
+    // Results of Save, rename and the changes the editor made by itself (GDPR agreement, JSON from the UI Builder or
+    // the AI) are snackbars (admin.js). One at a time: a new one, or any change of the form, closes the last one.
+    function notify(type, message, issues) {
+        closeSaveSnackbar();
+        if (!window.surveyjsSnackbar) {
+            showNotice(type, message, issues);
+            return;
+        }
+        saveSnackbar = window.surveyjsSnackbar.show({ type: type, message: message, actions: issues ? issueActions(issues) : [] });
+    }
+
+    function closeSaveSnackbar() {
+        if (saveSnackbar) saveSnackbar.close();
+        saveSnackbar = null;
+    }
+
+    function issueActions(issues) {
+        const actions = [{ label: __("Review and fix", "surveyjs"), onClick: () => reviewIssues(issues[0].path) }];
+        if (hasFormChat()) {
+            actions.push({ label: __("Fix with AI", "surveyjs"), onClick: () => {
+                document.dispatchEvent(new CustomEvent("surveyjs:ai-chat-ask", { detail: { text: __("Fix the JSON issues the form editor shows.", "surveyjs") } }));
+            } });
+        }
+        return actions;
+    }
+
     function lint(json) {
         return SurveyLinter.lintSurvey(json, lintOptions);
     }
@@ -598,6 +625,11 @@
         updateDependentRows();
         formatButton.disabled = !(activeTab in sources) || isThemeJsonLocked() || Boolean(parse(sources[activeTab]).error);
         insertImageButton.disabled = !hasMediaLibrary();
+        // Get image URL is for the form JSON (Image questions); the Theme tab sets its image with Background image.
+        mediaElement.hidden = activeTab !== "survey";
+        const theme = sources.theme.trim() ? parse(sources.theme) : { json: {} };
+        backgroundImageButton.disabled = !editor || Boolean(theme.error) || !hasMediaLibrary();
+        backgroundImageRemove.hidden = !(theme.json && theme.json.backgroundImage);
         const survey = parse(sources.survey);
         if (setLogoButton) {
             setLogoButton.hidden = activeTab !== "survey";
@@ -611,8 +643,6 @@
         updateEmptyHint(survey.json);
         if (error) {
             showNotice("error", error);
-        } else if (saveNotice) {
-            showNotice(saveNotice.type, saveNotice.message, saveNotice.issues);
         } else {
             showNotice();
         }
@@ -874,7 +904,7 @@
     function onSourceChange(tab) {
         sources[tab] = models[tab].getValue(monaco.editor.EndOfLinePreference.LF);
         if (tab === "theme") renderThemePreset();
-        saveNotice = null;
+        closeSaveSnackbar();
         updateState();
         if (tab === "survey") {
             clearTimeout(lintTimer);
@@ -913,7 +943,7 @@
         replaceSource(tab, json);
         if (!models) {
             if (tab === "theme") renderThemePreset();
-            saveNotice = null;
+            closeSaveSnackbar();
             updateState();
             renderPreview();
             runLint();
@@ -1005,6 +1035,20 @@
         });
     }
 
+    // Background image (Theme tab, Adaptive off): writes the chosen image to "backgroundImage" of the theme JSON;
+    // Remove takes it out.
+    function setBackgroundImage(url) {
+        const parsed = sources.theme.trim() ? parse(sources.theme) : { json: {} };
+        if (!isJsonObject(parsed.json)) return;
+        if (url) parsed.json.backgroundImage = url;
+        else delete parsed.json.backgroundImage;
+        useTheme(parsed.json);
+    }
+
+    function chooseBackgroundImage() {
+        chooseImages(backgroundImageButton, false, (attachments) => setBackgroundImage(attachments[0].url));
+    }
+
     function elementLists(node, lists = []) {
         if (Array.isArray(node)) {
             node.forEach((item) => elementLists(item, lists));
@@ -1048,10 +1092,10 @@
         }
         renderAllPickerOptions();
         renderFieldTags();
-        saveNotice = add
-            ? { type: "info", message: __("The GDPR agreement was added at the end of the form. Press Save to keep it.", "surveyjs") }
-            : { type: "info", message: __("The GDPR agreement was removed from the form. Press Save to keep the change.", "surveyjs") };
         updateState();
+        notify("info", add
+            ? __("The GDPR agreement was added at the end of the form. Press Save to keep it.", "surveyjs")
+            : __("The GDPR agreement was removed from the form. Press Save to keep the change.", "surveyjs"));
     }
 
     function save() {
@@ -1084,23 +1128,29 @@
                     if (pendingName === savedName) pendingName = null;
                 }
                 if (savedAiRevision) onAiDraftSaved(savedAiRevision);
-                saveNotice = issues.length > 0
-                    ? { type: "warning", message: sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issues.length, "surveyjs"), issues.length), issues: issues }
-                    : { type: "success", message: __("Form saved.", "surveyjs") };
+                if (issues.length > 0) {
+                    notify("warning", sprintf(_n("Form saved with %d issue.", "Form saved with %d issues.", issues.length, "surveyjs"), issues.length), issues);
+                } else {
+                    notify("success", __("Form saved.", "surveyjs"));
+                }
                 document.dispatchEvent(new CustomEvent("surveyjs:editor-saved", { detail: { id: config.id, json: survey.json, theme: theme.json, settings: settings } }));
                 return true;
             })
             .catch((error) => {
-                saveNotice = { type: "error", message: sprintf(__("Save failed: %s", "surveyjs"), error.message) };
+                notify("error", sprintf(__("Save failed: %s", "surveyjs"), error.message));
                 return false;
             })
             .finally(updateState);
     }
 
     function showName() {
+        const hadFocus = document.activeElement === nameInput;
         nameText.textContent = pendingName ?? saved.name;
+        document.querySelectorAll("[data-sjs-form-name]").forEach((node) => { node.textContent = nameText.textContent; });
         nameForm.hidden = true;
         nameView.hidden = false;
+        // After Enter or Escape keep the keyboard on the title; a click elsewhere keeps its own focus.
+        if (hadFocus) nameView.focus();
     }
 
     function saveName() {
@@ -1109,7 +1159,7 @@
             showName();
             return;
         }
-        nameSaveButton.disabled = true;
+        nameInput.readOnly = true;
         fetch(config.saveUrl, {
             method: "POST",
             body: new URLSearchParams({ Id: config.id, Name: name, _wpnonce: config.saveNonce })
@@ -1121,9 +1171,9 @@
                 pendingName = null;
                 showName();
             })
-            .catch((error) => showNotice("error", sprintf(__("Save failed: %s", "surveyjs"), error.message)))
+            .catch((error) => notify("error", sprintf(__("Save failed: %s", "surveyjs"), error.message)))
             .finally(() => {
-                nameSaveButton.disabled = false;
+                nameInput.readOnly = false;
             });
     }
 
@@ -1166,8 +1216,8 @@
         if (survey) replaceSource("survey", survey);
         if (theme) replaceSource("theme", theme);
         if (theme && !models) renderThemePreset();
-        saveNotice = { type: "info", message: message };
         updateState();
+        notify("info", message);
         renderPreview();
         runLint();
     }
@@ -1184,7 +1234,6 @@
     function failUiBuilder(type, message) {
         stopUiBuilderWatch();
         setUiBuilderStatus(type, message);
-        toggleUiBuilderManual(true);
     }
 
     function openUiBuilder() {
@@ -1192,12 +1241,12 @@
         uiBuilderConnected = false;
         uiBuilderWindow = window.open(config.uiBuilderUrl, "surveyjs-ui-builder-" + config.id);
         if (!uiBuilderWindow) {
-            failUiBuilder("error", __("The browser blocked the UI Builder window. Allow pop-ups for this site and try again, or copy and paste the JSON manually below.", "surveyjs"));
+            failUiBuilder("error", __("The browser blocked the UI Builder window. Allow pop-ups for this site and try again, or use Copy JSON to move the JSON by hand.", "surveyjs"));
             return;
         }
         setUiBuilderStatus("info", __("Opening the UI Builder in a new tab…", "surveyjs"));
         uiBuilderConnectTimer = setTimeout(() => {
-            failUiBuilder("warning", __("The UI Builder has not connected to this page yet. If it does not load or shows an error, copy and paste the JSON manually below.", "surveyjs"));
+            failUiBuilder("warning", __("The UI Builder has not connected to this page yet. If it does not load or shows an error, use Copy JSON to move the JSON by hand.", "surveyjs"));
         }, UI_BUILDER_CONNECT_TIMEOUT_MS);
         uiBuilderPollTimer = setInterval(() => {
             if (!uiBuilderWindow.closed) return;
@@ -1205,7 +1254,7 @@
                 stopUiBuilderWatch();
                 setUiBuilderStatus();
             } else {
-                failUiBuilder("error", __("The connection to the UI Builder was lost: its window was closed or a security setting of this site blocked the link. Try again or copy and paste the JSON manually below. If this happens every time, check the Cross-Origin-Opener-Policy header of this site: same-origin blocks the link, same-origin-allow-popups keeps it.", "surveyjs"));
+                failUiBuilder("error", __("The connection to the UI Builder was lost: its window was closed or a security setting of this site blocked the link. Try again or use Copy JSON to move the JSON by hand. If this happens every time, check the Cross-Origin-Opener-Policy header of this site: same-origin blocks the link, same-origin-allow-popups keeps it.", "surveyjs"));
             }
         }, UI_BUILDER_POLL_MS);
     }
@@ -1263,37 +1312,47 @@
         else if (message.type === "save") onUiBuilderSave(event);
     }
 
-    function toggleUiBuilderManual(open) {
-        uiBuilderManual.hidden = !open;
-        uiBuilderManualToggle.setAttribute("aria-expanded", String(open));
-    }
-
+    // Copy JSON: the manual way to the UI Builder when it cannot connect to this page. Copies the JSON of the open tab
+    // (the form or the theme); pasting the edited JSON back over the editor puts it on its tab (see onEditorPaste).
     function copySurveyJson() {
-        copyText(sources.survey)
+        copyText(sources[activeTab in sources ? activeTab : "survey"])
             .then(() => {
                 showCopied(uiBuilderCopyButton, __("Copied!", "surveyjs"));
-                renderNotice(uiBuilderManualNotice, "info", __("Form JSON copied. In the UI Builder, open the JSON Editor tab, replace its content with the copied JSON and edit the form.", "surveyjs"));
+                setUiBuilderStatus("info", __("JSON copied. Paste it into the JSON Editor tab of the UI Builder. When you finish, copy the JSON there and paste it over the JSON below.", "surveyjs"));
             })
-            .catch((error) => renderNotice(uiBuilderManualNotice, "error", sprintf(__("The JSON was not copied: %s", "surveyjs"), error.message)));
+            .catch((error) => setUiBuilderStatus("error", sprintf(__("The JSON was not copied: %s", "surveyjs"), error.message)));
     }
 
     function isThemeJson(json) {
         return ["cssVariables", "themeName", "colorPalette"].some((key) => key in json) && !["pages", "elements", "questions"].some((key) => key in json);
     }
 
-    function applyPastedJson() {
-        const parsed = parseAnswer(uiBuilderPasteInput.value);
-        if (!parsed.json) {
-            renderNotice(uiBuilderManualNotice, "error", sprintf(__("The pasted text is not valid JSON: %s", "surveyjs"), parsed.error));
-            return;
-        }
+    // Pasting a whole form or theme JSON over the editor content (or into an empty editor) puts it where it belongs:
+    // a theme pasted on the form tab goes to the Theme tab and the other way round, and a theme pasted while Adaptive
+    // locks the theme JSON turns Adaptive off. Other pastes are left to the editor.
+    function onEditorPaste(event) {
+        if (!editor || !(activeTab in sources)) return;
+        const parsed = parse((event.clipboardData ? event.clipboardData.getData("text/plain") : "").trim());
+        if (!isJsonObject(parsed.json)) return;
+        const model = editor.getModel();
+        const selection = editor.getSelection();
+        const locked = isThemeJsonLocked();
+        if (!locked && model.getValue().trim() !== "" && !(selection && selection.containsRange(model.getFullModelRange()))) return;
         const tab = isThemeJson(parsed.json) ? "theme" : "survey";
-        applyExternalJson(tab === "survey" ? parsed.json : null, tab === "theme" ? parsed.json : null, tab === "theme"
-            ? __("The pasted theme JSON is in the editor. Press Save to keep it.", "surveyjs")
-            : __("The pasted form JSON is in the editor. Press Save to keep it.", "surveyjs"));
-        uiBuilderPasteInput.value = "";
-        renderNotice(uiBuilderManualNotice);
-        if (editor && activeTab !== tab && tabNames.includes(tab)) switchTab(tab);
+        if ((tab === activeTab && !locked) || !tabNames.includes(tab)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        let message = sprintf(__("The pasted JSON is on the %s tab. Press Save to keep it.", "surveyjs"), findTab(tab).textContent.trim());
+        if (tab === "theme" && themeModeCheckbox.checked) {
+            themeModeCheckbox.checked = false;
+            updateThemePreset();
+            updateThemeJsonLock();
+            message = tab === activeTab
+                ? __("Adaptive is off and the pasted theme JSON is in the editor. Press Save to keep it.", "surveyjs")
+                : sprintf(__("Adaptive is off and the pasted theme JSON is on the %s tab. Press Save to keep it.", "surveyjs"), findTab(tab).textContent.trim());
+        }
+        applyExternalJson(tab === "survey" ? parsed.json : null, tab === "theme" ? parsed.json : null, message);
+        if (activeTab !== tab) switchTab(tab);
     }
 
     function loadMonaco() {
@@ -1322,19 +1381,22 @@
         if (editor || !(tab.dataset.tab in sources)) switchTab(tab.dataset.tab);
     }));
     ["input", "change"].forEach((type) => settingPanels.forEach((panel) => panel.addEventListener(type, () => {
-        saveNotice = null;
+        closeSaveSnackbar();
         updateState();
     })));
     formatButton.addEventListener("click", format);
     insertImageButton.addEventListener("click", insertImage);
     if (setLogoButton) setLogoButton.addEventListener("click", setLogo);
+    backgroundImageButton.addEventListener("click", chooseBackgroundImage);
+    backgroundImageRemove.addEventListener("click", () => {
+        setBackgroundImage(null);
+        backgroundImageButton.focus();
+    });
     if (gdprCheckbox) gdprCheckbox.addEventListener("change", toggleGdprAgreement);
     saveButton.addEventListener("click", save);
     uiBuilderButton.addEventListener("click", openUiBuilder);
     if (emptyHintUiBuilderButton) emptyHintUiBuilderButton.addEventListener("click", openUiBuilder);
-    uiBuilderManualToggle.addEventListener("click", () => toggleUiBuilderManual(uiBuilderManual.hidden));
     uiBuilderCopyButton.addEventListener("click", copySurveyJson);
-    uiBuilderApplyButton.addEventListener("click", applyPastedJson);
     pickers.forEach((picker) => picker.addCheckbox.addEventListener("change", () => togglePickerQuestion(picker)));
     testEmailButton.addEventListener("click", sendTestEmail);
     let themePresets = null;
@@ -1361,7 +1423,7 @@
             if (!models) {
                 renderPreview();
             }
-            saveNotice = null;
+            closeSaveSnackbar();
             updateState();
         });
     }
@@ -1370,6 +1432,10 @@
         themePresetSelect.disabled = themeModeCheckbox.checked;
         transparentBackgroundCheckbox.disabled = themeModeCheckbox.checked;
         aiConvertButton.disabled = !themeModeCheckbox.checked || !adaptiveTheme;
+        aiConvertButton.hidden = !themeModeCheckbox.checked;
+        document.getElementById("wp-sjs-theme-preset-row").hidden = themeModeCheckbox.checked;
+        document.getElementById("wp-sjs-theme-background-row").hidden = themeModeCheckbox.checked;
+        document.getElementById("wp-sjs-theme-bg-image-row").hidden = themeModeCheckbox.checked || transparentBackgroundCheckbox.checked;
         renderThemePreset();
     }
 
@@ -1432,7 +1498,13 @@
         ["--sjs2-layout-component-question-header-gap-vertical", "space between a question title and its description"]
     ];
 
+    // While the Match your site with AI dialog is open, its messages show in it; after it closes (Theme applied,
+    // the contrast check, Customize) they show as a snackbar.
     function aiMessage(type, message, codes, append) {
+        if (!aiDialog.open) {
+            if (message) notify(type, codes && codes.length ? message + " " + codes.join(", ") : message);
+            return;
+        }
         if (!append) aiNotice.replaceChildren();
         if (!message) return;
         const notice = element("div", "notice notice-" + type + " inline");
@@ -1532,15 +1604,18 @@
             .then(() => {
                 showCopied(aiPromptButton);
                 aiMessage("info", sprintf(_n("Prompt copied (%d character). Paste it into your AI chat, then paste the answer below and press Apply theme.", "Prompt copied (%d characters). Paste it into your AI chat, then paste the answer below and press Apply theme.", prompt.length, "surveyjs"), prompt.length));
-                toggleAiForm(true);
+                aiAnswerInput.focus();
             })
             .catch((error) => aiMessage("error", sprintf(__("The prompt was not copied: %s", "surveyjs"), error.message)));
     }
 
     function toggleAiForm(open) {
-        aiForm.hidden = !open;
-        aiPasteButton.setAttribute("aria-expanded", String(open));
-        if (open) aiAnswerInput.focus();
+        if (open && !aiDialog.open) {
+            aiNotice.replaceChildren();
+            aiDialog.showModal();
+        } else if (!open && aiDialog.open) {
+            aiDialog.close();
+        }
     }
 
     function loadThemeTokens() {
@@ -1602,7 +1677,7 @@
             updateThemeJsonLock();
         }
         clearTimeout(previewTimer);
-        saveNotice = null;
+        closeSaveSnackbar();
         updateState();
         renderPreview();
     }
@@ -1649,19 +1724,27 @@
     }
 
     aiPromptButton.addEventListener("click", copyPrompt);
-    aiPasteButton.addEventListener("click", () => toggleAiForm(aiForm.hidden));
+    aiPasteButton.addEventListener("click", () => toggleAiForm(true));
     aiCancelButton.addEventListener("click", () => toggleAiForm(false));
+    let aiPressedOnBackdrop = false;
+    aiDialog.addEventListener("pointerdown", (event) => {
+        aiPressedOnBackdrop = event.target === aiDialog;
+    });
+    aiDialog.addEventListener("click", (event) => {
+        if ((event.target === aiDialog && aiPressedOnBackdrop) || event.target.closest("[data-close]")) toggleAiForm(false);
+    });
     aiApplyButton.addEventListener("click", applyAiAnswer);
     aiConvertButton.addEventListener("click", convertAdaptive);
     themeModeCheckbox.addEventListener("change", () => {
         updateThemePreset();
         updateThemeJsonLock();
-        saveNotice = null;
+        closeSaveSnackbar();
         updateState();
         renderPreview();
     });
     transparentBackgroundCheckbox.addEventListener("change", () => {
-        saveNotice = null;
+        updateThemePreset();
+        closeSaveSnackbar();
         updateState();
         renderPreview();
     });
@@ -1684,11 +1767,19 @@
         nameInput.focus();
         nameInput.select();
     });
-    nameCancelButton.addEventListener("click", showName);
-    nameSaveButton.addEventListener("click", saveName);
     nameInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") saveName();
-        if (event.key === "Escape") showName();
+        if (event.key === "Enter") {
+            event.preventDefault();
+            saveName();
+        }
+        if (event.key === "Escape") {
+            event.stopPropagation();
+            showName();
+        }
+    });
+    // Clicking or tabbing away saves too; while a save is in flight the input is read-only and is left alone.
+    nameInput.addEventListener("blur", () => {
+        if (!nameForm.hidden && !nameInput.readOnly) saveName();
     });
     window.addEventListener("beforeunload", (event) => {
         if (leavingOnPurpose || !hasOwnUnsavedChanges()) return;
@@ -1970,11 +2061,12 @@
         knownAiRevision = aiRevision;
         if (!draft) aiBaseline = null;
         if (nameForm.hidden) nameText.textContent = pendingName ?? saved.name;
+        document.querySelectorAll("[data-sjs-form-name]").forEach((node) => { node.textContent = nameText.textContent; });
         document.querySelectorAll("input[data-hint]").forEach((checkbox) => checkbox.dispatchEvent(new Event("change")));
         renderThemePreset();
         updateThemePreset();
         updateThemeJsonLock();
-        saveNotice = null;
+        closeSaveSnackbar();
         updateState();
         renderPreview();
         runLint();
@@ -2095,6 +2187,7 @@
         });
         decorations = editor.createDecorationsCollection();
         editor.onDidContentSizeChange(fitHeight);
+        monacoElement.addEventListener("paste", onEditorPaste, true);
         fitHeight();
         editor.onDidChangeCursorPosition((event) => {
             if (event.reason !== monaco.editor.CursorChangeReason.ContentFlush) {

@@ -6,20 +6,20 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 
 - **SurveyJS Forms > All Forms**: the list of forms with entries count, views and conversion rate. Hover a form for Edit, Entries, Duplicate, Export and Delete. "AI changes to review" marks a form with an unsaved AI draft.
 - **SurveyJS Forms > Add New Form**: start from a blank form or a template, or import forms from Contact Form 7, WPForms, Gravity Forms, Ninja Forms and Fluent Forms (Import button).
-- **SurveyJS Forms > Getting Started**: a short checklist for new users.
+- **SurveyJS Forms > Support**: a short checklist for new users and links to help.
 - **SurveyJS Forms > Settings**: General tab (CAPTCHA keys, IP addresses, form views, delete old entries, uninstall) AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).
-- **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Webhooks, Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Open full preview, Embed and Save. Nothing is published until the person clicks Save.
+- **Form editor** (click a form): tabs Config (survey JSON), Theme, Email, Webhooks, Entries, Restrictions, Spam Protection, Advanced; a live preview on the right; buttons Full preview, Embed and Save. Nothing is published until the person clicks Save.
 
 ## Building a form
 
-- Without SurveyJS Forms Pro the form is edited as SurveyJS JSON on the Config tab (Monaco editor with error checking and a live preview), or in the free online UI Builder (button "Open in free UI Builder"): it opens the form in a new tab and sends the result back to the editor.
-- With SurveyJS Forms Pro (free add-on from surveyjs.io) the Config tab becomes the visual Survey Creator (drag and drop).
+- Without SurveyJS Forms Add-on the form is edited as SurveyJS JSON on the Config tab (Monaco editor with error checking and a live preview), or in the free online UI Builder (link "Open in UI Builder" above the JSON): it opens the form in a new tab and sends the result back to the editor.
+- With SurveyJS Forms Add-on (free add-on from surveyjs.io) the Config tab becomes the visual Survey Creator (drag and drop).
 - "GDPR agreement" checkbox (above the JSON editor) adds a required consent checkbox with a link to the Privacy Policy page.
 - "Save as Template" in the editor header saves the form as a template for new forms.
 
 ## JSON issues ("Form saved with N issues")
 
-- The form editor checks the form JSON with the SurveyJS linter: in Survey Creator's JSON Editor tab with SurveyJS Forms Pro, in the Static analysis panel under the JSON editor of the Config tab without Pro. The form still saves; Save then says "Form saved with N issues", lists the first ones and offers "Review and fix" (opens the JSON editor at the first issue) and, when the AI chat is set up, "Fix with AI".
+- The form editor checks the form JSON with the SurveyJS linter: in Survey Creator's JSON Editor tab with SurveyJS Forms Add-on, in the Static analysis panel under the JSON editor of the Config tab without the add-on. The form still saves; Save then says "Form saved with N issues", lists the first ones and offers "Review and fix" (opens the JSON editor at the first issue) and, when the AI chat is set up, "Fix with AI".
 - The list of checks is at the end of the SurveyJS JSON guide (surveyjs-get-json-guide). surveyjs-get-form returns the issues of the current JSON in `issues`; in the form editor's chat they are also in the context. When the person asks to "fix the issue" or "fix the errors", fix these.
 - A frequent one: a choice "Other" (or "None") while `showOtherItem` (`showNoneItem`) is on collides with the built-in item. Keep the built-in item and remove the choice; set `otherText` (`noneText`) to change its label.
 
@@ -49,7 +49,7 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 - Entries are stored in WordPress unless "Save submitted entries in the database" is off for the form. The Entries screen has a column per question, an entry view and CSV export.
 - Save & Resume lets respondents continue later; "Save partial entries" keeps unfinished multi-page forms (deleted after 30 days unless kept).
 - Delete old entries: for the whole site in Settings, or per form on the Entries tab.
-- AI assistants read entries only when the site owner allows it: "Allow AI apps to read entries" on the AI MCP tab and "Allow the AI chat to read entries" on the AI Client tab, both off by default. Even then entries are read-only and uploaded files, signatures and passwords are never included. The AI chat then counts entries per form and period, summarizes and compares answers (on the Entries screen, the Dashboard of SurveyJS Forms Pro or anywhere else); without it, it helps with export, filters and PDF.
+- AI assistants read entries only when the site owner allows it: "Allow AI apps to read entries" on the AI MCP tab and "Allow the AI chat to read entries" on the AI Client tab, both off by default. Even then entries are read-only and uploaded files, signatures and passwords are never included. The AI chat then counts entries per form and period, summarizes and compares answers (on the Entries screen, the Dashboard of SurveyJS Forms Add-on or anywhere else); without it, it helps with export, filters and PDF.
 
 ## Restrictions tab
 
@@ -57,7 +57,7 @@ Entry limit (total or per day/week/month/year), entries per person (by user acco
 
 ## Spam Protection tab
 
-A hidden honeypot field is always on. CAPTCHA (Google reCAPTCHA v2, v3, Cloudflare Turnstile or hCaptcha) needs keys in Settings > General first, then "Enable CAPTCHA" on this tab. "Check entries with Akismet" works when the Akismet plugin is active and connected to an Akismet account: entries Akismet flags are saved with the Spam status and send no emails. "Reject entries sent too soon after the form opens" blocks bots that post the form within the minimum time; it is on in new forms with 3 seconds, and forms created before keep it off until turned on. People don't notice it, because the form waits until the time has passed.
+A hidden honeypot field is always on. CAPTCHA (Google reCAPTCHA v2, v3, Cloudflare Turnstile or hCaptcha) needs keys in Settings > Spam Protection first, then "Enable CAPTCHA" on this tab. "Check entries with Akismet" works when the Akismet plugin is active and connected to an Akismet account: entries Akismet flags are saved with the Spam status and send no emails. "Reject entries sent too soon after the form opens" blocks bots that post the form within the minimum time; it is on in new forms with 3 seconds, and forms created before keep it off until turned on. People don't notice it, because the form waits until the time has passed.
 
 ## Advanced tab
 

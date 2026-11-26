@@ -199,7 +199,7 @@ test.describe("import from Ninja Forms", () => {
     await saveSurvey(page);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs_import&source=ninja-forms");
-    await expect(page.locator("p", { has: page.locator(`input[value="${ninjaId}"]`) })).toContainText("imported before, will be updated");
+    await expect(page.locator("tr", { has: page.locator(`input[value="${ninjaId}"]`) })).toContainText("Imported before, will be updated");
     await importNinjaForm(page, true);
     await expect(result).toContainText("updated");
     await expect(result).toContainText("Entries: 0 added, 1 updated.");

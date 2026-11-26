@@ -123,8 +123,9 @@ test.describe("form views and conversion", () => {
     await page.goto("/wp-admin/admin.php?page=surveyjs-settings");
     const setting = page.getByLabel("Count form views to show conversion rates");
     await expect(setting).toBeChecked();
-    await setting.uncheck();
-    await page.getByRole("button", { name: "Save Changes" }).click();
+    await setting.uncheck(); // saved at once
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("Settings saved.");
+    await page.reload();
     await expect(page.getByLabel("Count form views to show conversion rates")).not.toBeChecked();
 
     const guestConfig = await surveyConfig(request, created.pages.top);

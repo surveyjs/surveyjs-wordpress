@@ -56,7 +56,7 @@ test.describe("survey list", () => {
     const row = page.locator("#the-list tr", { hasText: name });
     await row.hover();
     await row.getByRole("link", { name: "Duplicate", exact: true }).click();
-    await expect(page.locator(".notice-success")).toContainText("Form duplicated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("Form duplicated.");
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .row-title")).toHaveText([`Copy of ${name}`, name]);
@@ -113,7 +113,7 @@ test.describe("survey list", () => {
     await row.hover();
     page.once("dialog", dialog => dialog.accept());
     await row.getByRole("link", { name: "Delete", exact: true }).click();
-    await expect(page.locator(".notice-success")).toContainText("1 form deleted.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form deleted.");
 
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .no-items")).toBeVisible();

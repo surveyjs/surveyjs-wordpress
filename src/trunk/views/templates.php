@@ -183,10 +183,28 @@ class SurveyJS_Templates {
         return SurveyJS_Form_Settings::for_new_form( $form, $theme_mode );
     }
 
+    // "New Form (N)" with the next number after the highest one in use, so every new form has its own name
+    // until it is renamed in place in the editor.
+    public static function next_form_name() {
+        $base = __( 'New Form', 'surveyjs' );
+        $pattern = '/^' . preg_quote( $base, '/' ) . ' \((\d+)\)$/u';
+        $max = 0;
+        foreach ( SurveyJS_Forms::names() as $form ) {
+            if ( preg_match( $pattern, (string) $form->name, $match ) ) {
+                $max = max( $max, (int) $match[1] );
+            }
+        }
+        /* translators: 1: "New Form", 2: number */
+        return sprintf( __( '%1$s (%2$s)', 'surveyjs' ), $base, $max + 1 );
+    }
+
     public static function create( $id, $name = '' ) {
+        if ( '' === $name ) {
+            $name = self::next_form_name();
+        }
         if ( self::BLANK === $id ) {
             return SurveyJS_Forms::create( array(
-                'name'     => '' !== $name ? $name : __( 'New Form', 'surveyjs' ),
+                'name'     => $name,
                 'settings' => wp_json_encode( self::settings() ),
             ) );
         }
@@ -198,7 +216,7 @@ class SurveyJS_Templates {
         $theme = self::raw( $template, 'theme' );
         $form = SurveyJS_Client::decode_survey_json( $json );
         return SurveyJS_Forms::create( array(
-            'name'     => '' !== $name ? $name : $template['title'],
+            'name'     => $name,
             'json'     => $json,
             'theme'    => $theme,
             'settings' => wp_json_encode( self::settings( is_array( $form ) ? $form : array(), self::theme_mode( $template, $theme ) ) ),
@@ -243,7 +261,7 @@ class SurveyJS_Templates {
             return;
         }
         check_admin_referer( 'surveyjs-use-template' );
-        $id = self::create( sanitize_key( wp_unslash( $_POST['template'] ) ), sanitize_text_field( wp_unslash( $_POST['form_name'] ?? '' ) ) );
+        $id = self::create( sanitize_key( wp_unslash( $_POST['template'] ) ) );
         if ( ! $id ) {
             wp_die( esc_html__( 'The form could not be created from this template.', 'surveyjs' ) );
         }
@@ -331,23 +349,23 @@ class SurveyJS_Templates {
         $list_url = add_query_arg( 'page', SurveyJS_SurveyJS::MENU_SLUG, admin_url( 'admin.php' ) );
         ?>
         <div class="wrap wp-sjs-templates">
-            <h1><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></h1>
+            <?php // Notices from WordPress and other plugins go here, above the title, on every plugin page. ?>
+            <hr class="wp-header-end">
+            <?php SurveyJS_Admin_Header::breadcrumbs( array( array( __( 'All Forms', 'surveyjs' ), SurveyJS_Admin_Header::list_url() ), array( __( 'Add New Form', 'surveyjs' ) ) ) ); ?>
+            <?php // Title on the left, the template search on the right of the same row. ?>
+            <div class="wp-sjs-templates__header">
+                <h1><?php esc_html_e( 'Add New Form', 'surveyjs' ); ?></h1>
+                <label class="screen-reader-text" for="wp-sjs-templates-search"><?php esc_html_e( 'Search Templates', 'surveyjs' ); ?></label>
+                <input type="search" id="wp-sjs-templates-search" class="wp-sjs-templates__search" placeholder="<?php esc_attr_e( 'Search Templates', 'surveyjs' ); ?>" hidden />
+            </div>
             <?php if ( isset( $messages[ $message ] ) ) : ?>
-                <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
+                <div class="notice notice-success is-dismissible" data-sjs-snackbar><p><?php echo esc_html( $messages[ $message ] ); ?></p></div>
             <?php endif; ?>
             <form method="post" action="<?php echo esc_url( self::url() ); ?>" id="wp-sjs-templates-form" data-category="<?php echo esc_attr( $category ); ?>">
                 <?php wp_nonce_field( 'surveyjs-use-template' ); ?>
-                <p class="wp-sjs-templates__name">
-                    <label for="wp-sjs-templates-name"><?php esc_html_e( 'Form name', 'surveyjs' ); ?></label>
-                    <input type="text" id="wp-sjs-templates-name" name="form_name" class="regular-text" placeholder="<?php esc_attr_e( 'The template name is used if you leave this empty', 'surveyjs' ); ?>" />
-                </p>
-                <p><?php esc_html_e( 'Start with a ready-made template, one of your own templates or a blank form. You can change the questions and the theme later in the editor, and turn on the email notification on its Email tab.', 'surveyjs' ); ?></p>
-                <p><?php /* translators: %s: link to the Gravity Forms import page */ printf( esc_html__( 'Moving from Gravity Forms? %s', 'surveyjs' ), '<a href="' . esc_url( SurveyJS_Import::url( 'gravityforms' ) ) . '">' . esc_html__( 'Import its forms from an export file', 'surveyjs' ) . '</a>' ); ?></p>
 
                 <div class="wp-sjs-templates__layout">
                     <div class="wp-sjs-templates__sidebar">
-                        <label class="screen-reader-text" for="wp-sjs-templates-search"><?php esc_html_e( 'Search templates', 'surveyjs' ); ?></label>
-                        <input type="search" id="wp-sjs-templates-search" class="wp-sjs-templates__search" placeholder="<?php esc_attr_e( 'Search templates', 'surveyjs' ); ?>" hidden />
                         <ul class="wp-sjs-templates__categories" hidden>
                             <li><button type="button" class="wp-sjs-templates__category is-active" data-category="" aria-pressed="true"><?php esc_html_e( 'All Templates', 'surveyjs' ); ?> <span class="count"><?php echo esc_html( number_format_i18n( count( $templates ) ) ); ?></span></button></li>
                             <?php foreach ( $categories as $slug => $label ) : ?>
@@ -432,6 +450,9 @@ class SurveyJS_Templates {
         $list_url = add_query_arg( 'page', SurveyJS_SurveyJS::MENU_SLUG, admin_url( 'admin.php' ) );
         ?>
         <div class="wrap wp-sjs-templates">
+            <?php // Notices from WordPress and other plugins go here, above the title, on every plugin page. ?>
+            <hr class="wp-header-end">
+            <?php SurveyJS_Admin_Header::breadcrumbs( array( array( __( 'All Forms', 'surveyjs' ), $list_url ), array( $survey->name, SurveyJS_Admin_Header::form_url( $survey->id ) ), array( __( 'Save as Template', 'surveyjs' ) ) ) ); ?>
             <h1><?php esc_html_e( 'Save as Template', 'surveyjs' ); ?></h1>
             <p>
                 <?php
