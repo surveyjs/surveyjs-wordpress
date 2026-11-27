@@ -559,7 +559,7 @@
             box.append(element("p", "wp-sjs-chat__hint", __("Everything I create or change is saved as a draft: you open the form, review it and click Save.", "surveyjs")));
         } else if (screen === "settings") {
             box.append(element("p", "wp-sjs-chat__greeting", __("Ask me what a setting does or where to find it. I can't see this screen, so name the setting you mean.", "surveyjs")));
-            box.append(element("p", "wp-sjs-chat__hint", __("I never get your keys and passwords: CAPTCHA secret keys, the license key and AI provider keys stay on the site.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__hint", __("I never get your keys and passwords: CAPTCHA secret keys and AI provider keys stay on the site.", "surveyjs")));
         } else if (siteMode) {
             box.append(element("p", "wp-sjs-chat__greeting", __("Ask me to create or change a form, or how to do something in SurveyJS Forms.", "surveyjs")));
             box.append(element("p", "wp-sjs-chat__hint", __("Every change is saved as a draft for you to review.", "surveyjs")));
