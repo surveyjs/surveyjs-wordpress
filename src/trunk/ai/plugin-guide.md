@@ -56,6 +56,7 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 
 - Entries are stored in WordPress unless "Save submitted entries in the database" is off for the form. The Entries screen has a column per question, an entry view and CSV export.
 - Save & Resume lets respondents continue later; "Save partial entries" keeps unfinished multi-page forms (deleted after 30 days unless kept).
+- A blue count of unread entries and a yellow count of partial entries that will be deleted soon (within 5 days) are shown next to Entries in the WordPress admin menu (under SurveyJS Forms), next to Entries in the header at the top of the SurveyJS Forms screens (hover a count to see what it means, click it to open the entries of the first form that has them) and next to each form in the form switcher on the Entries screen.
 - Delete old entries: for the whole site in Settings, or per form on the Entries tab.
 - AI assistants read entries only when the site owner allows it: "Allow AI apps to read entries" on the AI MCP tab and "Allow the AI chat to read entries" on the AI Client tab, both off by default. Even then entries are read-only and uploaded files, signatures and passwords are never included. The AI chat then counts entries per form and period, summarizes and compares answers (on the Entries screen, the Dashboard of SurveyJS Forms Add-on or anywhere else); without it, it helps with export, filters and PDF.
 

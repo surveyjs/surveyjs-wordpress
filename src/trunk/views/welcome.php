@@ -110,7 +110,7 @@ class SurveyJS_Welcome {
         }
     }
 
-    // The menu and the admin bar show this on every page, so the steps, which scan the posts for the form, are
+    // The forms list, the dashboard widget and the form editor show this, so the steps, which scan the posts for the form, are
     // checked only on admin pages and then cached until a change that can affect them, or for PROGRESS_TTL at most.
     public static function progress() {
         if ( ! current_user_can( self::CAPABILITY ) ) {
@@ -337,25 +337,6 @@ JS
     private static function progress_text( $done, $total ) {
         /* translators: 1: number of completed steps, 2: total number of steps */
         return sprintf( __( '%1$d of %2$d steps completed', 'surveyjs' ), $done, $total );
-    }
-
-    public static function progress_markup( $progress ) {
-        /* translators: 1: number of completed steps, 2: total number of steps */
-        $short = sprintf( __( '%1$s of %2$s', 'surveyjs' ), number_format_i18n( $progress['done'] ), number_format_i18n( $progress['total'] ) );
-        return '<span class="wp-sjs-checklist-progress wp-sjs-menu-progress">'
-            . '<span class="wp-sjs-menu-progress__text" aria-hidden="true">' . esc_html( $short ) . '</span>'
-            . '<span class="screen-reader-text">' . esc_html( self::progress_text( $progress['done'], $progress['total'] ) ) . '</span>'
-            . '<progress class="wp-sjs-progress" max="' . esc_attr( $progress['total'] ) . '" value="' . esc_attr( $progress['done'] ) . '" aria-hidden="true"></progress>'
-            . '</span>';
-    }
-
-    // The admin bar resets every property of its descendants with #wpadminbar *, so the bar and the label need ID-level selectors.
-    public static function admin_bar_css() {
-        return self::PROGRESS_CSS
-            . '#wpadminbar #wp-admin-bar-surveyjs-getting-started>.ab-item{height:auto;padding-bottom:8px}'
-            . '#wpadminbar .wp-sjs-menu-progress{display:flex;align-items:center;gap:8px;min-width:180px}'
-            . '#wpadminbar .wp-sjs-menu-progress__text{flex:none;font-size:12px;line-height:16px;opacity:.85}'
-            . '#wpadminbar .wp-sjs-menu-progress .wp-sjs-progress{display:block;flex:1;width:auto;min-width:60px;height:4px;border-radius:2px;background:rgba(140,143,148,.35)}';
     }
 
     public static function render_dashboard_progress() {

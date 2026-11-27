@@ -56,16 +56,14 @@ class SurveyJS_Results {
 
     // A dropdown of forms with an unread badge on each; picking one keeps the current view (Entries or Charts).
     private static function render_form_switcher( $survey, $current_view ) {
-        $unread = SurveyJS_Entries::unread_by_form();
         $forms = SurveyJS_Forms::names();
         $view = array_key_first( self::views( $survey ) ) === $current_view ? '' : $current_view;
-        $count = $unread[ (int) $survey->id ] ?? 0;
         ?>
         <details class="wp-sjs-form-switcher">
             <summary class="wp-sjs-form-switcher__toggle">
                 <span class="screen-reader-text"><?php esc_html_e( 'Form:', 'surveyjs' ); ?></span>
                 <span class="wp-sjs-form-switcher__name"><?php echo esc_html( $survey->name ); ?></span>
-                <?php self::render_unread_badge( $count ); ?>
+                <?php self::render_counts( $survey->id ); ?>
                 <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </summary>
             <ul class="wp-sjs-form-switcher__menu">
@@ -74,7 +72,7 @@ class SurveyJS_Results {
                     <li>
                         <a href="<?php echo esc_url( SurveyJS_Surveys_List_Table::page_url( 'surveyjs_results', array_filter( array( 'id' => $form->id, 'view' => $view ) ) ) ); ?>"<?php echo $is_current ? ' aria-current="page"' : ''; ?>>
                             <span class="wp-sjs-form-switcher__name"><?php echo esc_html( $form->name ); ?></span>
-                            <?php self::render_unread_badge( $unread[ (int) $form->id ] ?? 0 ); ?>
+                            <?php self::render_counts( $form->id ); ?>
                         </a>
                     </li>
                 <?php endforeach; ?>
@@ -84,15 +82,20 @@ class SurveyJS_Results {
         <?php
     }
 
-    private static function render_unread_badge( $count ) {
-        if ( ! $count ) {
+    private static function render_counts( $form_id ) {
+        $unread = SurveyJS_Entries::unread_by_form()[ (int) $form_id ] ?? 0;
+        $expiring = SurveyJS_Entries::count_partial_deleted_soon( $form_id );
+        if ( ! $unread && ! $expiring ) {
             return;
         }
-        /* translators: %s: number of unread entries */
-        $label = sprintf( _n( '%s unread entry', '%s unread entries', $count, 'surveyjs' ), number_format_i18n( $count ) );
-        ?>
-        <span class="wp-sjs-count" title="<?php echo esc_attr( $label ); ?>"><span aria-hidden="true"><?php echo esc_html( number_format_i18n( $count ) ); ?></span><span class="screen-reader-text"><?php echo esc_html( $label ); ?></span></span>
-        <?php
+        echo '<span class="wp-sjs-form-switcher__counts">';
+        if ( $unread ) {
+            SurveyJS_Admin_Header::render_count( $unread, SurveyJS_Admin_Header::unread_label( $unread ) );
+        }
+        if ( $expiring ) {
+            SurveyJS_Admin_Header::render_count( $expiring, SurveyJS_Admin_Header::expiring_label( $expiring ), 'wp-sjs-count--warning', '', SurveyJS_Admin_Header::partial_entries_url( $form_id ) );
+        }
+        echo '</span>';
     }
 
     public static function enqueue_style() {

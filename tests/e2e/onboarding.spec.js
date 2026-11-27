@@ -19,9 +19,9 @@ function onboardingFixture(...args) {
 function indicators(page) {
   return {
     topLevel: page.locator("#toplevel_page_surveyjs-main-menu > a"),
-    menuProgress: page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu a[href*='surveyjs-getting-started'] .wp-sjs-menu-progress"),
-    barGettingStarted: page.locator("#wp-admin-bar-surveyjs-getting-started"),
-    barNext: page.locator("#wp-admin-bar-surveyjs-next-step"),
+    menuProgress: page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu a[href*='surveyjs-getting-started'] .wp-sjs-progress"),
+    headerProgress: page.locator(".wp-sjs-header .wp-sjs-progress"),
+    dashboardProgress: page.locator("#surveyjs_dashboard_widget .wp-sjs-dw__progress"),
     compact: page.locator(".wp-sjs-checklist-compact")
   };
 }
@@ -54,40 +54,31 @@ test.describe("getting-started progress", () => {
     }
   });
 
-  test("shows the progress in the menu, the admin bar and the forms list, and Dismiss hides it", async ({ page }) => {
+  test("shows the progress on the forms list, not in the menu, the header or the admin bar, and Dismiss hides it", async ({ page }) => {
     onboardingFixture("progress", 1, "placement");
-    const { topLevel, menuProgress, barGettingStarted, barNext, compact } = indicators(page);
+    const { topLevel, menuProgress, headerProgress, compact } = indicators(page);
 
     await page.goto(FORMS_URL);
     await expect(topLevel.locator(".wp-menu-name")).toHaveText("SurveyJS Forms");
-    // The progress lives in the admin bar and on the forms list; the side menu and the plugin header don't show it.
     await expect(menuProgress).toHaveCount(0);
+    await expect(headerProgress).toHaveCount(0);
+    await expect(page.locator("#wp-admin-bar-surveyjs")).toHaveCount(0);
     await expect(page.locator(".wp-sjs-header__tab", { hasText: "Support" })).toHaveText("Support");
-    await expect(barGettingStarted.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 3");
-    await expect(barGettingStarted.locator(".screen-reader-text")).toHaveText("1 of 3 steps completed");
-    await expect(barGettingStarted.locator("progress")).toHaveAttribute("value", "1");
-    await expect(barNext.locator("a")).toHaveText("Next: Add the form to a page");
-    await expect(barNext.locator("a")).toHaveAttribute("href", /post-new\.php\?post_type=page$/);
     await expect(compact).toContainText("1 of 3 steps completed");
-    await expect(compact.getByRole("link", { name: "Add the form to a page" })).toBeVisible();
+    await expect(compact.getByRole("link", { name: "Add the form to a page" })).toHaveAttribute("href", /post-new\.php\?post_type=page$/);
 
     await page.goto("/");
-    await expect(page.locator("#wp-admin-bar-surveyjs-next-step a")).toHaveText("Next: Add the form to a page");
-    await page.locator("#wp-admin-bar-surveyjs").hover();
-    const frontBar = page.locator("#wp-admin-bar-surveyjs-getting-started progress");
-    await expect(frontBar).toBeVisible();
-    expect((await frontBar.boundingBox()).height).toBe(4);
+    await expect(page.locator("#wpadminbar")).toBeVisible();
+    await expect(page.locator("#wp-admin-bar-surveyjs")).toHaveCount(0);
 
     await page.goto(FORMS_URL);
     const dismissed = page.waitForResponse(r => r.url().includes("admin-ajax.php") && r.request().postData()?.includes("action=surveyjs_checklist"));
     await compact.getByRole("button", { name: "Dismiss" }).click();
     await dismissed;
     await expect(compact).toBeHidden();
-    await expect(barNext).toBeHidden();
 
     await page.reload();
-    await expect(page.locator(".wp-sjs-checklist-progress")).toHaveCount(0);
-    await expect(barGettingStarted.locator("a")).toHaveText("Support");
+    await expect(page.locator(".wp-sjs-checklist-compact")).toHaveCount(0);
 
     await page.goto(GETTING_STARTED_URL);
     await page.getByRole("button", { name: "Show checklist" }).click();
@@ -96,19 +87,17 @@ test.describe("getting-started progress", () => {
 
   test("keeps the cached steps between pages and counts them again after a form is created", async ({ page }) => {
     onboardingFixture("progress", 0, "form");
-    const { barNext } = indicators(page);
+    const { compact, dashboardProgress } = indicators(page);
 
     await page.goto(FORMS_URL);
-    await expect(barNext.locator("a")).toHaveText("Next: Create a form");
+    await expect(compact.getByRole("link", { name: "Create a form" })).toBeVisible();
     await page.goto("/wp-admin/index.php");
-    await expect(barNext.locator("a")).toHaveText("Next: Create a form");
+    await expect(dashboardProgress.getByRole("link", { name: "Create a form" })).toBeVisible();
 
     name = uniqueName("E2E onboarding");
     await createSurvey(page, name);
     await page.goto(FORMS_URL);
-    await expect(page.locator("#wpadminbar")).toBeVisible();
-    await expect(barNext.filter({ hasText: "Create a form" })).toHaveCount(0);
-    await expect(menuProgress.filter({ hasText: "0 of 3" })).toHaveCount(0);
+    await expect(compact.getByRole("link", { name: "Create a form" })).toHaveCount(0);
   });
 
   test("counts the first entry only for a submission of the published form, not the editor preview", async ({ page }) => {
@@ -136,15 +125,19 @@ test.describe("getting-started progress", () => {
     expect(onboardingFixture("entry", surveyId).received).toBe(true);
   });
 
-  test("shows no progress once the checklist is completed and lists the same items as the menu", async ({ page }) => {
+  test("shows no progress once the checklist is completed and the header lists the same items as the menu", async ({ page }) => {
     onboardingFixture("set", JSON.stringify({ dismissed: false, completed: true }));
 
     await page.goto(FORMS_URL);
-    await expect(page.locator(".wp-sjs-checklist-progress")).toHaveCount(0);
     await expect(page.locator(".wp-sjs-checklist-compact")).toHaveCount(0);
 
-    const menuItems = await page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu li:not(.wp-submenu-head) a").allInnerTexts();
-    const barItems = await page.locator("#wp-admin-bar-surveyjs-default > li > .ab-item").evaluateAll(items => items.map(item => item.textContent.trim()));
-    expect(barItems.filter(item => !/unread|deleted soon/.test(item)).sort()).toEqual(menuItems.map(item => item.trim()).sort());
+    const label = items => items.map(item => {
+      const copy = item.cloneNode(true);
+      copy.querySelectorAll(".wp-sjs-menu-count, .screen-reader-text").forEach(node => node.remove());
+      return copy.textContent.trim();
+    });
+    const menuItems = await page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu li:not(.wp-submenu-head) a").evaluateAll(label);
+    const headerItems = await page.locator(".wp-sjs-header__tabs > a.wp-sjs-header__tab, .wp-sjs-header__tab-link, .wp-sjs-header__actions > a").evaluateAll(label);
+    expect(headerItems.sort()).toEqual(menuItems.sort());
   });
 });

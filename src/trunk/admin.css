@@ -55,6 +55,63 @@
     text-align: center;
 }
 
+/* Warning count: a yellow pill with a black number (partial entries that will be deleted soon). The yellow is the
+   WP admin warning color (.notice-warning), as the blue is the WP admin theme color. */
+.wp-sjs-count.wp-sjs-count--warning {
+    background: #dba617;
+    color: #1d2327;
+}
+
+/* Tooltip: the text of .wp-sjs-tooltip inside a .wp-sjs-has-tooltip element, shown below it on hover and keyboard
+   focus. The colors and size follow the tooltips of the block editor. While hidden the text is only clipped, so it
+   stays the accessible name of the element. admin.js hides it on Escape (.is-tooltip-dismissed). */
+.wp-sjs-has-tooltip {
+    position: relative;
+}
+
+.wp-sjs-tooltip {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    z-index: 1000;
+    box-sizing: border-box;
+    width: max-content;
+    max-width: 240px;
+    padding: 4px 8px;
+    border-radius: 2px;
+    background: #1e1e1e;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+    white-space: normal;
+    transform: translateX(-50%);
+    clip-path: inset(50%);
+    pointer-events: none;
+}
+
+/* Covers the gap above the tooltip, so the pointer can move onto the tooltip without hiding it. */
+.wp-sjs-tooltip::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: 6px;
+}
+
+.wp-sjs-has-tooltip:hover > .wp-sjs-tooltip,
+.wp-sjs-has-tooltip:focus > .wp-sjs-tooltip {
+    clip-path: none;
+    pointer-events: auto;
+}
+
+.wp-sjs-has-tooltip.is-tooltip-dismissed > .wp-sjs-tooltip {
+    clip-path: inset(50%);
+    pointer-events: none;
+}
+
 /* Form switcher next to a page title (Entries): same 32px height as the page-title-action buttons beside it. */
 .wp-sjs-form-switcher {
     position: relative;
@@ -126,6 +183,29 @@
     flex: 1 1 auto;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.wp-sjs-form-switcher__counts {
+    display: inline-flex;
+    flex: none;
+    gap: 6px;
+}
+
+/* The menu scrolls, so a tooltip below a count would stretch it; in the switcher tooltips open to the left. */
+.wp-sjs-form-switcher .wp-sjs-tooltip {
+    top: 50%;
+    right: calc(100% + 6px);
+    left: auto;
+    transform: translateY(-50%);
+}
+
+.wp-sjs-form-switcher .wp-sjs-tooltip::before {
+    top: 0;
+    bottom: 0;
+    left: 100%;
+    right: auto;
+    width: 6px;
+    height: auto;
 }
 
 .wp-sjs-form-switcher__menu {

@@ -42,8 +42,6 @@ JS;
 
     private static $library_version = null;
 
-    public static $rendered_forms = array();
-
     private $preview_form = null;
 
     public static $prefix = "sjs";
@@ -491,9 +489,7 @@ JS;
         // Support (the getting-started checklist and help) is the last tab: it matters in the first days and steps aside once the plugin is set up.
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Support', 'surveyjs' ), esc_html__( 'Support', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page( '', esc_html__( 'Edit Form', 'surveyjs' ), '', 'manage_options', 'surveyjs_editor', array( 'SurveyJS_Editor', 'render' ) );
-        $unread = array_sum( SurveyJS_Entries::unread_by_form() );
-        $entries_menu = esc_html__( 'Entries', 'surveyjs' ) . ( $unread ? ' <span class="awaiting-mod count-' . $unread . '"><span class="pending-count">' . number_format_i18n( $unread ) . '</span></span>' : '' );
-        $results_hook = add_submenu_page( self::MENU_SLUG, esc_html__( 'Entries', 'surveyjs' ), $entries_menu, 'manage_options', 'surveyjs_results', array( 'SurveyJS_Results', 'render' ), 2 ); // After All Forms and Add New Form.
+        $results_hook = add_submenu_page( self::MENU_SLUG, esc_html__( 'Entries', 'surveyjs' ), esc_html__( 'Entries', 'surveyjs' ) . SurveyJS_Admin_Header::menu_counts(), 'manage_options', 'surveyjs_results', array( 'SurveyJS_Results', 'render' ), 2 ); // After All Forms and Add New Form.
         add_action( 'load-' . $results_hook, array( 'SurveyJS_Results', 'handle_actions' ) );
         $import_hook = add_submenu_page( '', esc_html__( 'Import', 'surveyjs' ), '', 'manage_options', 'surveyjs_import', array( 'SurveyJS_Import', 'render' ) );
         add_action( 'load-' . $import_hook, array( 'SurveyJS_Import', 'handle_actions' ) );
@@ -542,7 +538,6 @@ JS;
             return '';
         }
         $id = $row->id;
-        self::$rendered_forms[ $id ] = $row->name;
 
         $settings = SurveyJS_Form_Settings::get( $row );
         $restriction = SurveyJS_Restrictions::check( $row, $settings, false, is_singular() ? get_permalink() : home_url( '/' ) );

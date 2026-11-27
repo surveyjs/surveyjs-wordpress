@@ -169,7 +169,7 @@ test.describe.serial("getting started on a site without forms", () => {
     await expect(dashboardProgress.getByRole("link", { name: "Receive your first entry" })).toBeVisible();
     await expect(dashboardProgress.locator("progress.wp-sjs-progress")).toHaveAttribute("value", "2");
     await expect(dashboardProgress.locator("progress.wp-sjs-progress")).toHaveAttribute("max", "3");
-    await expect(page.locator("#wp-admin-bar-surveyjs-next-step a")).toHaveText("Next: Receive your first entry");
+    await expect(dashboardProgress.locator("progress.wp-sjs-progress")).toHaveCSS("height", "4px");
 
     await page.goto(GETTING_STARTED_URL);
     const emailStep = step(page, "Set up an email notification");

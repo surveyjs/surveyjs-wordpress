@@ -82,8 +82,8 @@ async function expectCounts(page, counts) {
 }
 
 async function unreadTotal(page) {
-  const bubble = page.locator("#wp-admin-bar-surveyjs .wp-sjs-ab-count:not(.wp-sjs-ab-count--expiring)");
-  return (await bubble.count()) ? Number((await bubble.textContent()).replace(/\D/g, "")) : 0;
+  const count = page.locator(".wp-sjs-header__count--unread > [aria-hidden]");
+  return (await count.count()) ? Number((await count.textContent()).replace(/\D/g, "")) : 0;
 }
 
 async function setStoreIp(page, checked) {
@@ -342,34 +342,38 @@ test.describe("entry storage", () => {
     await expect(page.locator("body")).toContainText("Form not found.");
   });
 
-  test("shows unread entries and the forms of the current page in the admin bar", async ({ page }) => {
-    name = uniqueName("E2E admin bar");
+  test("shows unread entries in the plugin header", async ({ page }) => {
+    name = uniqueName("E2E header count");
     const surveyId = await createSurvey(page, name);
     const post = await createPost(page, name, `[surveyjs id="${surveyId}"]`);
-    const menu = page.locator("#wp-admin-bar-surveyjs");
-    const editItem = page.locator(`#wp-admin-bar-surveyjs-edit-${surveyId}`);
+    const unread = page.locator(".wp-sjs-header__count--unread");
 
     await page.goto(FORMS_URL);
     const before = await unreadTotal(page);
-    await submitEntry(page, await surveyConfig(page, post.link), { e2e_question: "E2E admin bar answer" });
+    await submitEntry(page, await surveyConfig(page, post.link), { e2e_question: "E2E header count answer" });
+
+    await page.goto("/wp-admin/index.php");
+    const menu = page.locator("#toplevel_page_surveyjs-main-menu");
+    await expect(menu.locator(".wp-submenu a[href*='surveyjs_results'] .wp-sjs-menu-count:not(.wp-sjs-menu-count--warning) .screen-reader-text")).toHaveText(/^[\d,.\s]+ unread entr(y|ies)$/);
+    await expect(menu.locator(".wp-menu-name .wp-sjs-menu-count")).toHaveCount(0);
 
     await page.goto(FORMS_URL);
-    await expect(page.locator("#wp-admin-bar-surveyjs > .ab-item .ab-label")).toHaveText("SurveyJS Forms");
     expect(await unreadTotal(page)).toBe(before + 1);
-    await expect(page.locator("#wp-admin-bar-surveyjs > .ab-item .screen-reader-text").first()).toHaveText(/^[\d,.\s]+ unread entr(y|ies)$/);
-    await expect(page.locator("#wp-admin-bar-surveyjs-unread")).toHaveText(/^[\d,.\s]+ unread entr(y|ies)$/);
-    await expect(page.locator("#wp-admin-bar-surveyjs-forms a")).toHaveAttribute("href", /page=surveyjs-main-menu/);
-    await expect(editItem).toHaveCount(0);
+    await expect(unread).toHaveAccessibleName(/^[\d,.\s]+ unread entr(y|ies)$/);
+    await expect(unread.locator(".wp-sjs-tooltip")).not.toHaveCSS("clip-path", "none");
+    await unread.focus();
+    await expect(unread.locator(".wp-sjs-tooltip")).toHaveCSS("clip-path", "none");
+    await page.keyboard.press("Escape");
+    await expect(unread.locator(".wp-sjs-tooltip")).not.toHaveCSS("clip-path", "none");
+    if (before === 0) {
+      await expect(unread).toHaveAttribute("href", new RegExp(`page=surveyjs_results&id=${surveyId}$`));
+    }
 
     await page.goto(post.link);
-    await expect(editItem).toHaveText(`Edit form: ${name}`);
-    await menu.hover();
-    await editItem.locator("a").click();
-    await expect(page).toHaveURL(new RegExp(`page=surveyjs_editor&id=${surveyId}(&|$)`));
-    await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
+    await expect(page.locator("#wp-admin-bar-surveyjs")).toHaveCount(0);
 
     await page.goto(resultsUrl(surveyId));
-    await rowAction(page, "E2E admin bar answer", "Mark as Read");
+    await rowAction(page, "E2E header count answer", "Mark as Read");
     await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
     expect(await unreadTotal(page)).toBe(before);
   });
@@ -406,7 +410,6 @@ test.describe("entry storage", () => {
       await page.goto(post.link);
       await expect(page.locator(".wp-sjs-plugin")).toHaveAttribute("id", `surveyContainer-${surveyId}`);
       await expect(page.getByLabel("What is your name?")).toBeVisible();
-      await expect(page.locator(`#wp-admin-bar-surveyjs-edit-${surveyId}`)).toHaveText(`Edit form: ${name}`);
     }
 
     await page.getByLabel("What is your name?").fill("E2E legacy answer");

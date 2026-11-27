@@ -167,10 +167,23 @@ test.describe("partial entries", () => {
 
     storageFixture("age-entry", entryId, 27);
     await page.goto(listUrl(name));
-    await expect(page.locator("#wp-admin-bar-surveyjs-expiring")).toHaveText(/^[\d,.\s]+ partial entr(y|ies) will be deleted soon$/);
+    const expiring = page.locator(".wp-sjs-header__count--expiring");
+    await expect(expiring.locator(".wp-sjs-tooltip")).toHaveText(/^[\d,.\s]+ partial entr(y|ies) will be deleted soon$/);
+    await expect(expiring).toHaveAccessibleName(/^[\d,.\s]+ partial entr(y|ies) will be deleted soon$/);
+    await expect(expiring.locator(".wp-sjs-tooltip")).not.toHaveCSS("clip-path", "none");
+    await expiring.hover();
+    await expect(expiring.locator(".wp-sjs-tooltip")).toHaveCSS("clip-path", "none");
+    await expect(page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu .wp-sjs-menu-count--warning .screen-reader-text")).toHaveText(/^[\d,.\s]+ partial entr(y|ies) will be deleted soon$/);
+    await expect(page.locator("#toplevel_page_surveyjs-main-menu .wp-menu-name .wp-sjs-menu-count")).toHaveCount(0);
+    await expect(expiring).toHaveAttribute("href", /page=surveyjs_results&id=\d+&status=partial$/);
+    await expect(page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu .wp-sjs-menu-count--warning")).toHaveAttribute("data-sjs-href", /page=surveyjs_results&id=\d+&status=partial$/);
     await expect(page.locator("#the-list tr", { hasText: name })).toContainText("1 partial entry will be deleted soon");
 
     await page.goto(resultsUrl(surveyId, "partial"));
+    await expect(page.locator(".wp-sjs-form-switcher__toggle .wp-sjs-count--warning")).toHaveText(/^1\s*1 partial entry will be deleted soon$/);
+    await page.goto(resultsUrl(surveyId));
+    await page.locator(".wp-sjs-form-switcher__toggle .wp-sjs-count--warning").click();
+    await expect(page).toHaveURL(new RegExp(`page=surveyjs_results&id=${surveyId}&status=partial$`));
     await expect(page.locator(".notice-warning", { hasText: "will be deleted within 5 days" })).toContainText("1 partial entry will be deleted within 5 days.");
     const row = page.locator("#the-list tr", { hasText: "Forgetful" });
     await expect(row.locator(".column-status")).toContainText("Will be deleted on");

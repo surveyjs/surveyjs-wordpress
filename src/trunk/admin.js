@@ -128,6 +128,18 @@
             node.open = false;
             node.querySelector("summary").focus();
         });
+        document.querySelectorAll(".wp-sjs-has-tooltip:hover, .wp-sjs-has-tooltip:focus").forEach(function (node) {
+            node.classList.add("is-tooltip-dismissed");
+        });
+    });
+
+    // A tooltip hidden with Escape shows again the next time the pointer or focus comes to it.
+    document.querySelectorAll(".wp-sjs-has-tooltip").forEach(function (node) {
+        ["mouseleave", "blur"].forEach(function (type) {
+            node.addEventListener(type, function () {
+                node.classList.remove("is-tooltip-dismissed");
+            });
+        });
     });
 
     // Live search for the list tables (All Forms, Entries): results update while typing, no Search button.
