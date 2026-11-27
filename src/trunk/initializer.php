@@ -61,6 +61,7 @@ JS;
         add_action('init', array($this, 'register_frontend_assets'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        add_action('admin_enqueue_scripts', array(self::class, 'enqueue_menu_icon'));
         // Before _wp_admin_bar_init (priority 0) so the admin bar stays off in the preview.
         add_action('template_redirect', array($this, 'render_preview_page'), -1);
         add_action('template_redirect', array($this, 'prepare_full_preview_page'), -1);
@@ -465,17 +466,20 @@ JS;
         }
     }
 
-    // The admin menu icon: a one-color SVG as a data URI, which WordPress paints in the admin color scheme
-    // (gray, white on hover and for the open section), like the icons of the other menu items.
-    private static function menu_icon() {
+    // Not an SVG icon_url: svg-painter.js recolors those only after load, so they flash black first.
+    public static function enqueue_menu_icon() {
         $svg = (string) file_get_contents( __DIR__ . '/images/menu-icon.svg' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a file of the plugin.
-        return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- WordPress takes menu SVG icons as base64 data URIs.
+        $url = 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- the mask image is inlined so it is there on the first paint.
+        $mask = 'url("' . $url . '") no-repeat center / 20px 20px';
+        wp_register_style( 'wps-adm--menu-icon', false, array(), self::asset_version( 'images/menu-icon.svg' ) );
+        wp_enqueue_style( 'wps-adm--menu-icon' );
+        wp_add_inline_style( 'wps-adm--menu-icon', '#adminmenu .toplevel_page_' . self::MENU_SLUG . ' div.wp-menu-image::before { content: ""; background-color: currentColor; -webkit-mask: ' . $mask . '; mask: ' . $mask . '; }' );
     }
 
     function wps_add_menu() {
         $hook = add_menu_page( 'Forms', 'SurveyJS Forms', self::CAPABILITY, self::MENU_SLUG, array(
                         "SurveyJS_MySurveys", 'render'
-                        ), self::menu_icon(), '30.5' );
+                        ), 'none', '30.5' );
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         // Registering the parent slug first stops WordPress from adding a duplicate "SurveyJS Forms" submenu item.
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'All Forms', 'surveyjs' ), esc_html__( 'All Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
