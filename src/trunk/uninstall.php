@@ -28,9 +28,9 @@ function surveyjs_uninstall_site() {
         $wpdb->esc_like( 'surveyjs_' ) . '%',
         $wpdb->esc_like( '_transient_surveyjs_' ) . '%',
         $wpdb->esc_like( '_transient_timeout_surveyjs_' ) . '%',
-        $wpdb->esc_like( 'surveyjs_pro_' ) . '%',
-        $wpdb->esc_like( '_transient_surveyjs_pro_' ) . '%',
-        $wpdb->esc_like( '_transient_timeout_surveyjs_pro_' ) . '%'
+        $wpdb->esc_like( 'surveyjs_addon_' ) . '%',
+        $wpdb->esc_like( '_transient_surveyjs_addon_' ) . '%',
+        $wpdb->esc_like( '_transient_timeout_surveyjs_addon_' ) . '%'
     ) );
     wp_cache_delete( 'alloptions', 'options' );
     wp_cache_delete( 'notoptions', 'options' );

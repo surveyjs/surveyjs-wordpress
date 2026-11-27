@@ -1,6 +1,6 @@
 name: Checks
 
-# Shared by Base (ci.yml) and Pro (surveyjs-wordpress-pro ci.yml). Runs on the "plugin" artifact
+# Shared by SurveyJS Forms (ci.yml) and the add-on (surveyjs-wordpress-addon ci.yml). Runs on the "plugin" artifact
 # of the caller's build job; the caller's repository has the tests, this repository has the tools.
 
 on:
@@ -19,11 +19,11 @@ on:
         type: string
         default: ""
       e2e-base-dir:
-        description: Base plugin folder from the artifact for E2E
+        description: SurveyJS Forms plugin folder from the artifact for E2E
         type: string
         required: true
-      e2e-pro-dir:
-        description: Pro plugin folder from the artifact for E2E; empty = WordPress without Pro
+      e2e-addon-dir:
+        description: Add-on plugin folder from the artifact for E2E; empty = WordPress without the add-on
         type: string
         default: ""
       e2e-shards:
@@ -144,27 +144,27 @@ jobs:
         working-directory: .tooling
         env:
           BASE_DIR: ${{ inputs.e2e-base-dir }}
-          PRO_DIR: ${{ inputs.e2e-pro-dir }}
+          ADDON_DIR: ${{ inputs.e2e-addon-dir }}
           SMTP_PORT: ${{ job.services.mailpit.ports['1025'] }}
         run: |
-          pro_plugins=""
-          pro_mapping=""
-          if [ -n "$PRO_DIR" ]; then
-            pro_plugins='"plugins": [],'
-            pro_mapping="\"wp-content/plugins/surveyjs-pro\": \"../$PRO_DIR\","
+          addon_plugins=""
+          addon_mapping=""
+          if [ -n "$ADDON_DIR" ]; then
+            addon_plugins='"plugins": [],'
+            addon_mapping="\"wp-content/plugins/surveyjs-forms-addon\": \"../$ADDON_DIR\","
           fi
           cat > .wp-env.override.json <<EOF
           {
-            $pro_plugins
+            $addon_plugins
             "mappings": {
-              $pro_mapping
+              $addon_mapping
               "wp-content/plugins/surveyjs": "../$BASE_DIR"
             },
             "config": { "SJS_E2E_SMTP_PORT": $SMTP_PORT }
           }
           EOF
           npx --yes "$WP_ENV" start
-          if [ -n "$PRO_DIR" ]; then npx --yes "$WP_ENV" run cli wp plugin activate surveyjs-pro; fi
+          if [ -n "$ADDON_DIR" ]; then npx --yes "$WP_ENV" run cli wp plugin activate surveyjs-forms-addon; fi
           port="$(node -p 'require("./.wp-env.json").port')"
           container="$(docker ps -q -f label=com.docker.compose.service=wordpress -f "publish=$port")"
           [ -n "$container" ] || { echo "::error::wp-env WordPress container not found"; exit 1; }

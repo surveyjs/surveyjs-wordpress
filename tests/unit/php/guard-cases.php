@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/wp-stubs.php';
 require __DIR__ . '/../../../src/trunk/guard.php';
-require __DIR__ . '/fixtures/surveyjs-pro/surveyjs-pro.php';
+require __DIR__ . '/fixtures/surveyjs-forms-addon/surveyjs-forms-addon.php';
 
 class Test_Admin_Bar {
     public $nodes = array();
@@ -43,10 +43,10 @@ function other_plugin_callback() {
 SurveyJS_Guard::init();
 
 test_run( array(
-    'old-pro-admin-bar' => function () {
-        SurveyJS_Pro_Dashboard::init();
+    'old-addon-admin-bar' => function () {
+        SurveyJS_Addon_Dashboard::init();
         add_action( 'admin_bar_menu', function ( $bar ) {
-            $bar->add_node( array( 'id' => 'core-after-pro' ) );
+            $bar->add_node( array( 'id' => 'core-after-addon' ) );
         }, 200 );
         $bar = new Test_Admin_Bar();
         do_action( 'admin_bar_menu', $bar );
@@ -60,7 +60,7 @@ test_run( array(
         return apply_filters( 'plugin_row_meta', 'links' );
     },
     'add-on-closure' => function () {
-        add_filter( 'plugin_action_links', surveyjs_pro_fixture_closure() );
+        add_filter( 'plugin_action_links', surveyjs_addon_fixture_closure() );
         return array( 'value' => apply_filters( 'plugin_action_links', array( 'deactivate' ) ), 'failures' => SurveyJS_Guard::failures() );
     },
     'base-function' => function () {

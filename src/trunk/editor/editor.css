@@ -129,7 +129,7 @@
     margin-bottom: 12px;
 }
 
-/* Editor actions on the title row, right-aligned: Pro's Full screen, Open full preview, Embed,
+/* Editor actions on the title row, right-aligned: the add-on's Full screen, Open full preview, Embed,
    Save as Template and Save. The spacing comes from the gap, not from margins on each button. */
 .wp-sjs-editor__actions {
     display: flex;
@@ -517,7 +517,7 @@ html:has(.wp-sjs-embed[open]) {
 
 /* One row: Open in free UI Builder, Copy JSON 8px after it, the add-on link pushed to the right end (it wraps
    under them on a narrow pane). Status messages take the full width under the row. */
-.wp-sjs-editor__pane-header .wp-sjs-editor__pro-link {
+.wp-sjs-editor__pane-header .wp-sjs-editor__addon-link {
     margin-left: auto;
 }
 
@@ -576,7 +576,7 @@ html:has(.wp-sjs-embed[open]) {
 
 /* WordPress styles every .button, input and textarea in the admin, and Monaco's widgets (find and replace, command
    palette) use that class and those elements but set only what they need, so this resets just the properties Monaco
-   leaves to WordPress, in Base's JSON editor and Survey Creator's alike. WordPress marks disabled buttons !important. */
+   leaves to WordPress, in SurveyJS Forms' JSON editor and Survey Creator's alike. WordPress marks disabled buttons !important. */
 body.wp-core-ui .monaco-editor .button {
     min-height: auto;
     margin-block: 0;
@@ -822,7 +822,7 @@ body.wp-core-ui .monaco-editor :where(.button, .monaco-custom-toggle, input):foc
 }
 
 /* Above the admin bar (99999) and SurveyJS popups (2000). The extra classes outrank rules that hide the preview
-   on some tabs, such as those of SurveyJS Pro, which load later. */
+   on some tabs, such as those of SurveyJS Forms Add-on, which load later. */
 .wp-sjs-editor.wp-sjs-editor--full-preview .wp-sjs-editor__columns > .wp-sjs-editor__preview {
     display: flex;
     position: fixed;

@@ -4,7 +4,7 @@ SurveyJS Forms is a WordPress plugin for contact forms, surveys, quizzes and mul
 
 The plugin version is the version of the SurveyJS libraries it ships (currently 3.2.4).
 
-**SurveyJS Forms Pro** is a free add-on downloaded from [surveyjs.io/wordpress-pro](https://surveyjs.io/wordpress-pro). It adds Survey Creator (the visual form designer), PDF export and analytics. Survey Creator moved from this plugin to Pro in 3.2.4, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component.
+**SurveyJS Forms Add-on** is a free add-on downloaded from [surveyjs.io/wordpress-addon](https://surveyjs.io/wordpress-addon). It adds Survey Creator (the visual form designer), PDF export and analytics. Survey Creator moved from this plugin to the add-on in 3.2.4, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component.
 
 ## Features
 
@@ -108,21 +108,21 @@ See also the [featured demos](https://surveyjs.io/form-library/examples/overview
 
 ## Screenshots
 
-The screenshots were taken before 3.2.4. Screenshots 2–4 show Survey Creator, which is now in SurveyJS Forms Pro.
+The screenshots were taken before 3.2.4. Screenshots 2–4 show Survey Creator, which is now in SurveyJS Forms Add-on.
 
 **Admin UI with your SurveyJS forms:**
 
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-1.png?raw=true)
 
-**Survey Creator: drag-and-drop form building (SurveyJS Forms Pro):**
+**Survey Creator: drag-and-drop form building (SurveyJS Forms Add-on):**
 
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-2.png?raw=true)
 
-**Survey Creator: GUI for conditional rules (SurveyJS Forms Pro):**
+**Survey Creator: GUI for conditional rules (SurveyJS Forms Add-on):**
 
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-3.png?raw=true)
 
-**Survey Creator: Theme Editor (SurveyJS Forms Pro):**
+**Survey Creator: Theme Editor (SurveyJS Forms Add-on):**
 
 ![](https://github.com/surveyjs/surveyjs-wordpress/blob/master/src/assets/screenshot-4.png?raw=true)
 
@@ -162,9 +162,9 @@ The screenshots were taken before 3.2.4. Screenshots 2–4 show Survey Creator, 
 1. Click Upload Plugin and then click Install now.
 1. Once installed, activate the plugin.
 
-**SurveyJS Forms Pro (optional)**
+**SurveyJS Forms Add-on (optional)**
 
-Download the zip from [surveyjs.io/wordpress-pro](https://surveyjs.io/wordpress-pro) (also linked from the **Get Pro – Free** menu item) and install it with Upload Plugin. Pro requires SurveyJS Forms. On Multisite, network-activate Pro.
+Download the zip from [surveyjs.io/wordpress-addon](https://surveyjs.io/wordpress-addon) (also linked from the **Get the Free Add-on** menu item) and install it with Upload Plugin. The add-on requires SurveyJS Forms. On Multisite, network-activate the add-on.
 
 **Protect uploaded files on Nginx**
 
@@ -193,34 +193,34 @@ add_filter( 'vip_files_acl_file_visibility', function ( $visibility, $file_path 
 
 Without it the files stay protected by their random names and by answers linking to the permission check instead of the file.
 
-## Updates (SurveyJS Forms and SurveyJS Forms Pro)
+## Updates (SurveyJS Forms and SurveyJS Forms Add-on)
 
-SurveyJS Forms and SurveyJS Forms Pro are always released together, with the same version number as the SurveyJS libraries (for example, 3.2.4). Releases are backward compatible, so always install the latest versions.
+SurveyJS Forms and SurveyJS Forms Add-on are always released together, with the same version number as the SurveyJS libraries (for example, 3.2.4). Releases are backward compatible, so always install the latest versions.
 
 - **SurveyJS Forms** updates from the WordPress.org directory as usual: manually or with WordPress auto-updates.
-- **SurveyJS Forms Pro** is not in the directory and follows SurveyJS Forms. When SurveyJS Forms is updated (single, bulk or auto-update) and the update succeeds, Pro downloads the latest zip from surveyjs.io at the end of the same request and installs itself over the old copy. Pro stays active. While a SurveyJS Forms update is pending, its row on the Plugins screen says "SurveyJS Forms Pro will be updated to the same version automatically." After an update on the Plugins screen, the Pro row shows the new version without a page reload.
-- **No information about your site is sent**: the download is a plain request with the user agent `SurveyJS-Forms-Pro/<version>`.
-- **A failed Pro download never affects the SurveyJS Forms update.** The error is saved and shown in the version notice.
-- **Version notice.** When the versions differ, Pro shows a notice on all admin pages with one button, for the older plugin only:
+- **SurveyJS Forms Add-on** is not in the directory and follows SurveyJS Forms. When SurveyJS Forms is updated (single, bulk or auto-update) and the update succeeds, the add-on downloads the latest zip from surveyjs.io at the end of the same request and installs itself over the old copy. The add-on stays active. While a SurveyJS Forms update is pending, its row on the Plugins screen says "SurveyJS Forms Add-on will be updated to the same version automatically." After an update on the Plugins screen, the add-on row shows the new version without a page reload.
+- **No information about your site is sent**: the download is a plain request with the user agent `SurveyJS-Forms-Addon/<version>`.
+- **A failed add-on download never affects the SurveyJS Forms update.** The error is saved and shown in the version notice.
+- **Version notice.** When the versions differ, the add-on shows a notice on all admin pages with one button, for the older plugin only:
   - SurveyJS Forms older: "Please update SurveyJS Forms" with the button **Update SurveyJS Forms** (the standard update from the directory).
-  - SurveyJS Forms Pro older (the download failed, or an old Pro zip was installed by hand): "Please update SurveyJS Forms Pro" with the button **Update SurveyJS Forms Pro**, the last error if any, and **Download from surveyjs.io** as a fallback.
+  - SurveyJS Forms Add-on older (the download failed, or an old add-on zip was installed by hand): "Please update SurveyJS Forms Add-on" with the button **Update SurveyJS Forms Add-on**, the last error if any, and **Download from surveyjs.io** as a fallback.
 
   Nothing is turned off while the versions differ.
-- **Self-updating of Pro is turned off** on WordPress VIP, when Pro is installed with Composer (then `composer update surveyjs/surveyjs-pro --with-dependencies` updates both plugins), when file changes are not allowed (`DISALLOW_FILE_MODS`), with `define( 'SURVEYJS_PRO_DISABLE_UPDATES', true );` or with the filter `surveyjs_pro_self_update` returning `false`. Then Pro never downloads anything, the notice has no Pro update button, and both plugins are updated in your code repository.
-- Pro has the header `Update URI: https://surveyjs.io/wordpress-pro`, so WordPress.org never offers another plugin with the slug `surveyjs-pro` as its update.
+- **Self-updating of the add-on is turned off** on WordPress VIP, when the add-on is installed with Composer (then `composer update surveyjs/surveyjs-forms-addon --with-dependencies` updates both plugins), when file changes are not allowed (`DISALLOW_FILE_MODS`), with `define( 'SURVEYJS_ADDON_DISABLE_UPDATES', true );` or with the filter `surveyjs_addon_self_update` returning `false`. Then the add-on never downloads anything, the notice has no add-on update button, and both plugins are updated in your code repository.
+- The add-on has the header `Update URI: https://surveyjs.io/wordpress-addon`, so WordPress.org never offers another plugin with the slug `surveyjs-forms-addon` as its update.
 
-**Release order:** first upload the Pro zip to `https://cdn.surveyjs.io/wordpress/surveyjs-pro.zip` (fixed URL, always the latest Pro, one top folder `surveyjs-pro/`), then publish SurveyJS Forms to WordPress.org. Implementation details: `includes/updater.php` and the "Updates" section of DEVELOPMENT.md in the Pro repository.
+**Release order:** first upload the add-on zip to `https://cdn.surveyjs.io/wordpress/surveyjs-forms-addon.zip` (fixed URL, always the latest add-on, one top folder `surveyjs-forms-addon/`), then publish SurveyJS Forms to WordPress.org. Implementation details: `includes/updater.php` and the "Updates" section of DEVELOPMENT.md in the add-on repository.
 
 ## For developers
 
-### Hooks for SurveyJS Forms Pro
+### Hooks for SurveyJS Forms Add-on
 
-SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_results` table) and exposes generic hooks; Pro adds its features through them. Without anything hooked in, the plugin behaves as before. The full contract (constants, admin pages, the `window.surveyjsEditor` JavaScript API, every hook with its arguments) is described in the Pro repository's DEVELOPMENT.md, section "Developer: the extension contract in SurveyJS Forms (Base)".
+SurveyJS Forms owns all data (the `sjs_form` post type and the `{prefix}sjs_results` table) and exposes generic hooks; the add-on adds its features through them. Without anything hooked in, the plugin behaves as before. The full contract (constants, admin pages, the `window.surveyjsEditor` JavaScript API, every hook with its arguments) is described in the add-on repository's DEVELOPMENT.md, section "Developer: the extension contract in SurveyJS Forms".
 
 - Actions: `surveyjs_admin_menu`, `surveyjs_admin_enqueue_scripts`, `surveyjs_register_settings`, `surveyjs_render_editor`, `surveyjs_editor_email_rows`, `surveyjs_render_results_view`, `surveyjs_results_title_actions`, `surveyjs_entries_bulk_action_<action>`, `surveyjs_enqueue_form_assets`, `wp_surveyjs_save_result`.
-- AI (MCP): action `surveyjs_ai_register_abilities` (register more abilities with `SurveyJS_AI_Abilities::register_ability()`; category `surveyjs`), filters `surveyjs_ai_form_settings_schema`, `surveyjs_ai_read_only_form_settings`, `surveyjs_ai_sensitive_form_settings`, `surveyjs_ai_question_types`, `surveyjs_ai_instructions`, `surveyjs_ai_docs_server_url`. Details in the Pro repository's DEVELOPMENT.md.
-- Filters: `surveyjs_editor_tabs`, `surveyjs_form_settings_defaults`, `surveyjs_form_settings_sanitize`, `surveyjs_form_row_actions`, `surveyjs_results_views`, `surveyjs_entry_row_actions`, `surveyjs_entries_bulk_actions`, `surveyjs_form_client_config`, `surveyjs_save_result_response`, `surveyjs_notification_attachments`, `surveyjs_notification_tags`, `surveyjs_webhook_payload`, `surveyjs_webhook_timeout`, `surveyjs_integration_services`, `surveyjs_integration_timeout`, `surveyjs_form_locale`, `surveyjs_show_pro_upsell`.
-- Other settings: `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter (surveyjs.io address, default `https://surveyjs.io`; the UI Builder and Pro page URLs are built from it; the Pro download URL is `surveyjs_pro_package_url`), `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size`, `surveyjs_unattached_upload_lifetime`, `surveyjs_partial_entry_lifetime`, `surveyjs_entry_ip`, `surveyjs_import_entries_per_request`.
+- AI (MCP): action `surveyjs_ai_register_abilities` (register more abilities with `SurveyJS_AI_Abilities::register_ability()`; category `surveyjs`), filters `surveyjs_ai_form_settings_schema`, `surveyjs_ai_read_only_form_settings`, `surveyjs_ai_sensitive_form_settings`, `surveyjs_ai_question_types`, `surveyjs_ai_instructions`, `surveyjs_ai_docs_server_url`. Details in the add-on repository's DEVELOPMENT.md.
+- Filters: `surveyjs_editor_tabs`, `surveyjs_form_settings_defaults`, `surveyjs_form_settings_sanitize`, `surveyjs_form_row_actions`, `surveyjs_results_views`, `surveyjs_entry_row_actions`, `surveyjs_entries_bulk_actions`, `surveyjs_form_client_config`, `surveyjs_save_result_response`, `surveyjs_notification_attachments`, `surveyjs_notification_tags`, `surveyjs_webhook_payload`, `surveyjs_webhook_timeout`, `surveyjs_integration_services`, `surveyjs_integration_timeout`, `surveyjs_form_locale`, `surveyjs_show_addon_upsell`.
+- Other settings: `SURVEYJS_SITE_URL` constant / `surveyjs_site_url` filter (surveyjs.io address, default `https://surveyjs.io`; the UI Builder and the add-on page URLs are built from it; the add-on download URL is `surveyjs_addon_package_url`), `surveyjs_allowed_upload_extensions`, `surveyjs_max_upload_size`, `surveyjs_unattached_upload_lifetime`, `surveyjs_partial_entry_lifetime`, `surveyjs_entry_ip`, `surveyjs_import_entries_per_request`.
 
 ### File storage
 
@@ -243,7 +243,7 @@ Hooks:
 - `surveyjs_file_saved` (action) — `( string $key, array $context, SurveyJS_File_Storage $storage )`, `$context`: `form_id`, `original_name`, `mime`, `size`. For mirroring or audit logs.
 - `surveyjs_file_deleted` (action) — `( string $key, SurveyJS_File_Storage $storage )`.
 - Core upload hooks, so virus scanners and other upload checks also see respondents' files: `wp_handle_upload_prefilter` gets each file (`name`, `type`, `tmp_name`, `error`, `size`) before the plugin's type and size checks; a non-numeric `error` refuses the file and the message is shown under the question. Changes to `name` or `tmp_name` are ignored (the key is generated and the uploaded file is read as received). `wp_handle_upload_overrides` gets `array( 'test_form' => false )`; its `mimes` can narrow the allowed types further (the plugin's own list still applies). The `wp_handle_upload` filter is not applied after saving: plugins on it treat the file as a public upload (offloaders copy it to public storage), which would expose private files.
-- `surveyjs_notification_attachments` (filter, see the Pro contract) — paths may also be stream paths (`vip://`, `s3://`): PHPMailer refuses them, so the plugin copies such files to a temporary file for the email and deletes the copy at the end of the request.
+- `surveyjs_notification_attachments` (filter, see the add-on contract) — paths may also be stream paths (`vip://`, `s3://`): PHPMailer refuses them, so the plugin copies such files to a temporary file for the email and deletes the copy at the end of the request.
 
 The interface:
 
@@ -331,7 +331,7 @@ All of them are optional; form answers are never sent to them, except to Akismet
 - **Akismet** (through the Akismet plugin's `Akismet::http_post()`): only when Akismet is active and connected and "Check entries with Akismet" is on for a form. The respondent's name, email, website and text answers, IP address and user agent are sent.
 - **Slack** (`https://hooks.slack.com/services/…`): only when an administrator connects a Slack incoming webhook on Settings > Integrations (a short "connected" message is posted then and on Test) and adds a Slack integration to a form. The message with the heading, the answers chosen in its text and a link to the entry is sent for each entry. [Terms](https://slack.com/terms-of-service), [Privacy Policy](https://slack.com/trust/privacy/privacy-policy).
 - **Mailchimp** (`https://<dc>.api.mailchimp.com/3.0`): only when an administrator connects a Mailchimp API key and adds a Mailchimp integration to a form. Connecting reads the account name and email; the form editor reads the audiences and their merge fields; each entry sends the respondent's email, the mapped merge fields and the tags. [Terms](https://mailchimp.com/legal/terms/), [Privacy Policy](https://www.intuit.com/privacy/statement/).
-- **SurveyJS Forms Pro** downloads its updates from surveyjs.io (see [Updates](#updates-surveyjs-forms-and-surveyjs-forms-pro)).
+- **SurveyJS Forms Add-on** downloads its updates from surveyjs.io (see [Updates](#updates-surveyjs-forms-and-surveyjs-forms-add-on)).
 
 ### UI Builder messages
 
@@ -357,17 +357,17 @@ UI Builder messages have `source: "surveyjs-ui-builder"`, editor messages `sourc
 **Update test site** (`sandboxes/pro-update-test/`, http://localhost:9905, user `sandbox` / password `sandbox`). Run the scripts in Git Bash with Docker running.
 
 - `setup.sh` starts the containers, installs WordPress and runs `reset.sh`.
-- `reset.sh [mode]` copies SurveyJS Forms from `git/surveyjs-wordpress/src/trunk` and Pro from the `git/surveyjs-wordpress-pro` working tree into the site, offers SurveyJS Forms with the version `<current>.1` as an update, and serves a Pro zip with the same version instead of the surveyjs.io download. Modes:
-  - no mode: both plugins have the same version; update SurveyJS Forms and check that Pro follows.
-  - `base-older`: the installed Pro gets the version 9.9.9, so the notice asks to update SurveyJS Forms.
-  - `pro-older`: the installed Pro gets the version 0.0.1, so the notice asks to update SurveyJS Forms Pro.
-- Failures are simulated with the site options `pro_update_test_bad_download` (Pro download fails), `pro_update_test_no_loopback`, `pro_update_test_no_offer`; `pro_update_test_use_staging` downloads Pro from the `SURVEYJS_SITE_URL` set in `docker-compose.yml` instead of the local zip. Pro downloads are logged to `wp-content/uploads/pro-update-test/requests.log` in the container.
+- `reset.sh [mode]` copies SurveyJS Forms from `git/surveyjs-wordpress/src/trunk` and the add-on from the `git/surveyjs-wordpress-pro` working tree into the site, offers SurveyJS Forms with the version `<current>.1` as an update, and serves an add-on zip with the same version instead of the surveyjs.io download. Modes:
+  - no mode: both plugins have the same version; update SurveyJS Forms and check that the add-on follows.
+  - `base-older`: the installed add-on gets the version 9.9.9, so the notice asks to update SurveyJS Forms.
+  - `pro-older`: the installed add-on gets the version 0.0.1, so the notice asks to update SurveyJS Forms Add-on.
+- Failures are simulated with the site options `pro_update_test_bad_download` (the add-on download fails), `pro_update_test_no_loopback`, `pro_update_test_no_offer`; `pro_update_test_use_staging` downloads the add-on from the `SURVEYJS_SITE_URL` set in `docker-compose.yml` instead of the local zip. The add-on downloads are logged to `wp-content/uploads/pro-update-test/requests.log` in the container.
 
 ## Licensing
 
 > Licensing is being revised.
 
-The SurveyJS plugin demonstrates how SurveyJS UI libraries can be integrated into a WordPress environment. It includes the MIT-licensed **Form Library** for rendering forms. **Survey Creator**, a form-building UI component, is not part of this plugin; it is in the separate SurveyJS Forms Pro add-on.
+The SurveyJS plugin demonstrates how SurveyJS UI libraries can be integrated into a WordPress environment. It includes the MIT-licensed **Form Library** for rendering forms. **Survey Creator**, a form-building UI component, is not part of this plugin; it is in the separate SurveyJS Forms Add-on.
 
 The SurveyJS product family _also_ includes:
 

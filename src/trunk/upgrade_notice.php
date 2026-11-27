@@ -29,7 +29,7 @@ class SurveyJS_Upgrade_Notice {
 
     public static function is_active() {
         return get_option( self::FLAG_OPTION )
-            && ! defined( 'SURVEYJS_PRO_VERSION' )
+            && ! defined( 'SURVEYJS_ADDON_VERSION' )
             && current_user_can( self::CAPABILITY )
             && ! get_user_meta( get_current_user_id(), self::DISMISSED_META, true );
     }

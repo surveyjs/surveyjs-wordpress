@@ -136,7 +136,7 @@ class SurveyJS_Form_Settings {
     }
 
     // Pass $survey when the result replaces its stored settings: keys no plugin declares right now
-    // (e.g. Pro's while Pro is inactive) are kept instead of being dropped.
+    // (e.g. the add-on's while the add-on is inactive) are kept instead of being dropped.
     public static function sanitize( $input, $survey = null ) {
         $input = array_merge( self::defaults(), is_array( $input ) ? $input : array() );
         $sanitized = apply_filters( 'surveyjs_form_settings_sanitize', self::sanitize_base( $input, $survey ), $input );

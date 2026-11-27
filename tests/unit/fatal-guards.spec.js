@@ -12,9 +12,9 @@ function run(script, name) {
 
 test.describe("hook guard", () => {
   test("an add-on admin bar item that uses a class SurveyJS Forms removed no longer breaks wp-admin", () => {
-    const { result, output, log } = run("guard-cases.php", "old-pro-admin-bar");
-    expect(result.nodes).toEqual(["core-after-pro", "core-after-pro"]);
-    expect(result.failures).toEqual([{ hook: "admin_bar_menu", callback: "SurveyJS_Pro_Dashboard::add_admin_bar_item", add_on: true }]);
+    const { result, output, log } = run("guard-cases.php", "old-addon-admin-bar");
+    expect(result.nodes).toEqual(["core-after-addon", "core-after-addon"]);
+    expect(result.failures).toEqual([{ hook: "admin_bar_menu", callback: "SurveyJS_Addon_Dashboard::add_admin_bar_item", add_on: true }]);
     expect(log).toContain('Class "SurveyJS_Admin_Bar" not found');
     expect(log.match(/SurveyJS Forms: /g)).toHaveLength(1);
     expect(output).toContain("skipped part of SurveyJS Forms Add-on");

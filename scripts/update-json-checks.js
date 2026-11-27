@@ -32,7 +32,7 @@ const rules = linter.getRules().map((rule) => ({
 
 function severity(rule) {
     if (rule.creator === rule.base) return rule.creator;
-    return `${rule.creator} in Survey Creator, ${rule.base} on the Config tab without Pro`;
+    return `${rule.creator} in Survey Creator, ${rule.base} on the Config tab without the add-on`;
 }
 
 const lines = [
@@ -40,7 +40,7 @@ const lines = [
     "",
     `Generated from survey-creator-core ${creator.Version} (the English messages and severities of Survey Creator's JSON Editor) and the SurveyJS linter of survey-core ${Survey.Version} by \`scripts/update-json-checks.js\`. Do not hand-edit: the next run overwrites this file.`,
     "",
-    "The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor tab of Survey Creator with SurveyJS Forms Pro, the Static analysis panel of the Config tab without Pro. Every finding is an issue in \"Form saved with N issues\". Write JSON that passes every check below. When the person asks to fix the issues, change the JSON so that none of these messages applies any more. Words in braces are placeholders filled in from the JSON. A rule marked off does not run in that editor.",
+    "The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor tab of Survey Creator with SurveyJS Forms Add-on, the Static analysis panel of the Config tab without the add-on. Every finding is an issue in \"Form saved with N issues\". Write JSON that passes every check below. When the person asks to fix the issues, change the JSON so that none of these messages applies any more. Words in braces are placeholders filled in from the JSON. A rule marked off does not run in that editor.",
     ""
 ];
 rules.forEach((rule) => {

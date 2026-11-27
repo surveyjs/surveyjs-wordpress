@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 // The plugin header: one bar with the plugin's sections at the top of every SurveyJS Forms page except the pages of
 // a single form (the form editor and its entries). The sections are the plugin's submenu, so items that other code
-// adds there (Pro's Dashboard, the Get Pro link) show up here too.
+// adds there (the add-on's Dashboard, the Get the Free Add-on link) show up here too.
 class SurveyJS_Admin_Header {
 
     const STYLE = 'wps-adm--header.css';
@@ -203,7 +203,7 @@ class SurveyJS_Admin_Header {
             if ( SurveyJS_Templates::PAGE === $slug ) {
                 $add_new = array( 'url' => admin_url( 'admin.php?page=' . $slug ), 'label' => $label );
             } elseif ( false !== strpos( $slug, '://' ) ) {
-                // A full URL (the Get Pro link) is an outside link, not a section.
+                // A full URL (the Get the Free Add-on link) is an outside link, not a section.
                 $links[] = array( 'url' => $slug, 'label' => wp_strip_all_tags( $item[0] ), 'class' => isset( $item[4] ) ? $item[4] : '' );
             } else {
                 $tabs[] = array( 'slug' => $slug, 'url' => admin_url( 'admin.php?page=' . $slug ), 'label' => $label );
@@ -234,9 +234,9 @@ class SurveyJS_Admin_Header {
             <div class="wp-sjs-header__actions">
                 <?php foreach ( $links as $link ) : ?>
                     <?php
-                    // Get Pro is a green button: Pro is free and has the full feature set, so it is the main thing to install.
-                    $is_pro = false !== strpos( (string) $link['class'], 'wp-sjs-upgrade-pro' );
-                    $class = $is_pro ? 'button wp-sjs-button-pro ' . $link['class'] : 'wp-sjs-header__link ' . $link['class'];
+                    // Get the Free Add-on is a green button: the add-on is free and has the full feature set, so it is the main thing to install.
+                    $is_addon = false !== strpos( (string) $link['class'], 'wp-sjs-upgrade-addon' );
+                    $class = $is_addon ? 'button wp-sjs-button-addon ' . $link['class'] : 'wp-sjs-header__link ' . $link['class'];
                     ?>
                     <a class="<?php echo esc_attr( $class ); ?>" href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $link['label'] ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
                 <?php endforeach; ?>

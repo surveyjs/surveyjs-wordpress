@@ -20,7 +20,7 @@ $command = $argv[1] ?? '';
 $result = array();
 
 if ( 'reset' === $command ) {
-    deactivate_plugins( array( UPGRADE_PLUGIN, 'surveyjs-pro/surveyjs-pro.php' ), true );
+    deactivate_plugins( array( UPGRADE_PLUGIN, 'surveyjs-forms-addon/surveyjs-forms-addon.php' ), true );
     foreach ( $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix . 'sjs_' ) . '%' ) ) as $table ) {
         $wpdb->query( $wpdb->prepare( 'DROP TABLE %i', $table ) );
     }

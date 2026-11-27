@@ -265,22 +265,22 @@
     }
 }
 
-/* Get Pro button (header, Getting Started checklist, Pro card): a WP .button (size, radius, padding, focus shape as .button-primary) in the SurveyJS brand green
+/* Get the Free Add-on button (header, Getting Started checklist, add-on card): a WP .button (size, radius, padding, focus shape as .button-primary) in the SurveyJS brand green
    (#19b394, the Survey Creator primary color) instead of the theme color; hover and active are 10% and 20%
-   darker. The Get Pro item in the admin menu uses the same green. */
-.wp-core-ui .button.wp-sjs-button-pro {
+   darker. The Get the Free Add-on item in the admin menu uses the same green. */
+.wp-core-ui .button.wp-sjs-button-addon {
     border-color: #19b394;
     background: #19b394;
     color: #fff;
 }
 
-.wp-core-ui .button.wp-sjs-button-pro:hover {
+.wp-core-ui .button.wp-sjs-button-addon:hover {
     border-color: #16a185;
     background: #16a185;
     color: #fff;
 }
 
-.wp-core-ui .button.wp-sjs-button-pro:focus {
+.wp-core-ui .button.wp-sjs-button-addon:focus {
     border-color: #19b394;
     background: #19b394;
     color: #fff;
@@ -288,14 +288,14 @@
     outline: 1px solid transparent;
 }
 
-.wp-core-ui .button.wp-sjs-button-pro:active {
+.wp-core-ui .button.wp-sjs-button-addon:active {
     border-color: #148f76;
     background: #148f76;
     color: #fff;
     box-shadow: none;
 }
 
-/* Button with a 16px Dashicon next to its label (editor toolbar, Pro toolbar). WP core gives button icons
+/* Button with a 16px Dashicon next to its label (editor toolbar, add-on toolbar). WP core gives button icons
    line-height 1.9 and vertical-align top for 20px icons, which pushes a 16px icon off center; flex centers it. */
 .wp-core-ui .button.wp-sjs-button-icon {
     display: inline-flex;
@@ -440,7 +440,7 @@
     }
 }
 
-.wp-sjs-pro-fullscreen-mode .wp-sjs-snackbars {
+.wp-sjs-addon-fullscreen-mode .wp-sjs-snackbars {
     left: 16px;
     max-width: calc(100vw - 32px);
 }

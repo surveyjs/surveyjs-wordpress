@@ -207,7 +207,7 @@ class SurveyJS_Results_List_Table extends WP_List_Table {
         return sprintf( '<a href="#wp-sjs-entry-%1$d" class="wp-sjs-view-result" data-result-id="%1$d"><strong>#%1$d</strong></a>', $item->id );
     }
 
-    // Status, delete and add-on actions for one entry, as links (Pro adds its own through the filter).
+    // Status, delete and add-on actions for one entry, as links (the add-on adds its own through the filter).
     private function entry_actions( $item ) {
         $actions = array();
         if ( 'spam' === $item->status ) {

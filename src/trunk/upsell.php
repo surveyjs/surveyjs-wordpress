@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SurveyJS_Upsell {
 
-    const PATH = '/wordpress-pro';
+    const PATH = '/wordpress-addon';
 
     public static function init() {
         add_action( 'surveyjs_admin_menu', array( __CLASS__, 'add_menu_item' ), 100, 2 );
@@ -14,11 +14,11 @@ class SurveyJS_Upsell {
         if ( ! self::enabled() ) {
             return;
         }
-        wp_add_inline_style( 'admin-menu', '#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:hover,#adminmenu .wp-submenu li.wp-sjs-upgrade-pro a.wp-sjs-upgrade-pro:focus{background:#19b394;color:#fff}' );
+        wp_add_inline_style( 'admin-menu', '#adminmenu .wp-submenu li.wp-sjs-upgrade-addon a.wp-sjs-upgrade-addon,#adminmenu .wp-submenu li.wp-sjs-upgrade-addon a.wp-sjs-upgrade-addon:hover,#adminmenu .wp-submenu li.wp-sjs-upgrade-addon a.wp-sjs-upgrade-addon:focus{background:#19b394;color:#fff}' );
     }
 
     public static function enabled() {
-        return (bool) apply_filters( 'surveyjs_show_pro_upsell', ! defined( 'SURVEYJS_PRO_VERSION' ) );
+        return (bool) apply_filters( 'surveyjs_show_addon_upsell', ! defined( 'SURVEYJS_ADDON_VERSION' ) );
     }
 
     public static function url( $placement ) {
@@ -41,7 +41,7 @@ class SurveyJS_Upsell {
         global $submenu;
         if ( ! empty( $submenu[ $parent_slug ] ) ) {
             end( $submenu[ $parent_slug ] );
-            $submenu[ $parent_slug ][ key( $submenu[ $parent_slug ] ) ][4] = 'wp-sjs-upgrade-pro'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress has no API to add a class to a submenu item.
+            $submenu[ $parent_slug ][ key( $submenu[ $parent_slug ] ) ][4] = 'wp-sjs-upgrade-addon'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress has no API to add a class to a submenu item.
         }
     }
 
@@ -50,7 +50,7 @@ class SurveyJS_Upsell {
             return;
         }
         ?>
-        <a href="<?php echo esc_url( self::url( 'editor' ) ); ?>" class="button wp-sjs-editor__pro-link" target="_blank" rel="noopener"><?php esc_html_e( 'Get the free Add-on', 'surveyjs' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
+        <a href="<?php echo esc_url( self::url( 'editor' ) ); ?>" class="button wp-sjs-editor__addon-link" target="_blank" rel="noopener"><?php esc_html_e( 'Get the free Add-on', 'surveyjs' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
         <?php
     }
 

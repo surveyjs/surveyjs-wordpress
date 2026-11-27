@@ -38,7 +38,7 @@
     display: none;
 }
 
-body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
+body.wp-sjs-addon-fullscreen-mode .wp-sjs-chat {
     top: 0;
 }
 
@@ -58,7 +58,7 @@ body.wp-sjs-pro-fullscreen-mode .wp-sjs-chat {
         padding-right: 420px;
     }
 
-    .wp-sjs-editor.wp-sjs-chat-open.wp-sjs-pro-fullscreen {
+    .wp-sjs-editor.wp-sjs-chat-open.wp-sjs-addon-fullscreen {
         padding-right: 416px;
     }
 }

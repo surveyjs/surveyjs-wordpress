@@ -75,8 +75,8 @@ class SurveyJS_AI_Chat {
         'surveyjs/search-docs',
         'surveyjs/find-api-docs',
         'surveyjs/get-site-settings',
-        'surveyjs-pro/get-settings',
-        'surveyjs-pro/update-settings',
+        'surveyjs-forms-addon/get-settings',
+        'surveyjs-forms-addon/update-settings',
     );
     const ABILITIES = array(
         'surveyjs/list-templates',
@@ -91,7 +91,7 @@ class SurveyJS_AI_Chat {
         'surveyjs/find-api-docs',
         'surveyjs/list-forms',
         'surveyjs/get-site-settings',
-        'surveyjs-pro/get-settings',
+        'surveyjs-forms-addon/get-settings',
     );
     const SPECIALIZED_MODELS = array( 'preview', 'experimental', '-exp', 'realtime', 'audio', 'image', 'vision', 'transcribe', 'tts', 'embedding', 'moderation', 'search', 'codex', 'nano', 'deep-research' );
 
@@ -620,12 +620,12 @@ class SurveyJS_AI_Chat {
         $page = sanitize_key( $page );
         $form = $form_id ? SurveyJS_Forms::find( absint( $form_id ) ) : null;
         $screens = array(
-            SurveyJS_SurveyJS::MENU_SLUG => 'forms',
-            'surveyjs-templates'         => 'new',
-            'surveyjs-getting-started'   => 'welcome',
-            'surveyjs-settings'          => 'settings',
-            'surveyjs_import'            => 'import',
-            'surveyjs-pro-dashboard'     => 'dashboard',
+            SurveyJS_SurveyJS::MENU_SLUG     => 'forms',
+            'surveyjs-templates'             => 'new',
+            'surveyjs-getting-started'       => 'welcome',
+            'surveyjs-settings'              => 'settings',
+            'surveyjs_import'                => 'import',
+            'surveyjs-forms-addon-dashboard' => 'dashboard',
         );
         $screen = $screens[ $page ] ?? 'other';
         if ( 'surveyjs_results' === $page ) {

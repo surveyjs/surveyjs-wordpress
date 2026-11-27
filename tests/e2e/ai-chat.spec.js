@@ -147,7 +147,7 @@ test.describe("AI chat in the form editor", () => {
     await expect(reply.locator(".wp-sjs-chat__changes")).toContainText("Added: phone");
     await expect(reply.getByRole("button", { name: "Undo the last AI change" })).toBeVisible();
     expect(questionNames(await editorSurvey(page))).toEqual(["email", "phone"]);
-    const creator = page.locator("#wp-sjs-pro-creator");
+    const creator = page.locator("#wp-sjs-addon-creator");
     if (await creator.count()) await expect(creator).toContainText("Phone number");
     await expect(page.locator("#wp-sjs-ai-draft-notice")).toContainText("AI changes are loaded into the editor but not saved yet.");
     const stored = fixture("form", formId);

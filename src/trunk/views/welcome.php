@@ -166,16 +166,16 @@ JS
         );
     }
 
-    // The checklist starts with installing Pro while Pro is not active. Once shown, the step stays (ticked)
-    // after Pro is activated; sites that had Pro from the start never see it.
-    private static function has_pro_step() {
+    // The checklist starts with installing the add-on while it is not active. Once shown, the step stays (ticked)
+    // after the add-on is activated; sites that had the add-on from the start never see it.
+    private static function has_addon_step() {
         if ( SurveyJS_Upsell::enabled() ) {
-            if ( empty( self::state()['pro_offered'] ) ) {
-                self::update_state( array( 'pro_offered' => true ) );
+            if ( empty( self::state()['addon_offered'] ) ) {
+                self::update_state( array( 'addon_offered' => true ) );
             }
             return true;
         }
-        return ! empty( self::state()['pro_offered'] );
+        return ! empty( self::state()['addon_offered'] );
     }
 
     public static function steps() {
@@ -199,11 +199,11 @@ JS
         $titles = self::titles();
 
         $steps = array();
-        if ( self::has_pro_step() ) {
+        if ( self::has_addon_step() ) {
             $can_install = current_user_can( 'install_plugins' );
-            $steps['pro'] = array(
+            $steps['addon'] = array(
                 'done'        => ! SurveyJS_Upsell::enabled(),
-                'title'       => $titles['pro'],
+                'title'       => $titles['addon'],
                 'description' => __( 'A free add-on with the full feature set: design forms visually right in the form editor, see answers as charts and export entries to PDF.', 'surveyjs' ),
                 'url'         => SurveyJS_Upsell::url( 'checklist' ),
                 'external'    => true,
@@ -214,7 +214,7 @@ JS
                         'text'     => __( 'Download the plugin file from surveyjs.io.', 'surveyjs' ),
                         'url'      => SurveyJS_Upsell::url( 'checklist' ),
                         'action'   => __( 'Download Add-on', 'surveyjs' ),
-                        'class'    => 'wp-sjs-button-pro',
+                        'class'    => 'wp-sjs-button-addon',
                         'external' => true,
                     ),
                     array(
@@ -287,7 +287,7 @@ JS
     }
 
     private static function titles() {
-        return ( self::has_pro_step() ? array( 'pro' => __( 'Install SurveyJS Forms Add-on', 'surveyjs' ) ) : array() ) + array(
+        return ( self::has_addon_step() ? array( 'addon' => __( 'Install SurveyJS Forms Add-on', 'surveyjs' ) ) : array() ) + array(
             'form'         => __( 'Create a form', 'surveyjs' ),
             'placement'    => __( 'Add the form to a page', 'surveyjs' ),
             'notification' => __( 'Set up an email notification', 'surveyjs' ),
@@ -522,7 +522,7 @@ JS
                     <strong><?php echo esc_html( $step['title'] ); ?></strong>
                     <?php if ( in_array( $key, self::OPTIONAL_STEPS, true ) ) : ?>
                         <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Optional', 'surveyjs' ); ?></span>
-                    <?php elseif ( 'pro' === $key ) : ?>
+                    <?php elseif ( 'addon' === $key ) : ?>
                         <span class="wp-sjs-checklist__optional"><?php esc_html_e( 'Free', 'surveyjs' ); ?></span>
                     <?php endif; ?>
                     <span class="screen-reader-text"><?php $step['done'] ? esc_html_e( '(completed)', 'surveyjs' ) : esc_html_e( '(not completed)', 'surveyjs' ); ?></span>
@@ -545,7 +545,7 @@ JS
                 <?php elseif ( 'next' === $state ) : ?>
                     <p><?php echo esc_html( $step['description'] ); ?></p>
                     <div class="wp-sjs-checklist__actions">
-                        <a href="<?php echo esc_url( $step['url'] ); ?>" class="button <?php echo 'pro' === $key ? 'wp-sjs-button-pro' : 'button-primary'; ?>"<?php self::external_attrs( $step ); ?>><?php echo esc_html( $step['action'] ); ?><?php self::external_text( $step ); ?></a>
+                        <a href="<?php echo esc_url( $step['url'] ); ?>" class="button <?php echo 'addon' === $key ? 'wp-sjs-button-addon' : 'button-primary'; ?>"<?php self::external_attrs( $step ); ?>><?php echo esc_html( $step['action'] ); ?><?php self::external_text( $step ); ?></a>
                         <?php if ( ! empty( $step['secondary_url'] ) ) : ?>
                             <a href="<?php echo esc_url( $step['secondary_url'] ); ?>" class="button"><?php echo esc_html( $step['secondary_action'] ); ?></a>
                         <?php endif; ?>

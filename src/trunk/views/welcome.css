@@ -2,7 +2,7 @@
    SurveyJS_Welcome::enqueue_assets(), as the compact checklist on All Forms shares it. Colors follow WP core:
    #1d2327 text, #50575e secondary text, the admin theme color for links and the next step. */
 
-/* Two columns on wide screens: the import line and the checklist on the left, Pro and help on the right.
+/* Two columns on wide screens: the import line and the checklist on the left, the add-on and help on the right.
    The columns lay the cards out, so the cards drop the WP .card width limit and top margin. */
 .wp-sjs-welcome__layout {
     display: grid;
@@ -158,14 +158,14 @@
 }
 
 /* Help links: a plain list of WP links. */
-/* The open step's buttons: the main action and, for the Pro step, Upload the .zip file next to it. */
+/* The open step's buttons: the main action and, for the add-on step, Upload the .zip file next to it. */
 .wp-sjs-checklist__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-/* The Pro step: two numbered things to do, each with its own button. Numbers in the secondary text color. */
+/* The add-on step: two numbered things to do, each with its own button. Numbers in the secondary text color. */
 .wp-sjs-checklist__substeps {
     margin: 12px 0 0 20px;
     padding: 0;

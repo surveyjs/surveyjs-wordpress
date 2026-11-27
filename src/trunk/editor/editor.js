@@ -583,7 +583,7 @@
         return parts;
     }
 
-    // Survey Creator with Pro replaces the Config tab and shows the issues in its own JSON Editor tab, so it may take over.
+    // Survey Creator with the add-on replaces the Config tab and shows the issues in its own JSON Editor tab, so it may take over.
     function reviewIssues(path) {
         if (!document.dispatchEvent(new CustomEvent("surveyjs:editor-review-issues", { cancelable: true, detail: { path: path } }))) return;
         if (!editor || !tabNames.includes("survey")) return;

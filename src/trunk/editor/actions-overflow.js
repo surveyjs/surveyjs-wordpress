@@ -13,7 +13,7 @@
     const PRIORITY = [
         "#wp-sjs-save-template",
         "#wp-sjs-embed",
-        ".wp-sjs-pro-toolbar-button",
+        ".wp-sjs-addon-toolbar-button",
         "#wp-sjs-full-preview",
         ".wp-sjs-chat-toggle"
     ];
@@ -91,7 +91,7 @@
     }
 
     function label(node) {
-        const text = node.querySelector(".wp-sjs-pro-toolbar-button__label, span:not(.dashicons):not(.screen-reader-text)");
+        const text = node.querySelector(".wp-sjs-addon-toolbar-button__label, span:not(.dashicons):not(.screen-reader-text)");
         return (text && !text.classList.contains("wp-sjs-chat__sparkle") ? text.textContent : node.textContent).trim();
     }
 

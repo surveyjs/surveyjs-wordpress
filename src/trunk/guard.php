@@ -13,12 +13,12 @@ class SurveyJS_Guard {
         'in_admin_footer', 'admin_head', 'admin_footer', 'admin_body_class', 'admin_enqueue_scripts', 'admin_print_scripts',
         'admin_print_styles', 'admin_print_footer_scripts', 'wp_dashboard_setup', 'wp_network_dashboard_setup',
         'plugin_row_meta', 'plugin_action_links', 'network_admin_plugin_action_links', 'plugin_action_links_surveyjs/surveyjs.php',
-        'plugin_action_links_surveyjs-pro/surveyjs-pro.php', 'in_plugin_update_message-surveyjs/surveyjs.php',
-        'in_plugin_update_message-surveyjs-pro/surveyjs-pro.php', 'update_plugins_surveyjs.io', 'plugins_api',
+        'plugin_action_links_surveyjs-forms-addon/surveyjs-forms-addon.php', 'in_plugin_update_message-surveyjs/surveyjs.php',
+        'in_plugin_update_message-surveyjs-forms-addon/surveyjs-forms-addon.php', 'update_plugins_surveyjs.io', 'plugins_api',
         'upgrader_pre_download', 'upgrader_install_package_result', 'upgrader_process_complete', 'site_status_tests', 'debug_information',
         'rest_api_init', 'wp_abilities_api_categories_init', 'wp_abilities_api_init', 'mcp_adapter_init',
         'enqueue_block_editor_assets', 'enqueue_block_assets', 'wp_enqueue_scripts', 'wp_head', 'wp_footer', 'template_redirect',
-        'surveyjs_pro_loaded', 'surveyjs_admin_menu', 'surveyjs_admin_enqueue_scripts', 'surveyjs_register_settings',
+        'surveyjs_addon_loaded', 'surveyjs_admin_menu', 'surveyjs_admin_enqueue_scripts', 'surveyjs_register_settings',
         'surveyjs_editor_tabs', 'surveyjs_render_editor', 'surveyjs_editor_email_rows', 'surveyjs_results_views',
         'surveyjs_render_results_view', 'surveyjs_results_title_actions', 'surveyjs_entries_bulk_actions', 'surveyjs_entry_row_actions',
         'surveyjs_form_row_actions', 'surveyjs_ai_register_abilities', 'surveyjs_ai_plugin_guide', 'surveyjs_ai_admin_urls',
@@ -82,8 +82,8 @@ class SurveyJS_Guard {
         }
         $file = wp_normalize_path( $file );
         $dirs = array( dirname( __FILE__ ) );
-        if ( defined( 'SURVEYJS_PRO_FILE' ) ) {
-            $dirs[] = dirname( (string) SURVEYJS_PRO_FILE );
+        if ( defined( 'SURVEYJS_ADDON_FILE' ) ) {
+            $dirs[] = dirname( (string) SURVEYJS_ADDON_FILE );
         }
         foreach ( $dirs as $dir ) {
             if ( 0 === strpos( $file, trailingslashit( wp_normalize_path( $dir ) ) ) ) {
@@ -122,11 +122,11 @@ class SurveyJS_Guard {
     }
 
     private static function from_add_on( $callback, Throwable $error ) {
-        if ( defined( 'SURVEYJS_PRO_FILE' ) && 0 === strpos( wp_normalize_path( $error->getFile() ), trailingslashit( wp_normalize_path( dirname( (string) SURVEYJS_PRO_FILE ) ) ) ) ) {
+        if ( defined( 'SURVEYJS_ADDON_FILE' ) && 0 === strpos( wp_normalize_path( $error->getFile() ), trailingslashit( wp_normalize_path( dirname( (string) SURVEYJS_ADDON_FILE ) ) ) ) ) {
             return true;
         }
         $class = is_array( $callback ) && isset( $callback[0] ) ? ( is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0] ) : '';
-        return 0 === stripos( $class, 'SurveyJS_Pro' );
+        return 0 === stripos( $class, 'SurveyJS_Addon' );
     }
 
     private static function callback_name( $callback ) {

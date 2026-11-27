@@ -4,7 +4,7 @@ function inspectSurvey(rootSelector) {
   if (!root) return [{ check: "missing", element: rootSelector, detail: "the survey root is not on the page" }];
 
   const FREEZE_ID = "sjs-theme-qa-freeze";
-  const OWN_SHEET = /\/plugins\/surveyjs(-pro)?\//;
+  const OWN_SHEET = /\/plugins\/surveyjs(-forms-addon)?\//;
   const PAGE_ROOT_SELECTOR = /^(html|body|:root)$/i;
   const PROPS = [
     "background-color", "background-image",
