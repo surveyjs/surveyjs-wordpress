@@ -119,12 +119,20 @@ class SurveyJS_Form_Settings {
     }
 
     public static function get( $survey ) {
-        $stored = array_intersect_key( self::stored( $survey ), self::defaults() );
+        $defaults = self::defaults();
+        $stored = array_filter( array_intersect_key( self::stored( $survey ), $defaults ), function ( $value, $key ) use ( $defaults ) {
+            return is_array( $defaults[ $key ] ) ? is_array( $value ) : ! is_array( $value ) && ! is_object( $value );
+        }, ARRAY_FILTER_USE_BOTH );
+        foreach ( array( 'webhooks', 'integrations' ) as $list ) {
+            if ( isset( $stored[ $list ] ) ) {
+                $stored[ $list ] = array_filter( $stored[ $list ], 'is_array' );
+            }
+        }
         if ( ! isset( $stored['themeMode'] ) && ! empty( array_filter( SurveyJS_Client::decode_survey_json( $survey->theme ?? '' ) ) ) ) {
             // Forms styled before the adaptive theme existed keep their SurveyJS theme.
             $stored['themeMode'] = 'surveyjs';
         }
-        return array_merge( self::defaults(), $stored );
+        return array_merge( $defaults, $stored );
     }
 
     // Pass $survey when the result replaces its stored settings: keys no plugin declares right now

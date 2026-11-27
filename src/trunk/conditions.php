@@ -86,7 +86,7 @@ class SurveyJS_Conditions {
         if ( is_bool( $value ) ) {
             return $value ? 'true' : 'false';
         }
-        return is_scalar( $value ) ? mb_strtolower( trim( wp_specialchars_decode( (string) $value, ENT_QUOTES ) ) ) : '';
+        return is_scalar( $value ) ? ( function_exists( 'mb_strtolower' ) ? 'mb_strtolower' : 'strtolower' )( trim( wp_specialchars_decode( (string) $value, ENT_QUOTES ) ) ) : '';
     }
 
     private static function equals_any( $values, $expected ) {

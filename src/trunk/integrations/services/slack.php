@@ -101,7 +101,9 @@ class SurveyJS_Integration_Slack extends SurveyJS_Integration_Chat_Service {
         }
         $chunks = array();
         while ( mb_strlen( $text ) > self::SECTION_LIMIT ) {
-            $cut = mb_strrpos( mb_substr( $text, 0, self::SECTION_LIMIT ), "\n" );
+            $head = mb_substr( $text, 0, self::SECTION_LIMIT );
+            $cut = strrpos( $head, "\n" );
+            $cut = false === $cut ? false : mb_strlen( substr( $head, 0, $cut ) );
             $cut = $cut ? $cut : self::SECTION_LIMIT;
             $chunks[] = mb_substr( $text, 0, $cut );
             $text = ltrim( mb_substr( $text, $cut ) );

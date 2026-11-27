@@ -70,6 +70,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     }
     register_activation_hook( __FILE__, 'wps_activate');
 
+    include_once( __DIR__ . "/guard.php" );
+    SurveyJS_Guard::init();
+
     include_once( __DIR__ . "/service_client.php" );
     include_once( __DIR__ . "/forms.php" );
     include_once( __DIR__ . "/entries.php" );

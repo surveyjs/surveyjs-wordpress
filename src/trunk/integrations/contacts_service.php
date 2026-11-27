@@ -251,7 +251,7 @@ abstract class SurveyJS_Integration_Contacts_Service extends SurveyJS_Integratio
         if ( '' === $feed['list'] ) {
             return self::result( false, 0, $this->no_list_error(), 'permanent' );
         }
-        $email = sanitize_email( SurveyJS_Integrations::plain( $payload['answers'][ $feed['emailQuestion'] ] ?? '' ) );
+        $email = sanitize_email( SurveyJS_Integrations::plain( ( is_scalar( $feed['emailQuestion'] ?? null ) ? $payload['answers'][ $feed['emailQuestion'] ] ?? '' : '' ) ) );
         if ( ! is_email( $email ) ) {
             return self::result( true, 0, '', 'ok', array( 'note' => __( 'Skipped: the entry has no valid email address.', 'surveyjs' ) ) );
         }

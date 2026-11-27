@@ -358,7 +358,7 @@ abstract class SurveyJS_Importer {
         if ( '' === $value || '' === $quoted ) {
             return '';
         }
-        $length = (int) ( strlen( mb_convert_encoding( $value, 'UTF-16LE', 'UTF-8' ) ) / 2 );
+        $length = mb_strlen( $value ) + (int) preg_match_all( '/[\x{10000}-\x{10FFFF}]/u', $value );
         return 'substring({#' . $name . '}, ' . ( $starts ? '0, ' . $length : 'sum({' . $name . '.length}, -' . $length . ')' ) . ') = ' . $quoted;
     }
 

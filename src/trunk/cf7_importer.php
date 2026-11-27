@@ -330,7 +330,7 @@ class SurveyJS_CF7_Importer extends SurveyJS_Importer {
         $types = implode( '|', array_map( function ( $type ) {
             return preg_quote( $type, '/' );
         }, WPCF7_FormTagsManager::get_instance()->collect_tag_types() ) );
-        $whitespaces = wpcf7_get_unicode_whitespaces();
+        $whitespaces = function_exists( 'wpcf7_get_unicode_whitespaces' ) ? wpcf7_get_unicode_whitespaces() : '\s';
         return '/(\[?)\[(' . $types . ')(?:[' . $whitespaces . ']+(.*?))?(?:[' . $whitespaces . ']+(\/))?\](?:([^[]*?)\[\/\2\])?(\]?)/su';
     }
 

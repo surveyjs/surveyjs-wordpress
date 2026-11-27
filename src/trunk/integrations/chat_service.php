@@ -135,8 +135,8 @@ abstract class SurveyJS_Integration_Chat_Service extends SurveyJS_Integration_Se
     private function build( $feed, $payload, $context ) {
         $defaults = $this->feed_defaults();
         $feed = array_merge( $defaults, $feed );
-        $title = SurveyJS_Integrations::render_tags( '' !== trim( $feed['title'] ) ? $feed['title'] : $defaults['title'], $payload );
-        $text = SurveyJS_Integrations::render_tags( '' !== trim( $feed['message'] ) ? $feed['message'] : '{all_fields}', $payload, array( $this, 'escape' ), array( $this, 'all_fields' ) );
+        $title = SurveyJS_Integrations::render_tags( '' !== trim( is_scalar( $feed['title'] ) ? (string) $feed['title'] : '' ) ? $feed['title'] : $defaults['title'], $payload );
+        $text = SurveyJS_Integrations::render_tags( '' !== trim( is_scalar( $feed['message'] ) ? (string) $feed['message'] : '' ) ? $feed['message'] : '{all_fields}', $payload, array( $this, 'escape' ), array( $this, 'all_fields' ) );
         $entry_url = ! empty( $feed['viewButton'] ) ? (string) ( $payload['entry']['url'] ?? '' ) : '';
         return $this->message( trim( $title ), trim( $text ), $entry_url, $context );
     }

@@ -119,7 +119,7 @@ class SurveyJS_Integration_Mailchimp extends SurveyJS_Integration_Contacts_Servi
 
     // PUT with status_if_new adds a contact or updates one and never subscribes again someone who unsubscribed.
     protected function subscribe( $credentials, $feed, $contact ) {
-        $member = '/lists/' . rawurlencode( $feed['list'] ) . '/members/' . md5( strtolower( $contact['email'] ) );
+        $member = '/lists/' . rawurlencode( is_scalar( $feed['list'] ) ? (string) $feed['list'] : '' ) . '/members/' . md5( strtolower( $contact['email'] ) );
         if ( empty( $feed['updateExisting'] ) ) {
             $existing = $this->api( $credentials, 'GET', $member, array( 'fields' => 'status' ) );
             if ( 200 === $existing['code'] ) {

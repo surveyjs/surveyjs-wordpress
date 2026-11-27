@@ -111,7 +111,7 @@ class SurveyJS_AI_Chat {
     }
 
     public static function is_client_available() {
-        $available = function_exists( 'wp_ai_client_prompt' ) && function_exists( 'wp_get_connectors' ) && class_exists( 'WP_AI_Client_Ability_Function_Resolver' ) && SurveyJS_AI::is_supported();
+        $available = function_exists( 'wp_ai_client_prompt' ) && function_exists( 'wp_get_connectors' ) && class_exists( 'WP_AI_Client_Ability_Function_Resolver' ) && function_exists( 'wp_supports_ai' ) && SurveyJS_AI::is_supported();
         return $available && (bool) apply_filters( 'surveyjs_ai_chat_client_available', true );
     }
 
@@ -285,8 +285,8 @@ class SurveyJS_AI_Chat {
     }
 
     public static function choice( $providers, $user_id = 0 ) {
-        $ready = array_values( array_filter( $providers, function ( $provider ) {
-            return 'ready' === $provider['status'];
+        $ready = array_values( array_filter( (array) $providers, function ( $provider ) {
+            return is_array( $provider ) && 'ready' === ( $provider['status'] ?? '' ) && is_array( $provider['models'] ?? null );
         } ) );
         $saved = get_user_meta( $user_id ? $user_id : get_current_user_id(), self::MODEL_META, true );
         foreach ( $ready as $provider ) {
@@ -894,7 +894,9 @@ class SurveyJS_AI_Chat {
             set_time_limit( self::REQUEST_TIMEOUT * 3 );
         }
         // The browser may abort this request when the person clicks Stop; the turn still ends cleanly and is stored.
-        ignore_user_abort( true );
+        if ( function_exists( 'ignore_user_abort' ) ) {
+            ignore_user_abort( true );
+        }
         $files = self::read_files( $choice );
         if ( is_wp_error( $files ) ) {
             wp_send_json_error( array( 'message' => $files->get_error_message() ), 400 );

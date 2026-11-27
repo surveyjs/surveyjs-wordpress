@@ -189,7 +189,9 @@ class SurveyJS_Webhooks {
         }
         $headers = array();
         foreach ( is_array( $webhook['headers'] ?? null ) ? $webhook['headers'] : array() as $header ) {
-            $headers[ $header['name'] ] = $header['value'];
+            if ( is_array( $header ) && is_scalar( $header['name'] ?? null ) && is_scalar( $header['value'] ?? null ) ) {
+                $headers[ (string) $header['name'] ] = (string) $header['value'];
+            }
         }
         $pin = function ( $handle, $args, $request_url ) use ( $url, $resolve ) {
             if ( '' !== $resolve && $request_url === $url ) {

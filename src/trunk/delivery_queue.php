@@ -213,12 +213,12 @@ class SurveyJS_Delivery_Queue {
 
     public static function log_entries( $form_id ) {
         $log = get_option( self::LOG_PREFIX . (int) $form_id, array() );
-        return is_array( $log ) ? $log : array();
+        return is_array( $log ) ? array_filter( $log, 'is_array' ) : array();
     }
 
     public static function client_log( $form_id ) {
         return array_map( function ( $item ) {
-            $item['time'] = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $item['time'] );
+            $item['time'] = wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) ( $item['time'] ?? 0 ) );
             return $item;
         }, self::log_entries( $form_id ) );
     }

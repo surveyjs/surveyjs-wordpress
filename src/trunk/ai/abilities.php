@@ -174,13 +174,13 @@ class SurveyJS_AI_Abilities {
     // Settings are read without sanitizing, so keys outside empty_webhook() (e.g. 'secret' saved by older builds) are dropped here.
     private static function hide_webhook_headers( $webhooks ) {
         return array_map( function ( $webhook ) {
-            $webhook = array_intersect_key( $webhook, SurveyJS_Webhooks::empty_webhook() );
-            $webhook['headers'] = array_map( function ( $header ) {
+            $webhook = array_intersect_key( (array) $webhook, SurveyJS_Webhooks::empty_webhook() );
+            $webhook['headers'] = array_values( array_map( function ( $header ) {
                 return array(
-                    'name'  => $header['name'],
-                    'value' => '' === $header['value'] ? '' : self::HIDDEN,
+                    'name'  => $header['name'] ?? '',
+                    'value' => '' === ( $header['value'] ?? '' ) ? '' : self::HIDDEN,
                 );
-            }, $webhook['headers'] );
+            }, array_filter( is_array( $webhook['headers'] ?? null ) ? $webhook['headers'] : array(), 'is_array' ) ) );
             return $webhook;
         }, is_array( $webhooks ) ? $webhooks : array() );
     }
@@ -241,8 +241,8 @@ class SurveyJS_AI_Abilities {
                 if ( ! is_array( $header ) || ! is_scalar( $header['name'] ?? null ) || ! self::has_hidden( $header['value'] ?? '' ) ) {
                     continue;
                 }
-                foreach ( $stored['headers'] as $stored_header ) {
-                    if ( strtolower( $stored_header['name'] ) === strtolower( (string) $header['name'] ) ) {
+                foreach ( is_array( $stored['headers'] ?? null ) ? $stored['headers'] : array() as $stored_header ) {
+                    if ( is_array( $stored_header ) && is_scalar( $stored_header['name'] ?? null ) && strtolower( (string) $stored_header['name'] ) === strtolower( (string) $header['name'] ) ) {
                         $webhook['headers'][ $index ]['value'] = $stored_header['value'];
                     }
                 }

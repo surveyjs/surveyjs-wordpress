@@ -13,7 +13,7 @@ class SurveyJS_Survey_Values {
                 self::collect_questions( $element['elements'] ?? array(), $questions );
                 continue;
             }
-            if ( in_array( $type, array( 'html', 'image' ), true ) || empty( $element['name'] ) ) {
+            if ( in_array( $type, array( 'html', 'image' ), true ) || empty( $element['name'] ) || ! is_scalar( $element['name'] ) ) {
                 continue;
             }
             $questions[] = $element;

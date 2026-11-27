@@ -113,6 +113,9 @@ class SurveyJS_AI {
     }
 
     public static function register_server( $adapter ) {
+        if ( 'active' !== self::adapter_state() || ! class_exists( 'WP\MCP\Transport\HttpTransport' ) || ! is_object( $adapter ) || ! method_exists( $adapter, 'create_server' ) ) {
+            return;
+        }
         $components = array(
             'tool'     => array(),
             'resource' => array(),
@@ -305,7 +308,9 @@ class SurveyJS_AI {
 
     private static function activity( $user_id ) {
         $activity = get_user_meta( $user_id, self::ACTIVITY_META, true );
-        return is_array( $activity ) ? $activity : array();
+        return is_array( $activity ) ? array_map( function ( $events ) {
+            return array_values( array_filter( (array) $events, 'is_array' ) );
+        }, $activity ) : array();
     }
 
     public static function forget_activity( $user_id, $item ) {
