@@ -32,7 +32,12 @@ class SurveyJS_SaveSurvey extends SurveyJS_AJAX_Handler {
                 $data['name'] = sanitize_text_field( wp_unslash( $_POST['Name'] ) );
             }
             if ( isset( $_POST['Settings'] ) ) {
-                $data['settings'] = wp_json_encode( SurveyJS_Form_Settings::sanitize( json_decode( wp_unslash( $_POST['Settings'] ), true ), $survey ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- SurveyJS_Form_Settings::sanitize() keeps only known keys and sanitizes each value.
+                $settings = SurveyJS_Form_Settings::sanitize( json_decode( wp_unslash( $_POST['Settings'] ), true ), $survey ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- SurveyJS_Form_Settings::sanitize() keeps only known keys and sanitizes each value.
+                $error = SurveyJS_Integrations::error( $settings['integrations'] ?? array() );
+                if ( '' !== $error ) {
+                    wp_send_json( array( 'IsSuccess' => 0, 'Error' => $error ) );
+                }
+                $data['settings'] = wp_json_encode( $settings );
             }
 
             if ( ! empty( $data ) ) {

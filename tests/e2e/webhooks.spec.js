@@ -49,7 +49,7 @@ async function submitEntry(page, config, data) {
 }
 
 async function openWebhooksTab(page) {
-  await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Webhooks", exact: true }).click();
+  await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Integrations", exact: true }).click();
 }
 
 async function addWebhook(page, url) {
@@ -152,8 +152,8 @@ test.describe("webhooks", () => {
 
     await webhook.getByLabel("Webhook URL").fill(endpoint);
     await saveSurvey(page);
-    await page.reload();
-    await openWebhooksTab(page);
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}&tab=webhooks`);
+    await expect(page.locator(".wp-sjs-editor__tabs .nav-tab[data-tab='integrations']")).toHaveClass(/nav-tab-active/);
     const saved = page.locator("#wp-sjs-webhooks .wp-sjs-item");
     await expect(saved).toHaveCount(1);
     await saved.locator('[data-action="toggle"]').click();

@@ -739,6 +739,41 @@ body.wp-core-ui .monaco-editor :where(.button, .monaco-custom-toggle, input):foc
     color: #b32d2e;
 }
 
+.wp-sjs-webhook-log__resend {
+    margin-left: 4px;
+}
+
+.wp-sjs-integrations__add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.wp-sjs-integrations__webhooks {
+    margin-top: 32px;
+}
+
+.wp-sjs-single-choice {
+    display: inline-block;
+    margin-right: 8px;
+    font-weight: 600;
+    line-height: 30px;
+}
+
+.wp-sjs-field-map {
+    max-width: 640px;
+}
+
+.wp-sjs-field-map th[scope="row"] {
+    width: 40%;
+    padding: 8px 10px;
+}
+
+.wp-sjs-field-map input[type="text"] {
+    margin-top: 4px;
+}
+
 .wp-sjs-webhook-format pre {
     max-width: 640px;
     overflow: auto;

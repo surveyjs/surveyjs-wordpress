@@ -123,6 +123,7 @@
     let saveSnackbar = null;
     let previewFocusName = null;
     let previewShowInvisibleElements = false;
+    const saveChecks = [];
     let previewReady = false;
     let fullPreviewReady = false;
     let fullPreviewOpen = false;
@@ -1102,6 +1103,12 @@
         const survey = parse(sources.survey);
         const theme = parse(sources.theme);
         if (!survey.json || !theme.json) return Promise.resolve(false);
+        const blocked = saveChecks.map((check) => check()).find(Boolean);
+        if (blocked) {
+            saveNotice = { type: "error", message: sprintf(__("Save failed: %s", "surveyjs"), blocked) };
+            updateState();
+            return Promise.resolve(false);
+        }
         const issues = currentIssues();
         const settings = readSettings();
         const snapshot = { survey: sources.survey, theme: sources.theme, settings: JSON.stringify(settings) };
@@ -1121,7 +1128,7 @@
         return fetch(config.saveUrl, { method: "POST", body: body })
             .then((response) => response.ok ? response.json() : Promise.reject(new Error(response.statusText)))
             .then((data) => {
-                if (data.IsSuccess !== 1) throw new Error(__("The form was not saved.", "surveyjs"));
+                if (data.IsSuccess !== 1) throw new Error(data.Error || __("The form was not saved.", "surveyjs"));
                 Object.assign(saved, snapshot);
                 if (savedName !== null) {
                     saved.name = savedName;
@@ -1792,7 +1799,8 @@
     renderFieldTags();
     updateState();
     const tabNames = Array.from(tabs, (tab) => tab.dataset.tab);
-    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    const queryTab = new URLSearchParams(window.location.search).get("tab");
+    const requestedTab = queryTab === "webhooks" ? "integrations" : queryTab;
     const initialTab = tabNames.includes(requestedTab) && !(requestedTab in sources) ? requestedTab : tabNames[0];
     if (initialTab && !(initialTab in sources)) switchTab(initialTab);
 
@@ -2018,7 +2026,12 @@
             const text = aiDraft.webhookUrlChanged
                 ? __("the AI added a webhook URL or changed one, so entries will be sent to a new address. Save only if you gave the AI exactly this URL.", "surveyjs")
                 : __("the AI changed where or when entries are sent to other services. Save only if you asked for this.", "surveyjs");
-            warning.append(element("strong", "", __("Check the Webhooks tab:", "surveyjs")), " ", text);
+            warning.append(element("strong", "", __("Check the Integrations tab:", "surveyjs")), " ", text);
+            notice.append(warning);
+        }
+        if (aiDraft.integrationsChanged) {
+            const warning = element("p", "wp-sjs-editor__ai-alert");
+            warning.append(element("strong", "", __("Check the Integrations tab:", "surveyjs")), " ", __("the AI changed which connected accounts get entries, what is sent to them or when. Save only if you asked for this.", "surveyjs"));
             notice.append(warning);
         }
         if (aiDraft.outdated) {
@@ -2151,6 +2164,7 @@
         },
         settingLabel: settingLabel,
         save: save,
+        addSaveCheck: (check) => saveChecks.push(check),
         getIssues: currentIssues,
         setLintOptions: (options) => {
             lintOptions = options || undefined;

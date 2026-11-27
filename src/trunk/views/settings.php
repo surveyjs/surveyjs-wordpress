@@ -261,6 +261,7 @@ class SurveyJS_SettingsPage {
 	public static function surveyjs_render_settings() {
 		$field_tabs = self::field_tabs();
 		$tabs = $field_tabs + array(
+			SurveyJS_Connections::TAB => __( 'Integrations', 'surveyjs' ),
 			SurveyJS_AI::TAB      => __( 'AI MCP', 'surveyjs' ),
 			SurveyJS_AI_Chat::TAB => __( 'AI Client', 'surveyjs' ),
 		);
@@ -278,6 +279,8 @@ class SurveyJS_SettingsPage {
             </nav>
             <?php if ( SurveyJS_AI::TAB === $tab ) : ?>
                 <?php SurveyJS_AI::render_tab(); ?>
+            <?php elseif ( SurveyJS_Connections::TAB === $tab ) : ?>
+                <?php SurveyJS_Connections::render_tab(); ?>
             <?php elseif ( SurveyJS_AI_Chat::TAB === $tab ) : ?>
                 <?php SurveyJS_AI_Chat::render_tab(); ?>
             <?php else : ?>

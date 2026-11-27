@@ -6,7 +6,7 @@ Tested up to: 7.1
 Stable tag: 3.2.4
 Requires PHP: 8.2
 
-Contact forms, surveys and quizzes powered by SurveyJS, with an AI assistant. Email notifications, webhooks, file uploads and entries — free.
+Contact forms, surveys and quizzes powered by SurveyJS, with an AI assistant. Email notifications, Slack, Mailchimp, webhooks, file uploads and entries — free.
 
 == Description ==
 
@@ -18,7 +18,7 @@ Build and change forms by simply asking: "Create a contact form with name, email
 * **AI MCP: your AI assistant**, free with the AI app you already use: Claude, ChatGPT, Cursor, Claude Code, Codex, GitHub Copilot in VS Code and other MCP apps.
 * **AI Client: AI chat right in your WordPress admin**, with your own API key from Anthropic, OpenAI or Google, connected once in Settings > Connectors (WordPress 7.0 or later). Requests are billed by your AI provider, not by SurveyJS. The chat is on every SurveyJS Forms screen (create forms from a description or a template, change forms, ask how to do something, analyze entries when you allow it), with one conversation for all screens, and in the form editor, where changes show up right away, with Undo.
 
-* **Safe by design:** the AI can't see form entries unless you allow it, and can't change, delete or export entries or delete forms or anything else. Every AI change is saved as a draft: your live form changes only when you open it in the form editor, review the changes and click Save. The editor shows what the AI changed, warns when it changed email recipients or webhooks, and warns when an AI app changes a form you have open. Webhook header values are never shown to the AI.
+* **Safe by design:** the AI can't see form entries unless you allow it, and can't change, delete or export entries or delete forms or anything else. Every AI change is saved as a draft: your live form changes only when you open it in the form editor, review the changes and click Save. The editor shows what the AI changed, warns when it changed email recipients, webhooks or integrations, and warns when an AI app changes a form you have open. Webhook header values and the keys of your Slack and Mailchimp connections are never shown to the AI.
 * **What the AI can do:** list forms, read and change form JSON, theme and settings (emails, restrictions, schedule, spam protection and more), create forms, look up the SurveyJS documentation and explain how the plugin works. With SurveyJS Forms Add-on it also changes PDF settings and the Pro admin settings.
 * **Easy to connect your assistant:** turn the AI connection on and install the free MCP Adapter plugin by the WordPress team in one click. Then either let your assistant set itself up (download a connection file, copy one setup prompt into Claude Code, Codex, Cursor, GitHub Copilot in VS Code or another assistant that runs commands; it connects itself, tests the connection and deletes the file) or set it up manually with ready-made settings and step-by-step instructions for Claude Desktop, Cursor, GitHub Copilot (VS Code), Claude Code, Codex and other apps. A connection is a standard WordPress Application Password that works only with the SurveyJS MCP server; the list of connections shows the last activity of each, and you can revoke any of them at any time.
 * **Read-only by default:** AI apps can read forms and settings until you turn on "Enable MCP write access".
@@ -37,8 +37,16 @@ Build and change forms by simply asking: "Create a contact form with name, email
 * **Akismet spam filter**: when the Akismet plugin is active, turn on **Check entries with Akismet** for a form. Entries that Akismet flags are kept with the Spam status, send no emails, and can be restored with **Not Spam**.
 * **Minimum time to submit**: reject entries that bots send right after the page loads. On by default in new forms (3 seconds); people never notice it.
 
+= Integrations: Slack and Mailchimp =
+* **Slack**: post a message to a channel for each entry, with a heading, the answers you choose and a "View entry" button.
+* **Mailchimp**: add or update a contact in an audience for each entry, with contact fields, tags and double opt-in (on by default). People who unsubscribed are never subscribed again.
+* **Only people who agreed**: a Mailchimp integration is saved only with a condition on a consent question, or when you mark the form as a newsletter signup form. One click adds an optional "Subscribe me to the newsletter" checkbox to the form together with the condition.
+* Connect each account once on SurveyJS Forms > Settings > Integrations (a Slack incoming webhook URL or a Mailchimp API key; several connections per service are fine). Keys are stored encrypted and never shown again.
+* Add the integration to a form on its **Integrations** tab, map the answers, add conditions (for example only when a consent box is checked) and click **Send test**.
+* Entries are sent in the background right after the submission; failed ones are retried after 5 minutes, 1 hour and 6 hours, and **Send again** in the request log resends a stored entry.
+
 = Webhooks: Zapier, Make, n8n and any app =
-* **Webhooks**: send every entry to Zapier ("Catch Hook"), Make, n8n, a CRM or your own code as JSON. Several webhooks per form, each with its own conditions on the answers.
+* **Webhooks** (on the Integrations tab of the form editor): send every entry to Zapier ("Catch Hook"), Make, n8n, a CRM or your own code as JSON. Several webhooks per form, each with its own conditions on the answers.
 * Answers come both as a flat list of question name and answer text, easy to map in Zapier, and as raw SurveyJS data for code. File answers are download links.
 * **Custom headers** for API keys, a **Send test request** button and a log of recent requests.
 * Requests are sent in the background right after the submission, and failed ones are retried after 5 minutes and after 1 hour. Only public addresses are allowed.
@@ -69,7 +77,7 @@ Set them on the Restrictions tab of the form editor. All restrictions are off by
 * A respondent can remove an uploaded file before submitting the form, and the file is deleted right away. Files are deleted together with their entry or form. Files uploaded to forms that were never submitted are deleted by a daily cleanup once they are a day old (30 days for forms with Save & Resume). This also works on hosts where folders cannot be listed, such as WordPress VIP.
 * The privacy export includes links to the person's files; the links work as long as the export file is kept.
 * **Uninstall**: by default, deleting the plugin keeps your forms, entries and files. Turn on SurveyJS Forms > Settings > Uninstall to delete all forms, entries, uploaded files and settings when the plugin is deleted.
-* Form answers stay on your site and are sent only in the emails and to the webhook URLs you set up, and to AI only if you allow it. The optional CAPTCHA services and the free online UI Builder never receive form answers. Only when you turn on the Akismet check for a form, the respondent's name, email, website and text answers are sent to Akismet (see External services below).
+* Form answers stay on your site and are sent only in the emails, to the webhook URLs and to the Slack and Mailchimp accounts you set up, and to AI only if you allow it. The optional CAPTCHA services and the free online UI Builder never receive form answers. Only when you turn on the Akismet check for a form, the respondent's name, email, website and text answers are sent to Akismet (see External services below).
 
 = Form builder =
 * **Form templates**: start a new form from a ready-made template, your own template or a blank form. Templates are grouped by category, with search and a live preview, and the new form gets the template's theme. The email notification is off in a new form until you turn it on on the Email tab; Reply-To is already set to the respondent's email.
@@ -186,7 +194,17 @@ When such a form is submitted, your site sends to Akismet through the Akismet pl
 This service is provided by Automattic Inc.: [Terms of Service](https://akismet.com/tos/), [Privacy Policy](https://automattic.com/privacy/).
 
 = Webhooks you add =
-When you add a webhook to a form (Webhooks tab of the form editor, none by default), every entry of that form that matches the webhook's conditions is sent to the URL you enter: the form ID and name, the entry ID, date and admin link, the site name and address, and all answers, with download links to the uploaded files that work for 7 days. "Send test request" sends the latest entry of the form, or sample answers when there is none. The receiving service is chosen by you, for example Zapier, Make or n8n, and its terms and privacy policy apply; mention it in your privacy policy. Nothing is sent while a form has no active webhook.
+When you add a webhook to a form (Integrations tab of the form editor, none by default), every entry of that form that matches the webhook's conditions is sent to the URL you enter: the form ID and name, the entry ID, date and admin link, the site name and address, and all answers, with download links to the uploaded files that work for 7 days. "Send test request" sends the latest entry of the form, or sample answers when there is none. The receiving service is chosen by you, for example Zapier, Make or n8n, and its terms and privacy policy apply; mention it in your privacy policy. Nothing is sent while a form has no active webhook.
+
+= Slack =
+The plugin can post a message to a Slack channel for each entry. It is off by default and is used only when you connect a Slack incoming webhook URL on SurveyJS Forms > Settings > Integrations and add a Slack integration to a form. Connecting and "Test" post a short "connected" message to the channel. For each entry of that form that matches the integration's conditions, your site sends to Slack the message you set up: its heading, the answers its text includes and a link to the entry in your WordPress admin. "Send test" in the form editor posts the latest entry, or sample answers when there is none.
+
+This service is provided by Slack Technologies, LLC: [Terms of Service](https://slack.com/terms-of-service), [Privacy Policy](https://slack.com/trust/privacy/privacy-policy).
+
+= Mailchimp =
+The plugin can add or update a contact in a Mailchimp audience for each entry. It is off by default and is used only when you connect a Mailchimp API key on SurveyJS Forms > Settings > Integrations and add a Mailchimp integration to a form. Connecting reads your Mailchimp account name and email; the form editor reads your audiences and their merge fields. For each entry of that form that matches the integration's conditions, your site sends to Mailchimp the respondent's email address, the answers you mapped to merge fields and the tags you set. "Send test" sends the latest entry of the form; without entries it only checks that the audience can be reached.
+
+This service is provided by The Rocket Science Group LLC d/b/a Mailchimp (Intuit): [Terms of Use](https://mailchimp.com/legal/terms/), [Privacy Policy](https://www.intuit.com/privacy/statement/).
 
 == Installation ==
 
@@ -243,8 +261,11 @@ Open SurveyJS Forms > Settings > AI MCP, turn on the AI connection, install MCP 
 = Does the AI chat cost money? =
 The chat uses your own API key from an AI provider, and the provider bills each request, usually a few cents per chat. Subscriptions such as Claude Pro or ChatGPT Plus don't include API credits. The MCP connection works with the AI app you already pay for and costs nothing extra.
 
+= How do I send entries to Slack or Mailchimp? =
+Open SurveyJS Forms > Settings > Integrations and connect the account: for Slack paste an incoming webhook URL (in Slack: Create New App > From scratch > Incoming Webhooks > Add New Webhook), for Mailchimp an API key (Profile > Extras > API keys). Then open your form, go to the Integrations tab, choose the service, click Add integration, choose what to send and click Send test (a single connection and a single Mailchimp audience are chosen for you). For Mailchimp, click Add "Subscribe me to the newsletter" question, so only people who check it are added. Save the form.
+
 = How do I send entries to Zapier, Make or n8n? =
-Create a webhook trigger in that service: "Catch Hook" in Webhooks by Zapier, "Custom webhook" in Make or the "Webhook" node in n8n (POST). Copy its URL, open your form, go to the Webhooks tab, click Add webhook, paste the URL and click Send test request, so the service sees a sample entry. Then map the fields under "answers" (one per question, by question name) and save the form. Webhooks are sent by WP-Cron right after the submission; on a site without visitors and with a broken loopback request (see Tools > Site Health) they wait for the next page view.
+Create a webhook trigger in that service: "Catch Hook" in Webhooks by Zapier, "Custom webhook" in Make or the "Webhook" node in n8n (POST). Copy its URL, open your form, go to the Integrations tab, click Add webhook, paste the URL and click Send test request, so the service sees a sample entry. Then map the fields under "answers" (one per question, by question name) and save the form. Webhooks are sent by WP-Cron right after the submission; on a site without visitors and with a broken loopback request (see Tools > Site Health) they wait for the next page view.
 
 == Screenshots ==
 
@@ -266,6 +287,7 @@ Survey Creator, the visual form designer, has moved to the free SurveyJS Forms A
 Added: AI. Build and change forms by asking the AI chat right in your WordPress admin (your own API key, WordPress 7.0 or later) or your own AI assistant such as Claude, ChatGPT or Cursor through MCP. Off by default; AI changes are drafts until you click Save.
 Added: CC and BCC fields for the email notification and the auto-reply; form importers now bring over CC and BCC addresses.
 Added: webhooks. Send every entry as JSON to Zapier, Make, n8n or any URL, with conditions, custom headers, a test button, a request log and automatic retries.
+Added: integrations with Slack and Mailchimp. Connect accounts once on Settings > Integrations (keys are stored encrypted), then send each entry to a Slack channel or a Mailchimp audience from the form's new Integrations tab, with field mapping, tags, conditions, a test button, retries and Send again.
 
 = 2.5.7 =
 Fixed: a survey failed to load on a page when its JSON contained escaped double quotes, for example in an HTML link or an expression.
