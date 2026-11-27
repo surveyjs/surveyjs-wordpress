@@ -57,6 +57,22 @@ test.describe.serial("getting started on a site without forms", () => {
     if (WP_CONTAINER && pageIds.length) fixture("delete", ...pageIds);
   });
 
+  test("the top-level menu item opens Add New Form while All Forms still opens the list", async ({ page }) => {
+    const menu = page.locator("#toplevel_page_surveyjs-main-menu");
+    await page.goto("/wp-admin/index.php");
+    await menu.locator("> a").click();
+    await expect(page).toHaveURL(/page=surveyjs-templates/);
+    await expect(menu.locator(".wp-submenu li.current:visible")).toHaveText("Add New Form");
+
+    await menu.locator(".wp-submenu a:visible", { hasText: "All Forms" }).click();
+    await expect(page).toHaveURL(/page=surveyjs-main-menu/);
+    await expect(menu.locator(".wp-submenu li.current:visible")).toHaveText("All Forms");
+    await expect(page.locator(".wp-sjs-header__tab.is-active")).toHaveText("All Forms");
+
+    await page.locator(".wp-sjs-header__brand").click();
+    await expect(page).toHaveURL(/page=surveyjs-templates/);
+  });
+
   test("talks about the JSON editor and the UI Builder", async ({ page }) => {
     const blankText = page.locator(".wp-sjs-template--blank .wp-sjs-template__description");
     await page.goto(TEMPLATES_URL);

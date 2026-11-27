@@ -212,7 +212,7 @@ class SurveyJS_Admin_Header {
         $entry_counts = self::entry_counts();
         ?>
         <div class="wp-sjs-header">
-            <a class="wp-sjs-header__brand" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SurveyJS_SurveyJS::MENU_SLUG ) ); ?>">
+            <a class="wp-sjs-header__brand" href="<?php echo esc_url( SurveyJS_Forms::exists() ? self::list_url() : SurveyJS_Templates::url() ); ?>">
                 <img src="<?php echo esc_url( plugins_url( 'images/logo.svg', __FILE__ ) ); ?>" width="24" height="24" alt="" />
                 <span><?php esc_html_e( 'SurveyJS Forms', 'surveyjs' ); ?></span>
             </a>

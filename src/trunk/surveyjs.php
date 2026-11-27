@@ -59,12 +59,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     register_deactivation_hook( __FILE__, 'wps_uninstall');
 
     function wps_activate( $network_wide = false ) {
+        $first_activation = false === get_option( SurveyJS_Install::VERSION_OPTION );
         wps_install();
         SurveyJS_Entry_Retention::sync_schedule();
         $bulk = isset( $_POST['checked'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $cli = defined( 'WP_CLI' ) && WP_CLI;
         $rest = defined( 'REST_REQUEST' ) && REST_REQUEST;
-        if ( ! $network_wide && ! $bulk && ! $cli && ! $rest && ! wp_doing_ajax() && current_user_can( 'manage_options' ) ) {
+        if ( $first_activation && ! $network_wide && ! $bulk && ! $cli && ! $rest && ! wp_doing_ajax() && current_user_can( 'manage_options' ) ) {
             set_transient( 'surveyjs_activation_redirect', get_current_user_id(), 30 );
         }
     }
