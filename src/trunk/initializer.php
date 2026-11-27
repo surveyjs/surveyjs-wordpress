@@ -125,6 +125,8 @@ JS;
         wp_localize_script( self::BLOCK_SCRIPT, 'surveyjsBlock', array(
             'editUrl'   => add_query_arg( 'page', 'surveyjs_editor', admin_url( 'admin.php' ) ),
             'legacyIds' => (object) SurveyJS_Forms::legacy_map(),
+            'trashed'   => (object) wp_list_pluck( SurveyJS_Forms::trashed(), 'name', 'id' ),
+            'trashUrl'  => add_query_arg( array( 'page' => 'surveyjs-main-menu', 'post_status' => 'trash' ), admin_url( 'admin.php' ) ),
         ) );
     }
 

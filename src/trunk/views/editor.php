@@ -266,7 +266,7 @@ class SurveyJS_Editor {
         $client = new SurveyJS_Client();
         $survey = $client->getSurvey( absint( $_GET['id'] ?? 0 ) );
         if ( ! $survey ) {
-            wp_die( esc_html__( 'Form not found.', 'surveyjs' ) );
+            SurveyJS_MySurveys::die_not_found( absint( $_GET['id'] ?? 0 ) );
         }
 
         $json = SurveyJS_Client::decode_survey_json( $survey->json, false );

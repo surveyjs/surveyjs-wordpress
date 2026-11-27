@@ -69,7 +69,7 @@ class SurveyJS_Entry_Retention {
     private static function policies() {
         $site_days = self::site_days();
         $policies = array();
-        foreach ( SurveyJS_Forms::all() as $form ) {
+        foreach ( SurveyJS_Forms::all( true ) as $form ) {
             $days = self::form_days( SurveyJS_Form_Settings::get( $form ), $site_days );
             if ( $days > 0 ) {
                 $policies[ (int) $form->id ] = $days;

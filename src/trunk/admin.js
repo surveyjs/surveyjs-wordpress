@@ -83,13 +83,23 @@
     }
     window.surveyjsSnackbar = { show: showSnackbar };
 
-    // Notices that the server renders after an action (data-sjs-snackbar) become snackbars. Without JavaScript they
-    // stay ordinary notices.
+    // Notices that the server renders after an action (data-sjs-snackbar) become snackbars, and their links marked
+    // data-sjs-snackbar-action (Undo) become its action buttons. Without JavaScript they stay ordinary notices.
     document.querySelectorAll(".notice[data-sjs-snackbar]").forEach(function (notice) {
         const type = ["error", "warning", "info"].find(function (name) {
             return notice.classList.contains("notice-" + name);
         }) || "success";
-        showSnackbar({ type: type, message: (notice.querySelector("p") || notice).textContent.trim().replace(/\s+/g, " ") });
+        const text = (notice.querySelector("p") || notice).cloneNode(true);
+        const actions = Array.from(text.querySelectorAll("a[data-sjs-snackbar-action]")).map(function (link) {
+            link.remove();
+            return {
+                label: link.textContent.trim(),
+                onClick: function () {
+                    window.location.href = link.href;
+                }
+            };
+        });
+        showSnackbar({ type: type, message: text.textContent.trim().replace(/\s+/g, " "), actions: actions });
         notice.remove();
     });
 

@@ -15,6 +15,7 @@ class SurveyJS_Forms {
         add_action( 'init', array( __CLASS__, 'register_post_type' ), 0 );
         add_filter( 'wp_insert_post_data', array( __CLASS__, 'keep_raw_fields' ), 99, 3 );
         add_action( 'before_delete_post', array( __CLASS__, 'before_delete' ), 10, 2 );
+        add_filter( 'wp_untrash_post_status', array( __CLASS__, 'untrash_status' ), 10, 3 );
     }
 
     public static function register_post_type() {
@@ -77,15 +78,15 @@ class SurveyJS_Forms {
         return self::find( self::resolve_id( $id ) );
     }
 
-    public static function find( $post_id ) {
+    public static function find( $post_id, $include_trash = false ) {
         $post = $post_id ? get_post( $post_id ) : null;
-        return $post && self::POST_TYPE === $post->post_type && 'publish' === $post->post_status ? self::row( $post ) : null;
+        return $post && self::POST_TYPE === $post->post_type && in_array( $post->post_status, self::statuses( $include_trash ), true ) ? self::row( $post ) : null;
     }
 
-    public static function all() {
+    public static function all( $include_trash = false ) {
         $posts = surveyjs_get_all_posts( array(
             'post_type'        => self::POST_TYPE,
-            'post_status'      => 'publish',
+            'post_status'      => self::statuses( $include_trash ),
             'orderby'          => 'ID',
             'order'            => 'DESC',
         ) );
@@ -139,8 +140,47 @@ class SurveyJS_Forms {
         return true;
     }
 
+    public static function trash_enabled() {
+        return EMPTY_TRASH_DAYS > 0;
+    }
+
+    public static function is_trashed( $id ) {
+        $post = $id ? get_post( $id ) : null;
+        return $post && self::POST_TYPE === $post->post_type && 'trash' === $post->post_status;
+    }
+
+    public static function trashed() {
+        global $wpdb;
+        return $wpdb->get_results( $wpdb->prepare( "SELECT ID AS id, post_title AS name FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'trash' ORDER BY ID", self::POST_TYPE ) );
+    }
+
+    public static function trash( $id ) {
+        if ( ! self::find( $id ) ) {
+            return false;
+        }
+        // wp_trash_post() and wp_untrash_post() save the whole post again, see keep_raw_fields().
+        self::$saving = true;
+        $post = wp_trash_post( $id );
+        self::$saving = false;
+        return (bool) $post;
+    }
+
+    public static function untrash( $id ) {
+        if ( ! self::is_trashed( $id ) ) {
+            return false;
+        }
+        self::$saving = true;
+        $post = wp_untrash_post( $id );
+        self::$saving = false;
+        return (bool) $post;
+    }
+
+    public static function untrash_status( $new_status, $post_id, $previous_status ) {
+        return self::POST_TYPE === get_post_type( $post_id ) && $previous_status ? $previous_status : $new_status;
+    }
+
     public static function delete( $id ) {
-        return self::find( $id ) ? (bool) wp_delete_post( $id, true ) : false;
+        return self::find( $id, true ) ? (bool) wp_delete_post( $id, true ) : false;
     }
 
     public static function before_delete( $post_id, $post ) {
@@ -151,6 +191,10 @@ class SurveyJS_Forms {
         SurveyJS_Form_Stats::delete_for_form( $post_id );
         SurveyJS_Importer::forget( array( $post_id ) );
         SurveyJS_Delivery_Queue::forget( $post_id );
+    }
+
+    private static function statuses( $include_trash ) {
+        return $include_trash ? array( 'publish', 'trash' ) : array( 'publish' );
     }
 
     private static function save( $postarr ) {

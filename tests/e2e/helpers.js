@@ -14,6 +14,10 @@ function listUrl(search) {
   return `${LIST_URL}&s=${encodeURIComponent(search)}`;
 }
 
+function trashUrl(search) {
+  return `${listUrl(search)}&post_status=trash`;
+}
+
 async function addSurvey(page) {
   await page.goto(LIST_URL);
   await page.locator("#wpbody-content").getByRole("link", { name: "Add New Form" }).click();
@@ -53,6 +57,13 @@ async function createSurvey(page, name, json = SURVEY_JSON) {
 
 async function deleteSurveys(page, search) {
   await page.goto(listUrl(search));
+  if (!(await page.locator("#the-list .no-items").count())) {
+    await page.check("#cb-select-all-1");
+    await page.selectOption("#bulk-action-selector-top", "trash");
+    await page.click("#doaction");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("moved to the Trash");
+  }
+  await page.goto(trashUrl(search));
   if (await page.locator("#the-list .no-items").count()) {
     return;
   }
@@ -60,7 +71,29 @@ async function deleteSurveys(page, search) {
   await page.selectOption("#bulk-action-selector-top", "delete");
   page.once("dialog", dialog => dialog.accept());
   await page.click("#doaction");
-  await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("deleted");
+  await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("permanently deleted");
+}
+
+async function trashSurvey(page, name) {
+  await page.goto(listUrl(name));
+  const row = page.locator("#the-list tr", { hasText: name });
+  await row.hover();
+  await row.getByRole("link", { name: "Trash", exact: true }).click();
+  await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form moved to the Trash.");
+}
+
+async function deleteSurveyPermanently(page, name) {
+  await page.goto(trashUrl(name));
+  const row = page.locator("#the-list tr", { hasText: name });
+  let message;
+  page.once("dialog", dialog => {
+    message = dialog.message();
+    dialog.accept();
+  });
+  await row.hover();
+  await row.getByRole("link", { name: "Delete Permanently", exact: true }).click();
+  await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form permanently deleted.");
+  return message;
 }
 
 async function currentUser(page) {
@@ -81,4 +114,4 @@ async function submitTimeFields(config) {
   return { SubmitToken: config.submitTime.token };
 }
 
-module.exports = { SURVEY_JSON, uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, currentUser, lintIssues, submitTimeFields };
+module.exports = { SURVEY_JSON, uniqueName, listUrl, trashUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently, currentUser, lintIssues, submitTimeFields };

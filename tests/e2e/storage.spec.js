@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, createSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
+const { uniqueName, listUrl, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently, submitTimeFields } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const FORMS_URL = "/wp-admin/admin.php?page=surveyjs-main-menu";
@@ -325,16 +325,11 @@ test.describe("entry storage", () => {
       hrefs.push(href);
     }
 
-    await page.goto(listUrl(name));
-    const row = page.locator("#the-list tr", { hasText: name });
-    let message;
-    page.once("dialog", dialog => {
-      message = dialog.message();
-      dialog.accept();
-    });
-    await row.hover();
-    await row.getByRole("link", { name: "Delete", exact: true }).click();
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form deleted.");
+    await trashSurvey(page, name);
+    if (WP_CONTAINER) {
+      expect(storageFixture("entries", surveyId).count).toBe(2);
+    }
+    const message = await deleteSurveyPermanently(page, name);
     expect(message).toBe("Delete this form and its 2 entries? Files uploaded with these entries will be deleted too. This cannot be undone.");
 
     for (const href of hrefs) {

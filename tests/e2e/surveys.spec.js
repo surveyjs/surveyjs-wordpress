@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, trashUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently } = require("./helpers");
 
 test.describe("survey list", () => {
   let name;
@@ -104,17 +104,34 @@ test.describe("survey list", () => {
     await expect(row.locator("td.column-modified")).toHaveAttribute("data-colname", "Last modified");
   });
 
-  test("deletes a survey", async ({ page }) => {
+  test("moves a survey to the Trash, restores it and deletes it permanently", async ({ page }) => {
     name = uniqueName("E2E delete");
-    await createSurvey(page, name);
+    const surveyId = await createSurvey(page, name);
 
+    await trashSurvey(page, name);
+    await page.locator(".wp-sjs-snackbar").getByRole("button", { name: "Undo" }).click();
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form restored from the Trash.");
     await page.goto(listUrl(name));
+    await expect(page.locator("#the-list .row-title")).toHaveText([name]);
+
+    await trashSurvey(page, name);
+    await page.goto(listUrl(name));
+    await expect(page.locator("#the-list .no-items")).toBeVisible();
+    await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}`);
+    await expect(page.locator("body")).toContainText("This form is in the Trash.");
+
+    await page.goto(trashUrl(name));
     const row = page.locator("#the-list tr", { hasText: name });
     await row.hover();
-    page.once("dialog", dialog => dialog.accept());
-    await row.getByRole("link", { name: "Delete", exact: true }).click();
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form deleted.");
+    await row.getByRole("link", { name: "Restore", exact: true }).click();
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form restored from the Trash.");
+    await page.goto(listUrl(name));
+    await expect(page.locator("#the-list .row-title")).toHaveText([name]);
 
+    await trashSurvey(page, name);
+    expect(await deleteSurveyPermanently(page, name)).toBe("Delete this form? This cannot be undone.");
+    await page.goto(trashUrl(name));
+    await expect(page.locator("#the-list .no-items")).toBeVisible();
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list .no-items")).toBeVisible();
   });

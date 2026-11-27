@@ -151,7 +151,7 @@ class SurveyJS_Delivery_Queue {
         }
         list( $lease, $job ) = $claimed;
         $handler = self::HANDLERS[ $job['type'] ?? '' ] ?? null;
-        $survey = $handler ? SurveyJS_Forms::find( (int) $job['form'] ) : null;
+        $survey = $handler ? SurveyJS_Forms::find( (int) $job['form'], true ) : null;
         $result = $survey ? $handler::deliver_job( $job, $survey ) : null;
         if ( null === $result ) {
             delete_option( $lease );

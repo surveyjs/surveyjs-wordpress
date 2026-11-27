@@ -9,6 +9,8 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
     const PER_PAGE = 20;
 
+    private $trash_count = 0;
+
     public function __construct() {
         parent::__construct( array(
             'singular' => 'survey',
@@ -22,6 +24,38 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         if ( 'top' === $which ) {
             $this->search_box( __( 'Search Forms', 'surveyjs' ), 'surveyjs-survey' );
         }
+        if ( self::is_trash() && $this->has_items() ) {
+            echo '<div class="alignleft actions">';
+            submit_button( __( 'Empty Trash', 'surveyjs' ), 'apply', 'delete_all', false );
+            echo '</div>';
+        }
+    }
+
+    public static function is_trash() {
+        return SurveyJS_Forms::trash_enabled() && 'trash' === sanitize_key( $_REQUEST['post_status'] ?? '' );
+    }
+
+    protected function get_views() {
+        if ( ! $this->trash_count && ! self::is_trash() ) {
+            return array();
+        }
+        global $wpdb;
+        $all = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'", SurveyJS_Forms::POST_TYPE ) );
+        $views = array(
+            'all'   => array( __( 'All', 'surveyjs' ), $all, array(), ! self::is_trash() ),
+            'trash' => array( __( 'Trash', 'surveyjs' ), $this->trash_count, array( 'post_status' => 'trash' ), self::is_trash() ),
+        );
+        $links = array();
+        foreach ( $views as $key => $view ) {
+            $links[ $key ] = sprintf(
+                '<a href="%s"%s>%s <span class="count">(%s)</span></a>',
+                esc_url( self::page_url( 'surveyjs-main-menu', $view[2] ) ),
+                $view[3] ? ' class="current" aria-current="page"' : '',
+                esc_html( $view[0] ),
+                esc_html( number_format_i18n( $view[1] ) )
+            );
+        }
+        return $links;
     }
 
     public function get_columns() {
@@ -49,15 +83,31 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
     }
 
     protected function get_bulk_actions() {
-        return array( 'delete' => __( 'Delete', 'surveyjs' ) );
+        if ( self::is_trash() ) {
+            return array(
+                'untrash' => __( 'Restore', 'surveyjs' ),
+                'delete'  => __( 'Delete Permanently', 'surveyjs' ),
+            );
+        }
+        if ( ! SurveyJS_Forms::trash_enabled() ) {
+            return array( 'delete' => __( 'Delete Permanently', 'surveyjs' ) );
+        }
+        return array( 'trash' => __( 'Move to Trash', 'surveyjs' ) );
     }
 
     public function no_items() {
-        esc_html_e( 'No forms found.', 'surveyjs' );
+        if ( self::is_trash() ) {
+            esc_html_e( 'No forms found in Trash.', 'surveyjs' );
+        } else {
+            esc_html_e( 'No forms found.', 'surveyjs' );
+        }
     }
 
     public function prepare_items() {
         global $wpdb;
+
+        $status = self::is_trash() ? 'trash' : 'publish';
+        $this->trash_count = SurveyJS_Forms::trash_enabled() ? count( SurveyJS_Forms::trashed() ) : 0;
 
         $search = sanitize_text_field( wp_unslash( $_REQUEST['s'] ?? '' ) );
         $orderby_columns = array( 'name' => 'name', 'results' => 'results', 'modified' => 'modified_gmt' );
@@ -77,8 +127,9 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
 
         $total = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->posts} p
-            WHERE p.post_type = %s AND p.post_status = 'publish' AND ( %s = '' OR p.post_title LIKE %s )",
+            WHERE p.post_type = %s AND p.post_status = %s AND ( %s = '' OR p.post_title LIKE %s )",
             SurveyJS_Forms::POST_TYPE,
+            $status,
             $search,
             $like
         ) );
@@ -90,13 +141,14 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             FROM {$wpdb->posts} p
             LEFT JOIN %i r ON r.form_id = p.ID
             LEFT JOIN ( SELECT form_id, SUM(views) AS views, SUM(submissions) AS submissions FROM %i GROUP BY form_id ) s ON s.form_id = p.ID
-            WHERE p.post_type = %s AND p.post_status = 'publish' AND ( %s = '' OR p.post_title LIKE %s )
+            WHERE p.post_type = %s AND p.post_status = %s AND ( %s = '' OR p.post_title LIKE %s )
             GROUP BY p.ID, p.post_title, p.post_modified_gmt
             ORDER BY " . sanitize_sql_orderby( "$orderby $order, id $order" ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
             ' LIMIT %d OFFSET %d',
             $entries,
             SurveyJS_Form_Stats::table(),
             SurveyJS_Forms::POST_TYPE,
+            $status,
             $search,
             $like,
             self::PER_PAGE,
@@ -115,11 +167,14 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
     }
 
     protected function column_name( $item ) {
+        if ( self::is_trash() ) {
+            return $this->column_name_in_trash( $item );
+        }
         $edit_url = self::page_url( 'surveyjs_editor', array( 'id' => $item->id, 'name' => $item->name ) );
         $preview_url = SurveyJS_SurveyJS::form_preview_url( $item->id );
         $results_url = self::page_url( 'surveyjs_results', array( 'id' => $item->id, 'name' => $item->name ) );
         $clone_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'clone', 'id' => $item->id ) ), 'surveyjs-clone-survey_' . $item->id );
-        $delete_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'delete', 'id' => $item->id ) ), 'surveyjs-delete-survey_' . $item->id );
+        $trash_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'trash', 'id' => $item->id ) ), 'surveyjs-trash-survey_' . $item->id );
 
         $actions = array(
             'edit'    => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'surveyjs' ) ),
@@ -128,13 +183,12 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             'embed'   => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Embed::create_page_url( $item->id ) ), esc_html__( 'Create a page', 'surveyjs' ) ),
             'clone'   => sprintf( '<a href="%s">%s</a>', esc_url( $clone_url ), esc_html__( 'Duplicate', 'surveyjs' ) ),
             'template' => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Templates::save_url( $item->id ) ), esc_html__( 'Save as Template', 'surveyjs' ) ),
-            'delete'  => sprintf(
-                '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>',
-                esc_url( $delete_url ),
-                esc_js( self::delete_confirmation( (int) $item->entries ) ),
-                esc_html__( 'Delete', 'surveyjs' )
-            ),
+            'trash'   => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $trash_url ), esc_html__( 'Trash', 'surveyjs' ) ),
         );
+        if ( ! SurveyJS_Forms::trash_enabled() ) {
+            unset( $actions['trash'] );
+            $actions['delete'] = self::delete_link( $item );
+        }
         if ( ! $preview_url ) {
             unset( $actions['full_preview'] );
         }
@@ -157,6 +211,25 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         );
     }
 
+    private function column_name_in_trash( $item ) {
+        $untrash_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'untrash', 'id' => $item->id, 'post_status' => 'trash' ) ), 'surveyjs-untrash-survey_' . $item->id );
+        $actions = array(
+            'untrash' => sprintf( '<a href="%s">%s</a>', esc_url( $untrash_url ), esc_html__( 'Restore', 'surveyjs' ) ),
+            'delete'  => self::delete_link( $item, array( 'post_status' => 'trash' ) ),
+        );
+        return sprintf( '<strong>%s</strong>%s', esc_html( $item->name ), $this->row_actions( $actions ) );
+    }
+
+    private static function delete_link( $item, $args = array() ) {
+        $delete_url = wp_nonce_url( self::page_url( 'surveyjs-main-menu', array( 'action' => 'delete', 'id' => $item->id ) + $args ), 'surveyjs-delete-survey_' . $item->id );
+        return sprintf(
+            '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>',
+            esc_url( $delete_url ),
+            esc_js( self::delete_confirmation( (int) $item->entries ) ),
+            esc_html__( 'Delete Permanently', 'surveyjs' )
+        );
+    }
+
     private static function delete_confirmation( $entries ) {
         if ( ! $entries ) {
             return __( 'Delete this form? This cannot be undone.', 'surveyjs' );
@@ -169,6 +242,9 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
     }
 
     protected function column_results( $item ) {
+        if ( self::is_trash() ) {
+            return esc_html( number_format_i18n( (int) $item->results ) );
+        }
         $results_url = self::page_url( 'surveyjs_results', array( 'id' => $item->id, 'name' => $item->name ) );
         $html = sprintf( '<a href="%s">%d</a>', esc_url( $results_url ), $item->results );
         $expiring = SurveyJS_Entries::count_partial_deleted_soon( $item->id );

@@ -388,9 +388,14 @@ test.describe.serial("upgrade from the pre-3 plugin", () => {
       await page.goto(`${FORMS_URL}&s=${encodeURIComponent(SLASHED_NAME)}`);
       const row = page.locator("#the-list tr", { hasText: SLASHED_NAME });
       await row.hover();
+      await row.getByRole("link", { name: "Trash", exact: true }).click();
+      await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form moved to the Trash.");
+      await page.goto(`${FORMS_URL}&post_status=trash&s=${encodeURIComponent(SLASHED_NAME)}`);
+      const trashed = page.locator("#the-list tr", { hasText: SLASHED_NAME });
+      await trashed.hover();
       page.once("dialog", dialog => dialog.accept());
-      await row.getByRole("link", { name: "Delete", exact: true }).click();
-      await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form deleted.");
+      await trashed.getByRole("link", { name: "Delete Permanently", exact: true }).click();
+      await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form permanently deleted.");
     });
 
     await test.step("roll back by replacing the files with 2.5.x and add a form and entries there", async () => {

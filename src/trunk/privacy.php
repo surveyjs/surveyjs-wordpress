@@ -34,7 +34,7 @@ class SurveyJS_Privacy {
         foreach ( self::matching( $candidates, $email ) as $row ) {
             $form_id = (int) $row->form_id;
             if ( ! array_key_exists( $form_id, $forms ) ) {
-                $forms[ $form_id ] = SurveyJS_Forms::find( $form_id );
+                $forms[ $form_id ] = SurveyJS_Forms::find( $form_id, true );
             }
             $items[] = array(
                 'group_id'    => self::GROUP,

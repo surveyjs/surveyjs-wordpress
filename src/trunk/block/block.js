@@ -6,6 +6,7 @@ var InspectorControls = wp.blockEditor.InspectorControls;
 var useBlockProps = wp.blockEditor.useBlockProps;
 var ExternalLink = wp.components.ExternalLink;
 var __ = wp.i18n.__;
+var sprintf = wp.i18n.sprintf;
 var blockIcon = el(
   "svg",
   { xmlns: "http://www.w3.org/2000/svg", viewBox: "-16 -16 160 160", width: 24, height: 24, "aria-hidden": true, focusable: false },
@@ -14,6 +15,8 @@ var blockIcon = el(
 var surveysArray = this.surveys;
 var editFormUrl = this.surveyjsBlock.editUrl;
 var legacyIds = this.surveyjsBlock.legacyIds || {};
+var trashedForms = this.surveyjsBlock.trashed || {};
+var trashUrl = this.surveyjsBlock.trashUrl;
 var surveys = {};
 
 for (var i = 0; i < surveysArray.length; i++) {
@@ -62,6 +65,8 @@ registerBlockType("sjs/gutenberg-block", {
     var setAttributes = props.setAttributes;
     var surveyid = resolveSurveyId(attributes);
     var selected = surveys[surveyid] ? String(surveyid) : null;
+    var trashedName = selected ? undefined : trashedForms[surveyid];
+    var inTrash = trashedName !== undefined;
 
     function onSurveyChange(value) {
       setAttributes({
@@ -99,8 +104,15 @@ registerBlockType("sjs/gutenberg-block", {
       useBlockProps(),
       el(
         Placeholder,
-        { icon: blockIcon, label: "SurveyJS", instructions: __("Choose form to insert", "surveyjs") },
+        {
+          icon: blockIcon,
+          label: "SurveyJS",
+          instructions: inTrash
+            ? sprintf(__("The form “%s” is in the Trash, so it is not shown on the site. Restore it or choose another form.", "surveyjs"), trashedName)
+            : __("Choose form to insert", "surveyjs")
+        },
         formSelector(),
+        inTrash && el(ExternalLink, { href: trashUrl }, __("Open the Trash", "surveyjs")),
         inspectorControl
       )
     );

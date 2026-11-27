@@ -316,6 +316,12 @@
     margin-bottom: 12px;
 }
 
+.wrap .wp-sjs-trash-note {
+    clear: both;
+    margin: 0 0 12px;
+    color: #50575e;
+}
+
 /* Snackbars (admin.js): short messages about an action, over the page in the bottom left corner of the content
    area, 16px from its edges. They copy the snackbar of the WordPress block editor (components-snackbar): #1e1e1e
    background, white 13px text, 2px radius, underlined actions. */

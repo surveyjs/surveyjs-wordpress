@@ -4,7 +4,7 @@ Use this guide to answer "how do I…" questions about the plugin. Tell the user
 
 ## Admin screens
 
-- **SurveyJS Forms > All Forms**: the list of forms with entries count, views and conversion rate. Hover a form for Edit, Entries, Duplicate, Export and Delete. "AI changes to review" marks a form with an unsaved AI draft.
+- **SurveyJS Forms > All Forms**: the list of forms with entries count, views and conversion rate. Hover a form for Edit, Entries, Duplicate, Export and Trash. "AI changes to review" marks a form with an unsaved AI draft. A form moved to the Trash is no longer shown on the site and does not accept entries; its entries are kept. The Trash view of the list has Restore, Delete Permanently (deletes the form with its entries and uploaded files) and Empty Trash; WordPress deletes forms permanently 30 days after they were moved to the Trash. Forms in the Trash are not available to your AI tools.
 - **SurveyJS Forms > Add New Form**: start from a blank form or a template, or import forms from Contact Form 7, WPForms, Gravity Forms, Ninja Forms and Fluent Forms (Import button).
 - **SurveyJS Forms > Support**: a short checklist for new users and links to help.
 - **SurveyJS Forms > Settings**: General tab (IP addresses, form views, delete old entries, uninstall), Spam Protection tab (CAPTCHA keys), Integrations tab (connected Slack and Mailchimp accounts), AI MCP tab (connection for the user's own AI assistant) and AI Client tab (the AI chat with the user's own API key).

@@ -274,7 +274,7 @@ class SurveyJS_Results {
             return;
         }
         if ( ! $survey ) {
-            wp_die( esc_html__( 'Form not found.', 'surveyjs' ) );
+            SurveyJS_MySurveys::die_not_found( absint( $_GET['id'] ?? 0 ) );
         }
 
         $current_view = self::current_view( $survey );
