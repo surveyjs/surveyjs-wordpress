@@ -979,7 +979,7 @@ class SurveyJS_AI_Abilities {
                 'forms'       => admin_url( 'admin.php?page=surveyjs-main-menu' ),
                 'new_form'    => admin_url( 'admin.php?page=surveyjs-templates' ),
                 'form_editor' => admin_url( 'admin.php?page=surveyjs_editor&id=FORM_ID&tab=TAB' ),
-                'editor_tabs' => 'survey (Config), theme, email, entries, restrictions, spam, advanced; pdf with SurveyJS Forms Pro',
+                'editor_tabs' => 'survey (Config), theme, email, entries, restrictions, spam, advanced; pdf with SurveyJS Forms Add-on',
                 'entries'     => admin_url( 'admin.php?page=surveyjs_results&id=FORM_ID' ),
                 'settings'    => admin_url( 'admin.php?page=surveyjs-settings' ),
                 'ai_mcp'      => SurveyJS_AI::tab_url(),

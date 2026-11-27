@@ -60,12 +60,9 @@ test.describe("getting-started progress", () => {
 
     await page.goto(FORMS_URL);
     await expect(topLevel.locator(".wp-menu-name")).toHaveText("SurveyJS Forms");
-    await expect(menuProgress.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 3");
-    await expect(menuProgress.locator(".screen-reader-text")).toHaveText("1 of 3 steps completed");
-    const bar = menuProgress.locator("progress");
-    await expect(bar).toHaveAttribute("value", "1");
-    await expect(bar).toHaveAttribute("max", "3");
-    expect((await bar.boundingBox()).height).toBe(4);
+    // The progress lives in the admin bar and on the forms list; the side menu and the plugin header don't show it.
+    await expect(menuProgress).toHaveCount(0);
+    await expect(page.locator(".wp-sjs-header__tab", { hasText: "Support" })).toHaveText("Support");
     await expect(barGettingStarted.locator(".wp-sjs-menu-progress__text")).toHaveText("1 of 3");
     await expect(barGettingStarted.locator(".screen-reader-text")).toHaveText("1 of 3 steps completed");
     await expect(barGettingStarted.locator("progress")).toHaveAttribute("value", "1");
@@ -86,12 +83,11 @@ test.describe("getting-started progress", () => {
     await compact.getByRole("button", { name: "Dismiss" }).click();
     await dismissed;
     await expect(compact).toBeHidden();
-    await expect(menuProgress).toBeHidden();
     await expect(barNext).toBeHidden();
 
     await page.reload();
     await expect(page.locator(".wp-sjs-checklist-progress")).toHaveCount(0);
-    await expect(barGettingStarted.locator("a")).toHaveText("Getting Started");
+    await expect(barGettingStarted.locator("a")).toHaveText("Support");
 
     await page.goto(GETTING_STARTED_URL);
     await page.getByRole("button", { name: "Show checklist" }).click();
@@ -100,13 +96,12 @@ test.describe("getting-started progress", () => {
 
   test("keeps the cached steps between pages and counts them again after a form is created", async ({ page }) => {
     onboardingFixture("progress", 0, "form");
-    const { menuProgress, barNext } = indicators(page);
+    const { barNext } = indicators(page);
 
     await page.goto(FORMS_URL);
     await expect(barNext.locator("a")).toHaveText("Next: Create a form");
     await page.goto("/wp-admin/index.php");
     await expect(barNext.locator("a")).toHaveText("Next: Create a form");
-    await expect(menuProgress.locator(".wp-sjs-menu-progress__text")).toHaveText("0 of 3");
 
     name = uniqueName("E2E onboarding");
     await createSurvey(page, name);

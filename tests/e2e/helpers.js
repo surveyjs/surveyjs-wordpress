@@ -31,14 +31,14 @@ async function saveSurvey(page) {
   const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveSurvey"));
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await saved;
-  await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Form saved");
+  await expect(page.locator(".wp-sjs-snackbars")).toContainText("Form saved");
 }
 
 async function renameSurvey(page, name) {
-  await page.getByRole("button", { name: "Edit form name" }).click();
+  if (!(await page.getByLabel("Form name", { exact: true }).isVisible())) await page.locator("#wp-sjs-name-edit").click();
   await page.getByLabel("Form name", { exact: true }).fill(name);
   const saved = page.waitForResponse(r => r.url().includes("action=SurveyJS_SaveSurvey"));
-  await page.getByRole("button", { name: "Save name" }).click();
+  await page.getByLabel("Form name", { exact: true }).press("Enter");
   await saved;
   await expect(page.locator("#wp-sjs-name-text")).toHaveText(name);
 }
@@ -60,7 +60,7 @@ async function deleteSurveys(page, search) {
   await page.selectOption("#bulk-action-selector-top", "delete");
   page.once("dialog", dialog => dialog.accept());
   await page.click("#doaction");
-  await expect(page.locator(".notice-success")).toContainText("deleted");
+  await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("deleted");
 }
 
 async function currentUser(page) {

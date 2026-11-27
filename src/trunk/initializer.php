@@ -19,7 +19,7 @@ class SurveyJS_SurveyJS {
     const BLOCK_SCRIPT = 'surveyjs-block-js';
     const MENU_SLUG = 'surveyjs-main-menu';
     const CAPABILITY = 'manage_options';
-    const HIDDEN_PAGES = array( 'surveyjs_editor', 'surveyjs_results', 'surveyjs_import' );
+    const HIDDEN_PAGES = array( 'surveyjs_editor', 'surveyjs_import' );
     const FULL_PREVIEW_PAGE_OPTION = 'surveyjs_full_preview_page_id';
     const CORE_SCRIPT = 'wps-front--survey.core.min.js';
     const UI_SCRIPT = 'wps-front--survey-js-ui.min.js';
@@ -164,6 +164,8 @@ JS;
             wp_enqueue_script('wps-adm--items.js', plugins_url('editor/items.js', __FILE__), array(self::EDITOR_SCRIPT, 'wp-i18n'), self::asset_version('editor/items.js'), true);
             wp_set_script_translations('wps-adm--items.js', 'surveyjs');
             wp_enqueue_script('wps-adm--webhooks.js', plugins_url('editor/webhooks.js', __FILE__), array('wps-adm--items.js', 'wp-i18n'), self::asset_version('editor/webhooks.js'), true);
+            wp_enqueue_script('wps-adm--actions-overflow.js', plugins_url('editor/actions-overflow.js', __FILE__), array(self::EDITOR_SCRIPT, 'wp-i18n'), self::asset_version('editor/actions-overflow.js'), true);
+            wp_set_script_translations('wps-adm--actions-overflow.js', 'surveyjs');
             wp_set_script_translations('wps-adm--webhooks.js', 'surveyjs');
             wp_enqueue_script('wps-adm--integrations.js', plugins_url('editor/integrations.js', __FILE__), array('wps-adm--items.js', 'wp-i18n'), self::asset_version('editor/integrations.js'), true);
             wp_set_script_translations('wps-adm--integrations.js', 'surveyjs');
@@ -462,20 +464,30 @@ JS;
             }
         }
     }
-  
+
+    // The admin menu icon: a one-color SVG as a data URI, which WordPress paints in the admin color scheme
+    // (gray, white on hover and for the open section), like the icons of the other menu items.
+    private static function menu_icon() {
+        $svg = (string) file_get_contents( __DIR__ . '/images/menu-icon.svg' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a file of the plugin.
+        return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- WordPress takes menu SVG icons as base64 data URIs.
+    }
+
     function wps_add_menu() {
         $hook = add_menu_page( 'Forms', 'SurveyJS Forms', self::CAPABILITY, self::MENU_SLUG, array(
                         "SurveyJS_MySurveys", 'render'
-                        ), plugins_url('images/logo_20x20.png', __FILE__), '30.5' );
+                        ), self::menu_icon(), '30.5' );
         add_action( 'load-' . $hook, array( 'SurveyJS_MySurveys', 'handle_actions' ) );
         // Registering the parent slug first stops WordPress from adding a duplicate "SurveyJS Forms" submenu item.
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'All Forms', 'surveyjs' ), esc_html__( 'All Forms', 'surveyjs' ), 'manage_options', 'surveyjs-main-menu' );
         $templates_hook = add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Add New Form', 'surveyjs' ), esc_html__( 'Add New Form', 'surveyjs' ), 'manage_options', SurveyJS_Templates::PAGE, array( 'SurveyJS_Templates', 'render' ) );
         add_action( 'load-' . $templates_hook, array( 'SurveyJS_Templates', 'handle_actions' ) );
-        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Getting Started', 'surveyjs' ), esc_html__( 'Getting Started', 'surveyjs' ) . SurveyJS_Welcome::menu_progress(), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Settings', 'surveyjs' ), esc_html__( 'Settings', 'surveyjs' ), 'manage_options', 'surveyjs-settings', array( 'SurveyJS_SettingsPage', 'surveyjs_render_settings' ) );
+        // Support (the getting-started checklist and help) is the last tab: it matters in the first days and steps aside once the plugin is set up.
+        add_submenu_page( 'surveyjs-main-menu', esc_html__( 'Support', 'surveyjs' ), esc_html__( 'Support', 'surveyjs' ), 'manage_options', SurveyJS_Welcome::PAGE, array( 'SurveyJS_Welcome', 'render' ) );
         add_submenu_page( '', esc_html__( 'Edit Form', 'surveyjs' ), '', 'manage_options', 'surveyjs_editor', array( 'SurveyJS_Editor', 'render' ) );
-        $results_hook = add_submenu_page( '', esc_html__( 'Entries', 'surveyjs' ), '', 'manage_options', 'surveyjs_results', array( 'SurveyJS_Results', 'render' ) );
+        $unread = array_sum( SurveyJS_Entries::unread_by_form() );
+        $entries_menu = esc_html__( 'Entries', 'surveyjs' ) . ( $unread ? ' <span class="awaiting-mod count-' . $unread . '"><span class="pending-count">' . number_format_i18n( $unread ) . '</span></span>' : '' );
+        $results_hook = add_submenu_page( self::MENU_SLUG, esc_html__( 'Entries', 'surveyjs' ), $entries_menu, 'manage_options', 'surveyjs_results', array( 'SurveyJS_Results', 'render' ), 2 ); // After All Forms and Add New Form.
         add_action( 'load-' . $results_hook, array( 'SurveyJS_Results', 'handle_actions' ) );
         $import_hook = add_submenu_page( '', esc_html__( 'Import', 'surveyjs' ), '', 'manage_options', 'surveyjs_import', array( 'SurveyJS_Import', 'render' ) );
         add_action( 'load-' . $import_hook, array( 'SurveyJS_Import', 'handle_actions' ) );

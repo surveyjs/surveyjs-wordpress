@@ -138,7 +138,7 @@ function storageTests(label) {
       page.once("dialog", dialog => dialog.accept());
       await page.locator("#the-list tr").first().hover();
       await page.locator("#the-list tr").first().locator("a.submitdelete").click();
-      await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
+      await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
       expect((await page.request.get(href)).status()).toBe(404);
       if (WP_CONTAINER) {
         expect(fixture("file", second.file)).toMatchObject({ exists: false, record: null });

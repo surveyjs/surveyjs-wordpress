@@ -1,0 +1,176 @@
+/* Entries: a short list on the left and the selected entry's answers on the right (Gmail-style).
+   The top and bottom bars of the list table stay full width. Spacing: 8 / 16 / 24 px. */
+
+.wp-sjs-entries {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 24px;
+    align-items: start;
+}
+
+@media screen and (max-width: 1100px) {
+    .wp-sjs-entries {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* List: ID and Date as wide as their content, Status fixed, Summary takes the rest. */
+.wp-sjs-entries__list > .wp-list-table {
+    table-layout: auto;
+}
+
+.wp-sjs-entries__list .column-id,
+.wp-sjs-entries__list .column-created_at {
+    width: 1%;
+    white-space: nowrap;
+}
+
+/* Room for the header and its sort arrows on one line. */
+.wp-sjs-entries__list th.column-id {
+    min-width: 4em;
+}
+
+.wp-sjs-entries__list .column-status {
+    width: 7em;
+}
+
+.wp-sjs-entries__clamp {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow-wrap: anywhere;
+}
+
+.wp-sjs-entries__row {
+    cursor: pointer;
+}
+
+.wp-sjs-entries__row:hover > * {
+    background: #f0f0f1;
+}
+
+/* The selected row: the theme color tint used for the active tab in the plugin header, with a bar on the left. */
+.wp-sjs-entries__list .wp-sjs-entries__row.is-selected > * {
+    background: color-mix(in srgb, var(--wp-admin-theme-color, #2271b1) 10%, #fff);
+}
+
+.wp-sjs-entries__list .wp-sjs-entries__row.is-selected > :first-child {
+    box-shadow: inset 3px 0 0 var(--wp-admin-theme-color, #2271b1);
+}
+
+.wp-sjs-entries__list .wp-sjs-view-result {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Panel: a white card that scrolls with the page, no scroll of its own. When another entry is chosen while the
+   panel's top is above the screen, the page scrolls back to it, 16px below the admin bar (core already adds
+   the bar's height with scroll-padding-top on html). */
+.wp-sjs-entries__panel {
+    box-sizing: border-box;
+    scroll-margin-top: 16px;
+    padding: 16px 24px 24px;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+}
+
+.wp-sjs-entries__empty {
+    margin: 0;
+}
+
+.wp-sjs-entry[hidden],
+.wp-sjs-entries__panel.has-selection .wp-sjs-entries__empty {
+    display: none;
+}
+
+.wp-sjs-entry__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wp-sjs-entry__title {
+    margin: 0;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.wp-sjs-entry__status {
+    padding: 0 8px;
+    border-radius: 2px;
+    background: #f0f0f1;
+    color: #50575e;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+.wp-sjs-entry__nav {
+    display: inline-flex;
+    gap: 8px;
+    margin-inline-start: auto;
+}
+
+.wp-core-ui .wp-sjs-entry__nav .button {
+    min-height: 32px;
+    padding: 0 8px;
+    line-height: 30px;
+}
+
+.wp-sjs-entry__meta {
+    margin: 8px 0 0;
+    color: #50575e;
+}
+
+.wp-sjs-entry__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin: 16px 0 0;
+}
+
+/* Question / answer pairs: the question in secondary text, the answer under it, 16px between pairs. */
+.wp-sjs-entry__answers {
+    margin: 24px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f1;
+}
+
+.wp-sjs-entry__answers dt {
+    color: #50575e;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.wp-sjs-entry__answers dd {
+    margin: 4px 0 16px;
+    color: #1d2327;
+    font-size: 14px;
+    line-height: 20px;
+    overflow-wrap: anywhere;
+}
+
+.wp-sjs-entry__lines {
+    margin: 0;
+    list-style: none;
+}
+
+.wp-sjs-entry__lines li {
+    margin: 0;
+}
+
+.wp-sjs-entry__unanswered {
+    margin: 0;
+}
+
+/* Signature and other drawn answers. */
+.wp-sjs-entries__image {
+    display: block;
+    max-width: 240px;
+    max-height: 120px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 2px;
+}

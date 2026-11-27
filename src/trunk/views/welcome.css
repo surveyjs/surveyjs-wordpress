@@ -1,0 +1,224 @@
+/* Getting Started page. The checklist card itself (steps, progress bar, Optional tag) is styled inline in
+   SurveyJS_Welcome::enqueue_assets(), as the compact checklist on All Forms shares it. Colors follow WP core:
+   #1d2327 text, #50575e secondary text, the admin theme color for links and the next step. */
+
+/* Two columns on wide screens: the import line and the checklist on the left, Pro and help on the right.
+   The columns lay the cards out, so the cards drop the WP .card width limit and top margin. */
+.wp-sjs-welcome__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: 20px;
+    align-items: start;
+    max-width: 1200px;
+    margin-top: 20px;
+}
+
+.wp-sjs-welcome__main,
+.wp-sjs-welcome__side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.wp-sjs-welcome__layout .card {
+    max-width: none;
+    margin: 0;
+}
+
+.wp-sjs-welcome__main > .wp-sjs-checklist-hidden {
+    margin: 0;
+}
+
+/* When Need help is the only card left (the checklist hidden, no forms to import, no upgrade card), it moves
+   from the right column into the main one, and "The getting-started checklist is hidden" goes under it. :has()
+   follows the checklist's Hide / Show and the upgrade card's Dismiss without a reload. */
+.wp-sjs-welcome__layout:not(:has(.card:not(.wp-sjs-welcome__help):not([hidden]))) .wp-sjs-welcome__side {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.wp-sjs-welcome__layout:not(:has(.card:not(.wp-sjs-welcome__help):not([hidden]))) .wp-sjs-welcome__main {
+    grid-row: 2;
+}
+
+@media screen and (max-width: 960px) {
+    .wp-sjs-welcome__layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Forms found in other plugins: one line above the checklist. The plugin links carry a count badge, so like
+   the header tabs they have no underline until hover. */
+.wp-sjs-welcome-import.card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding-top: 24px; /* 24px on every side, like the other cards on this page. */
+    padding-bottom: 24px;
+}
+
+.wp-sjs-welcome-import > .dashicons {
+    color: #50575e;
+}
+
+/* The list takes the rest of the line next to "Found forms in other plugins:" and wraps inside it, so a second
+   line starts under the first plugin, not under the icon. Below 320px of room it moves under the text. */
+.wp-sjs-welcome-import__sources {
+    display: flex;
+    flex: 1 1 320px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px; /* 8px between wrapped lines, as between the text and the list when the list wraps under it */
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.wp-sjs-welcome-import__sources li {
+    margin: 0;
+}
+
+/* "and 2 more" after the first three plugins, in the secondary text color, then the Import button. The button
+   has the compact 32px size of core's list-table buttons (.tablenav .button), so the line stays one line high. */
+.wp-sjs-welcome-import__more {
+    color: #50575e;
+}
+
+.wp-core-ui .wp-sjs-welcome-import .button {
+    min-height: 32px;
+    padding: 0 12px;
+    line-height: 30px;
+}
+
+.wp-sjs-welcome-import__sources a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--wp-admin-theme-color, #2271b1);
+    text-decoration: none;
+}
+
+.wp-sjs-welcome-import__sources a:hover {
+    text-decoration: underline;
+}
+
+/* Checklist header: title on the left, "2 of 3 steps completed" on the right. */
+.wp-sjs-checklist__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+}
+
+.wp-sjs-checklist__count {
+    color: #50575e;
+}
+
+.wp-sjs-checklist__header + .wp-sjs-progress {
+    margin-top: 8px;
+}
+
+.wp-sjs-checklist__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.wp-sjs-checklist__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+}
+
+.wp-sjs-checklist__title .wp-sjs-checklist__optional {
+    margin-inline-start: 0;
+}
+
+/* Finished steps: plain secondary text, the tick says the rest. */
+.wp-sjs-checklist__step--done strong {
+    color: #50575e;
+    font-weight: 400;
+}
+
+/* The next step: marked with the theme color, open with its description and a primary button. */
+.wp-sjs-checklist .wp-sjs-checklist__step--next .dashicons-marker {
+    color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.wp-sjs-checklist__step--next p {
+    margin: 4px 0 12px;
+}
+
+/* Other open steps: the title and a link on the right, a plain WP link like "Hide checklist" below. */
+.wp-sjs-checklist__link {
+    margin-inline-start: auto;
+}
+
+/* Help links: a plain list of WP links. */
+/* The open step's buttons: the main action and, for the Pro step, Upload the .zip file next to it. */
+.wp-sjs-checklist__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* The Pro step: two numbered things to do, each with its own button. Numbers in the secondary text color. */
+.wp-sjs-checklist__substeps {
+    margin: 12px 0 0 20px;
+    padding: 0;
+    list-style: decimal;
+}
+
+/* Undo the step row styles (flex, divider) that .wp-sjs-checklist__steps li gives every nested li too. */
+.wp-sjs-checklist .wp-sjs-checklist__substeps li {
+    display: list-item;
+    margin: 0 0 16px;
+    padding: 0 0 0 4px;
+    border-top: 0;
+}
+
+.wp-sjs-checklist .wp-sjs-checklist__substeps li:last-child {
+    margin-bottom: 0;
+}
+
+.wp-sjs-checklist__substeps li::marker {
+    color: #50575e;
+    font-weight: 600;
+}
+
+.wp-sjs-checklist .wp-sjs-checklist__substeps p {
+    margin: 0 0 8px;
+}
+
+/* "Visual editing has moved…" card (upgrade_notice.php): the button and the Dismiss link, 16px apart. */
+.wp-sjs-upgrade-card .wp-sjs-upgrade__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+}
+
+/* Cards on the Support page: 24px inside at the top and the bottom, as wide as the card's side padding.
+   Top: 16px card padding + 8px heading margin (core gives h2 a 1em margin, which made it 33px).
+   Bottom: 24px card padding, and the last block's own margin dropped (it made 30px, or 17px under a list). */
+.wp-sjs-welcome__layout .card > h2:first-child,
+.wp-sjs-welcome__layout .wp-sjs-checklist__header > h2 {
+    margin-top: 8px;
+}
+
+.wp-sjs-welcome__layout .card:not(.wp-sjs-welcome-import) {
+    padding-bottom: 24px;
+}
+
+.wp-sjs-welcome__layout .card > :last-child {
+    margin-bottom: 0;
+}
+
+/* Card titles: core h2 inherits the body's 18.2px line (×1.08 of its 16.9px size), too tight on two lines.
+   22px is ×1.3, the same ratio as the page's h1 (23px / 29.9px). */
+.wp-sjs-welcome__layout .card h2 {
+    line-height: 22px;
+}

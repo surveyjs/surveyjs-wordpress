@@ -10,7 +10,7 @@ The plugin version is the version of the SurveyJS libraries it ships (currently 
 
 ### Forms and the form editor
 
-- **SurveyJS Forms** menu: All Forms (search, sorting, bulk delete; row actions Edit, Preview, Results, Duplicate, Save as Template, Delete), Add New Form, Getting Started, Settings.
+- **SurveyJS Forms** menu: All Forms (search, sorting, bulk delete; row actions Edit, Preview, Entries, Duplicate, Save as Template, Delete), Add New Form, Entries, Settings, Support.
 - **Form templates**: Add New Form starts from a blank form, a built-in template or your own template, with categories, search and a live preview. Templates come from [surveyjs/templates](https://github.com/surveyjs/templates) and ship with the plugin; nothing is downloaded. **Save as Template** saves any form as your own template (My Templates).
 - **Form editor** tabs: Config (form JSON), Theme, Email, Integrations (integrations and webhooks), Entries, Restrictions. JSON is edited in a code editor (Monaco) with validation hints, a Format button and a live preview. Images from the Media Library can be inserted or set as the form logo.
 - **Open in free UI Builder**: edit the form in the free online visual builder on surveyjs.io; on save, the JSON comes back to the editor and the editor confirms it to the UI Builder. If the popup is blocked, the connection is cut or the UI Builder does not respond in 15 s, the editor says so and offers to copy and paste the JSON manually. Optional, the plugin works fully without it.

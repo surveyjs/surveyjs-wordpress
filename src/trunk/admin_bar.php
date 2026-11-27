@@ -93,7 +93,7 @@ class SurveyJS_Admin_Bar {
         $admin_bar->add_node( array(
             'parent' => self::NODE,
             'id'     => self::NODE . '-getting-started',
-            'title'  => esc_html__( 'Getting Started', 'surveyjs' ) . ( $progress ? SurveyJS_Welcome::progress_markup( $progress ) : '' ),
+            'title'  => esc_html__( 'Support', 'surveyjs' ) . ( $progress ? SurveyJS_Welcome::progress_markup( $progress ) : '' ),
             'href'   => SurveyJS_Welcome::url(),
         ) );
         if ( $progress ) {

@@ -390,7 +390,7 @@ test.describe.serial("upgrade from the pre-3 plugin", () => {
       await row.hover();
       page.once("dialog", dialog => dialog.accept());
       await row.getByRole("link", { name: "Delete", exact: true }).click();
-      await expect(page.locator(".notice-success")).toContainText("1 form deleted.");
+      await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 form deleted.");
     });
 
     await test.step("roll back by replacing the files with 2.5.x and add a form and entries there", async () => {

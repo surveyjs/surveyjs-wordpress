@@ -1,14 +1,3 @@
-.wp-sjs-templates__name label {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 600;
-}
-
-.wp-sjs-templates__name input {
-    width: 100%;
-    max-width: 480px;
-}
-
 .wp-sjs-templates__layout {
     display: flex;
     gap: 24px;
@@ -22,9 +11,19 @@
     top: 48px;
 }
 
+/* Page title and the template search in one row; the search keeps the WP core field look. */
+.wp-sjs-templates__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 24px;
+}
+
 .wp-sjs-templates__search {
-    width: 100%;
-    margin: 0 0 12px;
+    width: 280px;
+    max-width: 100%;
+    margin: 0;
 }
 
 .wp-sjs-templates__categories {

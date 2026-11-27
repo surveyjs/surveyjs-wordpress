@@ -53,7 +53,7 @@ class SurveyJS_Captcha {
     }
 
     public static function settings_url() {
-        return add_query_arg( array( 'page' => 'surveyjs-settings' ), admin_url( 'admin.php' ) );
+        return add_query_arg( array( 'page' => 'surveyjs-settings', 'tab' => 'spam' ), admin_url( 'admin.php' ) );
     }
 
     public static function script_url() {

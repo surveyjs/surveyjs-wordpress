@@ -1,0 +1,130 @@
+/* Settings > General. Each section (Entries and Data, CAPTCHA, the Add-on's) is its title and text on the page
+   background, then its settings in a white card like the cards on the Support page. Inside the card the settings
+   are rows of the WP form table split by 1px #f0f0f1 lines (as the checklist steps).
+   Spacing: 24px from the tabs to the first title, 32px between sections, 8px from the title to its text and
+   16px from them to the card, 24px inside the card. */
+.wp-sjs-settings__section {
+    max-width: 960px;
+    margin-top: 32px;
+}
+
+.wp-sjs-settings__section:first-of-type { /* after the hidden inputs of settings_fields() */
+    margin-top: 24px;
+}
+
+.wp-sjs-settings__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+}
+
+.wp-sjs-settings__head h2 {
+    margin: 0;
+    line-height: 22px;
+}
+
+/* Save of the Spam Protection tab, next to the title while something is changed. Compact 32px like the
+   list-table buttons; the -5px margins keep the title line 22px high, so nothing moves when it shows. */
+.wp-core-ui .wp-sjs-settings__head .wp-sjs-settings__save {
+    min-height: 32px;
+    margin: -5px 0;
+    padding: 0 12px;
+    line-height: 30px;
+}
+
+.wp-core-ui .wp-sjs-settings__head .wp-sjs-settings__save[hidden] {
+    display: none;
+}
+
+.wp-sjs-settings__card.card {
+    max-width: none;
+    margin: 16px 0 0;
+    padding: 8px 24px; /* + the rows' 16px = 24px at the top and the bottom */
+}
+
+/* The section text (CAPTCHA: what it is, where to get the keys), like the text under the title of the AI tabs:
+   14px / 21px in the body text color, at most 760px wide. */
+.wp-sjs-settings__intro {
+    max-width: 760px;
+    margin-top: 8px;
+    color: #3c434a;
+    font-size: 14px;
+    line-height: 21px;
+}
+
+.wp-sjs-settings__intro p {
+    margin: 0 0 8px;
+    font-size: inherit; /* core sets 13px on every p */
+    line-height: inherit;
+}
+
+.wp-sjs-settings__intro p:last-child {
+    margin-bottom: 0;
+}
+
+.wp-sjs-settings__section .form-table {
+    margin: 0;
+}
+
+.wp-sjs-settings__section .form-table th,
+.wp-sjs-settings__section .form-table td {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.wp-sjs-settings__section .form-table th {
+    width: 200px;
+    padding-right: 24px;
+}
+
+.wp-sjs-settings__section .form-table td {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.wp-sjs-settings__section .form-table tr + tr > th,
+.wp-sjs-settings__section .form-table tr + tr > td {
+    border-top: 1px solid #f0f0f1;
+}
+
+/* A row that starts with a 40px field or select: the label moves down 10px, to the middle of the field, as it is
+   level with the checkbox label in the checkbox rows. */
+.wp-sjs-settings__section .form-table tr:has(> td > :is(input[type="text"], input[type="password"], input[type="number"], input[type="email"], input[type="url"], select):first-child) > th {
+    padding-top: 26px;
+}
+
+/* Every field and select in the settings has one width, 350px (narrower only when the screen is), whatever it
+   holds: a key, a number of days, a score or a choice. */
+.wp-sjs-settings__card .form-table td :is(input[type="text"], input[type="password"], input[type="number"], input[type="email"], input[type="url"], select) {
+    width: 350px;
+    max-width: 100%;
+}
+
+/* Except the number of days, which is followed by "days": 120px. */
+.wp-sjs-settings__card .form-table td input#sjs-entry-retention-days {
+    width: 120px;
+}
+
+/* Help under a setting: one readable column, 4px under the control. */
+.wp-sjs-settings__section .form-table td .description {
+    max-width: 640px;
+    margin-top: 4px;
+}
+
+@media screen and (max-width: 782px) {
+    .wp-sjs-settings__section .form-table th {
+        width: auto;
+        padding-bottom: 0;
+    }
+
+    .wp-sjs-settings__section .form-table tr + tr > td {
+        border-top: 0;
+    }
+}
+
+/* Save Changes 24px under the last card (core's 20px margin + 10px padding made 31px). */
+.wp-sjs-settings__section ~ p.submit {
+    margin-top: 24px;
+    padding-top: 0;
+}

@@ -54,7 +54,7 @@ test.describe("uploaded files", () => {
     page.once("dialog", dialog => dialog.accept());
     await page.locator("#the-list tr").first().hover();
     await page.locator("#the-list tr").first().locator("a.submitdelete").click();
-    await expect(page.locator(".notice-success")).toContainText("1 result deleted.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
     expect((await page.request.get(href)).status()).toBe(404);
   });
 
@@ -188,7 +188,7 @@ test.describe("uploaded files", () => {
     await createSurvey(page, name);
     const editorValue = () => page.evaluate(() => monaco.editor.getModels()[0].getValue());
     const before = await editorValue();
-    const insertImage = page.getByRole("button", { name: "Insert image" });
+    const insertImage = page.getByRole("button", { name: "Get image URL" });
     const list = page.locator("#wp-sjs-image-list");
     await expect(list).toBeHidden();
 

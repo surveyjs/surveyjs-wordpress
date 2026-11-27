@@ -2,7 +2,7 @@
 
 Generated from survey-creator-core 3.2.4 (the English messages and severities of Survey Creator's JSON Editor) and the SurveyJS linter of survey-core 3.2.4 by `scripts/update-json-checks.js`. Do not hand-edit: the next run overwrites this file.
 
-The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor tab of Survey Creator with SurveyJS Forms Pro, the Static analysis panel of the Config tab without Pro. Every finding is an issue in "Form saved with N issues". Write JSON that passes every check below. When the person asks to fix the issues, change the JSON so that none of these messages applies any more. Words in braces are placeholders filled in from the JSON. A rule marked off does not run in that editor.
+The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor tab of Survey Creator with SurveyJS Forms Add-on, the Static analysis panel of the Config tab without the add-on. Every finding is an issue in "Form saved with N issues". Write JSON that passes every check below. When the person asks to fix the issues, change the JSON so that none of these messages applies any more. Words in braces are placeholders filled in from the JSON. A rule marked off does not run in that editor.
 
 ## expression/syntax (error)
 
@@ -50,7 +50,7 @@ The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor
 - The variable definition declares "{variable}", which is also the data key of question "{name}" - setting the variable deletes the answer stored under that key, and {{name}} answers the host value from then on.
 - The variable definition declares "{variable}", which is also the name of calculated value "{name}" - both write the same slot, and whichever runs last wins.
 
-## variable/preset (off in Survey Creator, warning on the Config tab without Pro)
+## variable/preset (off in Survey Creator, warning on the Config tab without the add-on)
 
 - variablePresets.definition is not a survey JSON object, so no variable is declared and no preset value can be checked.
 - variablePresets.presets is not an array, so no preset is declared.
@@ -61,12 +61,12 @@ The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor
 - Preset "{preset}" sets "{variable}", which the variable definition does not declare.
 - Preset "{preset}" sets "{variable}" to a value the variable definition rejects: {errors}
 
-## element/unknown-type (error in Survey Creator, info on the Config tab without Pro)
+## element/unknown-type (error in Survey Creator, info on the Config tab without the add-on)
 
 - "{name}" has an unknown type "{type}".
 - "{name}" has no type - an element without a type is dropped.
 
-## property/unknown (error in Survey Creator, warning on the Config tab without Pro)
+## property/unknown (error in Survey Creator, warning on the Config tab without the add-on)
 
 - "{key}" is not a property of {ownerText} ({className}).
 
@@ -76,13 +76,13 @@ The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor
 - "{key}" and "{aliasKey}" of {ownerText} are two names of one property - the run time applies them in the order the JSON writes them, so "{winner}" wins.
 - "{key}" is set on "{name}", but inputType "{inputType}" has no bounds - the run time ignores it.
 
-## property/invalid-value (error in Survey Creator, warning on the Config tab without Pro)
+## property/invalid-value (error in Survey Creator, warning on the Config tab without the add-on)
 
 - The {key} of {ownerText} is {valueText} - not one of the allowed values ({allowedText}).
 - The {key} of {ownerText} is {value}, outside its allowed range {rangeText}.
 - The valueName "{valueName}" of "{name}" contains a "." - expressions read {{valueName}} as a path into "{rootKey}", so the data key itself can never be addressed.
 
-## property/not-an-array (error in Survey Creator, warning on the Config tab without Pro)
+## property/not-an-array (error in Survey Creator, warning on the Config tab without the add-on)
 
 - The "{key}" of {ownerText} is not an array - the property holds a list, and the run time wraps the value into a one-item array.
 
@@ -162,12 +162,12 @@ The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor
 - The {trigger} trigger targets "{name}", but {containerType} "{root}" has no {segmentNoun} "{segment}".
 - The {trigger} trigger {verb} "{name}", but no {kindText} with that name exists.
 
-## trigger/unknown-type (error in Survey Creator, warning on the Config tab without Pro)
+## trigger/unknown-type (error in Survey Creator, warning on the Config tab without the add-on)
 
 - The trigger type "{type}" is not known.
 - The trigger has no type.
 
-## validator/unknown-type (error in Survey Creator, warning on the Config tab without Pro)
+## validator/unknown-type (error in Survey Creator, warning on the Config tab without the add-on)
 
 - The validator type "{type}" of "{name}" is not known.
 - A validator of "{name}" has no type.

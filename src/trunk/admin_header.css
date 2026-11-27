@@ -1,0 +1,96 @@
+/* Plugin header: the bar with the plugin's sections at the top of every SurveyJS Forms page except the pages of one form. */
+
+.wp-sjs-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+    box-sizing: border-box;
+    min-height: 56px;
+    /* Edge to edge: #wpcontent has 20px of left padding. */
+    margin: 0 0 0 -20px;
+    padding: 8px 20px;
+    background: #fff;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.wp-sjs-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1d2327;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.wp-sjs-header__brand:hover,
+.wp-sjs-header__brand:focus {
+    color: #1d2327;
+}
+
+.wp-sjs-header__brand img {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+.wp-sjs-header__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.wp-sjs-header__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 2px;
+    color: #3c434a;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    text-decoration: none;
+}
+
+.wp-sjs-header__tab:hover {
+    background: #f0f0f1;
+    color: #1d2327;
+}
+
+.wp-sjs-header__tab.is-active {
+    background: color-mix(in srgb, var(--wp-admin-theme-color, #2271b1) 10%, #fff);
+    color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.wp-sjs-header__tab:focus,
+.wp-sjs-header__brand:focus,
+.wp-sjs-header__link:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #2271b1);
+}
+
+.wp-sjs-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.wp-sjs-header__link {
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+@media screen and (max-width: 782px) {
+    .wp-sjs-header {
+        margin-left: -10px;
+        padding: 8px 10px;
+    }
+
+    .wp-sjs-header__actions {
+        margin-left: 0;
+    }
+}

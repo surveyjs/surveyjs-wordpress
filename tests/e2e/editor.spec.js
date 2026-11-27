@@ -37,10 +37,10 @@ test.describe("JSON editor", () => {
     await expect(page.locator(".wp-sjs-lint__finding")).toHaveClass(/is-selected/);
 
     await page.getByRole("button", { name: "Save", exact: true }).click();
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Form saved with 1 issue.");
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("Form saved with 1 issue.");
   });
 
-  test("lists the issues after Save and opens the first one in the JSON editor", async ({ page }) => {
+  test("reports the issues after Save in a snackbar and opens the first one in the JSON editor", async ({ page }) => {
     name = uniqueName("E2E save issues");
     await createSurvey(page, name);
 
@@ -49,9 +49,9 @@ test.describe("JSON editor", () => {
       { type: "checkbox", name: "methods", choices: ["Medication", "Other"], showOtherItem: true }
     ] });
     await page.getByRole("button", { name: "Save", exact: true }).click();
-    const notice = page.locator("#wp-sjs-editor-notice");
+    const notice = page.locator(".wp-sjs-snackbars");
     await expect(notice).toContainText("Form saved with 1 issue.");
-    await expect(notice.locator(".wp-sjs-editor__issues li")).toHaveText(/The choices of "methods" contain "Other" while showOtherItem is on/);
+    await expect(page.locator(".wp-sjs-lint__finding")).toContainText('The choices of "methods" contain "Other" while showOtherItem is on');
 
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
     await notice.getByRole("button", { name: "Review and fix" }).click();
@@ -82,7 +82,7 @@ test.describe("JSON editor", () => {
     await expect(page.locator(".wp-sjs-lint__bar")).toContainText("waiting for valid JSON");
 
     await page.evaluate(() => window.monaco.editor.getEditors()[0].setValue("{\"title\":\"Compact\"}"));
-    await page.getByRole("button", { name: "Format" }).click();
+    await page.getByRole("button", { name: "Format JSON" }).click();
     expect(await editorValue(page)).toBe("{\n  \"title\": \"Compact\"\n}");
     await expect(page.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   });
@@ -99,7 +99,7 @@ test.describe("JSON editor", () => {
     const question = JSON.parse(await editorValue(page)).pages[1].elements[1];
     expect(question).toMatchObject({ type: "boolean", displayMode: "checkbox", isRequired: true, validators: [{ type: "expression", expression: "{gdpr_agreement} = true" }] });
     expect(question.title).toContain("I consent");
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Press Save to keep it");
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("Press Save to keep it");
     const preview = page.frameLocator("#wp-sjs-preview");
     await expect(preview.getByText("I consent")).toBeVisible();
     const privacyLink = question.title.match(/\[Privacy Policy\]\(([^)]+)\)/);
@@ -120,7 +120,7 @@ test.describe("JSON editor", () => {
     const json = JSON.parse(await editorValue(page));
     expect(json.pages[0].elements[0].elements).toEqual([]);
     expect(json.pages[1].elements.map(element => element.name)).toEqual(["q2"]);
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("removed");
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("removed");
 
     await page.evaluate(() => window.monaco.editor.getEditors()[0].setValue("{ \"elements\": ["));
     await expect(gdpr).toBeDisabled();
@@ -280,7 +280,7 @@ test.describe("admin menu", () => {
       [`page=surveyjs_results&id=${id}`, "All Forms"],
       ["page=surveyjs_import&source=cf7", "All Forms"],
       [`page=surveyjs-templates&form=${id}`, "Add New Form"],
-      ["page=surveyjs-getting-started", /^Getting Started/]
+      ["page=surveyjs-getting-started", /^Support/]
     ];
     for (const [query, current] of pages) {
       await page.goto(`/wp-admin/admin.php?${query}`);

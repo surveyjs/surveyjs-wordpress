@@ -673,7 +673,7 @@ class SurveyJS_AI {
             'chat-entries-off' => __( 'The AI chat can no longer read form entries.', 'surveyjs' ),
         );
         if ( in_array( $updated, $keys, true ) && isset( $messages[ $updated ] ) && ( 'mcp-on' !== $updated || self::is_enabled() ) ) {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $messages[ $updated ] ) . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible" data-sjs-snackbar><p>' . esc_html( $messages[ $updated ] ) . '</p></div>';
         }
     }
 

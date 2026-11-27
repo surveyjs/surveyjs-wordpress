@@ -10,22 +10,26 @@
 .wp-sjs-ai__facts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    margin: 16px 0 24px;
+    gap: 20px;
+    margin: 20px 0 0;
 }
 
+/* Cards on the AI tabs (facts, steps, connection paths, settings) look like the cards of Settings > General and
+   Support: core's .card border and 8px radius, 24px inside, 20px apart, titles in 16.9px / 22px. */
 .wp-sjs-ai__fact {
     background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 4px;
-    padding: 4px 16px 8px;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 8px;
+    padding: 24px;
 }
 
 .wp-sjs-ai__fact h3 {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin: 0 0 8px;
     font-size: 14px;
+    line-height: 22px;
 }
 
 .wp-sjs-ai__fact .dashicons {
@@ -34,7 +38,11 @@
 
 .wp-sjs-ai__fact ul {
     list-style: disc;
-    margin-left: 20px;
+    margin: 0 0 0 20px;
+}
+
+.wp-sjs-ai__fact li:last-child {
+    margin-bottom: 0;
 }
 
 .wp-sjs-ai__steps {
@@ -48,17 +56,33 @@
     counter-increment: wp-sjs-ai-step;
     position: relative;
     background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 4px;
-    margin: 0 0 12px;
-    padding: 4px 20px 12px 64px;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 8px;
+    margin: 0 0 20px;
+    padding: 24px 24px 24px 68px; /* the number: 24px + 28px + 16px to the text */
+}
+
+.wp-sjs-ai__step:last-child {
+    margin-bottom: 0;
+}
+
+/* Step title level with the middle of the number. */
+.wp-sjs-ai__step > h3 {
+    margin: 0 0 8px;
+    font-size: 16.9px;
+    line-height: 22px;
+}
+
+.wp-sjs-ai__step > :last-child,
+.wp-sjs-ai__fact > :last-child {
+    margin-bottom: 0;
 }
 
 .wp-sjs-ai__step::before {
     content: counter(wp-sjs-ai-step);
     position: absolute;
-    left: 20px;
-    top: 14px;
+    left: 24px;
+    top: 21px; /* 24px - (28px - 22px title line) / 2 */
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -189,9 +213,16 @@
     user-select: all;
 }
 
+/* The title of the AI tabs is the same as the section titles of the other Settings tabs: core's h2 size
+   (16.9px) on a 22px line, 24px under the tabs and 8px above its text. */
 .wp-sjs-ai__title {
-    font-size: 1.6em;
-    margin-top: 1em;
+    margin: 24px 0 8px;
+    line-height: 22px;
+}
+
+.wp-sjs-ai__title + .wp-sjs-ai__lead,
+.wp-sjs-ai__title + .wp-sjs-ai__chat > .wp-sjs-ai__section-lead:first-child {
+    margin-top: 0;
 }
 
 .wp-sjs-ai__examples {
@@ -205,7 +236,7 @@
     margin: 0;
     padding: 4px 12px;
     border-radius: 14px;
-    background: #f0f6fc;
+    background: #fff; /* white on the gray page, like the cards */
     color: #1d2327;
     font-style: italic;
 }
@@ -221,9 +252,9 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 14px 16px;
-    border: 1px solid #c3c4c7;
-    border-radius: 6px;
+    padding: 16px;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 8px;
     background: #fff;
     color: #1d2327;
     text-decoration: none;
@@ -262,9 +293,7 @@
 }
 
 .wp-sjs-ai__section {
-    margin-top: 32px;
-    padding-top: 8px;
-    border-top: 1px solid #dcdcde;
+    margin-top: 20px;
 }
 
 .wp-sjs-ai__section-lead {
@@ -281,16 +310,50 @@
     color: #50575e;
 }
 
-.wp-sjs-ai__write {
-    margin: 16px 0 4px;
-    padding: 4px 16px 12px;
-    border: 1px solid #dcdcde;
-    border-radius: 4px;
-    background: #f6f7f7;
+/* A setting inside a card (MCP write access, reading entries, the chat button): a row split from the content
+   above by a 1px #f0f0f1 line, as the rows of Settings > General. */
+.wp-sjs-ai__write,
+.wp-sjs-ai__settings .wp-sjs-ai__chat-switch {
+    margin: 16px 0 0;
+    padding: 16px 0 0;
+    border-top: 1px solid #f0f0f1;
 }
 
-.wp-sjs-ai__write h4 {
-    margin: 10px 0 0;
+.wp-sjs-ai__write h4,
+.wp-sjs-ai__chat-switch h4 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.wp-sjs-ai__write p,
+.wp-sjs-ai__chat-switch p {
+    margin: 0 0 8px;
+}
+
+.wp-sjs-ai__write > :last-child {
+    margin-bottom: 0;
+}
+
+/* AI Client: reading entries and the chat button in one card, under the steps. */
+.wp-sjs-ai__settings.card {
+    max-width: none;
+    margin: 20px 0 0;
+    padding: 24px;
+}
+
+.wp-sjs-ai__settings > h2 {
+    margin: 0;
+    line-height: 22px;
+}
+
+.wp-sjs-ai__settings > h2 + .wp-sjs-ai__write {
+    margin-top: 8px; /* 24px from the title to the first setting, as on General */
+    border-top: 0;
+}
+
+.wp-sjs-ai__other-tab {
+    margin: 20px 0 0;
 }
 
 .wp-sjs-ai__endpoint {
@@ -378,6 +441,10 @@
     max-width: 760px;
 }
 
+.wp-sjs-ai .notice.wp-sjs-ai__billing {
+    margin-bottom: 20px; /* to the first step, as between the cards */
+}
+
 .wp-sjs-ai__providers {
     display: flex;
     flex-wrap: wrap;
@@ -402,8 +469,8 @@
     margin-right: 8px;
 }
 
-.wp-sjs-ai__chat-switch {
-    margin-top: 16px;
+.wp-sjs-ai__chat-actions {
+    margin: 20px 0 0;
 }
 
 .wp-sjs-ai__checklist label[for="wp-sjs-ai-model"] {

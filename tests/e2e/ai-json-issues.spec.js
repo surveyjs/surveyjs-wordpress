@@ -69,7 +69,7 @@ test.describe("JSON issues for AI", () => {
     const saved = page.waitForResponse((response) => response.url().includes("action=SurveyJS_SaveSurvey"));
     await page.locator("#wp-sjs-save").click();
     await saved;
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Form saved with 2 issues.");
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("Form saved with 2 issues.");
 
     const checked = ability("surveyjs/get-form", { id });
     expect(checked.issues_note).toContain("JSON linter of the form editor");

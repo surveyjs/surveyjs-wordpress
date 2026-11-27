@@ -190,10 +190,10 @@
     const header = element("div", "wp-sjs-chat__header");
     const title = element("h2", "wp-sjs-chat__title");
     title.append(sparkle(), element("span", "", __("AI assistant", "surveyjs")));
-    const newChat = button("", "wp-sjs-chat__icon-button", () => startNewChat());
-    newChat.append(dashicon("plus-alt2"), element("span", "", __("New chat", "surveyjs")));
+    // Header actions: New chat is an outlined text button, close a square button with the x; both 32px.
+    const newChat = button(__("New chat", "surveyjs"), "wp-sjs-chat__new", () => startNewChat());
     newChat.title = __("Start new chat", "surveyjs");
-    const close = button("", "wp-sjs-chat__icon-button wp-sjs-chat__close", () => setOpen(false));
+    const close = button("", "wp-sjs-chat__close", () => setOpen(false));
     close.append(dashicon("no-alt"));
     close.setAttribute("aria-label", __("Close the AI assistant", "surveyjs"));
     const headerActions = element("div", "wp-sjs-chat__header-actions");
@@ -254,7 +254,12 @@
     panel.append(header, modelRow, log, status, composer);
     rootElement.append(panel);
     const starters = document.querySelectorAll("[data-sjs-ai-start]");
-    if (siteMode) {
+    // On the plugin's pages the button goes to the plugin header, first of its actions, the same on every page;
+    // a page without the header (another plugin's screen) gets it next to its title.
+    const pluginHeaderActions = siteMode ? document.querySelector(".wp-sjs-header__actions") : null;
+    if (pluginHeaderActions) {
+        pluginHeaderActions.prepend(toggle);
+    } else if (siteMode) {
         toggle.className = "page-title-action wp-sjs-chat-toggle";
         const actions = rootElement.querySelectorAll(".page-title-action");
         const heading = rootElement.querySelector("h1, h2");
@@ -556,13 +561,13 @@
             box.append(element("p", "wp-sjs-chat__greeting", __("Ask me what a setting does or where to find it. I can't see this screen, so name the setting you mean.", "surveyjs")));
             box.append(element("p", "wp-sjs-chat__hint", __("I never get your keys and passwords: CAPTCHA secret keys, the license key and AI provider keys stay on the site.", "surveyjs")));
         } else if (siteMode) {
-            box.append(element("p", "wp-sjs-chat__greeting", __("Ask me to create a form, start one from a template, change a form or its settings, or ask how to do something in SurveyJS Forms.", "surveyjs")));
-            box.append(element("p", "wp-sjs-chat__hint", __("Everything I create or change is saved as a draft: you open the form, review it and click Save. I can't put forms on pages, but I can tell you how.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__greeting", __("Ask me to create or change a form, or how to do something in SurveyJS Forms.", "surveyjs")));
+            box.append(element("p", "wp-sjs-chat__hint", __("Every change is saved as a draft for you to review.", "surveyjs")));
         } else {
             box.append(element("p", "wp-sjs-chat__greeting", __("Tell me what to change in this form, or ask how to do something in SurveyJS Forms.", "surveyjs")));
             box.append(element("p", "wp-sjs-chat__hint", __("I work on what you see in the editor, including unsaved edits. My changes show up here as a draft: you review them and click Save.", "surveyjs")));
         }
-        if (state && state.choice) box.append(element("p", "wp-sjs-chat__billing", billingLine(state.choice.providerName)));
+        // Who bills the requests is said once, under the message box (privacy line), not in the greeting too.
         const list = element("div", "wp-sjs-chat__suggestions");
         suggestions().forEach((text) => list.append(button(text, "wp-sjs-chat__suggestion", () => {
             input.value = text;
@@ -847,6 +852,8 @@
         toggle.setAttribute("aria-expanded", String(open));
         toggle.classList.toggle("is-active", open);
         rootElement.classList.toggle("wp-sjs-chat-open", open);
+        // The plugin header sits outside rootElement (.wrap): it makes room for the panel by this class.
+        document.body.classList.toggle("wp-sjs-chat-is-open", open);
         remember(open);
         if (open) {
             if (!state && !loading) load(false);

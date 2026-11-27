@@ -49,8 +49,8 @@ test.describe("entry retention", () => {
   test("the site setting deletes old entries of forms that use it", async ({ page }) => {
     await page.goto("/wp-admin/admin.php?page=surveyjs-settings");
     await page.getByLabel("Delete old entries").fill("5");
-    await page.getByRole("button", { name: "Save Changes" }).click();
-    await expect(page.locator(".notice-success")).toBeVisible();
+    await page.getByLabel("Delete old entries").press("Enter"); // saved on Enter or when the field is left
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toBeVisible();
     await expect(page.getByLabel("Delete old entries")).toHaveValue("5");
     expect(fixture("scheduled").next).toBeTruthy();
 

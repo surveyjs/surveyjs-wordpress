@@ -1,0 +1,30 @@
+/* Import page: one page for every source plugin, switched by the tabs under the title. */
+
+.wp-sjs-import .wp-sjs-import__sources {
+    margin: 16px 0 20px;
+}
+
+/* How many forms the plugin has to import; the badge itself is .wp-sjs-count in admin.css. */
+.wp-sjs-import__sources .wp-sjs-count {
+    margin-left: 4px;
+    vertical-align: 1px;
+}
+
+/* Forms to import: a WP list table (widefat striped, check-column), so selecting all works through core's
+   common.js and the rows look like All Forms. Clicking the form name ticks its row. */
+.wp-sjs-import__forms {
+    margin: 8px 0 16px;
+}
+
+.wp-sjs-import__forms .wp-sjs-import__status {
+    width: 40%;
+}
+
+.wp-sjs-import__forms td.column-primary label {
+    display: block;
+    cursor: pointer;
+}
+
+.wp-sjs-import__new {
+    color: #50575e;
+}

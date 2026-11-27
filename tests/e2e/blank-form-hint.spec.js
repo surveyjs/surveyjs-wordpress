@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, setEditorJson, SURVEY_JSON } = require("./helpers");
+const { uniqueName, setEditorJson, renameSurvey, SURVEY_JSON } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const TEMPLATES_URL = "/wp-admin/admin.php?page=surveyjs-templates";
@@ -29,9 +29,9 @@ test.describe("hint in the editor of an empty form", () => {
 
   test("guides to the JSON docs and the UI Builder until the form has an element", async ({ page }) => {
     await page.goto(TEMPLATES_URL);
-    await page.getByLabel("Form name").fill(uniqueName("E2E blank form hint"));
     await page.getByRole("button", { name: "Create blank form" }).click();
     await expect(page).toHaveURL(/page=surveyjs_editor/);
+    await renameSurvey(page, uniqueName("E2E blank form hint"));
     await expect(page.locator(".monaco-editor")).toBeVisible();
     formId = Number(new URL(page.url()).searchParams.get("id"));
 

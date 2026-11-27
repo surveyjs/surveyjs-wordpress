@@ -302,7 +302,7 @@ test.describe("import from Fluent Forms", () => {
     await saveSurvey(page);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs_import&source=fluentform");
-    await expect(page.locator("p", { has: page.locator(`input[value="${fluentId}"]`) })).toContainText("imported before, will be updated");
+    await expect(page.locator("tr", { has: page.locator(`input[value="${fluentId}"]`) })).toContainText("Imported before, will be updated");
     await importFluentForm(page);
     await expect(result).toContainText("updated");
     await expect(result).toContainText("Entries: 0 added, 1 updated.");

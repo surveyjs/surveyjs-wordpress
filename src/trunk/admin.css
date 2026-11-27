@@ -1,0 +1,471 @@
+/* Shared components of the SurveyJS Forms admin pages. Loaded on every page of the plugin, the form pages included. */
+
+/* Breadcrumbs above a page title: All Forms / form / page. */
+.wp-sjs-breadcrumbs {
+    margin: 12px 0 -4px;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.wp-sjs-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.wp-sjs-breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    color: #50575e;
+}
+
+.wp-sjs-breadcrumbs li + li::before {
+    content: "/";
+    margin: 0 8px;
+    color: #a7aaad;
+}
+
+.wp-sjs-breadcrumbs a {
+    color: var(--wp-admin-theme-color, #2271b1);
+    text-decoration: none;
+}
+
+.wp-sjs-breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+/* Count badge: a blue pill with a white number (unread entries, forms to import). */
+.wp-sjs-count {
+    display: inline-block;
+    flex: none;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 9px;
+    background: var(--wp-admin-theme-color, #2271b1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+}
+
+/* Form switcher next to a page title (Entries): same 32px height as the page-title-action buttons beside it. */
+.wp-sjs-form-switcher {
+    position: relative;
+    top: -3px; /* same baseline and shift as .page-title-action, so the edges line up to the pixel */
+    display: inline-block;
+    margin: 0 8px 0 15px; /* 24px from the title text: core's 5px h1 margin + a space + 15px */
+    vertical-align: baseline;
+}
+
+/* The first button after an inline page title (Forms > Add New Form) also starts 24px from the title text, like
+   the form switcher on Entries. Core gives it 4px, which made 13px. */
+.wrap .wp-heading-inline + .page-title-action {
+    margin-left: 15px;
+}
+
+/* The toggle copies the WP core select (wp-admin/css/forms.css, .wp-core-ui select and its compact
+   .tablenav size): colors, border, chevron and the hover / focus / active states. Keep them in sync. */
+.wp-sjs-form-switcher__toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 320px; /* one width for every form, so the buttons next to it don't jump; long names get an ellipsis */
+    min-height: 32px;
+    padding: 0 8px 0 12px;
+    border: 1px solid #949494;
+    border-radius: 2px;
+    background: #fff;
+    color: #1e1e1e;
+    font-size: 14px;
+    line-height: 2.14285714; /* 30px for 32px height with 14px font */
+    cursor: pointer;
+    list-style: none;
+}
+
+.wp-sjs-form-switcher__toggle::-webkit-details-marker {
+    display: none;
+}
+
+.wp-sjs-form-switcher__toggle:hover {
+    border-color: #1e1e1e;
+    color: #1e1e1e;
+}
+
+.wp-sjs-form-switcher__toggle:focus {
+    border-color: var(--wp-admin-theme-color);
+    color: #1e1e1e;
+    box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) var(--wp-admin-theme-color);
+    /* Only visible in Windows High Contrast mode */
+    outline: 2px solid transparent;
+}
+
+.wp-sjs-form-switcher__toggle:active {
+    border-color: #949494;
+    box-shadow: none;
+}
+
+/* The same arrow-down-alt2 chevron as the core select, in the same color. */
+.wp-sjs-form-switcher__toggle .dashicons {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: #1e1e1e;
+}
+
+.wp-sjs-form-switcher__name {
+    overflow: hidden;
+    min-width: 0;
+    flex: 1 1 auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wp-sjs-form-switcher__menu {
+    position: absolute;
+    z-index: 100;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    max-width: 420px;
+    max-height: 360px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid #dcdcde;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    list-style: none;
+}
+
+.wp-sjs-form-switcher__menu li {
+    margin: 0;
+}
+
+.wp-sjs-form-switcher__menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 8px;
+    border-radius: 2px;
+    color: #1d2327;
+    font-size: 13px;
+    line-height: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.wp-sjs-form-switcher__menu a:hover,
+.wp-sjs-form-switcher__menu a:focus {
+    outline: none;
+    background: #f0f0f1;
+    box-shadow: none;
+}
+
+.wp-sjs-form-switcher__menu a[aria-current="page"] {
+    background: color-mix(in srgb, var(--wp-admin-theme-color, #2271b1) 10%, #fff);
+    color: var(--wp-admin-theme-color, #2271b1);
+    font-weight: 600;
+}
+
+/* Like the core select and the page-title-action buttons, the switcher grows to 40px on small screens. */
+@media screen and (max-width: 782px) {
+    .wp-sjs-form-switcher__toggle {
+        min-height: 40px;
+        line-height: 2.71428571;
+    }
+}
+
+/* Get Pro button (header, Getting Started checklist, Pro card): a WP .button (size, radius, padding, focus shape as .button-primary) in the SurveyJS brand green
+   (#19b394, the Survey Creator primary color) instead of the theme color; hover and active are 10% and 20%
+   darker. The Get Pro item in the admin menu uses the same green. */
+.wp-core-ui .button.wp-sjs-button-pro {
+    border-color: #19b394;
+    background: #19b394;
+    color: #fff;
+}
+
+.wp-core-ui .button.wp-sjs-button-pro:hover {
+    border-color: #16a185;
+    background: #16a185;
+    color: #fff;
+}
+
+.wp-core-ui .button.wp-sjs-button-pro:focus {
+    border-color: #19b394;
+    background: #19b394;
+    color: #fff;
+    box-shadow: 0 0 0 var(--wp-admin-border-width-focus, 1.5px) #19b394, inset 0 0 0 1px #fff;
+    outline: 1px solid transparent;
+}
+
+.wp-core-ui .button.wp-sjs-button-pro:active {
+    border-color: #148f76;
+    background: #148f76;
+    color: #fff;
+    box-shadow: none;
+}
+
+/* Button with a 16px Dashicon next to its label (editor toolbar, Pro toolbar). WP core gives button icons
+   line-height 1.9 and vertical-align top for 20px icons, which pushes a 16px icon off center; flex centers it. */
+.wp-core-ui .button.wp-sjs-button-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* inline-flex above outranks the browser's [hidden]; a hidden icon button stays hidden (Close preview is shown only in
+   the full preview). */
+.wp-core-ui .button.wp-sjs-button-icon[hidden] {
+    display: none;
+}
+
+.wp-core-ui .button.wp-sjs-button-icon .dashicons {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    line-height: 1;
+    vertical-align: baseline;
+}
+
+/* All Forms table: the name takes the free space, the numbers and the date get just what they need. Widths in
+   em follow the WP core lists (comments column, date column) and fit the header with its sort arrow. */
+.wp-list-table.surveys .column-results,
+.wp-list-table.surveys .column-views,
+.wp-list-table.surveys .column-conversion {
+    width: 8.5em;
+}
+
+/* Fits the longest date, "November 23, 2026 at 10:58 pm", on one line. */
+.wp-list-table.surveys .column-modified {
+    width: 17em;
+}
+
+/* The "WordPress X is available" nag, moved by admin.js next to the other notices, gets their spacing
+   (.notice has 5px above and 15px below) instead of its own 25px top margin. */
+/* It is inline-block in core, so it is made a block of its own width: otherwise an inline title (Forms + Add
+   New Form) would continue on the nag's line. */
+.wrap > .update-nag {
+    display: block;
+    width: fit-content;
+    margin: 5px 0 15px;
+}
+
+/* Search fields on every plugin page (All Forms, Entries, templates): a magnifier on the left, the same width
+   everywhere. The icon is a data-URI SVG, like the chevron of the WP core select, in the placeholder gray. */
+/* p.search-box is listed too: core's p.search-box rule sets the list tables' padding and would win. */
+.wrap input[type="search"],
+.wrap p.search-box input[type="search"] {
+    width: 280px;
+    max-width: 100%;
+    padding-inline-start: 36px;
+    background: #fff url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%3E%3Ccircle%20cx%3D%228.5%22%20cy%3D%228.5%22%20r%3D%225.5%22%20fill%3D%22none%22%20stroke%3D%22%23757575%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M12.5%2012.5l4.5%204.5%22%20stroke%3D%22%23757575%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E') no-repeat 10px 50%;
+    background-size: 20px 20px;
+}
+
+/* The list tables search while typing, so their Search button is hidden by admin.js. */
+.wrap .search-box input[type="submit"][hidden] {
+    display: none;
+}
+
+/* All Forms and Entries: no "N items" count under the search field. The bottom bar keeps its count and pagination. */
+#wp-sjs-forms-list .tablenav.top .displaying-num,
+#wp-sjs-results-list .tablenav.top .displaying-num {
+    display: none;
+}
+
+/* The list tables' search field sits in the top bar (extra_tablenav), right-aligned on the bulk actions row.
+   The row it used to have above the table kept the table off the title; the top bar now keeps a 24px gap
+   between the title row and the bulk actions. WordPress adds 3px of its own (the title buttons sit 3px high),
+   so the margin is 21px for 24px on screen. */
+.wrap .tablenav p.search-box {
+    margin: 0 0 0 8px;
+}
+
+#wp-sjs-forms-list .tablenav.top,
+#wp-sjs-results-list .tablenav.top {
+    margin-top: 21px;
+    margin-bottom: 8px;
+}
+
+/* 8px between the top bar and the table on both lists. Core gives the floated pagination a 9px bottom margin,
+   and the table steps below it, which made Entries (with pagination) 9px and All Forms (without) 4px. */
+#wp-sjs-forms-list .tablenav.top .tablenav-pages,
+#wp-sjs-results-list .tablenav.top .tablenav-pages {
+    margin-bottom: 0;
+}
+
+/* Ends an inline title row (h1.wp-heading-inline + actions), so the floated status filters below start on their own line.
+   Core does this with the hr.wp-header-end, which our pages put above the title for notices. */
+.wrap .wp-sjs-title-end {
+    clear: both;
+}
+
+/* On Entries the status filters (All | Unread | Read | Spam) float above the top bar, and a float swallows the
+   bar's top margin; the filters' own bottom margin keeps them off it instead. */
+.wrap .subsubsub {
+    margin-bottom: 12px;
+}
+
+/* Snackbars (admin.js): short messages about an action, over the page in the bottom left corner of the content
+   area, 16px from its edges. They copy the snackbar of the WordPress block editor (components-snackbar): #1e1e1e
+   background, white 13px text, 2px radius, underlined actions. */
+.wp-sjs-snackbars {
+    position: fixed;
+    z-index: 100000; /* above the admin bar, the Survey Creator full screen and modal popups */
+    bottom: 16px;
+    left: 176px; /* 160px admin menu + 16px */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: calc(100vw - 192px);
+    pointer-events: none;
+}
+
+.folded .wp-sjs-snackbars {
+    left: 52px; /* 36px folded menu + 16px */
+    max-width: calc(100vw - 68px);
+}
+
+@media only screen and (max-width: 960px) {
+    .auto-fold .wp-sjs-snackbars {
+        left: 52px;
+        max-width: calc(100vw - 68px);
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .auto-fold .wp-sjs-snackbars,
+    .folded .wp-sjs-snackbars,
+    .wp-sjs-snackbars {
+        right: 16px;
+        left: 16px;
+        max-width: none;
+    }
+}
+
+.wp-sjs-pro-fullscreen-mode .wp-sjs-snackbars {
+    left: 16px;
+    max-width: calc(100vw - 32px);
+}
+
+.wp-sjs-snackbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+    max-width: 600px;
+    min-height: 48px;
+    padding: 8px 8px 8px 16px;
+    border-radius: 2px;
+    background: #1e1e1e;
+    color: #fff;
+    font-size: 13px;
+    line-height: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05), 0 2px 3px rgba(0, 0, 0, .04), 0 6px 6px rgba(0, 0, 0, .03), 0 8px 8px rgba(0, 0, 0, .02);
+    pointer-events: auto;
+    animation: wp-sjs-snackbar-in .2s ease-out;
+}
+
+.wp-sjs-snackbar.is-leaving {
+    opacity: 0;
+    transition: opacity .15s ease-in;
+}
+
+@keyframes wp-sjs-snackbar-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wp-sjs-snackbar {
+        animation: none;
+    }
+
+    .wp-sjs-snackbar.is-leaving {
+        transition: none;
+    }
+}
+
+/* Status icons in the light tints of the WordPress palette, which read on the dark background. */
+.wp-sjs-snackbar__icon.dashicons {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+}
+
+.wp-sjs-snackbar.is-success .wp-sjs-snackbar__icon {
+    color: #68de7c;
+}
+
+.wp-sjs-snackbar.is-warning .wp-sjs-snackbar__icon {
+    color: #f2d675;
+}
+
+.wp-sjs-snackbar.is-error .wp-sjs-snackbar__icon {
+    color: #ff8085;
+}
+
+.wp-sjs-snackbar__text {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 8px;
+}
+
+.wp-sjs-snackbar__action {
+    flex: none;
+    padding: 4px;
+    border: 0;
+    border-radius: 2px;
+    background: none;
+    color: #fff;
+    font: inherit;
+    font-weight: 500;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.wp-sjs-snackbar__close {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    background: none;
+    color: #fff;
+    opacity: .8;
+    cursor: pointer;
+}
+
+.wp-sjs-snackbar__close:hover {
+    opacity: 1;
+}
+
+.wp-sjs-snackbar__action:focus,
+.wp-sjs-snackbar__close:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #2271b1);
+    opacity: 1;
+}
+
+/* While admin.js turns them into snackbars, the source notices are not drawn (they stay without JavaScript). */
+.js .notice[data-sjs-snackbar] {
+    display: none;
+}

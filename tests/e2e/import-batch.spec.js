@@ -72,10 +72,11 @@ test.describe("batch import", () => {
     await page.goto(IMPORT_URL);
     await selectForms(page, wpformsIds);
     await page.evaluate(([title, afterId]) => {
-      const line = document.createElement("p");
-      line.innerHTML = '<label><input type="checkbox" name="forms[]" value="999999999" checked> </label>';
-      line.querySelector("label").append(title);
-      document.querySelector(`input[name="forms[]"][value="${afterId}"]`).closest("p").after(line);
+      const row = document.createElement("tr");
+      row.innerHTML = '<th scope="row" class="check-column"><input type="checkbox" name="forms[]" value="999999999" checked></th><td></td><td></td>';
+      row.querySelector("input").dataset.name = title;
+      row.querySelector("td").append(title);
+      document.querySelector(`input[name="forms[]"][value="${afterId}"]`).closest("tr").after(row);
     }, [`${name} missing`, wpformsIds[0]]);
     await recordStatus(page);
     await page.getByRole("button", { name: "Import" }).click();

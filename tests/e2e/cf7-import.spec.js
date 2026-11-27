@@ -149,7 +149,7 @@ test.describe("import from Contact Form 7", () => {
     expect(updated.ok()).toBe(true);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs_import&source=cf7");
-    await expect(page.locator("p", { has: page.locator(`input[value="${cf7Id}"]`) })).toContainText("imported before, will be updated");
+    await expect(page.locator("tr", { has: page.locator(`input[value="${cf7Id}"]`) })).toContainText("Imported before, will be updated");
     await importForm(page, cf7Id);
     await expect(result).toContainText("updated");
     await result.getByRole("link", { name: "Edit" }).click();
@@ -261,12 +261,11 @@ test.describe("import from Contact Form 7", () => {
     expect(fallback.Text).toContain("UTM: direct");
   });
 
-  test("the Getting Started page offers the Contact Form 7 import", async ({ page }) => {
+  test("the Support page links to the Contact Form 7 import", async ({ page }) => {
     await page.goto("/wp-admin/admin.php?page=surveyjs-getting-started");
-    const card = page.locator(".wp-sjs-welcome-import", { has: page.getByRole("heading", { name: "Import from Contact Form 7" }) });
-    test.skip(!(await card.count()), "Contact Form 7 has no forms");
-    await expect(card.getByRole("heading", { name: "Import from Contact Form 7" })).toBeVisible();
-    await expect(card.getByText("Importing a form again updates the SurveyJS form")).toBeVisible();
-    await expect(card.getByRole("button", { name: "Import" })).toBeVisible();
+    const link = page.locator(".wp-sjs-welcome-import").getByRole("link", { name: /^Import \d+ forms? from Contact Form 7$/ });
+    test.skip(!(await link.count()), "Contact Form 7 has no forms");
+    await expect(link).toHaveAttribute("href", /page=surveyjs_import&(amp;)?source=cf7/);
+    await expect(link.locator(".wp-sjs-count")).toHaveText(/^\d+$/);
   });
 });

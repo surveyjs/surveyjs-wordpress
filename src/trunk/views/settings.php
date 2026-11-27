@@ -7,12 +7,112 @@ class SurveyJS_SettingsPage {
     const OPTION_GROUP = 'surveyjs-settings-group';
     const OPTION = 'surveyjs-settings';
 
+    // The settings are split into tabs. A tab's form posts only its own fields, so saving one tab must keep the
+    // values of the others: the keys of this plugin's option that each tab owns (the rest of the option is kept as
+    // saved), and the sections each tab shows. Sections of other plugins (the Add-on) go to the Add-on tab.
+    const TAB_KEYS = array(
+        'general' => array( 'store_ip', SurveyJS_Form_Stats::SETTING, 'entry_retention_days', 'uninstall_data' ),
+        'spam'    => array( 'captcha_type', 'captcha_site_key', 'captcha_secret_key', 'captcha_threshold' ),
+    );
+    const TAB_SECTIONS = array(
+        'sjs-data-section'    => 'general',
+        'sjs-captcha-section' => 'spam',
+    );
+    const ADDON_TAB = 'addon';
+    // Tabs whose settings only work together (the CAPTCHA service and its keys) keep a Save button; with
+    // JavaScript the settings of the other tabs are saved as soon as they change.
+    const MANUAL_TABS = array( 'spam' );
+    const TAB_FIELD = 'sjs_settings_tab';
+
+    // The tab being saved, set while options.php saves this page's form.
+    private static $saving_tab = '';
+
     function __construct() {
         $this->add_hooks();
     }
 
     private function add_hooks() {
         add_action( "admin_init", array( $this, 'init' ) );
+        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_style' ) );
+        // After core's option_update_filter (priority 10), which adds the options of register_setting() to the list.
+        add_filter( 'allowed_options', array( __CLASS__, 'allowed_options' ), 100 );
+	}
+
+	// options.php saves every option of the group and empties the ones the form did not post, so on a tab only the
+	// options of that tab are saved: this plugin's option on General and Spam Protection, the others (the Add-on's)
+	// on the Add-on tab. It only narrows the list: options.php checks the nonce of the form before it saves anything.
+	public static function allowed_options( $allowed ) {
+		$tab = sanitize_key( wp_unslash( $_POST[ self::TAB_FIELD ] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only narrows what options.php saves after its own nonce check.
+		$page = sanitize_text_field( wp_unslash( $_POST['option_page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( '' === $tab || self::OPTION_GROUP !== $page || empty( $allowed[ self::OPTION_GROUP ] ) ) {
+			return $allowed;
+		}
+		self::$saving_tab = $tab;
+		$allowed[ self::OPTION_GROUP ] = array_values( array_filter( (array) $allowed[ self::OPTION_GROUP ], function ( $option ) use ( $tab ) {
+			return self::ADDON_TAB === $tab ? self::OPTION !== $option : self::OPTION === $option;
+		} ) );
+		return $allowed;
+	}
+
+	// Tab slug => label of the tabs with settings fields; the Add-on tab only when another plugin added a section.
+	private static function field_tabs() {
+		global $wp_settings_sections;
+		$tabs = array(
+			'general' => __( 'General', 'surveyjs' ),
+			'spam'    => __( 'Spam Protection', 'surveyjs' ),
+		);
+		foreach ( array_keys( (array) ( $wp_settings_sections[ self::PAGE ] ?? array() ) ) as $id ) {
+			if ( ! isset( self::TAB_SECTIONS[ $id ] ) ) {
+				$tabs[ self::ADDON_TAB ] = __( 'Add-on', 'surveyjs' );
+			}
+		}
+		return $tabs;
+	}
+
+	private static function section_tab( $id ) {
+		return self::TAB_SECTIONS[ $id ] ?? self::ADDON_TAB;
+	}
+
+	public static function enqueue_style() {
+		if ( 'surveyjs-settings' === sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks the page.
+			wp_enqueue_style( 'wps-adm--settings.css', plugins_url( 'settings.css', __FILE__ ), array( 'common', 'forms' ), (string) filemtime( __DIR__ . '/settings.css' ) );
+			wp_enqueue_script( 'wps-adm--settings.js', plugins_url( 'settings.js', __FILE__ ), array(), (string) filemtime( __DIR__ . '/settings.js' ), true );
+			wp_add_inline_script( 'wps-adm--settings.js', 'window.surveyjsSettingsL10n = ' . wp_json_encode( array(
+				'saved'  => __( 'Settings saved.' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- core's own string, translated with WordPress.
+				'failed' => __( 'The settings were not saved. Reload the page and try again.', 'surveyjs' ),
+				'save'   => __( 'Save', 'surveyjs' ),
+			) ) . ';', 'before' );
+		}
+	}
+
+	// do_settings_sections(), with each section's settings in a card of its own (this plugin's sections and the
+	// Add-on's); the section title and text stay on the page background, above the card.
+	private static function render_sections( $page, $tab ) {
+		global $wp_settings_sections, $wp_settings_fields;
+		foreach ( (array) ( $wp_settings_sections[ $page ] ?? array() ) as $section ) {
+			if ( self::section_tab( $section['id'] ) !== $tab ) {
+				continue;
+			}
+			echo '<div class="wp-sjs-settings__section" id="wp-sjs-settings-' . esc_attr( $section['id'] ) . '">';
+			if ( $section['title'] ) {
+				// settings.js puts the Save button of a manual tab next to the title.
+				echo '<div class="wp-sjs-settings__head"><h2>' . $section['title'] . '</h2></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped when the section is added, as in do_settings_sections().
+			}
+			if ( $section['callback'] ) {
+				ob_start();
+				call_user_func( $section['callback'], $section );
+				$intro = trim( (string) ob_get_clean() );
+				if ( '' !== $intro ) {
+					echo '<div class="wp-sjs-settings__intro">' . $intro . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the section callback escapes its own output, as in do_settings_sections().
+				}
+			}
+			if ( ! empty( $wp_settings_fields[ $page ][ $section['id'] ] ) ) {
+				echo '<div class="card wp-sjs-settings__card"><table class="form-table" role="presentation">';
+				do_settings_fields( $page, $section['id'] );
+				echo '</table></div>';
+			}
+			echo '</div>';
+		}
 	}
 
 	public static function option( $key, $default = false ) {
@@ -75,6 +175,22 @@ class SurveyJS_SettingsPage {
 		$secret = sanitize_text_field( $input['captcha_secret_key'] ?? '' );
 		$sanitized['captcha_secret_key'] = '' !== $secret ? $secret : sanitize_text_field( $current['captcha_secret_key'] ?? '' );
 		$sanitized['captcha_threshold'] = SurveyJS_Captcha::sanitize_threshold( $input['captcha_threshold'] ?? ( $current['captcha_threshold'] ?? SurveyJS_Captcha::DEFAULT_THRESHOLD ) );
+		// Saved from one tab: the keys of the other tabs keep their saved values (or stay unset, so their defaults
+		// apply), as their unchecked checkboxes are simply not in this form.
+		if ( isset( self::TAB_KEYS[ self::$saving_tab ] ) ) {
+			foreach ( self::TAB_KEYS as $tab => $keys ) {
+				if ( $tab === self::$saving_tab ) {
+					continue;
+				}
+				foreach ( $keys as $key ) {
+					if ( array_key_exists( $key, $current ) ) {
+						$sanitized[ $key ] = $current[ $key ];
+					} else {
+						unset( $sanitized[ $key ] );
+					}
+				}
+			}
+		}
 		return $sanitized;
 	}
 
@@ -102,13 +218,13 @@ class SurveyJS_SettingsPage {
 	}
 
 	public function captcha_site_key_render() {
-		echo "<input type='text' name='surveyjs-settings[captcha_site_key]' id='sjs-captcha-site-key' value='" . esc_attr( SurveyJS_Captcha::settings()['siteKey'] ) . "' autocomplete='off' style='width: 350px;'/>";
+		echo "<input type='text' name='surveyjs-settings[captcha_site_key]' id='sjs-captcha-site-key' value='" . esc_attr( SurveyJS_Captcha::settings()['siteKey'] ) . "' autocomplete='off'/>";
 	}
 
 	public function captcha_secret_key_render() {
 		$secret = SurveyJS_Captcha::settings()['secretKey'];
 		$placeholder = '' !== $secret ? str_repeat( '•', 8 ) . substr( $secret, -4 ) : '';
-		echo "<input type='password' name='surveyjs-settings[captcha_secret_key]' id='sjs-captcha-secret-key' value='' placeholder='" . esc_attr( $placeholder ) . "' autocomplete='new-password' style='width: 350px;'/>";
+		echo "<input type='password' name='surveyjs-settings[captcha_secret_key]' id='sjs-captcha-secret-key' value='' placeholder='" . esc_attr( $placeholder ) . "' autocomplete='new-password'/>";
 		if ( '' !== $secret ) {
 			echo '<p class="description">' . esc_html__( 'The secret key is saved. Leave the field empty to keep it, or paste a new key to replace it.', 'surveyjs' ) . '</p>';
 		}
@@ -116,21 +232,14 @@ class SurveyJS_SettingsPage {
 
 	public function captcha_threshold_render() {
 		$settings = SurveyJS_Captcha::settings();
-		echo "<input type='number' name='surveyjs-settings[captcha_threshold]' id='sjs-captcha-threshold' value='" . esc_attr( $settings['threshold'] ) . "' min='0' max='1' step='0.1' style='width: 80px;'" . disabled( 'recaptcha_v3' !== $settings['type'], true, false ) . '/>';
+		echo "<input type='number' name='surveyjs-settings[captcha_threshold]' id='sjs-captcha-threshold' value='" . esc_attr( $settings['threshold'] ) . "' min='0' max='1' step='0.1'" . disabled( 'recaptcha_v3' !== $settings['type'], true, false ) . '/>';
 		echo '<p class="description">' . esc_html__( 'reCAPTCHA v3 only. Each submission gets a score from 0.0 (bot) to 1.0 (human); submissions below this score are rejected. Default: 0.5.', 'surveyjs' ) . '</p>';
-		?>
-		<script>
-			document.getElementById("sjs-captcha-type").addEventListener("change", function () {
-				document.getElementById("sjs-captcha-threshold").disabled = this.value !== "recaptcha_v3";
-			});
-		</script>
-		<?php
 	}
 
 	public function retention_render() {
 		$days = self::retention_days();
 		?>
-		<input type="number" name="surveyjs-settings[entry_retention_days]" id="sjs-entry-retention-days" value="<?php echo esc_attr( $days ? $days : '' ); ?>" min="1" step="1" class="small-text" aria-describedby="sjs-entry-retention-days-description" />
+		<input type="number" name="surveyjs-settings[entry_retention_days]" id="sjs-entry-retention-days" value="<?php echo esc_attr( $days ? $days : '' ); ?>" min="1" step="1" aria-describedby="sjs-entry-retention-days-description" />
 		<?php esc_html_e( 'days', 'surveyjs' ); ?>
 		<p class="description" id="sjs-entry-retention-days-description"><?php esc_html_e( 'Entries older than this are deleted automatically once a day, with their uploaded files, including partial and spam entries. Deleted entries cannot be restored. Leave empty to keep entries forever. Each form can use its own period on its Entries tab.', 'surveyjs' ); ?></p>
 		<?php
@@ -150,8 +259,8 @@ class SurveyJS_SettingsPage {
 
 
 	public static function surveyjs_render_settings() {
-		$tabs = array(
-			'general'        => __( 'General', 'surveyjs' ),
+		$field_tabs = self::field_tabs();
+		$tabs = $field_tabs + array(
 			SurveyJS_Connections::TAB => __( 'Integrations', 'surveyjs' ),
 			SurveyJS_AI::TAB      => __( 'AI MCP', 'surveyjs' ),
 			SurveyJS_AI_Chat::TAB => __( 'AI Client', 'surveyjs' ),
@@ -160,7 +269,9 @@ class SurveyJS_SettingsPage {
 		$tab = isset( $tabs[ $tab ] ) ? $tab : 'general';
 		?>
 		<div class="wrap">
-            <h2><?php esc_html_e( 'SurveyJS Settings', 'surveyjs' ); ?></h2>
+            <?php // Notices from WordPress and other plugins go here, above the title, on every plugin page. ?>
+            <hr class="wp-header-end">
+            <h1><?php esc_html_e( 'Settings', 'surveyjs' ); ?></h1>
             <nav class="nav-tab-wrapper wp-clearfix" aria-label="<?php esc_attr_e( 'Settings sections', 'surveyjs' ); ?>">
                 <?php foreach ( $tabs as $slug => $label ) : ?>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'surveyjs-settings', 'tab' => $slug ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab<?php echo $slug === $tab ? ' nav-tab-active' : ''; ?>"<?php echo $slug === $tab ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $label ); ?></a>
@@ -174,11 +285,12 @@ class SurveyJS_SettingsPage {
                 <?php SurveyJS_AI_Chat::render_tab(); ?>
             <?php else : ?>
                 <?php if ( ! empty( $_GET['settings-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-                    <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Successfully updated!', 'surveyjs' ); ?></p></div>
+                    <div class="notice notice-success is-dismissible" data-sjs-snackbar><p><?php esc_html_e( 'Successfully updated!', 'surveyjs' ); ?></p></div>
                 <?php endif; ?>
-                <form action="options.php" method="POST">
+                <form action="options.php" method="POST" id="wp-sjs-settings-form" data-sjs-save="<?php echo esc_attr( in_array( $tab, self::MANUAL_TABS, true ) ? 'manual' : 'auto' ); ?>">
                     <?php settings_fields( 'surveyjs-settings-group' ); ?>
-                    <?php do_settings_sections( 'surveyjs-settings-page' ); ?>
+                    <input type="hidden" name="<?php echo esc_attr( self::TAB_FIELD ); ?>" value="<?php echo esc_attr( $tab ); ?>" />
+                    <?php self::render_sections( 'surveyjs-settings-page', $tab ); ?>
                     <?php submit_button(); ?>
                 </form>
             <?php endif; ?>

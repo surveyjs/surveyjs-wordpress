@@ -26,7 +26,7 @@ const mockUiBuilder = (onLoad) => `<!doctype html>
 const modelValue = (page, index) => page.evaluate(i => window.monaco.editor.getModels()[i].getValue(), index);
 const uiBuilderUrl = page => page.evaluate(() => JSON.parse(document.getElementById("wp-sjs-editor-config").textContent).uiBuilderUrl);
 const status = page => page.locator("#wp-sjs-ui-builder-status");
-const manualPanel = page => page.locator("#wp-sjs-ui-builder-manual");
+const copyJson = page => page.getByRole("button", { name: "Copy JSON" });
 
 async function routeUiBuilder(page, context, body, status = 200) {
   await context.route(`${await uiBuilderUrl(page)}**`, route => route.fulfill({ status, contentType: "text/html", body }));
@@ -34,7 +34,7 @@ async function routeUiBuilder(page, context, body, status = 200) {
 
 async function openUiBuilder(page) {
   const popupEvent = page.waitForEvent("popup");
-  await page.getByRole("button", { name: "Open in free UI Builder" }).click();
+  await page.getByRole("button", { name: "Open in UI Builder" }).click();
   return popupEvent;
 }
 
@@ -52,7 +52,7 @@ test.describe("UI Builder", () => {
 
     const popup = await openUiBuilder(page);
 
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("Changes from the UI Builder are in the editor.");
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("Changes from the UI Builder are in the editor.");
     await expect.poll(() => popup.isClosed()).toBe(true);
     expect(await modelValue(page, 0)).toContain("Edited in UI Builder");
     expect(await modelValue(page, 0)).toContain("e2e_question");
@@ -106,16 +106,16 @@ test.describe("UI Builder", () => {
     expect(await modelValue(page, 0)).not.toContain("Other form");
   });
 
-  test("offers the manual path when the browser blocks the popup", async ({ page }) => {
+  test("points to Copy JSON when the browser blocks the popup", async ({ page }) => {
     name = uniqueName("E2E builder blocked");
     await createSurvey(page, name);
     await page.evaluate(() => { window.open = () => null; });
 
-    await page.getByRole("button", { name: "Open in free UI Builder" }).click();
+    await page.getByRole("button", { name: "Open in UI Builder" }).click();
 
     await expect(status(page)).toContainText("The browser blocked the UI Builder window.");
-    await expect(manualPanel(page)).toBeVisible();
-    await expect(page.locator("#wp-sjs-ui-builder-manual-toggle")).toHaveAttribute("aria-expanded", "true");
+    await expect(status(page)).toContainText("use Copy JSON");
+    await expect(copyJson(page)).toBeVisible();
   });
 
   test("detects the lost connection when Cross-Origin-Opener-Policy cuts the popup off", async ({ page, context }) => {
@@ -132,7 +132,7 @@ test.describe("UI Builder", () => {
     await openUiBuilder(page);
 
     await expect(status(page)).toContainText("The connection to the UI Builder was lost");
-    await expect(manualPanel(page)).toBeVisible();
+    await expect(status(page)).toContainText("use Copy JSON");
     expect(await modelValue(page, 0)).not.toContain("Edited in UI Builder");
   });
 
@@ -145,34 +145,33 @@ test.describe("UI Builder", () => {
 
     await expect(status(page)).toContainText("Opening the UI Builder");
     await expect(status(page)).toContainText("has not connected to this page yet", { timeout: 25000 });
-    await expect(manualPanel(page)).toBeVisible();
+    await expect(status(page)).toContainText("use Copy JSON");
   });
 
-  test("copies the form JSON and applies form or theme JSON pasted back", async ({ page, context }) => {
+  test("copies the form JSON, and a form or theme JSON pasted over the editor goes to its tab", async ({ page, context }) => {
     name = uniqueName("E2E builder manual");
     await createSurvey(page, name);
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 
-    await page.getByRole("button", { name: "Copy and paste JSON manually" }).click();
-    await page.getByRole("button", { name: "Copy form JSON" }).click();
-    await expect(page.locator("#wp-sjs-ui-builder-manual-notice")).toContainText("Form JSON copied.");
+    await copyJson(page).click();
+    await expect(status(page)).toContainText("JSON copied.");
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain("e2e_question");
 
-    const paste = page.getByLabel("JSON from the UI Builder");
-    await paste.fill("not json");
-    await page.getByRole("button", { name: "Apply JSON" }).click();
-    await expect(page.locator("#wp-sjs-ui-builder-manual-notice")).toContainText("The pasted text is not valid JSON");
+    const pasteOverEditor = async (json) => {
+      await page.evaluate((text) => navigator.clipboard.writeText(text), JSON.stringify(json));
+      await page.locator("#wp-sjs-monaco .view-lines").click();
+      await page.keyboard.press("ControlOrMeta+A");
+      await page.keyboard.press("ControlOrMeta+V");
+    };
 
-    await paste.fill(JSON.stringify({ title: "Pasted form", elements: [{ type: "text", name: "pasted_question" }] }));
-    await page.getByRole("button", { name: "Apply JSON" }).click();
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("The pasted form JSON is in the editor.");
-    expect(await modelValue(page, 0)).toContain("pasted_question");
-    await expect(paste).toHaveValue("");
-
-    await paste.fill(JSON.stringify({ themeName: "pasted-theme", cssVariables: {} }));
-    await page.getByRole("button", { name: "Apply JSON" }).click();
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("The pasted theme JSON is in the editor.");
+    await pasteOverEditor({ themeName: "pasted-theme", cssVariables: {} });
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("theme JSON");
     expect(await modelValue(page, 1)).toContain("pasted-theme");
     await expect(page.locator(".nav-tab-active")).toHaveAttribute("data-tab", "theme");
+
+    await pasteOverEditor({ title: "Pasted form", elements: [{ type: "text", name: "pasted_question" }] });
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("The pasted JSON is on the Config tab.");
+    expect(await modelValue(page, 0)).toContain("pasted_question");
+    await expect(page.locator(".nav-tab-active")).toHaveAttribute("data-tab", "survey");
   });
 });

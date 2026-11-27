@@ -17,11 +17,18 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         ) );
     }
 
+    // The search field sits in the top bar, on the bulk actions row, instead of in a row of its own above it.
+    protected function extra_tablenav( $which ) {
+        if ( 'top' === $which ) {
+            $this->search_box( __( 'Search Forms', 'surveyjs' ), 'surveyjs-survey' );
+        }
+    }
+
     public function get_columns() {
         $columns = array(
             'cb'        => '<input type="checkbox" />',
             'name'      => __( 'Name', 'surveyjs' ),
-            'results'   => __( 'Results', 'surveyjs' ),
+            'results'   => __( 'Entries', 'surveyjs' ),
         );
         if ( SurveyJS_Form_Stats::enabled() ) {
             $columns['views'] = __( 'Views', 'surveyjs' );
@@ -117,7 +124,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
         $actions = array(
             'edit'    => sprintf( '<a href="%s">%s</a>', esc_url( $edit_url ), esc_html__( 'Edit', 'surveyjs' ) ),
             'full_preview' => sprintf( '<a href="%s">%s</a>', esc_url( $preview_url ), esc_html__( 'Preview', 'surveyjs' ) ),
-            'results' => sprintf( '<a href="%s">%s</a>', esc_url( $results_url ), esc_html__( 'Results', 'surveyjs' ) ),
+            'results' => sprintf( '<a href="%s">%s</a>', esc_url( $results_url ), esc_html__( 'Entries', 'surveyjs' ) ),
             'embed'   => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Embed::create_page_url( $item->id ) ), esc_html__( 'Create a page', 'surveyjs' ) ),
             'clone'   => sprintf( '<a href="%s">%s</a>', esc_url( $clone_url ), esc_html__( 'Duplicate', 'surveyjs' ) ),
             'template' => sprintf( '<a href="%s">%s</a>', esc_url( SurveyJS_Templates::save_url( $item->id ) ), esc_html__( 'Save as Template', 'surveyjs' ) ),
