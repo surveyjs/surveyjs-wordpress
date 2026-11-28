@@ -9,8 +9,8 @@ Requires PHP: 8.2
 Author: Devsoft Baltic OÜ
 Author URI: https://devsoftbaltic.com/
 Text Domain: surveyjs
-License: "SEE LICENSE IN LICENSE"
-License URI: "https://github.com/surveyjs/surveyjs-wordpress/tree/master?tab=License-1-ov-file"
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>

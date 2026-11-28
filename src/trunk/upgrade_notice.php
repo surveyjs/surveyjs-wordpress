@@ -93,7 +93,7 @@ JS
             echo esc_html( sprintf( __( "In SurveyJS Forms %s, you can edit your form's JSON and preview the result in the Config tab.", 'surveyjs' ), SURVEYJS_VERSION ) );
             ?></p>
             <p><?php esc_html_e( 'Install the free SurveyJS Forms Add-on to open and edit your existing forms visually with Survey Creator in the same tab. The add-on also lets you export forms and submissions as PDFs, view charts for individual forms, and track submissions across all forms in the Dashboard.', 'surveyjs' ); ?></p>
-            <p><?php esc_html_e( 'The add-on is available as a separate download from the SurveyJS website because it includes commercial SurveyJS libraries. You can use it as provided on a live WordPress site for free, with no license key required.', 'surveyjs' ); ?></p>
+            <p><?php esc_html_e( 'The add-on is available as a separate download from the SurveyJS website because it includes commercial SurveyJS libraries. You can use it on your WordPress sites for free, with no license key required.', 'surveyjs' ); ?></p>
             <p class="wp-sjs-upgrade__actions">
                 <a href="<?php echo esc_url( SurveyJS_Upsell::url( 'getting-started-upgrade' ) ); ?>" class="button button-primary" target="_blank" rel="noopener"><?php esc_html_e( 'Learn about the free add-on', 'surveyjs' ); ?><span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'surveyjs' ); ?></span></a>
                 <a href="<?php echo esc_url( self::dismiss_url() ); ?>" class="button-link" data-sjs-upgrade-dismiss><?php esc_html_e( 'Dismiss', 'surveyjs' ); ?></a>

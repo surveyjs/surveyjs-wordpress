@@ -68,8 +68,5 @@ jobs:
     with:
       php-paths: dist/surveyjs
       plugin-check-dir: dist/surveyjs
-      plugin-check-ignore-codes: |
-        plugin_header_invalid_license
-        no_license
       e2e-base-dir: dist/surveyjs
       e2e-shards: "[1, 2, 3]"

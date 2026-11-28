@@ -365,28 +365,11 @@ UI Builder messages have `source: "surveyjs-ui-builder"`, editor messages `sourc
 
 ## Licensing
 
-> Licensing is being revised.
+SurveyJS Forms is free software, licensed under the [GNU General Public License, version 2 or later](https://www.gnu.org/licenses/gpl-2.0.html) (GPLv2 or later), like WordPress itself. You can use it on any number of sites, change it and redistribute it under the terms of that license.
 
-The SurveyJS plugin demonstrates how SurveyJS UI libraries can be integrated into a WordPress environment. It includes the MIT-licensed **Form Library** for rendering forms. **Survey Creator**, a form-building UI component, is not part of this plugin; it is in the separate SurveyJS Forms Add-on.
+The plugin includes the MIT-licensed SurveyJS Form Library, which renders the forms, and other open-source libraries (markdown-it, Monaco Editor). Each keeps its own GPL-compatible license; see the list in [LICENSE.md](LICENSE.md).
 
-The SurveyJS product family _also_ includes:
-
-- **PDF Generator** – Exports forms as editable PDF files.
-- **Dashboard** – Enables the creation of custom survey data dashboards populated with user responses.
-
-Survey Creator, PDF Generator, and Dashboard are proprietary libraries. The PDF Generator and Dashboard libraries are **not** integrated into the SurveyJS plugin by default but can be added if needed.
-
-The SurveyJS plugin is free under the following conditions:
-
-✅ You use it **as is** (without modifying the integrated form builder).\
-✅ You do **not** integrate PDF Generator or Dashboard.\
-✅ You [self-host WordPress](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/).
-
-If you use WordPress.com, the plugin is only free for users on the Business plan or higher due to platform [limitations](https://www.wpbeginner.com/beginners-guide/what-are-the-limitations-of-wordpress-com/). Please see [WordPress.com vs. WordPress.org](https://wordpress.com/go/website-building/wordpress-com-vs-wordpress-org/) to learn more.
-
-If you plan to **fork** the plugin to modify Survey Creator **or** integrate PDF Generator and/or Dashboard, you must purchase a [developer license](https://surveyjs.io/pricing) for each developer involved in the integration and working with the SurveyJS API.
-
-See [LICENSE.md](LICENSE.md) and [LIMITATION OF REDISTRIBUTION.md](LIMITATION%20OF%20REDISTRIBUTION.md).
+Survey Creator (the visual form builder), PDF Generator and Dashboard are commercial SurveyJS libraries and are not part of this plugin. The free [SurveyJS Forms Add-on](https://surveyjs.io/wordpress-addon) adds them to WordPress under its own license. To use these libraries in your own applications outside WordPress, you need a [SurveyJS developer license](https://surveyjs.io/licensing).
 
 ## Release Notes
 
