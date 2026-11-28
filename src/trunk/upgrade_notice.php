@@ -89,7 +89,7 @@ JS
             <?php // No-break spaces after "to" and a no-break hyphen in "add-on" keep "to the free add-on" on one line. ?>
             <h2><?php esc_html_e( 'Visual editing has moved to the free add‑on', 'surveyjs' ); ?></h2>
             <p><?php
-            /* translators: %s: the installed version of SurveyJS Forms, e.g. 3.2.4 */
+            /* translators: %s: the installed version of SurveyJS Forms, e.g. 3.2.8 */
             echo esc_html( sprintf( __( "In SurveyJS Forms %s, you can edit your form's JSON and preview the result in the Config tab.", 'surveyjs' ), SURVEYJS_VERSION ) );
             ?></p>
             <p><?php esc_html_e( 'Install the free SurveyJS Forms Add-on to open and edit your existing forms visually with Survey Creator in the same tab. The add-on also lets you export forms and submissions as PDFs, view charts for individual forms, and track submissions across all forms in the Dashboard.', 'surveyjs' ); ?></p>

@@ -2,9 +2,9 @@
 
 SurveyJS Forms is a WordPress plugin for contact forms, surveys, quizzes and multi-page forms. Forms run on the open-source [SurveyJS Form Library](https://surveyjs.io/form-library) and are added to pages with a block or a shortcode. Entries, emails and uploaded files stay on your site.
 
-The plugin version is the version of the SurveyJS libraries it ships (currently 3.2.4).
+The plugin version is the version of the SurveyJS libraries it ships (currently 3.2.8).
 
-**SurveyJS Forms Add-on** is a free add-on downloaded from [surveyjs.io/wordpress-addon](https://surveyjs.io/wordpress-addon). It adds Survey Creator (the visual form designer), PDF export and analytics. Survey Creator moved from this plugin to the add-on in 3.2.4, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component.
+**SurveyJS Forms Add-on** is a free add-on downloaded from [surveyjs.io/wordpress-addon](https://surveyjs.io/wordpress-addon). It adds Survey Creator (the visual form designer), PDF export and analytics. Survey Creator moved from this plugin to the add-on in 3.2.8, because WordPress.org hosts only GPL-licensed code and Survey Creator is a commercial SurveyJS component.
 
 ## Features
 
@@ -108,7 +108,7 @@ See also the [featured demos](https://surveyjs.io/form-library/examples/overview
 
 ## Screenshots
 
-The screenshots were taken before 3.2.4. Screenshots 2–4 show Survey Creator, which is now in SurveyJS Forms Add-on.
+The screenshots were taken before 3.2.8. Screenshots 2–4 show Survey Creator, which is now in SurveyJS Forms Add-on.
 
 **Admin UI with your SurveyJS forms:**
 
@@ -195,7 +195,7 @@ Without it the files stay protected by their random names and by answers linking
 
 ## Updates (SurveyJS Forms and SurveyJS Forms Add-on)
 
-SurveyJS Forms and SurveyJS Forms Add-on are always released together, with the same version number as the SurveyJS libraries (for example, 3.2.4). Releases are backward compatible, so always install the latest versions.
+SurveyJS Forms and SurveyJS Forms Add-on are always released together, with the same version number as the SurveyJS libraries (for example, 3.2.8). Releases are backward compatible, so always install the latest versions.
 
 - **SurveyJS Forms** updates from the WordPress.org directory as usual: manually or with WordPress auto-updates.
 - **SurveyJS Forms Add-on** is not in the directory and follows SurveyJS Forms. When SurveyJS Forms is updated (single, bulk or auto-update) and the update succeeds, the add-on downloads the latest zip from surveyjs.io at the end of the same request and installs itself over the old copy. The add-on stays active. While a SurveyJS Forms update is pending, its row on the Plugins screen says "SurveyJS Forms Add-on will be updated to the same version automatically." After an update on the Plugins screen, the add-on row shows the new version without a page reload.

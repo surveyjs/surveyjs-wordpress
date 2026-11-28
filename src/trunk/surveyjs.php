@@ -3,7 +3,7 @@
 Plugin Name: SurveyJS Forms
 Plugin URI: https://surveyjs.io/
 Description: Contact forms, surveys and quizzes powered by SurveyJS, with an AI assistant. Email notifications, auto-replies, file uploads and entries — free.
-Version: 3.2.4
+Version: 3.2.8
 Requires at least: 6.5
 Requires PHP: 8.2
 Author: Devsoft Baltic OÜ
@@ -15,7 +15,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <?php
-    define( 'SURVEYJS_VERSION', '3.2.4' );
+    define( 'SURVEYJS_VERSION', '3.2.8' );
     define( 'SURVEYJS_DB_VERSION', '8' );
 
     function surveyjs_site_url( $path = '' ) {

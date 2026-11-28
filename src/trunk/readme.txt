@@ -3,7 +3,7 @@ Contributors: devsoftbaltic
 Tags: contact form, form builder, ai, survey, quiz
 Requires at least: 6.5
 Tested up to: 7.1
-Stable tag: 3.2.4
+Stable tag: 3.2.8
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -285,7 +285,7 @@ Check out SurveyJS [Release Notes](https://surveyjs.io/stay-updated/release-note
 
 == Changelog ==
 
-= 3.2.4 =
+= 3.2.8 =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Add-on. Your forms and entries are not affected. Without the add-on, edit forms in the new JSON editor or in the free online UI Builder.
 Added: AI. Build and change forms by asking the AI chat right in your WordPress admin (your own API key, WordPress 7.0 or later) or your own AI assistant such as Claude, ChatGPT or Cursor through MCP. Off by default; AI changes are drafts until you click Save.
 Added: CC and BCC fields for the email notification and the auto-reply; form importers now bring over CC and BCC addresses.
@@ -301,7 +301,7 @@ Security: added permission checks to the file upload and file delete handlers. S
 
 == Upgrade Notice ==
 
-= 3.2.4 =
+= 3.2.8 =
 Survey Creator, the visual form designer, has moved to the free SurveyJS Forms Add-on. Your forms and entries are not affected. Without the add-on, edit forms in the new JSON editor or in the free online UI Builder.
 
 == Support ==
