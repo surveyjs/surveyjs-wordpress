@@ -143,7 +143,7 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
             LEFT JOIN ( SELECT form_id, SUM(views) AS views, SUM(submissions) AS submissions FROM %i GROUP BY form_id ) s ON s.form_id = p.ID
             WHERE p.post_type = %s AND p.post_status = %s AND ( %s = '' OR p.post_title LIKE %s )
             GROUP BY p.ID, p.post_title, p.post_modified_gmt
-            ORDER BY " . sanitize_sql_orderby( "$orderby $order, id $order" ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
+            ORDER BY " . sanitize_sql_orderby( $orderby . ' ' . $order . ', id ' . $order ) . // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- validated by sanitize_sql_orderby(), which WPCS does not list as SQL escaping; placeholders cannot hold a sort clause.
             ' LIMIT %d OFFSET %d',
             $entries,
             SurveyJS_Form_Stats::table(),

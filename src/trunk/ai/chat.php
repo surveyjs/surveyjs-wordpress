@@ -111,7 +111,7 @@ class SurveyJS_AI_Chat {
     }
 
     public static function is_client_available() {
-        $available = function_exists( 'wp_ai_client_prompt' ) && function_exists( 'wp_get_connectors' ) && class_exists( 'WP_AI_Client_Ability_Function_Resolver' ) && function_exists( 'wp_supports_ai' ) && SurveyJS_AI::is_supported();
+        $available = function_exists( 'wp_ai_client_prompt' ) && function_exists( 'wp_get_connectors' ) && class_exists( 'WP_AI_Client_Ability_Function_Resolver' ) && function_exists( 'wp_supports_ai' ) && function_exists( 'wp_get_ability' ) && SurveyJS_AI::is_supported();
         return $available && (bool) apply_filters( 'surveyjs_ai_chat_client_available', true );
     }
 

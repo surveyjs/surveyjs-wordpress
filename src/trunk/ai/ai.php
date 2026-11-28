@@ -113,7 +113,7 @@ class SurveyJS_AI {
     }
 
     public static function register_server( $adapter ) {
-        if ( 'active' !== self::adapter_state() || ! class_exists( 'WP\MCP\Transport\HttpTransport' ) || ! is_object( $adapter ) || ! method_exists( $adapter, 'create_server' ) ) {
+        if ( 'active' !== self::adapter_state() || ! function_exists( 'wp_get_abilities' ) || ! class_exists( 'WP\MCP\Transport\HttpTransport' ) || ! is_object( $adapter ) || ! method_exists( $adapter, 'create_server' ) ) {
             return;
         }
         $components = array(

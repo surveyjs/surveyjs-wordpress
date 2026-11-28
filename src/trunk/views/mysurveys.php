@@ -87,7 +87,7 @@ class SurveyJS_MySurveys {
     private static function requested_ids( $action ) {
         if ( isset( $_REQUEST['survey'] ) || isset( $_GET['ids'] ) ) {
             check_admin_referer( 'bulk-surveys' );
-            $ids = isset( $_REQUEST['survey'] ) ? (array) wp_unslash( $_REQUEST['survey'] ) : explode( ',', sanitize_text_field( wp_unslash( $_GET['ids'] ) ) );
+            $ids = isset( $_REQUEST['survey'] ) ? array_map( 'absint', (array) wp_unslash( $_REQUEST['survey'] ) ) : explode( ',', sanitize_text_field( wp_unslash( $_GET['ids'] ) ) );
             return array_values( array_filter( array_map( 'absint', $ids ) ) );
         }
         if ( isset( $_GET['id'] ) ) {
