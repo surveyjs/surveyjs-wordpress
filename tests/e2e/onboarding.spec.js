@@ -136,7 +136,7 @@ test.describe("getting-started progress", () => {
       copy.querySelectorAll(".wp-sjs-menu-count, .screen-reader-text").forEach(node => node.remove());
       return copy.textContent.trim();
     });
-    const menuItems = await page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu li:not(.wp-submenu-head):not(.hidden) a").evaluateAll(label);
+    const menuItems = await page.locator("#toplevel_page_surveyjs-main-menu .wp-submenu li:not(.wp-submenu-head) a").evaluateAll(label);
     const headerItems = await page.locator(".wp-sjs-header__tabs > a.wp-sjs-header__tab, .wp-sjs-header__tab-link, .wp-sjs-header__actions > a").evaluateAll(label);
     expect(headerItems.sort()).toEqual(menuItems.sort());
   });

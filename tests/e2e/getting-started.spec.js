@@ -57,20 +57,17 @@ test.describe.serial("getting started on a site without forms", () => {
     if (WP_CONTAINER && pageIds.length) fixture("delete", ...pageIds);
   });
 
-  test("the top-level menu item opens Add New Form while All Forms still opens the list", async ({ page }) => {
+  test("the top-level menu item and the header logo open All Forms", async ({ page }) => {
     const menu = page.locator("#toplevel_page_surveyjs-main-menu");
     await page.goto("/wp-admin/index.php");
     await menu.locator("> a").click();
-    await expect(page).toHaveURL(/page=surveyjs-templates/);
-    await expect(menu.locator(".wp-submenu li.current:visible")).toHaveText("Add New Form");
-
-    await menu.locator(".wp-submenu a:visible", { hasText: "All Forms" }).click();
     await expect(page).toHaveURL(/page=surveyjs-main-menu/);
-    await expect(menu.locator(".wp-submenu li.current:visible")).toHaveText("All Forms");
+    await expect(menu.locator(".wp-submenu li.current")).toHaveText("All Forms");
     await expect(page.locator(".wp-sjs-header__tab.is-active")).toHaveText("All Forms");
 
+    await page.goto(TEMPLATES_URL);
     await page.locator(".wp-sjs-header__brand").click();
-    await expect(page).toHaveURL(/page=surveyjs-templates/);
+    await expect(page).toHaveURL(/page=surveyjs-main-menu/);
   });
 
   test("talks about the JSON editor and the UI Builder", async ({ page }) => {
@@ -233,5 +230,38 @@ test.describe.serial("getting started on a site without forms", () => {
     await page.goto("/wp-admin/index.php");
     await expect(page.locator("#surveyjs_dashboard_widget")).toBeVisible();
     await expect(page.locator(".wp-sjs-dw__progress")).toHaveCount(0);
+  });
+});
+
+test.describe.serial("Support after activation", () => {
+  const plugin = page => page.locator('tr[data-plugin="surveyjs/surveyjs.php"]');
+  let state;
+
+  test.beforeAll(() => {
+    test.skip(!WP_CONTAINER, "Set WP_CONTAINER to a throwaway sandbox container: the test deactivates the plugins and forgets the install");
+    state = fixture("forget-install");
+  });
+
+  test.afterAll(() => {
+    if (state) fixture("restore-install", state.hadLegacyFlag ? 1 : 0, ...state.deactivated);
+  });
+
+  test("opens once on the first activation, later activations stay on Plugins", async ({ page }) => {
+    await page.goto("/wp-admin/plugins.php");
+    await plugin(page).locator(".activate a").click();
+    await expect(page).toHaveURL(/page=surveyjs-getting-started&welcome=1/);
+
+    await page.locator("#toplevel_page_surveyjs-main-menu > a").click();
+    await expect(page).toHaveURL(/page=surveyjs-main-menu/);
+
+    await page.goto("/wp-admin/plugins.php");
+    await plugin(page).locator(".deactivate a").click();
+    await expect(plugin(page).locator(".activate a")).toBeVisible();
+    await plugin(page).locator(".activate a").click();
+    await expect(page).toHaveURL(/plugins\.php/);
+    await expect(plugin(page).locator(".deactivate a")).toBeVisible();
+
+    await page.goto("/wp-admin/index.php");
+    await expect(page).toHaveURL(/index\.php/);
   });
 });

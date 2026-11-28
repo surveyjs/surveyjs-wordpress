@@ -504,21 +504,6 @@ JS;
         }
 
         do_action( 'surveyjs_admin_menu', self::MENU_SLUG, self::CAPABILITY );
-
-        if ( ! SurveyJS_Forms::exists() ) {
-            self::link_menu_to_add_new();
-        }
-    }
-
-    // WordPress links the top-level item to the first submenu item, so on a site with no forms a hidden copy
-    // of Add New Form goes first; the All Forms item still opens the list.
-    private static function link_menu_to_add_new() {
-        global $submenu;
-        if ( empty( $submenu[ self::MENU_SLUG ] ) ) {
-            return;
-        }
-        $label = esc_html__( 'Add New Form', 'surveyjs' );
-        array_unshift( $submenu[ self::MENU_SLUG ], array( $label, self::CAPABILITY, SurveyJS_Templates::PAGE, $label, 'hidden' ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress has no API to add a submenu item before the others.
     }
 
     private static function on_hidden_page() {

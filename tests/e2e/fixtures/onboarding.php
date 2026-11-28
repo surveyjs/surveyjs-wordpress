@@ -53,4 +53,20 @@ if ( 'get' === $command ) {
         wp_delete_post( (int) $delete_id, true );
     }
     echo '{}';
+} elseif ( 'forget-install' === $command ) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    $deactivated = array_values( array_filter( array( 'surveyjs/surveyjs.php', 'surveyjs-forms-addon/surveyjs-forms-addon.php' ), 'is_plugin_active' ) );
+    deactivate_plugins( array_reverse( $deactivated ), true );
+    $had_legacy_flag = (bool) get_option( SurveyJS_Upgrade_Notice::FLAG_OPTION );
+    delete_option( SurveyJS_Install::VERSION_OPTION );
+    echo wp_json_encode( array( 'deactivated' => $deactivated, 'hadLegacyFlag' => $had_legacy_flag ) );
+} elseif ( 'restore-install' === $command ) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    foreach ( array_slice( $argv, 3 ) as $plugin_file ) {
+        activate_plugin( $plugin_file );
+    }
+    if ( ! $argv[2] ) {
+        delete_option( SurveyJS_Upgrade_Notice::FLAG_OPTION );
+    }
+    echo '{}';
 }
