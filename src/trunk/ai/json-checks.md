@@ -1,6 +1,6 @@
 # Checks of the form editor's JSON linter
 
-Generated from survey-creator-core 3.2.4 (the English messages and severities of Survey Creator's JSON Editor) and the SurveyJS linter of survey-core 3.2.4 by `scripts/update-json-checks.js`. Do not hand-edit: the next run overwrites this file.
+Generated from survey-creator-core 3.2.8 (the English messages and severities of Survey Creator's JSON Editor) and the SurveyJS linter of survey-core 3.2.8 by `scripts/update-json-checks.js`. Do not hand-edit: the next run overwrites this file.
 
 The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor tab of Survey Creator with SurveyJS Forms Add-on, the Static analysis panel of the Config tab without the add-on. Every finding is an issue in "Form saved with N issues". Write JSON that passes every check below. When the person asks to fix the issues, change the JSON so that none of these messages applies any more. Words in braces are placeholders filled in from the JSON. A rule marked off does not run in that editor.
 
@@ -107,7 +107,8 @@ The form editor checks the survey JSON with the SurveyJS linter: the JSON Editor
 
 ## cycle/value-write (warning)
 
-- The {label} reads the value it writes itself - it runs only when another value changes, so it never runs at all.
+- The {label} computes the value it writes from that value itself - each run starts from the previous result, so the value depends on how many times it runs.
+- The {label} only copies the value it writes, so it never sets a value.
 - Values are written in a loop: {chain}. Each write reruns the expressions that read it, so the final values depend on the order the questions are answered in.
 
 ## expression/unknown-choice (warning)
