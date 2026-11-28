@@ -59,7 +59,8 @@ test.describe("import from WPForms", () => {
     await createWpForm(page);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs-main-menu");
-    await page.locator("#wpbody-content").getByRole("link", { name: "Import from WPForms" }).click();
+    await page.locator("#wpbody-content").getByRole("link", { name: "Import", exact: true }).click();
+    await page.getByRole("navigation", { name: "Import from" }).getByRole("link", { name: /^WPForms/ }).click();
     await expect(page).toHaveURL(/page=surveyjs_import&source=wpforms/);
     await importWpForm(page);
 

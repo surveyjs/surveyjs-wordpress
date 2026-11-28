@@ -159,7 +159,7 @@ test.describe("spam protection", () => {
       await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
       await expect(page.locator("#the-list .no-items")).toBeVisible();
       await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}&status=spam`);
-      await expect(page.locator("#the-list")).toContainText("Cheap pills");
+      await expect(page.locator("#wp-sjs-entry-panel")).toContainText("Cheap pills");
 
       await page.goto(link);
       await page.getByLabel("Your name").fill("Jane Doe");
@@ -168,8 +168,8 @@ test.describe("spam protection", () => {
       await page.getByRole("button", { name: "Complete" }).click();
       expect((await saved).ok()).toBe(true);
       await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
-      await expect(page.locator("#the-list")).toContainText("Hello there");
-      await expect(page.locator("#the-list")).not.toContainText("Cheap pills");
+      await expect(page.locator("#wp-sjs-entry-panel")).toContainText("Hello there");
+      await expect(page.locator("#wp-sjs-entry-panel")).not.toContainText("Cheap pills");
     });
 
     test("hides the Akismet key from the AI", () => {

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, createSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, createSurvey, deleteSurveys, openEntry, entryAction } = require("./helpers");
 
 test.describe("Gutenberg block", () => {
   let name;
@@ -51,8 +51,9 @@ test.describe("Gutenberg block", () => {
     const row = page.locator("#the-list tr", { hasText: "E2E answer" });
     await expect(row).toBeVisible();
 
-    await row.hover();
-    await row.getByRole("link", { name: "View", exact: true }).click();
+    const entry = await openEntry(page, row);
+    await expect(entry.locator(".wp-sjs-entry__answers")).toContainText("E2E answer");
+    await entry.getByRole("button", { name: "View as form" }).click();
     await expect(page.locator("#wp-sjs-result-popup").getByLabel("What is your name?")).toHaveValue("E2E answer");
     await page.reload();
 
@@ -62,9 +63,8 @@ test.describe("Gutenberg block", () => {
     expect(csv).toContain("What is your name?");
     expect(csv).toContain("E2E answer");
 
-    await row.hover();
     page.once("dialog", dialog => dialog.accept());
-    await row.getByRole("link", { name: "Delete", exact: true }).click();
+    await entryAction(page, row, "Delete");
     await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
     await expect(page.locator("#the-list .no-items")).toBeVisible();
   });

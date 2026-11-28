@@ -165,7 +165,8 @@ test.describe("import from Gravity Forms", () => {
     tableForms = [created.formId, created.trashedId];
 
     await page.goto(listUrl(""));
-    await expect(page.getByRole("link", { name: "Import from Gravity Forms" })).toBeVisible();
+    await page.locator("#wpbody-content").getByRole("link", { name: "Import", exact: true }).click();
+    await expect(page.getByRole("navigation", { name: "Import from" }).getByRole("link", { name: /^Gravity Forms \d/ })).toBeVisible();
     await page.goto(IMPORT_URL);
     await expect(page.getByLabel(`${name} (trashed)`)).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Import from an export file" })).toBeVisible();

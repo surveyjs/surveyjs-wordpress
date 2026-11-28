@@ -1105,7 +1105,7 @@
         if (!survey.json || !theme.json) return Promise.resolve(false);
         const blocked = saveChecks.map((check) => check()).find(Boolean);
         if (blocked) {
-            saveNotice = { type: "error", message: sprintf(__("Save failed: %s", "surveyjs"), blocked) };
+            notify("error", sprintf(__("Save failed: %s", "surveyjs"), blocked));
             updateState();
             return Promise.resolve(false);
         }
@@ -1348,7 +1348,7 @@
         const tab = isThemeJson(parsed.json) ? "theme" : "survey";
         if ((tab === activeTab && !locked) || !tabNames.includes(tab)) return;
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         let message = sprintf(__("The pasted JSON is on the %s tab. Press Save to keep it.", "surveyjs"), findTab(tab).textContent.trim());
         if (tab === "theme" && themeModeCheckbox.checked) {
             themeModeCheckbox.checked = false;
@@ -2187,6 +2187,8 @@
         };
         Object.values(models).forEach((model) => model.setEOL(monaco.editor.EndOfLineSequence.LF));
         monacoElement.replaceChildren();
+        // Before create(): Monaco's own paste handler on this element stops the event for the listeners added after it.
+        monacoElement.addEventListener("paste", onEditorPaste, true);
         editor = monaco.editor.create(monacoElement, {
             model: models.survey,
             theme: "vs",
@@ -2201,7 +2203,6 @@
         });
         decorations = editor.createDecorationsCollection();
         editor.onDidContentSizeChange(fitHeight);
-        monacoElement.addEventListener("paste", onEditorPaste, true);
         fitHeight();
         editor.onDidChangeCursorPosition((event) => {
             if (event.reason !== monaco.editor.CursorChangeReason.ContentFlush) {

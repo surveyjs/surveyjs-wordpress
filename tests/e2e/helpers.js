@@ -96,6 +96,21 @@ async function deleteSurveyPermanently(page, name) {
   return message;
 }
 
+function shownEntry(page) {
+  return page.locator("#wp-sjs-entry-panel .wp-sjs-entry:not([hidden])");
+}
+
+async function openEntry(page, row) {
+  await row.locator(".wp-sjs-view-result").click();
+  await expect(row).toHaveAttribute("aria-selected", "true");
+  return shownEntry(page);
+}
+
+async function entryAction(page, row, action) {
+  const entry = await openEntry(page, row);
+  await entry.getByRole("link", { name: action, exact: true }).click();
+}
+
 async function currentUser(page) {
   const nonce = await (await page.request.get("/wp-admin/admin-ajax.php?action=rest-nonce")).text();
   const user = await (await page.request.get("/index.php?rest_route=/wp/v2/users/me&context=edit", { headers: { "X-WP-Nonce": nonce } })).json();
@@ -114,4 +129,4 @@ async function submitTimeFields(config) {
   return { SubmitToken: config.submitTime.token };
 }
 
-module.exports = { SURVEY_JSON, uniqueName, listUrl, trashUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently, currentUser, lintIssues, submitTimeFields };
+module.exports = { SURVEY_JSON, uniqueName, listUrl, trashUrl, addSurvey, renameSurvey, setEditorJson, saveSurvey, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently, shownEntry, openEntry, entryAction, currentUser, lintIssues, submitTimeFields };

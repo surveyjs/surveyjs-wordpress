@@ -14,7 +14,9 @@ module.exports = defineConfig({
     baseURL: process.env.WP_BASE_URL || "http://localhost:9876",
     ...(channel && { channel }),
     viewport: { width: 1400, height: 900 },
-    trace: "retain-on-failure"
+    trace: "retain-on-failure",
+    actionTimeout: 30000,
+    navigationTimeout: 60000
   },
   projects: [
     { name: "unit", testDir: "tests/unit" },

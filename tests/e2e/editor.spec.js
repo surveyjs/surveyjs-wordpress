@@ -166,7 +166,7 @@ test.describe("JSON editor", () => {
       dialog.accept();
     };
     page.on("dialog", onDialog);
-    await page.getByRole("link", { name: "Back" }).click();
+    await page.getByRole("navigation", { name: "Breadcrumbs" }).getByRole("link", { name: "All Forms" }).click();
     await expect(page).toHaveURL(/page=surveyjs-main-menu/);
     page.off("dialog", onDialog);
     expect(warned).toBe(false);
@@ -251,7 +251,10 @@ test.describe("JSON editor", () => {
     await expect(page).toHaveURL(new RegExp(`page=surveyjs_editor&id=${id}$`));
 
     await page.setViewportSize({ width: 360, height: 640 });
-    await open();
+    await expect(embedButton).toHaveClass(/wp-sjs-is-overflowed/);
+    await page.getByRole("button", { name: "More actions" }).click();
+    await page.getByRole("menuitem", { name: "Embed" }).click();
+    await expect(dialog).toBeVisible();
     const box = await dialog.boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(360);
@@ -259,7 +262,9 @@ test.describe("JSON editor", () => {
     await expect(dialog.locator(".wp-sjs-embed__header").getByRole("button", { name: "Close" })).toBeInViewport();
     await expect(dialog.locator(".wp-sjs-embed__footer").getByRole("button", { name: "Close" })).toBeInViewport();
     await page.keyboard.press("Escape");
-    await expectClosed();
+    await expect(dialog).toBeHidden();
+    await expect(embedButton).toHaveAttribute("aria-expanded", "false");
+    await expect(page).toHaveURL(new RegExp(`page=surveyjs_editor&id=${id}$`));
     await page.setViewportSize({ width: 1400, height: 900 });
   });
 });
@@ -277,7 +282,7 @@ test.describe("admin menu", () => {
     const menu = page.locator("#toplevel_page_surveyjs-main-menu");
     const pages = [
       [`page=surveyjs_editor&id=${id}`, "All Forms"],
-      [`page=surveyjs_results&id=${id}`, "All Forms"],
+      [`page=surveyjs_results&id=${id}`, /^Entries/],
       ["page=surveyjs_import&source=cf7", "All Forms"],
       [`page=surveyjs-templates&form=${id}`, "Add New Form"],
       ["page=surveyjs-getting-started", /^Support/]

@@ -25,13 +25,18 @@ function ability(name, input) {
 
 test.describe("JSON issues for AI", () => {
   const formIds = [];
+  let keptWrite = "0";
 
   test.beforeAll(() => {
     test.skip(!WP_CONTAINER, "WP_CONTAINER is not set");
+    keptWrite = fixture("option-get", "surveyjs_ai_write") === "1" ? "1" : "0";
+    fixture("write", "1");
   });
 
   test.afterAll(() => {
+    if (!WP_CONTAINER) return;
     formIds.forEach((id) => fixture("delete-form", id));
+    fixture("write", keptWrite);
   });
 
   test("removes choices that repeat a built-in item and keeps their text", () => {

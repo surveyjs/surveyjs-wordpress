@@ -38,7 +38,7 @@ async function connect(page, service, label, field, value) {
   await page.goto(SETTINGS_URL);
   const card = page.locator(`#sjs-service-${service}`);
   const details = card.locator("details.sjs-integrations__add");
-  if (!(await details.getAttribute("open"))) await details.locator("summary").click();
+  if ((await details.getAttribute("open")) === null) await details.locator("summary").click();
   const form = details.locator("form");
   await form.getByLabel("Name").fill(label);
   await form.getByLabel(field).fill(value);
@@ -157,12 +157,12 @@ test.describe("integrations", () => {
     await expect(mailchimp.locator("[data-target-list]")).toHaveValue("demo01");
     const mergeFields = mailchimp.locator("[data-field-map] tbody tr");
     await expect(mergeFields).toHaveCount(5);
-    await expect(mergeFields.filter({ hasText: "FNAME" }).locator("select")).toHaveValue("first_name");
-    await expect(mergeFields.filter({ hasText: "COMPANY" }).locator("select")).toHaveValue("company");
-    await expect(mergeFields.filter({ hasText: "ADDRESS" })).toContainText("not supported yet");
-    await expect(mergeFields.filter({ hasText: "BIRTHDAY" })).toContainText("not supported yet");
-    await mergeFields.filter({ hasText: "LNAME" }).locator("select").selectOption("__custom__");
-    await mergeFields.filter({ hasText: "LNAME" }).locator("input").fill("{field:last_name} (web)");
+    await expect(mergeFields.filter({ hasText: /FNAME/ }).locator("select")).toHaveValue("first_name");
+    await expect(mergeFields.filter({ hasText: /COMPANY/ }).locator("select")).toHaveValue("company");
+    await expect(mergeFields.filter({ hasText: /ADDRESS/ })).toContainText("not supported yet");
+    await expect(mergeFields.filter({ hasText: /BIRTHDAY/ })).toContainText("not supported yet");
+    await mergeFields.filter({ hasText: /LNAME/ }).locator("select").selectOption("__custom__");
+    await mergeFields.filter({ hasText: /LNAME/ }).locator("input").fill("{field:last_name} (web)");
     await expect(mailchimp.getByLabel("Email question")).toHaveValue("email");
     await mailchimp.getByLabel("Tags").fill("website, e2e");
     await mailchimp.getByLabel("Double opt-in").uncheck();
@@ -199,7 +199,7 @@ test.describe("integrations", () => {
     expect(state.log.slice(0, 2).map((entry) => [entry.ok, entry.code, entry.retry]).sort()).toEqual([[false, 401, true], [false, 500, true]]);
     expect(state.connections.find((connection) => connection.service === "mailchimp")).toMatchObject({ status: "error" });
     await page.goto(`/wp-admin/admin.php?page=surveyjs_editor&id=${surveyId}`);
-    await expect(page.locator(".notice-warning")).toContainText("E2E Mailchimp could not send entries");
+    await expect(page.locator(".notice-warning", { hasText: "could not send entries" })).toContainText("E2E Mailchimp could not send entries");
 
     fixture("set-key", MAILCHIMP_KEY);
     await runQueue("all");
@@ -231,7 +231,7 @@ test.describe("integrations", () => {
     await expect(mailchimp.getByLabel("Update existing contacts")).toBeChecked();
 
     await page.getByRole("button", { name: "Save", exact: true }).click();
-    await expect(page.locator("#wp-sjs-editor-notice")).toContainText("without their consent");
+    await expect(page.locator(".wp-sjs-snackbars")).toContainText("without their consent");
     const refused = await page.evaluate(async () => {
       const api = window.surveyjsEditor;
       const body = new URLSearchParams({ Id: api.config.id, Json: JSON.stringify(api.getSurvey()), Theme: "{}", Settings: JSON.stringify(api.getSettings()), Issues: "[]", _wpnonce: api.config.saveNonce });

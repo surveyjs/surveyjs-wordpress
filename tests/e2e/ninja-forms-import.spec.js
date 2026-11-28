@@ -125,7 +125,8 @@ test.describe("import from Ninja Forms", () => {
     await submitNinjaForm(page, fields);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs-main-menu");
-    await page.locator("#wpbody-content").getByRole("link", { name: "Import from Ninja Forms" }).click();
+    await page.locator("#wpbody-content").getByRole("link", { name: "Import", exact: true }).click();
+    await page.getByRole("navigation", { name: "Import from" }).getByRole("link", { name: /^Ninja Forms/ }).click();
     await expect(page).toHaveURL(/page=surveyjs_import&source=ninja-forms/);
     await importNinjaForm(page, true);
 
@@ -136,9 +137,10 @@ test.describe("import from Ninja Forms", () => {
     const editUrl = await result.getByRole("link", { name: "Edit" }).getAttribute("href");
     await result.getByRole("link", { name: "View entries" }).click();
     await expect(page.locator("#the-list tr")).toHaveCount(1);
-    await expect(page.locator("#the-list")).toContainText("Jane");
-    await expect(page.locator("#the-list")).toContainText("Survey Creator");
-    await expect(page.locator("#the-list td.column-question_5")).toHaveText("Yes");
+    const entry = page.locator("#wp-sjs-entry-panel .wp-sjs-entry:not([hidden])");
+    await expect(entry).toContainText("Jane");
+    await expect(entry).toContainText("Survey Creator");
+    await expect(entry.locator("dt", { hasText: "Subscribe to the newsletter" }).locator("xpath=following-sibling::dd[1]")).toHaveText("Yes");
 
     await page.goto(editUrl);
     const surveyId = Number(new URL(page.url()).searchParams.get("id"));

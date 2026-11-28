@@ -35,10 +35,12 @@ test.describe("getting-started progress", () => {
   test.beforeAll(() => {
     test.skip(!WP_CONTAINER, "Set WP_CONTAINER to the WordPress container name to change the checklist state");
     savedState = onboardingFixture("get").state;
+    onboardingFixture("addon-step", "off");
   });
 
   test.afterAll(() => {
     if (WP_CONTAINER) {
+      onboardingFixture("addon-step", "on");
       onboardingFixture("set", JSON.stringify(savedState));
     }
   });

@@ -177,7 +177,8 @@ test.describe("import from Fluent Forms", () => {
     await createFluentForm(page);
 
     await page.goto("/wp-admin/admin.php?page=surveyjs-main-menu");
-    await page.locator("#wpbody-content").getByRole("link", { name: "Import from Fluent Forms" }).click();
+    await page.locator("#wpbody-content").getByRole("link", { name: "Import", exact: true }).click();
+    await page.getByRole("navigation", { name: "Import from" }).getByRole("link", { name: /^Fluent Forms/ }).click();
     await expect(page).toHaveURL(/page=surveyjs_import&source=fluentform/);
     await importFluentForm(page);
 
@@ -217,8 +218,9 @@ test.describe("import from Fluent Forms", () => {
     await expect(page.getByLabel("Reply-To", { exact: true })).toHaveValue("email");
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
-    await expect(page.locator("#the-list tr", { hasText: "ann@example.com" })).toBeVisible();
-    await expect(page.locator("#the-list td[data-colname=\"I accept the event rules.\"]")).toHaveText("Yes");
+    const entry = page.locator("#wp-sjs-entry-panel .wp-sjs-entry:not([hidden])");
+    await expect(entry).toContainText("ann@example.com");
+    await expect(entry.locator("dt", { hasText: "I accept the event rules." }).locator("xpath=following-sibling::dd[1]")).toHaveText("Yes");
 
     const post = await (await page.request.post("/index.php?rest_route=/wp/v2/posts", {
       headers: { "X-WP-Nonce": restNonce },
@@ -311,7 +313,7 @@ test.describe("import from Fluent Forms", () => {
     expect((await editorJson(page)).pages[1].elements.map(e => e.name)).toEqual(["ticket_type", "student_id", "sessions", "excitement", "terms", "badge_name"]);
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
-    await expect(page.locator("#the-list tr", { hasText: "ann@example.com" })).toHaveCount(1);
+    await expect(page.locator("#wp-sjs-entry-panel .wp-sjs-entry", { hasText: "ann@example.com" })).toHaveCount(1);
     await page.goto(listUrl(name));
     await expect(page.locator("#the-list tr")).toHaveCount(1);
   });

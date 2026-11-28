@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { uniqueName, createSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
+const { uniqueName, createSurvey, deleteSurveys, submitTimeFields, openEntry, entryAction } = require("./helpers");
 
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
 
@@ -43,7 +43,7 @@ test.describe("uploaded files", () => {
     expect((await saved).ok()).toBe(true);
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
-    const link = page.locator("#the-list a", { hasText: "photo.png" });
+    const link = page.locator("#wp-sjs-entry-panel a", { hasText: "photo.png" });
     const href = await link.getAttribute("href");
     const download = await page.request.get(href);
     expect(download.status()).toBe(200);
@@ -52,8 +52,7 @@ test.describe("uploaded files", () => {
     await visitor.close();
 
     page.once("dialog", dialog => dialog.accept());
-    await page.locator("#the-list tr").first().hover();
-    await page.locator("#the-list tr").first().locator("a.submitdelete").click();
+    await entryAction(page, page.locator("#the-list tr").first(), "Delete");
     await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
     expect((await page.request.get(href)).status()).toBe(404);
   });
@@ -99,7 +98,7 @@ test.describe("uploaded files", () => {
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
     for (const fileName of ["plain.png", "as-text.png"]) {
-      const href = await page.locator("#the-list a", { hasText: fileName }).getAttribute("href");
+      const href = await page.locator("#wp-sjs-entry-panel a", { hasText: fileName }).getAttribute("href");
       expect((await page.request.get(href)).headers()["content-type"]).toBe("image/png");
     }
   });
@@ -123,9 +122,9 @@ test.describe("uploaded files", () => {
 
     await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
     const row = page.locator("#the-list tr").first();
-    await expect(row).toContainText("old.png");
-    await row.hover();
-    await row.getByRole("link", { name: "View", exact: true }).click();
+    const entry = await openEntry(page, row);
+    await expect(entry.locator(".wp-sjs-entry__answers")).toContainText("old.png");
+    await entry.getByRole("button", { name: "View as form" }).click();
     const popup = page.locator("#wp-sjs-result-popup");
     await expect(popup.locator(".sd-file img")).toHaveAttribute("src", dataUrl);
     await expect(popup.locator("a[download='old.png']").first()).toHaveAttribute("href", dataUrl);
@@ -225,6 +224,8 @@ test.describe("uploaded files", () => {
     await expect(items.first().locator("input")).toHaveValue(/e2e-image-b/);
 
     await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Theme", exact: true }).click();
+    await expect(insertImage).toBeHidden();
+    await page.locator(".wp-sjs-editor__tabs").getByRole("link", { name: "Config", exact: true }).click();
     await expect(insertImage).toBeEnabled();
     await expect(items).toHaveCount(1);
     expect(await editorValue()).toBe(before);

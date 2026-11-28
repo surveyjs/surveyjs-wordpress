@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, saveSurvey, createSurvey, deleteSurveys, submitTimeFields } = require("./helpers");
+const { uniqueName, saveSurvey, createSurvey, deleteSurveys, submitTimeFields, entryAction } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const MAILPIT_URL = process.env.MAILPIT_URL || "http://localhost:8025";
@@ -123,7 +123,7 @@ function storageTests(label) {
       await visitor.close();
 
       await page.goto(`/wp-admin/admin.php?page=surveyjs_results&id=${surveyId}`);
-      const href = await page.locator("#the-list a", { hasText: "second.txt" }).getAttribute("href");
+      const href = await page.locator("#wp-sjs-entry-panel a", { hasText: "second.txt" }).getAttribute("href");
       const download = await page.request.get(href);
       expect(download.status()).toBe(200);
       expect(await download.text()).toBe("E2E second file");
@@ -136,8 +136,7 @@ function storageTests(label) {
       }
 
       page.once("dialog", dialog => dialog.accept());
-      await page.locator("#the-list tr").first().hover();
-      await page.locator("#the-list tr").first().locator("a.submitdelete").click();
+      await entryAction(page, page.locator("#the-list tr").first(), "Delete");
       await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry deleted.");
       expect((await page.request.get(href)).status()).toBe(404);
       if (WP_CONTAINER) {

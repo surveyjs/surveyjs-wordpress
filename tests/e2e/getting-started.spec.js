@@ -50,11 +50,14 @@ test.describe.serial("getting started on a site without forms", () => {
 
   test.beforeAll(() => {
     test.skip(!WP_CONTAINER, "Set WP_CONTAINER to a throwaway sandbox container: the test deletes every form");
+    fixture("addon-step", "off");
     fixture("fresh");
   });
 
   test.afterAll(() => {
-    if (WP_CONTAINER && pageIds.length) fixture("delete", ...pageIds);
+    if (!WP_CONTAINER) return;
+    if (pageIds.length) fixture("delete", ...pageIds);
+    fixture("addon-step", "on");
   });
 
   test("the top-level menu item and the header logo open All Forms", async ({ page }) => {

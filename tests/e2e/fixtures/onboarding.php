@@ -48,6 +48,16 @@ if ( 'get' === $command ) {
         delete_option( $option_name );
     }
     echo wp_json_encode( array( 'unpublished' => count( $placed ) ) );
+} elseif ( 'addon-step' === $command ) {
+    // The checklist starts with installing the add-on on sites without it; "off" makes the site one that had the add-on from the start.
+    $mu_plugin = WPMU_PLUGIN_DIR . '/surveyjs-e2e-no-addon-step.php';
+    if ( 'off' === ( $argv[2] ?? '' ) ) {
+        wp_mkdir_p( WPMU_PLUGIN_DIR );
+        file_put_contents( $mu_plugin, "<?php\nadd_filter( 'surveyjs_show_addon_upsell', '__return_false' );\n" );
+    } else {
+        wp_delete_file( $mu_plugin );
+    }
+    echo '{}';
 } elseif ( 'delete' === $command ) {
     foreach ( array_slice( $argv, 2 ) as $delete_id ) {
         wp_delete_post( (int) $delete_id, true );

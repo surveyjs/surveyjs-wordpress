@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently, submitTimeFields } = require("./helpers");
+const { uniqueName, listUrl, createSurvey, deleteSurveys, trashSurvey, deleteSurveyPermanently, submitTimeFields, openEntry, entryAction } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 const FORMS_URL = "/wp-admin/admin.php?page=surveyjs-main-menu";
@@ -62,9 +62,7 @@ function entryRow(page, text) {
 }
 
 async function rowAction(page, text, action) {
-  const row = entryRow(page, text);
-  await row.hover();
-  await row.getByRole("link", { name: action, exact: true }).click();
+  await entryAction(page, entryRow(page, text), action);
 }
 
 async function bulkAction(page, texts, action) {
@@ -201,7 +199,6 @@ test.describe("entry storage", () => {
     const header = page.locator("table.wp-list-table thead");
     await expect(header.locator("th.column-created_at")).toContainText("Date");
     await expect(header.locator("th.column-status")).toHaveText("Status");
-    await expect(header.locator("th.column-submitter")).toHaveText("Submitted by");
 
     const row = entryRow(page, "Jane");
     const status = row.locator("td.column-status");
@@ -209,13 +206,12 @@ test.describe("entry storage", () => {
     await expect(status).toHaveText("Unread");
     await expect(status).toHaveCSS("font-weight", "600");
     await expect(row.locator("td.column-created_at")).toHaveText(/\d{4}/);
-    await expect(row.locator("td.column-submitter a")).toHaveText(me.name);
+    await expect(page.locator(`#wp-sjs-entry-${await row.getAttribute("data-entry-id")} .wp-sjs-entry__meta a`)).toHaveText(me.name);
     await expectCounts(page, { all: 1, unread: 1, read: 0, spam: 0 });
 
     const markedRead = page.waitForResponse(r => r.url().includes("admin-ajax.php") && (r.request().postData() || "").includes("action=surveyjs_entry_read"));
-    await row.hover();
-    await row.getByRole("link", { name: "View", exact: true }).click();
-    await expect(page.locator("#wp-sjs-result-popup").getByLabel("What is your name?")).toHaveValue("Jane");
+    const entry = await openEntry(page, row);
+    await expect(entry.locator(".wp-sjs-entry__answers")).toContainText("Jane");
     expect((await markedRead).ok()).toBe(true);
     await expect(row).not.toHaveClass(/wp-sjs-entry-unread/);
     await expect(status).toHaveText("Read");
@@ -240,7 +236,7 @@ test.describe("entry storage", () => {
     await expectCounts(page, { all: 3, unread: 3, read: 0, spam: 0 });
 
     await rowAction(page, "E2E Alpha", "Mark as Read");
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry updated.");
     await expect(entryRow(page, "E2E Alpha").locator("td.column-status")).toHaveText("Read");
     await expectCounts(page, { all: 3, unread: 2, read: 1, spam: 0 });
 
@@ -249,7 +245,7 @@ test.describe("entry storage", () => {
     await expectCounts(page, { all: 3, unread: 3, read: 0, spam: 0 });
 
     await rowAction(page, "E2E Bravo", "Spam");
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry updated.");
     await expect(entryRow(page, "E2E Bravo")).toHaveCount(0);
     await expectCounts(page, { all: 2, unread: 2, read: 0, spam: 1 });
 
@@ -258,17 +254,17 @@ test.describe("entry storage", () => {
     await expect(page.locator("#the-list tr")).toHaveCount(1);
     await expect(entryRow(page, "E2E Bravo").locator("td.column-status")).toHaveText("Spam");
     await rowAction(page, "E2E Bravo", "Not Spam");
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry updated.");
     await expect(page.locator("#the-list .no-items")).toBeVisible();
     await expectCounts(page, { all: 3, unread: 2, read: 1, spam: 0 });
 
     await page.goto(resultsUrl(surveyId));
     await bulkAction(page, ["E2E Alpha", "E2E Charlie"], "read");
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("2 results updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("2 entries updated.");
     await expectCounts(page, { all: 3, unread: 0, read: 3, spam: 0 });
 
     await bulkAction(page, ["E2E Charlie"], "spam");
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry updated.");
     await expect(entryRow(page, "E2E Charlie")).toHaveCount(0);
     await expectCounts(page, { all: 2, unread: 0, read: 2, spam: 1 });
 
@@ -318,7 +314,7 @@ test.describe("entry storage", () => {
     await page.goto(resultsUrl(surveyId));
     const hrefs = [];
     for (const file of files) {
-      const href = await page.locator("#the-list a", { hasText: file }).getAttribute("href");
+      const href = await page.locator("#wp-sjs-entry-panel a", { hasText: file }).getAttribute("href");
       const download = await page.request.get(href);
       expect(download.status()).toBe(200);
       expect(await download.text()).toBe(`E2E storage ${file}`);
@@ -374,7 +370,7 @@ test.describe("entry storage", () => {
 
     await page.goto(resultsUrl(surveyId));
     await rowAction(page, "E2E header count answer", "Mark as Read");
-    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 result updated.");
+    await expect(page.locator(".wp-sjs-snackbar.is-success")).toContainText("1 entry updated.");
     expect(await unreadTotal(page)).toBe(before);
   });
 
@@ -392,8 +388,9 @@ test.describe("entry storage", () => {
     await submitEntry(page, config, { e2e_question: "E2E with IP" });
 
     await page.goto(resultsUrl(surveyId));
-    await expect(entryRow(page, "E2E without IP").locator("td.column-submitter .description")).toHaveCount(0);
-    await expect(entryRow(page, "E2E with IP").locator("td.column-submitter .description")).toHaveText(/^[0-9a-f.:]+$/i);
+    const entryMeta = (text) => page.locator("#wp-sjs-entry-panel .wp-sjs-entry", { hasText: text }).locator(".wp-sjs-entry__meta");
+    await expect(entryMeta("E2E without IP").locator(".description")).toHaveCount(0);
+    await expect(entryMeta("E2E with IP").locator(".description")).toHaveText(/^[0-9a-f.:]+$/i);
   });
 
   test("renders a form by its legacy ID in a shortcode and a block", async ({ page }) => {

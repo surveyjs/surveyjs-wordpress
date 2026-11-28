@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 const { test, expect } = require("@playwright/test");
-const { uniqueName, listUrl, createSurvey, saveSurvey, deleteSurveys } = require("./helpers");
+const { uniqueName, listUrl, createSurvey, saveSurvey, deleteSurveys, entryAction } = require("./helpers");
 
 const WP_CONTAINER = process.env.WP_CONTAINER;
 
@@ -101,9 +101,9 @@ test.describe("partial entries", () => {
     await page.goto(resultsUrl(surveyId));
     await expect(page.locator(".subsubsub .all .count")).toHaveText("(1)");
     await expect(page.locator(".subsubsub .partial")).toHaveCount(0);
-    const entry = page.locator("#the-list tr", { hasText: "Hello" });
+    const entry = page.locator(`#the-list tr[data-entry-id="${created.data.id}"]`);
     await expect(entry.locator(".column-status")).toHaveText("Unread");
-    await expect(entry).toContainText(`#${created.data.id}`);
+    await expect(page.locator(`#wp-sjs-entry-${created.data.id}`)).toContainText("Hello");
   });
 
   test("ignores a partial save from the honeypot and replaces a wrong token with a new entry", async ({ page }) => {
@@ -142,14 +142,12 @@ test.describe("partial entries", () => {
     await page.goto(resultsUrl(surveyId, "partial"));
     await expect(page.locator("#bulk-action-selector-top option")).toHaveText(["Bulk actions", "Keep", "Stop Keeping", "Mark as Spam", "Delete"]);
     const row = page.locator("#the-list tr", { hasText: "Spammy" });
-    await row.hover();
-    await row.getByRole("link", { name: "Spam", exact: true }).click();
+    await entryAction(page, row, "Spam");
     await expect(page.locator(".subsubsub .spam .count")).toHaveText("(1)");
 
     await page.goto(resultsUrl(surveyId, "spam"));
     const spamRow = page.locator("#the-list tr", { hasText: "Spammy" });
-    await spamRow.hover();
-    await spamRow.getByRole("link", { name: "Not Spam", exact: true }).click();
+    await entryAction(page, spamRow, "Not Spam");
     await page.goto(resultsUrl(surveyId, "partial"));
     await expect(page.locator("#the-list tr", { hasText: "Spammy" })).toHaveCount(1);
   });
@@ -187,14 +185,12 @@ test.describe("partial entries", () => {
     await expect(page.locator(".notice-warning", { hasText: "will be deleted within 5 days" })).toContainText("1 partial entry will be deleted within 5 days.");
     const row = page.locator("#the-list tr", { hasText: "Forgetful" });
     await expect(row.locator(".column-status")).toContainText("Will be deleted on");
-    await row.hover();
-    await row.getByRole("link", { name: "Keep", exact: true }).click();
+    await entryAction(page, row, "Keep");
     await expect(row.locator(".column-status")).toContainText("Kept");
     await expect(row.locator(".column-status")).not.toContainText("Will be deleted on");
     await expect(page.locator(".notice-warning", { hasText: "will be deleted within 5 days" })).toHaveCount(0);
 
-    await row.hover();
-    await row.getByRole("link", { name: "Stop Keeping", exact: true }).click();
+    await entryAction(page, row, "Stop Keeping");
     await expect(row.locator(".column-status")).toContainText("Will be deleted on");
   });
 });

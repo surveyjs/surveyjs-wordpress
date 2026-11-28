@@ -251,8 +251,8 @@ test.describe("webhooks", () => {
       "169.254.169.254": false, "100.64.0.1": false, "10.0.0.1": false, "0.0.0.0": false,
       "::1": false, "::": false, "::ffff:127.0.0.1": false, "::ffff:169.254.169.254": false, "64:ff9b::a9fe:a9fe": false, "2002:7f00:1::": false, "fd00::1": false, "fe80::1": false
     });
-    const resolved = fixture("resolve", JSON.stringify(["http://localhost/hook", "http://169.254.169.254/", "http://8.8.8.8/hook", `http://host.docker.internal:${port}/hook`]));
-    expect(resolved["http://localhost/hook"]).toBeNull();
+    const resolved = fixture("resolve", JSON.stringify(["http://127.0.0.1/hook", "http://169.254.169.254/", "http://8.8.8.8/hook", `http://host.docker.internal:${port}/hook`]));
+    expect(resolved["http://127.0.0.1/hook"]).toBeNull();
     expect(resolved["http://169.254.169.254/"]).toBeNull();
     expect(resolved["http://8.8.8.8/hook"]).toBe("");
     expect(resolved[`http://host.docker.internal:${port}/hook`]).toMatch(new RegExp(`^host\\.docker\\.internal:${port}:(\\d+\\.){3}\\d+$`));
