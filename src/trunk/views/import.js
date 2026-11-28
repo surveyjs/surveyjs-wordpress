@@ -9,7 +9,7 @@
         const response = await fetch(window.ajaxurl, {
             method: "POST",
             credentials: "same-origin",
-            body: new URLSearchParams(params)
+            body: params instanceof FormData ? params : new URLSearchParams(params)
         });
         let body = null;
         try {
@@ -41,7 +41,7 @@
         return line;
     }
 
-    async function importForms(form, forms) {
+    async function run(form, items, importItem) {
         const status = createElement("div", "notice notice-info inline wp-sjs-import-status");
         const statusLine = createElement("p");
         const spinner = createElement("span", "spinner is-active");
@@ -50,33 +50,22 @@
         statusText.setAttribute("role", "status");
         statusLine.append(spinner, statusText);
         const progress = createElement("progress");
-        progress.max = forms.length;
+        progress.max = items.length;
         progress.value = 0;
         progress.style.cssText = "display:block;width:100%;max-width:400px;margin:0 0 8px";
         status.append(statusLine, progress);
         const results = createElement("ul", "ul-disc wp-sjs-import-results");
         form.after(status, results);
 
-        const source = form.getAttribute("data-sjs-import");
-        const nonce = form.querySelector('input[name="_wpnonce"]').value;
-        const withEntries = form.querySelector('input[name="entries"]:checked') ? "1" : "";
-        const limit = form.getAttribute("data-entries-per-request") || "";
         let errors = 0;
 
-        for (let index = 0; index < forms.length; index++) {
-            const item = forms[index];
-            statusText.textContent = format(settings.i18n.progress, [index + 1, forms.length, item.name]);
+        for (let index = 0; index < items.length; index++) {
+            const item = items[index];
+            statusText.textContent = format(settings.i18n.progress, [index + 1, items.length, item.name]);
             try {
-                let offset = 0;
-                let data;
-                for (;;) {
-                    data = await request({ action: "surveyjs_import", _ajax_nonce: nonce, source: source, form: item.id, entries: withEntries, offset: offset, limit: limit });
-                    if (data.done) {
-                        break;
-                    }
-                    offset = data.next;
-                    statusText.textContent = format(settings.i18n.entriesProgress, [index + 1, forms.length, item.name, data.next, data.total]);
-                }
+                const data = await importItem(item, index, (text) => {
+                    statusText.textContent = text;
+                });
                 if (data.error) {
                     errors++;
                 }
@@ -91,7 +80,7 @@
         spinner.remove();
         progress.remove();
         status.classList.replace("notice-info", errors ? "notice-warning" : "notice-success");
-        statusText.textContent = errors ? format(settings.i18n.doneWithErrors, [forms.length, errors]) : format(settings.i18n.done, [forms.length]);
+        statusText.textContent = errors ? format(settings.i18n.doneWithErrors, [items.length, errors]) : format(settings.i18n.done, [items.length]);
         form.hidden = true;
         const link = createElement("a", "button button-primary", settings.i18n.allForms);
         link.href = settings.listUrl;
@@ -99,6 +88,28 @@
         linkLine.appendChild(link);
         results.after(linkLine);
     }
+
+    function importForms(form, forms) {
+        const source = form.getAttribute("data-sjs-import");
+        const nonce = form.querySelector('input[name="_wpnonce"]').value;
+        const withEntries = form.querySelector('input[name="entries"]:checked') ? "1" : "";
+        const limit = form.getAttribute("data-entries-per-request") || "";
+        return run(form, forms, async (item, index, setStatus) => {
+            let offset = 0;
+            for (;;) {
+                const data = await request({ action: "surveyjs_import", _ajax_nonce: nonce, source: source, form: item.id, entries: withEntries, offset: offset, limit: limit });
+                if (data.done) {
+                    return data;
+                }
+                offset = data.next;
+                setStatus(format(settings.i18n.entriesProgress, [index + 1, forms.length, item.name, data.next, data.total]));
+            }
+        });
+    }
+
+    settings.run = run;
+    settings.request = request;
+    settings.format = format;
 
     document.addEventListener("submit", (event) => {
         const form = event.target;

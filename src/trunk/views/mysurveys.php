@@ -34,6 +34,15 @@ class SurveyJS_MySurveys {
             exit;
         }
 
+        if ( 'export' === $action ) {
+            $ids = self::requested_ids( $action );
+            if ( $ids ) {
+                SurveyJS_JSON_Importer::send_export( $ids );
+            }
+            wp_safe_redirect( $list_url );
+            exit;
+        }
+
         $in_trash = SurveyJS_Surveys_List_Table::is_trash();
         if ( $in_trash ) {
             $list_url = add_query_arg( 'post_status', 'trash', $list_url );

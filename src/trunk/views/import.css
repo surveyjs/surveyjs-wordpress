@@ -28,3 +28,24 @@
 .wp-sjs-import__new {
     color: #50575e;
 }
+
+.wp-sjs-import__forms .wp-sjs-import__file {
+    width: 30%;
+    overflow-wrap: anywhere;
+}
+
+.wp-sjs-import__error {
+    color: #d63638;
+}
+
+.wp-sjs-import-json__paste {
+    margin: 0 0 16px;
+}
+
+.wp-sjs-import-json__paste summary {
+    cursor: pointer;
+}
+
+.wp-sjs-import-json .wp-sjs-import__status {
+    width: 30%;
+}

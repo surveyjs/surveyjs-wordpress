@@ -89,10 +89,11 @@ class SurveyJS_Surveys_List_Table extends WP_List_Table {
                 'delete'  => __( 'Delete Permanently', 'surveyjs' ),
             );
         }
+        $export = array( 'export' => __( 'Export', 'surveyjs' ) );
         if ( ! SurveyJS_Forms::trash_enabled() ) {
-            return array( 'delete' => __( 'Delete Permanently', 'surveyjs' ) );
+            return array( 'delete' => __( 'Delete Permanently', 'surveyjs' ) ) + $export;
         }
-        return array( 'trash' => __( 'Move to Trash', 'surveyjs' ) );
+        return array( 'trash' => __( 'Move to Trash', 'surveyjs' ) ) + $export;
     }
 
     public function no_items() {

@@ -72,6 +72,7 @@ JS;
         add_action('admin_init', array('SurveyJS_Welcome', 'maybe_redirect'));
         add_action('wp_ajax_surveyjs_checklist', array('SurveyJS_Welcome', 'handle_checklist_action'));
         add_action('wp_ajax_surveyjs_import', array('SurveyJS_Import', 'handle_ajax'));
+        add_action('wp_ajax_surveyjs_import_json', array('SurveyJS_Import', 'handle_json_ajax'));
         add_action('wp_ajax_surveyjs_entry_read', array('SurveyJS_Results', 'handle_mark_read'));
         add_action('admin_enqueue_scripts', array('SurveyJS_Welcome', 'enqueue_assets'));
         add_action('admin_enqueue_scripts', array('SurveyJS_Templates', 'enqueue_assets'));

@@ -11,6 +11,11 @@ class SurveyJS_Import {
 
     public static function sources() {
         return array(
+            'surveyjs'    => array(
+                'importer' => 'SurveyJS_JSON_Importer',
+                'title'    => __( 'SurveyJS JSON', 'surveyjs' ),
+                'json'     => true,
+            ),
             'cf7'         => array(
                 'importer'   => 'SurveyJS_CF7_Importer',
                 'title'      => __( 'Contact Form 7', 'surveyjs' ),
@@ -55,6 +60,9 @@ class SurveyJS_Import {
             return;
         }
         $source = self::source();
+        if ( ! empty( self::sources()[ $source ]['json'] ) ) {
+            return;
+        }
         if ( isset( $_POST['import_file'] ) && isset( self::sources()[ $source ]['file_importer'] ) ) {
             check_admin_referer( 'surveyjs-import-file-' . $source );
             set_transient( self::RESULTS_TRANSIENT . get_current_user_id(), self::import_file( self::sources()[ $source ]['file_importer'] ), HOUR_IN_SECONDS );
@@ -102,7 +110,7 @@ class SurveyJS_Import {
 
     public static function handle_ajax() {
         $source = sanitize_key( wp_unslash( $_POST['source'] ?? '' ) );
-        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] || ! current_user_can( 'manage_options' ) || ! isset( self::sources()[ $source ] ) ) {
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] || ! current_user_can( 'manage_options' ) || ! isset( self::sources()[ $source ] ) || ! empty( self::sources()[ $source ]['json'] ) ) {
             wp_send_json_error( array( 'message' => __( 'Not allowed.', 'surveyjs' ) ), 403 );
         }
         check_ajax_referer( 'surveyjs-import-' . $source );
@@ -138,6 +146,29 @@ class SurveyJS_Import {
         ) );
     }
 
+    public static function handle_json_ajax() {
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] || ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Not allowed.', 'surveyjs' ) ), 403 );
+        }
+        check_ajax_referer( 'surveyjs-import-json' );
+        $name = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON texts: SurveyJS_JSON_Importer::import() decodes and validates them and keeps them raw only for users with unfiltered_html, as the form editor does.
+        $result = SurveyJS_JSON_Importer::import(
+            $name,
+            wp_unslash( $_POST['json'] ?? '' ),
+            wp_unslash( $_POST['theme'] ?? '' ),
+            wp_unslash( $_POST['settings'] ?? '' )
+        );
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_success( array(
+                'error' => true,
+                'html'  => self::result_html( array( 'name' => '' !== $name ? $name : __( 'Form', 'surveyjs' ), 'error' => $result->get_error_message() ) ),
+            ) );
+        }
+        wp_send_json_success( array( 'html' => self::result_html( $result ) ) );
+    }
+
     private static function entries_per_request() {
         return max( 1, (int) apply_filters( 'surveyjs_import_entries_per_request', self::ENTRIES_PER_REQUEST ) );
     }
@@ -171,14 +202,14 @@ class SurveyJS_Import {
         return isset( self::sources()[ $source ] ) ? $source : self::default_source();
     }
 
-    // The first plugin that has forms to import; Gravity Forms otherwise, as its export file can be imported without the plugin.
+    // The first plugin that has forms to import; SurveyJS JSON files otherwise, as they need no other plugin.
     public static function default_source() {
         foreach ( self::sources() as $source => $info ) {
             if ( $info['importer']::forms() ) {
                 return $source;
             }
         }
-        return 'gravityforms';
+        return 'surveyjs';
     }
 
     private static function render_sources( $current ) {
@@ -225,12 +256,14 @@ class SurveyJS_Import {
             <hr class="wp-header-end">
             <?php SurveyJS_Admin_Header::breadcrumbs( array( array( __( 'All Forms', 'surveyjs' ), self::list_url() ), array( __( 'Import forms', 'surveyjs' ) ) ) ); ?>
             <h1><?php esc_html_e( 'Import forms', 'surveyjs' ); ?></h1>
-            <p class="description"><?php esc_html_e( 'Copy forms from another form plugin. The original forms stay unchanged.', 'surveyjs' ); ?></p>
+            <p class="description"><?php esc_html_e( 'Copy forms from SurveyJS JSON files or from another form plugin. The original forms stay unchanged.', 'surveyjs' ); ?></p>
             <?php self::render_sources( $source ); ?>
 
             <?php if ( is_array( $results ) ) : ?>
                 <?php self::render_results( $results ); ?>
                 <p><a href="<?php echo esc_url( self::list_url() ); ?>" class="button button-primary"><?php esc_html_e( 'Go to all forms', 'surveyjs' ); ?></a></p>
+            <?php elseif ( ! empty( $info['json'] ) ) : ?>
+                <?php self::render_json_form(); ?>
             <?php elseif ( isset( $info['file_importer'] ) ) : ?>
                 <?php if ( $forms ) : ?>
                     <?php self::render_form( $source, $forms ); ?>
@@ -331,6 +364,75 @@ class SurveyJS_Import {
                 <?php submit_button( __( 'Upload and import', 'surveyjs' ), $below_list ? 'secondary' : 'primary', 'submit', false ); ?>
                 <span class="spinner" style="float:none;margin-top:0"></span>
             </p>
+        </form>
+        <?php
+    }
+
+    private static function render_json_form() {
+        if ( ! wp_script_is( 'surveyjs-import-json' ) ) {
+            self::enqueue_script();
+            wp_enqueue_script( 'surveyjs-import-json', plugins_url( 'import-json.js', __FILE__ ), array( 'surveyjs-import' ), (string) filemtime( __DIR__ . '/import-json.js' ), true );
+            wp_localize_script( 'surveyjs-import-json', 'surveyjsImportJson', array(
+                'nonce'    => wp_create_nonce( 'surveyjs-import-json' ),
+                'maxBytes' => SurveyJS_JSON_Importer::max_bytes(),
+                'names'    => array_values( array_unique( array_map( 'strval', wp_list_pluck( SurveyJS_Forms::names(), 'name' ) ) ) ),
+                'i18n'     => array(
+                    'newForm'      => __( 'New form', 'surveyjs' ),
+                    'duplicate'    => __( 'A form with this name exists, a copy will be added', 'surveyjs' ),
+                    'withTheme'    => __( 'with its theme', 'surveyjs' ),
+                    'invalidJson'  => __( 'Not valid JSON', 'surveyjs' ),
+                    'notAForm'     => __( 'Not a SurveyJS form JSON: no pages or questions', 'surveyjs' ),
+                    /* translators: %s: maximum size, e.g. 5 MB */
+                    'tooLarge'     => __( 'Larger than %s', 'surveyjs' ),
+                    'notJsonFile'  => __( 'Not a .json or .zip file', 'surveyjs' ),
+                    'badZip'       => __( 'The .zip file could not be read', 'surveyjs' ),
+                    'noZipSupport' => __( 'This browser cannot open .zip files. Unzip the file and select the .json files.', 'surveyjs' ),
+                    'emptyZip'     => __( 'No .json files in the .zip file', 'surveyjs' ),
+                    'pasted'       => __( 'Pasted JSON', 'surveyjs' ),
+                    'untitled'     => __( 'Imported form', 'surveyjs' ),
+                    /* translators: 1: number of forms ready to import, 2: number of skipped items */
+                    'summary'      => __( 'Forms ready to import: %1$s. Skipped: %2$s.', 'surveyjs' ),
+                ),
+            ) );
+        }
+        ?>
+        <p><?php esc_html_e( 'Select SurveyJS form JSON files, or a .zip file with them. Each form is added as a new SurveyJS form; existing forms are not changed.', 'surveyjs' ); ?></p>
+        <p class="description"><?php esc_html_e( 'Accepted: form JSON from Survey Creator, surveys from SurveyJS My Surveys with their themes, and export files of SurveyJS Forms from another site (All Forms → Bulk actions → Export).', 'surveyjs' ); ?></p>
+        <form class="wp-sjs-import-json" data-sjs-import-json novalidate>
+            <p>
+                <label for="wp-sjs-import-json-files"><?php esc_html_e( 'Files (.json or .zip)', 'surveyjs' ); ?></label><br>
+                <input type="file" id="wp-sjs-import-json-files" accept=".json,.zip,application/json,application/zip" multiple />
+            </p>
+            <details class="wp-sjs-import-json__paste">
+                <summary><?php esc_html_e( 'Paste JSON', 'surveyjs' ); ?></summary>
+                <p>
+                    <label for="wp-sjs-import-json-text" class="screen-reader-text"><?php esc_html_e( 'Form JSON', 'surveyjs' ); ?></label>
+                    <textarea id="wp-sjs-import-json-text" class="large-text code" rows="8" spellcheck="false"></textarea>
+                </p>
+                <p><button type="button" class="button" data-sjs-import-json-add><?php esc_html_e( 'Add to the list', 'surveyjs' ); ?></button></p>
+            </details>
+            <div data-sjs-import-json-list hidden>
+                <p data-sjs-import-json-summary role="status"></p>
+                <table class="wp-list-table widefat fixed striped wp-sjs-import__forms">
+                    <caption class="screen-reader-text"><?php esc_html_e( 'Forms to import', 'surveyjs' ); ?></caption>
+                    <thead>
+                        <tr>
+                            <td class="manage-column column-cb check-column">
+                                <input id="cb-select-all-json" type="checkbox" checked />
+                                <label for="cb-select-all-json"><span class="screen-reader-text"><?php esc_html_e( 'Select All', 'surveyjs' ); ?></span></label>
+                            </td>
+                            <th scope="col" class="manage-column column-primary"><?php esc_html_e( 'Form', 'surveyjs' ); ?></th>
+                            <th scope="col" class="manage-column wp-sjs-import__file"><?php esc_html_e( 'File', 'surveyjs' ); ?></th>
+                            <th scope="col" class="manage-column wp-sjs-import__status"><?php esc_html_e( 'Status', 'surveyjs' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <p class="submit">
+                    <?php submit_button( __( 'Import', 'surveyjs' ), 'primary', 'submit', false ); ?>
+                    <button type="button" class="button" data-sjs-import-json-clear><?php esc_html_e( 'Clear the list', 'surveyjs' ); ?></button>
+                </p>
+            </div>
         </form>
         <?php
     }
